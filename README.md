@@ -11,8 +11,8 @@ pip install -r requirements.txt
 # 2. 编辑 config.yaml 配置要对比的模型
 vi config.yaml
 
-# 3. 运行评估
-python run.py
+# 3. 运行pairwise评估
+python run_pairwise.py
 ```
 
 ## 项目结构
