@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>慢性病管理助手</title>
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* CSS 样式 */
+        :root {
+            --primary-color: #4CAF50; /* 主绿色 */
+            --primary-dark: #388E3C;
+            --secondary-color: #2196F3; /* 蓝色 */
+            --accent-color: #FFC107; /* 强调色，琥珀色 */
+            --background-light: #f4f7f6; /* 浅背景 */
+            --text-dark: #333;
+            --text-light: #fff;
+            --border-color: #ddd;
+            --card-bg: #fff; /* 卡片背景 */
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        /* 全局样式重置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--background-light);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 1rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 2px 4px var(--shadow-light);
+            position: sticky; /* 固定在顶部 */
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        header h1 .fas {
+            margin-right: 10px;
+            font-size: 2rem;
+            color: var(--text-light);
+        }
+
+        nav {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap; /* 允许换行 */
+            justify-content: center;
+        }
+
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        nav a .fas {
+            margin-right: 8px;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* 主要内容区域 */
+        main {
+            flex-grow: 1;
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 20px auto;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        section {
+            display: none; /* 默认隐藏 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        section.active-section {
+            display: block; /* 激活时显示 */
+        }
+
+        section h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        section h3 {
+            color: var(--secondary-color);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        /* 表单样式 */
+        .form-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: var(--background-light);
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px var(--shadow-light);
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="range"],
+        .form-container input[type="datetime-local"],
+        .form-container input[type="time"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-container input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(var(--primary-color), 0.5);
+            outline: none;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group label {
+            flex-shrink: 0;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .input-group #severity-value {
+            width: 30px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* 数据列表样式 */
+        .data-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .data-list li {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            transition: transform 0.2s ease;
+            flex-wrap: wrap; /* 允许换行 */
+        }
+
+        .data-list li:hover {
+            transform: translateY(-3px);
+        }
+
+        .data-list li span {
+            margin-right: 10px;
+            white-space: pre-wrap; /* 保持空白并允许换行 */
+            flex: 1; /* 占据可用空间 */
+        }
+
+        .data-list li .item-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: auto; /* 推到右侧 */
+            flex-shrink: 0; /* 防止动作按钮缩小 */
+        }
+
+        .data-list li .delete-btn,
+        .data-list li .taken-btn {
+            background-color: #f44336; /* 红色删除 */
+            color: var(--text-light);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .data-list li .taken-btn {
+            background-color: var(--secondary-color); /* 蓝色标记 */
+        }
+
+        .data-list li .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+        .data-list li .taken-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .data-list li.medication-taken {
+            background-color: #e8f5e9; /* 浅绿色表示已服用 */
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .data-list li.medication-taken .taken-btn {
+            background-color: #a5d6a7; /* 已服用时更浅的绿色 */
+            cursor: default;
+        }
+        .data-list li.medication-taken .taken-btn:hover {
+            background-color: #a5d6a7;
+        }
+
+        /* 教育资源样式 */
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 1.5rem;
+        }
+
+        .resource-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .resource-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .resource-card h3 .fas {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .resource-card p {
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            color: #555;
+        }
+
+        .resource-card a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .resource-card a:hover {
+            text-decoration: underline;
+            color: var(--primary-color);
+        }
+
+        .resource-card a .fas {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* 页脚样式 */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+            box-shadow: 0 -2px 4px var(--shadow-light);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+            }
+            header h1 {
+                font-size: 1.5rem;
+            }
+            nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            nav a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+            main {
+                margin: 10px;
+                padding: 1rem;
+            }
+            section h2 {
+                font-size: 1.6rem;
+            }
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+            .data-list li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .data-list li .item-actions {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .resource-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.2rem;
+            }
+            nav {
+                gap: 0.3rem;
+            }
+            nav a {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8rem;
+            }
+            main {
+                padding: 0.8rem;
+            }
+            section h2 {
+                font-size: 1.4rem;
+            }
+            button {
+                font-size: 1rem;
+                padding: 0.6rem 1rem;
+            }
+            .data-list li span {
+                font-size: 0.9rem;
+            }
+            .data-list li .delete-btn,
+            .data-list li .taken-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-heartbeat"></i> 慢性病管理助手</h1>
+        <nav>
+            <a href="#symptom-tracker" class="active"><i class="fas fa-notes-medical"></i> 症状记录</a>
+            <a href="#medication-scheduler"><i class="fas fa-pills"></i> 用药计划</a>
+            <a href="#education-resources"><i class="fas fa-book-medical"></i> 健康教育</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="symptom-tracker" class="active-section">
+            <h2>症状记录</h2>
+            <div class="form-container">
+                <input type="text" id="symptom-description" placeholder="症状描述 (如：头痛, 疲劳)" required>
+                <div class="input-group">
+                    <label for="symptom-severity">严重程度:</label>
+                    <input type="range" id="symptom-severity" min="1" max="10" value="5">
+                    <span id="severity-value">5</span>
+                </div>
+                <div class="input-group">
+                    <label for="symptom-date">发生时间:</label>
+                    <input type="datetime-local" id="symptom-date" required>
+                </div>
+                <button id="add-symptom-btn"><i class="fas fa-plus-circle"></i> 添加症状</button>
+            </div>
+            <h3>已记录症状</h3>
+            <ul id="symptom-list" class="data-list">
+                <!-- 症状将由 JavaScript 添加到这里 -->
+            </ul>
+        </section>
+
+        <section id="medication-scheduler">
+            <h2>用药计划</h2>
+            <div class="form-container">
+                <input type="text" id="med-name" placeholder="药物名称 (如：阿司匹林)" required>
+                <input type="text" id="med-dosage" placeholder="剂量 (如：5mg, 每日一次)" required>
+                <div class="input-group">
+                    <label for="med-time">服用时间:</label>
+                    <input type="time" id="med-time" value="09:00" required>
+                </div>
+                <button id="add-med-btn"><i class="fas fa-plus-circle"></i> 添加药物</button>
+            </div>
+            <h3>当前用药计划</h3>
+            <ul id="medication-list" class="data-list">
+                <!-- 药物将由 JavaScript 添加到这里 -->
+            </ul>
+        </section>
+
+        <section id="education-resources">
+            <h2>健康教育</h2>
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <h3><i class="fas fa-heartbeat"></i> 高血压管理</h3>
+                    <p>了解如何通过饮食、运动和药物控制高血压，降低心血管疾病风险。</p>
+                    <a href="https://www.cdc.gov/bloodpressure/index.htm" target="_blank">阅读更多 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+                <div class="resource-card">
+                    <h3><i class="fas fa-diabetes"></i> 糖尿病护理</h3>
+                    <p>糖尿病患者的日常饮食、血糖监测和并发症预防，保持健康生活方式。</p>
+                    <a href="https://www.niddk.nih.gov/health-information/diabetes" target="_blank">阅读更多 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+                <div class="resource-card">
+                    <h3><i class="fas fa-lungs"></i> 哮喘与COPD</h3>
+                    <p>有效管理呼吸道疾病，提高生活质量的建议，包括用药和触发因素管理。</p>
+                    <a href="https://www.lung.org/lung-health-diseases/lung-disease-lookup" target="_blank">阅读更多 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+                <div class="resource-card">
+                    <h3><i class="fas fa-brain"></i> 精神健康管理</h3>
+                    <p>抑郁症与焦虑的自我调节方法，以及寻求专业心理健康支持的重要性。</p>
+                    <a href="https://www.nami.org/About-Mental-Illness" target="_blank">阅读更多 <i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 慢性病管理助手. 保留所有权利.</p>
+    </footer>
+
+    <script>
+        // JavaScript 交互逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM 元素获取 ---
+            const symptomDescriptionInput = document.getElementById('symptom-description');
+            const symptomSeverityInput = document.getElementById('symptom-severity');
+            const severityValueSpan = document.getElementById('severity-value');
+            const symptomDateInput = document.getElementById('symptom-date');
+            const addSymptomBtn = document.getElementById('add-symptom-btn');
+            const symptomList = document.getElementById('symptom-list');
+
+            const medNameInput = document.getElementById('med-name');
+            const medDosageInput = document.getElementById('med-dosage');
+            const medTimeInput = document.getElementById('med-time');
+            const addMedBtn = document.getElementById('add-med-btn');
+            const medicationList = document.getElementById('medication-list');
+
+            const navLinks = document.querySelectorAll('nav a');
+            const sections = document.querySelectorAll('main section');
+
+            // --- 辅助函数 ---
+            // 格式化日期时间
+            const getFormattedDateTime = (dateString) => {
+                const date = new Date(dateString);
+                if (isNaN(date)) return ''; // 处理无效日期
+                return date.toLocaleString('zh-CN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+            };
+
+            // 格式化时间
+            const getFormattedTime = (timeString) => {
+                if (!timeString) return '';
+                const [hours, minutes] = timeString.split(':');
+                return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+            };
+
+            // --- 症状追踪器逻辑 ---
+            let symptoms = JSON.parse(localStorage.getItem('symptoms')) || [];
+
+            // 渲染症状列表
+            const renderSymptoms = () => {
+                symptomList.innerHTML = ''; // 清空现有列表
+                symptoms.sort((a, b) => new Date(b.date) - new Date(a.date)); // 按日期降序排序 (最新在前)
+                symptoms.forEach((symptom, index) => {
+                    const li = document.createElement('li');
+                    li.setAttribute('data-id', symptom.id || Date.now() + index); // 添加唯一ID
+                    li.innerHTML = `
+                        <span><strong>${symptom.description}</strong> - 严重程度: ${symptom.severity}/10, 发生时间: ${getFormattedDateTime(symptom.date)}</span>
+                        <div class="item-actions">
+                            <button class="delete-btn"><i class="fas fa-trash-alt"></i> 删除</button>
+                        </div>
+                    `;
+                    symptomList.appendChild(li);
+                });
+                // 更新localStorage，以防增加了新的ID字段
+                localStorage.setItem('symptoms', JSON.stringify(symptoms));
+            };
+
+            // 添加症状
+            const addSymptom = () => {
+                const description = symptomDescriptionInput.value.trim();
+                const severity = symptomSeverityInput.value;
+                const date = symptomDateInput.value;
+
+                if (description && date) {
+                    const newSymptom = {
+                        id: Date.now(), // 为新症状生成唯一ID
+                        description,
+                        severity,
+                        date
+                    };
+                    symptoms.push(newSymptom);
+                    localStorage.setItem('symptoms', JSON.stringify(symptoms));
+                    renderSymptoms(); // 重新渲染列表
+                    // 清空表单
+                    symptomDescriptionInput.value = '';
+                    symptomSeverityInput.value = 5;
+                    severityValueSpan.textContent = 5;
+                    symptomDateInput.value = '';
+                } else {
+                    alert('请填写症状描述和发生时间！');
+                }
+            };
+
+            // 删除症状
+            const deleteSymptom = (targetButton) => {
+                const li = targetButton.closest('li');
+                const idToDelete = li.getAttribute('data-id');
+                symptoms = symptoms.filter(symptom => symptom.id != idToDelete); // 过滤掉要删除的项
+                localStorage.setItem('symptoms', JSON.stringify(symptoms));
+                renderSymptoms(); // 重新渲染列表
+            };
+
+            // --- 用药计划逻辑 ---
+            let medications = JSON.parse(localStorage.getItem('medications')) || [];
+
+            // 渲染用药计划列表
+            const renderMedications = () => {
+                medicationList.innerHTML = ''; // 清空现有列表
+                medications.sort((a, b) => a.time.localeCompare(b.time)); // 按时间升序排序
+                medications.forEach((med, index) => {
+                    const li = document.createElement('li');
+                    li.setAttribute('data-id', med.id || Date.now() + index); // 添加唯一ID
+                    if (med.taken) {
+                        li.classList.add('medication-taken');
+                    }
+
+                    li.innerHTML = `
+                        <span><strong>${med.name}</strong> - 剂量: ${med.dosage}, 时间: ${getFormattedTime(med.time)}</span>
+                        <div class="item-actions">
+                            <button class="taken-btn">${med.taken ? '<i class="fas fa-check-circle"></i> 已服用' : '<i class="fas fa-check-circle"></i> 标记为已服用'}</button>
+                            <button class="delete-btn"><i class="fas fa-trash-alt"></i> 删除</button>
+                        </div>
+                    `;
+                    medicationList.appendChild(li);
+                });
+                // 更新localStorage，以防增加了新的ID字段
+                localStorage.setItem('medications', JSON.stringify(medications));
+            };
+
+            // 添加药物
+            const addMedication = () => {
+                const name = medNameInput.value.trim();
+                const dosage = medDosageInput.value.trim();
+                const time = medTimeInput.value;
+
+                if (name && dosage && time) {
+                    const newMed = {
+                        id: Date.now(), // 为新药物生成唯一ID
+                        name,
+                        dosage,
+                        time,
+                        taken: false // 默认为未服用
+                    };
+                    medications.push(newMed);
+                    localStorage.setItem('medications', JSON.stringify(medications));
+                    renderMedications(); // 重新渲染列表
+                    // 清空表单
+                    medNameInput.value = '';
+                    medDosageInput.value = '';
+                    medTimeInput.value = '09:00'; // 重置为默认时间
+                } else {
+                    alert('请填写药物名称、剂量和服用时间！');
+                }
+            };
+
+            // 标记药物为已服用/未服用
+            const toggleMedicationTaken = (targetButton) => {
+                const li = targetButton.closest('li');
+                const idToToggle = li.getAttribute('data-id');
+                const medIndex = medications.findIndex(med => med.id == idToToggle);
+
+                if (medIndex > -1) {
+                    medications[medIndex].taken = !medications[medIndex].taken;
+                    localStorage.setItem('medications', JSON.stringify(medications));
+                    renderMedications(); // 重新渲染以更新状态
+                }
+            };
+
+            // 删除药物
+            const deleteMedication = (targetButton) => {
+                const li = targetButton.closest('li');
+                const idToDelete = li.getAttribute('data-id');
+                medications = medications.filter(med => med.id != idToDelete);
+                localStorage.setItem('medications', JSON.stringify(medications));
+                renderMedications(); // 重新渲染
+            };
+
+            // --- 事件监听器 ---
+            addSymptomBtn.addEventListener('click', addSymptom);
+            symptomList.addEventListener('click', (e) => {
+                // 判断点击的是否为删除按钮或其内部元素
+                if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                    deleteSymptom(e.target.closest('.delete-btn'));
+                }
+            });
+
+            symptomSeverityInput.addEventListener('input', () => {
+                severityValueSpan.textContent = symptomSeverityInput.value;
+            });
+
+            addMedBtn.addEventListener('click', addMedication);
+            medicationList.addEventListener('click', (e) => {
+                if (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn')) {
+                    deleteMedication(e.target.closest('.delete-btn'));
+                } else if (e.target.classList.contains('taken-btn') || e.target.closest('.taken-btn')) {
+                    toggleMedicationTaken(e.target.closest('.taken-btn'));
+                }
+            });
+
+            // --- 导航逻辑 ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+
+                    // 移除所有链接和部分的 active 类
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    sections.forEach(sec => sec.classList.remove('active-section'));
+
+                    // 为点击的链接和对应部分添加 active 类
+                    link.classList.add('active');
+                    document.getElementById(targetId).classList.add('active-section');
+                });
+            });
+
+            // --- 初始加载 ---
+            // 设置症状发生时间的默认值为当前日期时间
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            symptomDateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+            // 渲染初始数据
+            renderSymptoms();
+            renderMedications();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>每日热量记录</title>
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            color: #2d3436;
+            line-height: 1.5;
+            padding: 0 0 80px 0;
+            min-height: 100vh;
+        }
+
+        /* ===== 容器 ===== */
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px 16px 100px;
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0 16px;
+            border-bottom: 1px solid #eef1f4;
+            margin-bottom: 18px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-left .icon {
+            font-size: 28px;
+        }
+
+        .header-left .title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .header-date {
+            font-size: 14px;
+            color: #888;
+            background: #f0f2f5;
+            padding: 4px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* ===== 摘要卡片 ===== */
+        .summary-card {
+            background: linear-gradient(135deg, #ff7e36 0%, #ff9a56 100%);
+            border-radius: 20px;
+            padding: 22px 24px 24px;
+            color: #fff;
+            box-shadow: 0 8px 25px rgba(255, 126, 54, 0.3);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .summary-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-top .label {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .summary-top .target-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 14px 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .summary-top .target-wrap:active {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .summary-top .target-wrap .edit-icon {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .summary-main {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-main .cal-number {
+            font-size: 46px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .summary-main .cal-unit {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 0.85;
+        }
+
+        .summary-sub {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .summary-sub span {
+            font-weight: 600;
+        }
+
+        /* ===== 进度条 ===== */
+        .progress-wrap {
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #fff;
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .progress-label .percent {
+            font-weight: 700;
+        }
+
+        /* ===== 区域标题 ===== */
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            margin-top: 6px;
+        }
+
+        .section-title .badge {
+            font-size: 13px;
+            font-weight: 500;
+            color: #888;
+            background: #f0f2f5;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        .section-title .clear-btn {
+            font-size: 13px;
+            font-weight: 500;
+            color: #e17055;
+            background: none;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .section-title .clear-btn:active {
+            background: #fde8e4;
+        }
+
+        /* ===== 今日食物列表 ===== */
+        .food-list {
+            background: #fff;
+            border-radius: 16px;
+            padding: 8px 0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+            min-height: 40px;
+        }
+
+        .food-list-empty {
+            text-align: center;
+            padding: 28px 16px;
+            color: #bbb;
+            font-size: 15px;
+        }
+
+        .food-list-empty .empty-icon {
+            font-size: 40px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            transition: background 0.15s;
+        }
+
+        .food-item:last-child {
+            border-bottom: none;
+        }
+
+        .food-item .food-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .food-item .food-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .food-item .food-detail {
+            font-size: 13px;
+            color: #999;
+            margin-top: 1px;
+        }
+
+        .food-item .food-cal {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff6b35;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .food-item .food-cal small {
+            font-weight: 400;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .food-item .delete-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f8f8f8;
+            border-radius: 50%;
+            font-size: 16px;
+            color: #ccc;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .food-item .delete-btn:active {
+            background: #fee8e4;
+            color: #e17055;
+        }
+
+        .food-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px 10px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        .food-total-row .total-cal {
+            color: #ff6b35;
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        /* ===== 食物库 ===== */
+        .library-section {
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .library-header {
+            padding: 16px 18px 8px;
+            font-size: 17px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            overflow-x: auto;
+            padding: 6px 12px 8px;
+            gap: 8px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            white-space: nowrap;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-tab {
+            flex: 0 0 auto;
+            padding: 7px 18px;
+            border-radius: 20px;
+            border: none;
+            background: #f0f2f5;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .category-tab:active {
+            transform: scale(0.95);
+        }
+
+        .category-tab.active {
+            background: #ff7e36;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(255, 126, 54, 0.25);
+        }
+
+        /* 食物网格 */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            padding: 6px 16px 18px;
+        }
+
+        .food-card {
+            background: #fafbfc;
+            border-radius: 14px;
+            padding: 14px 14px 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1px solid #f0f2f5;
+            touch-action: manipulation;
+            user-select: none;
+            position: relative;
+        }
+
+        .food-card:active {
+            transform: scale(0.96);
+            background: #f0f2f5;
+        }
+
+        .food-card .card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3436;
+            margin-bottom: 2px;
+        }
+
+        .food-card .card-cal {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .food-card .card-cal strong {
+            color: #ff6b35;
+            font-weight: 700;
+        }
+
+        .food-card .add-symbol {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            width: 26px;
+            height: 26px;
+            background: #ff7e36;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 126, 54, 0.3);
+            line-height: 1;
+        }
+
+        /* ===== 底部模态框 (份量选择) ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-sheet {
+            background: #fff;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 24px 24px 0 0;
+            padding: 20px 24px 40px;
+            box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
+            animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            max-height: 75vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 0 auto 16px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 6px;
+            color: #1a1a2e;
+        }
+
+        .modal-subtitle {
+            text-align: center;
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 18px;
+        }
+
+        .modal-subtitle strong {
+            color: #ff6b35;
+        }
+
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .amount-opt {
+            padding: 14px 8px;
+            border: 2px solid #eef1f4;
+            border-radius: 14px;
+            background: #fafbfc;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .amount-opt:active {
+            transform: scale(0.95);
+        }
+
+        .amount-opt.selected {
+            border-color: #ff7e36;
+            background: #fff5ed;
+            color: #ff7e36;
+        }
+
+        .amount-opt .unit {
+            font-size: 12px;
+            font-weight: 400;
+            color: #999;
+        }
+
+        .amount-opt.selected .unit {
+            color: #ff7e36;
+        }
+
+        .custom-amount-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .custom-amount-row input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #eef1f4;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3436;
+            outline: none;
+            background: #fafbfc;
+            transition: border 0.2s;
+            width: 100%;
+        }
+
+        .custom-amount-row input:focus {
+            border-color: #ff7e36;
+            background: #fff;
+        }
+
+        .custom-amount-row input::placeholder {
+            color: #ccc;
+            font-weight: 400;
+            font-size: 14px;
+        }
+
+        .custom-amount-row .unit-label {
+            font-size: 15px;
+            color: #999;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .modal-actions .btn-cancel {
+            background: #f0f2f5;
+            color: #666;
+        }
+
+        .modal-actions .btn-cancel:active {
+            background: #e4e7ec;
+        }
+
+        .modal-actions .btn-confirm {
+            background: #ff7e36;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(255, 126, 54, 0.3);
+        }
+
+        .modal-actions .btn-confirm:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(255, 126, 54, 0.2);
+        }
+
+        /* ===== 目标编辑模态框 ===== */
+        .target-modal .modal-sheet {
+            padding-bottom: 32px;
+        }
+
+        .target-input-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0 20px;
+        }
+
+        .target-input-wrap input {
+            width: 120px;
+            padding: 14px 16px;
+            border: 2px solid #eef1f4;
+            border-radius: 14px;
+            font-size: 28px;
+            font-weight: 700;
+            text-align: center;
+            color: #2d3436;
+            outline: none;
+            background: #fafbfc;
+            transition: border 0.2s;
+        }
+
+        .target-input-wrap input:focus {
+            border-color: #ff7e36;
+            background: #fff;
+        }
+
+        .target-input-wrap .unit-lg {
+            font-size: 18px;
+            color: #999;
+            font-weight: 500;
+        }
+
+        /* ===== 提示 Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 2000;
+            opacity: 1; /* fixed: was 0 */
+            transition: all 0.3s ease;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 400px) {
+            .app-container {
+                padding: 12px 12px 80px;
+            }
+
+            .summary-card {
+                padding: 18px 18px 20px;
+            }
+
+            .summary-main .cal-number {
+                font-size: 38px;
+            }
+
+            .food-grid {
+                gap: 8px;
+                padding: 6px 12px 14px;
+            }
+
+            .food-card {
+                padding: 12px 12px 10px;
+            }
+
+            .food-card .card-name {
+                font-size: 14px;
+            }
+
+            .amount-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal-sheet {
+                padding: 16px 18px 30px;
+            }
+        }
+
+        @media (min-width: 481px) {
+            .app-container {
+                padding: 24px 24px 80px;
+            }
+        }
+
+        /* ===== 实用工具 ===== */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ===== 滚动条美化 ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="app-container" id="app">
+
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-left">
+                <span class="icon">🔥</span>
+                <span class="title">热量记录</span>
+            </div>
+            <div class="header-date" id="dateDisplay"></div>
+        </header>
+
+        <!-- 摘要卡片 -->
+        <div class="summary-card">
+            <div class="summary-top">
+                <span class="label">📊 今日概况</span>
+                <div class="target-wrap" id="targetEditTrigger">
+                    <span>🎯 目标 <span id="targetDisplay">1800</span></span>
+                    <span class="edit-icon">✏️</span>
+                </div>
+            </div>
+            <div class="summary-main">
+                <span class="cal-number" id="totalCalDisplay">0</span>
+                <span class="cal-unit">kcal</span>
+            </div>
+            <div class="summary-sub">
+                已摄入 · 距目标还差 <span id="remainCal">1800</span> kcal
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill" style="width:0%;"></div>
+                </div>
+                <div class="progress-label">
+                    <span>进度</span>
+                    <span class="percent" id="progressPercent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 今日食物列表 -->
+        <div class="section-title">
+            <span>📋 今日食物</span>
+            <span class="badge" id="foodCountBadge">0 项</span>
+            <button class="clear-btn" id="clearAllBtn">清空</button>
+        </div>
+        <div class="food-list" id="foodListContainer">
+            <div class="food-list-empty" id="emptyTip">
+                <span class="empty-icon">🍽️</span>
+                还没有添加食物<br>从下方食物库选择吧
+            </div>
+        </div>
+
+        <!-- 食物库 -->
+        <div class="library-section">
+            <div class="library-header">🍎 食物库</div>
+            <div class="category-tabs" id="categoryTabs">
+                <!-- JS 动态生成 -->
+            </div>
+            <div class="food-grid" id="foodGrid">
+                <!-- JS 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 份量选择模态框 ===== -->
+    <div class="modal-overlay" id="amountModal">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="modalFoodName">选择份量</div>
+            <div class="modal-subtitle">
+                每 100g · <strong id="modalFoodCal">0</strong> kcal
+            </div>
+            <div class="amount-options" id="amountOptions">
+                <!-- JS 生成 -->
+            </div>
+            <div class="custom-amount-row">
+                <input type="number" id="customAmount" placeholder="自定义克数" min="1" max="9999" inputmode="numeric">
+                <span class="unit-label">g</span>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="modalCancel">取消</button>
+                <button class="btn-confirm" id="modalConfirm">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 目标编辑模态框 ===== -->
+    <div class="modal-overlay target-modal" id="targetModal">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-title">🎯 设置每日目标</div>
+            <div class="target-input-wrap">
+                <input type="number" id="targetInput" min="1" max="99999" inputmode="numeric" value="1800">
+                <span class="unit-lg">kcal</span>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="targetCancel">取消</button>
+                <button class="btn-confirm" id="targetConfirm">保存</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- ===== JavaScript ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================
+            // 1. 食物数据
+            // ============================
+            const FOOD_DATA = [{
+                category: '主食',
+                items: [
+                    { name: '米饭', calories: 116 },
+                    { name: '面条', calories: 110 },
+                    { name: '馒头', calories: 221 },
+                    { name: '面包', calories: 313 },
+                    { name: '红薯', calories: 86 },
+                    { name: '土豆', calories: 81 },
+                    { name: '玉米', calories: 112 },
+                    { name: '粥', calories: 46 },
+                    { name: '燕麦', calories: 377 },
+                    { name: '糙米', calories: 111 }
+                ]
+            }, {
+                category: '肉类',
+                items: [
+                    { name: '鸡胸肉', calories: 133 },
+                    { name: '鸡蛋', calories: 144 },
+                    { name: '瘦猪肉', calories: 143 },
+                    { name: '牛肉', calories: 125 },
+                    { name: '鱼肉', calories: 113 },
+                    { name: '虾仁', calories: 93 },
+                    { name: '鸡腿', calories: 181 },
+                    { name: '羊肉', calories: 203 },
+                    { name: '鸭肉', calories: 240 },
+                    { name: '豆腐', calories: 81 }
+                ]
+            }, {
+                category: '蔬菜',
+                items: [
+                    { name: '西兰花', calories: 34 },
+                    { name: '菠菜', calories: 23 },
+                    { name: '番茄', calories: 18 },
+                    { name: '黄瓜', calories: 15 },
+                    { name: '生菜', calories: 15 },
+                    { name: '胡萝卜', calories: 41 },
+                    { name: '白菜', calories: 13 },
+                    { name: '芹菜', calories: 14 },
+                    { name: '青椒', calories: 22 },
+                    { name: '茄子', calories: 25 }
+                ]
+            }, {
+                category: '水果',
+                items: [
+                    { name: '苹果', calories: 52 },
+                    { name: '香蕉', calories: 89 },
+                    { name: '橙子', calories: 47 },
+                    { name: '葡萄', calories: 67 },
+                    { name: '西瓜', calories: 30 },
+                    { name: '草莓', calories: 32 },
+                    { name: '猕猴桃', calories: 61 },
+                    { name: '芒果', calories: 60 },
+                    { name: '梨', calories: 51 },
+                    { name: '蓝莓', calories: 57 }
+                ]
+            }, {
+                category: '饮品',
+                items: [
+                    { name: '牛奶', calories: 54, unit: 'ml' },
+                    { name: '酸奶', calories: 72, unit: 'ml' },
+                    { name: '豆浆', calories: 31, unit: 'ml' },
+                    { name: '可乐', calories: 43, unit: 'ml' },
+                    { name: '橙汁', calories: 45, unit: 'ml' },
+                    { name: '咖啡(黑)', calories: 2, unit: 'ml' },
+                    { name: '拿铁', calories: 53, unit: 'ml' },
+                    { name: '柠檬水', calories: 20, unit: 'ml' }
+                ]
+            }, {
+                category: '零食',
+                items: [
+                    { name: '薯片', calories: 536 },
+                    { name: '巧克力', calories: 546 },
+                    { name: '饼干', calories: 433 },
+                    { name: '蛋糕', calories: 347 },
+                    { name: '冰淇淋', calories: 207 },
+                    { name: '坚果', calories: 600 },
+                    { name: '糖果', calories: 400 },
+                    { name: '爆米花', calories: 387 }
+                ]
+            }];
+
+            // ============================
+            // 2. 状态管理
+            // ============================
+
+            // 当前选中的食物（用于模态框）
+            let selectedFood = null;
+            let selectedCategory = '';
+
+            // 当前选择的份量 (g/ml)
+            let selectedAmount = 100;
+
+            // 当前激活的分类
+            let activeCategory = FOOD_DATA[0].category;
+
+            // ============================
+            // 3. DOM 引用
+            // ============================
+            const $ = (s) => document.querySelector(s);
+            const $$ = (s) => document.querySelectorAll(s);
+
+            const dateDisplay = $('#dateDisplay');
+            const targetDisplay = $('#targetDisplay');
+            const targetEditTrigger = $('#targetEditTrigger');
+            const totalCalDisplay = $('#totalCalDisplay');
+            const remainCal = $('#remainCal');
+            const progressFill = $('#progressFill');
+            const progressPercent = $('#progressPercent');
+            const foodListContainer = $('#foodListContainer');
+            const emptyTip = $('#emptyTip');
+            const foodCountBadge = $('#foodCountBadge');
+            const clearAllBtn = $('#clearAllBtn');
+            const categoryTabs = $('#categoryTabs');
+            const foodGrid = $('#foodGrid');
+            const amountModal = $('#amountModal');
+            const modalFoodName = $('#modalFoodName');
+            const modalFoodCal = $('#modalFoodCal');
+            const amountOptions = $('#amountOptions');
+            const customAmount = $('#customAmount');
+            const modalCancel = $('#modalCancel');
+            const modalConfirm = $('#modalConfirm');
+            const targetModal = $('#targetModal');
+            const targetInput = $('#targetInput');
+            const targetCancel = $('#targetCancel');
+            const targetConfirm = $('#targetConfirm');
+            const toast = $('#toast');
+
+            // ============================
+            // 4. 工具函数
+            // ============================
+
+            // 获取今日日期 YYYY-MM-DD
+            function getToday() {
+                const d = new Date();
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y}-${m}-${day}`;
+            }
+
+            // 格式化显示日期
+            function formatDateDisplay(dateStr) {
+                const d = new Date(dateStr + 'T00:00:00');
+                const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                const m = d.getMonth() + 1;
+                const day = d.getDate();
+                const w = weekdays[d.getDay()];
+                return `${m}月${day}日 周${w}`;
+            }
+
+            // 获取存储数据
+            function getStorage() {
+                try {
+                    const raw = localStorage.getItem('calorie_tracker');
+                    if (raw) return JSON.parse(raw);
+                } catch (e) { /* ignore */ }
+                return { target: 1800, records: {} };
+            }
+
+            // 保存存储数据
+            function setStorage(data) {
+                localStorage.setItem('calorie_tracker', JSON.stringify(data));
+            }
+
+            // 获取今日记录
+            function getTodayRecord(storage) {
+                const today = getToday();
+                if (!storage.records[today]) {
+                    storage.records[today] = [];
+                }
+                return storage.records[today];
+            }
+
+            // 计算总热量
+            function calcTotal(foods) {
+                return foods.reduce((sum, f) => sum + (f.totalCalories || 0), 0);
+            }
+
+            // 显示 Toast
+            let toastTimer = null;
+
+            function showToast(msg) {
+                toast.textContent = msg;
+                toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }
+
+            // ============================
+            // 5. 核心渲染函数
+            // ============================
+
+            // 渲染所有界面
+            function renderAll() {
+                const storage = getStorage();
+                const today = getToday();
+                const foods = getTodayRecord(storage);
+                const target = storage.target || 1800;
+                const total = calcTotal(foods);
+
+                // 更新摘要
+                targetDisplay.textContent = target;
+                totalCalDisplay.textContent = total;
+                const remain = Math.max(0, target - total);
+                remainCal.textContent = remain;
+
+                const percent = target > 0 ? Math.min(100, (total / target) * 100) : 0;
+                progressFill.style.width = percent + '%';
+                progressPercent.textContent = Math.round(percent) + '%';
+
+                // 更新食物列表
+                renderFoodList(foods);
+
+                // 更新分类标签 & 食物网格
+                renderCategoryTabs(storage);
+                renderFoodGrid(storage);
+
+                // 更新日期
+                dateDisplay.textContent = formatDateDisplay(today);
+            }
+
+            // 渲染食物列表
+            function renderFoodList(foods) {
+                const container = foodListContainer;
+                // 清空，保留空状态提示
+                const emptyEl = container.querySelector('.food-list-empty');
+                const items = container.querySelectorAll('.food-item:not(.food-total-row)');
+                items.forEach(el => el.remove());
+                // 移除已有的 total-row（如果有）
+                const oldTotal = container.querySelector('.food-total-row');
+                if (oldTotal) oldTotal.remove();
+
+                if (!foods || foods.length === 0) {
+                    emptyEl.style.display = 'block';
+                    foodCountBadge.textContent = '0 项';
+                    return;
+                }
+
+                emptyEl.style.display = 'none';
+
+                // 添加食物项
+                foods.forEach((food, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'food-item';
+                    div.dataset.index = index;
+                    const unit = food.unit || 'g';
+                    const amountStr = food.amount ? `${food.amount}${unit}` : '';
+                    div.innerHTML = `
+                        <div class="food-info">
+                            <div class="food-name">${food.name}</div>
+                            <div class="food-detail">${amountStr} · ${food.caloriesPer100g} kcal/100${unit}</div>
+                        </div>
+                        <div class="food-cal">${food.totalCalories} <small>kcal</small></div>
+                        <button class="delete-btn" data-index="${index}" aria-label="删除">✕</button>
+                    `;
+                    container.insertBefore(div, emptyEl);
+                });
+
+                // 合计行
+                const totalRow = document.createElement('div');
+                totalRow.className = 'food-total-row';
+                const total = calcTotal(foods);
+                totalRow.innerHTML = `
+                    <span>合计</span>
+                    <span class="total-cal">${total} kcal</span>
+                `;
+                container.appendChild(totalRow);
+
+                foodCountBadge.textContent = `${foods.length} 项`;
+
+                // 绑定删除事件
+                container.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const idx = parseInt(this.dataset.index);
+                        deleteFood(idx);
+                    });
+                });
+            }
+
+            // 删除食物
+            function deleteFood(index) {
+                const storage = getStorage();
+                const today = getToday();
+                const foods = getTodayRecord(storage);
+                if (index >= 0 && index < foods.length) {
+                    const removed = foods.splice(index, 1)[0];
+                    setStorage(storage);
+                    renderAll();
+                    showToast(`已删除 ${removed.name}`);
+                }
+            }
+
+            // 清空所有
+            function clearAllFoods() {
+                const storage = getStorage();
+                const today = getToday();
+                const foods = getTodayRecord(storage);
+                if (foods.length === 0) {
+                    showToast('还没有食物呢');
+                    return;
+                }
+                if (confirm('确定清空今日所有食物记录吗？')) {
+                    storage.records[today] = [];
+                    setStorage(storage);
+                    renderAll();
+                    showToast('已清空今日记录');
+                }
+            }
+
+            // 渲染分类标签
+            function renderCategoryTabs(storage) {
+                const container = categoryTabs;
+                container.innerHTML = '';
+                FOOD_DATA.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'category-tab' + (cat.category === activeCategory ? ' active' : '');
+                    btn.textContent = cat.category;
+                    btn.dataset.category = cat.category;
+                    btn.addEventListener('click', function() {
+                        activeCategory = this.dataset.category;
+                        renderCategoryTabs(storage);
+                        renderFoodGrid(storage);
+                    });
+                    container.appendChild(btn);
+                });
+            }
+
+            // 渲染食物网格
+            function renderFoodGrid(storage) {
+                const container = foodGrid;
+                container.innerHTML = '';
+
+                const catData = FOOD_DATA.find(c => c.category === activeCategory);
+                if (!catData) return;
+
+                catData.items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'food-card';
+                    const unit = item.unit || 'g';
+                    card.innerHTML = `
+                        <div class="card-name">${item.name}</div>
+                        <div class="card-cal"><strong>${item.calories}</strong> kcal/100${unit}</div>
+                        <div class="add-symbol">+</div>
+                    `;
+                    card.addEventListener('click', function() {
+                        openAmountModal(item, catData.category);
+                    });
+                    container.appendChild(card);
+                });
+            }
+
+            // ============================
+            // 6. 份量选择模态框
+            // ============================
+
+            const PRESET_AMOUNTS = [50, 100, 150, 200, 250, 300];
+
+            function openAmountModal(food, category) {
+                selectedFood = food;
+                selectedCategory = category;
+                selectedAmount = 100;
+
+                modalFoodName.textContent = food.name;
+                const unit = food.unit || 'g';
+                modalFoodCal.textContent = food.calories;
+
+                // 生成预设份量按钮
+                amountOptions.innerHTML = '';
+                PRESET_AMOUNTS.forEach(amt => {
+                    const btn = document.createElement('div');
+                    btn.className = 'amount-opt' + (amt === 100 ? ' selected' : '');
+                    btn.dataset.amount = amt;
+                    btn.innerHTML = `${amt} <span class="unit">${unit}</span>`;
+                    btn.addEventListener('click', function() {
+                        amountOptions.querySelectorAll('.amount-opt').forEach(el => el.classList.remove(
+                        'selected'));
+                        this.classList.add('selected');
+                        selectedAmount = parseInt(this.dataset.amount);
+                        customAmount.value = '';
+                    });
+                    amountOptions.appendChild(btn);
+                });
+
+                customAmount.value = '';
+                amountModal.classList.add('active');
+                // 聚焦自定义输入
+                setTimeout(() => customAmount.focus(), 350);
+            }
+
+            // 关闭模态框
+            function closeAmountModal() {
+                amountModal.classList.remove('active');
+                selectedFood = null;
+                selectedCategory = '';
+                customAmount.value = '';
+            }
+
+            // 确认添加
+            function confirmAdd() {
+                if (!selectedFood) {
+                    closeAmountModal();
+                    return;
+                }
+
+                // 判断是否使用了自定义
+                const customVal = parseFloat(customAmount.value);
+                let amount = selectedAmount;
+                if (customVal && customVal > 0) {
+                    amount = customVal;
+                }
+
+                if (!amount || amount <= 0) {
+                    showToast('请输入有效的份量');
+                    return;
+                }
+
+                const unit = selectedFood.unit || 'g';
+                const calPer100 = selectedFood.calories;
+                const totalCal = Math.round((calPer100 / 100) * amount);
+
+                const foodEntry = {
+                    name: selectedFood.name,
+                    category: selectedCategory,
+                    caloriesPer100g: calPer100,
+                    amount: amount,
+                    unit: unit,
+                    totalCalories: totalCal
+                };
+
+                // 保存
+                const storage = getStorage();
+                const today = getToday();
+                const foods = getTodayRecord(storage);
+                foods.push(foodEntry);
+                setStorage(storage);
+
+                closeAmountModal();
+                renderAll();
+                showToast(`已添加 ${selectedFood.name} · ${totalCal} kcal`);
+            }
+
+            // ============================
+            // 7. 目标编辑
+            // ============================
+
+            function openTargetModal() {
+                const storage = getStorage();
+                targetInput.value = storage.target || 1800;
+                targetModal.classList.add('active');
+                setTimeout(() => targetInput.focus(), 350);
+            }
+
+            function closeTargetModal() {
+                targetModal.classList.remove('active');
+            }
+
+            function confirmTarget() {
+                let val = parseInt(targetInput.value);
+                if (!val || val <= 0) {
+                    showToast('请输入有效的目标值');
+                    return;
+                }
+                if (val > 99999) val = 99999;
+                const storage = getStorage();
+                storage.target = val;
+                setStorage(storage);
+                closeTargetModal();
+                renderAll();
+                showToast(`每日目标已设为 ${val} kcal`);
+            }
+
+            // ============================
+            // 8. 事件绑定
+            // ============================
+
+            // 清空按钮
+            clearAllBtn.addEventListener('click', clearAllFoods);
+
+            // 目标编辑触发
+            targetEditTrigger.addEventListener('click', openTargetModal);
+
+            // 模态框：取消
+            modalCancel.addEventListener('click', closeAmountModal);
+            modalConfirm.addEventListener('click', confirmAdd);
+
+            // 点击遮罩关闭模态框（只对直接点击遮罩有效）
+            amountModal.addEventListener('click', function(e) {
+                if (e.target === this) closeAmountModal();
+            });
+            targetModal.addEventListener('click', function(e) {
+                if (e.target === this) closeTargetModal();
+            });
+
+            // 目标模态框
+            targetCancel.addEventListener('click', closeTargetModal);
+            targetConfirm.addEventListener('click', confirmTarget);
+
+            // 自定义输入时取消预设选中
+            customAmount.addEventListener('input', function() {
+                if (this.value && parseFloat(this.value) > 0) {
+                    amountOptions.querySelectorAll('.amount-opt').forEach(el => el.classList.remove('selected'));
+                }
+            });
+
+            // 键盘支持：回车确认
+            customAmount.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    confirmAdd();
+                }
+            });
+            targetInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    confirmTarget();
+                }
+            });
+
+            // ============================
+            // 9. 初始化
+            // ============================
+
+            renderAll();
+
+            // 可选：每天首次打开时检查
+            console.log('🔥 每日热量记录工具已启动');
+            console.log('📅 今日日期:', getToday());
+
+            // 暴露一些变量方便调试
+            window.__debug = {
+                getStorage,
+                setStorage,
+                renderAll,
+                FOOD_DATA
+            };
+
+        })();
+    </script>
+
+</body>
+</html>

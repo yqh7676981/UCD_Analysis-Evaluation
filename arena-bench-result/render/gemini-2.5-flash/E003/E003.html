@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>考研政治刷题工具</title>
+    <style>
+        /* 全局样式和重置 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            font-size: 16px;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 600px) {
+            body {
+                font-size: 15px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+            .container {
+                padding: 15px;
+            }
+            .option-btn, .action-btn {
+                padding: 12px 15px;
+                font-size: 1em;
+            }
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 25px;
+            font-size: 2em;
+            font-weight: 600;
+        }
+
+        h2, h3 {
+            color: #333;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        #question-display {
+            background-color: #fcfcfc;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        #question-text {
+            font-size: 1.15em;
+            margin-bottom: 20px;
+            color: #222;
+            font-weight: 500;
+        }
+
+        #options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            text-align: left;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.05em;
+            color: #444;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s ease-out;
+            touch-action: manipulation; /* 提高移动端响应 */
+            user-select: none; /* 防止文本选择 */
+            -webkit-appearance: none; /* 移除 iOS 默认按钮样式 */
+            appearance: none;
+        }
+
+        .option-btn:not(:disabled):hover {
+            background-color: #e0e0e0;
+            border-color: #ccc;
+        }
+
+        .option-btn:not(:disabled):active {
+            transform: scale(0.99);
+        }
+
+        .option-btn.selected {
+            background-color: #d4e7f7;
+            border-color: #1a73e8;
+            color: #1a73e8;
+            font-weight: bold;
+        }
+
+        .option-btn.correct {
+            background-color: #e6ffe6;
+            border-color: #4CAF50;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .option-btn.incorrect {
+            background-color: #ffe6e6;
+            border-color: #f44336;
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin-top: 25px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s ease-out;
+            font-weight: 600;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .action-btn:not(:disabled):hover {
+            background-color: #1660c2;
+        }
+
+        .action-btn:not(:disabled):active {
+            transform: scale(0.99);
+        }
+
+        .action-btn:disabled {
+            background-color: #a0c3f0;
+            cursor: not-allowed;
+        }
+
+        #result-container {
+            text-align: center;
+        }
+
+        #score-display {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 20px;
+        }
+
+        #wrong-answers-list {
+            text-align: left;
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .wrong-item {
+            background-color: #fff9f9;
+            border: 1px solid #fcebeb;
+            border-left: 5px solid #f44336;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .wrong-item p {
+            margin: 0 0 8px 0;
+            color: #555;
+        }
+
+        .wrong-item .question-text {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .wrong-item .user-answer {
+            color: #f44336;
+        }
+
+        .wrong-item .correct-answer {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .wrong-item .explanation {
+            font-style: italic;
+            color: #666;
+            font-size: 0.95em;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #eee;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>考研政治刷题工具</h1>
+
+        <div id="quiz-container">
+            <div id="question-display">
+                <p id="question-index"></p>
+                <p id="question-text"></p>
+                <div id="options-container">
+                    <!-- 选项按钮将在这里生成 -->
+                </div>
+            </div>
+            <button id="submit-btn" class="action-btn" disabled>提交答案</button>
+        </div>
+
+        <div id="result-container" class="hidden">
+            <h2>答题结果</h2>
+            <p id="score-display"></p>
+            <h3>错题解析</h3>
+            <div id="wrong-answers-list">
+                <!-- 错题解析将在这里生成 -->
+            </div>
+            <button id="retry-btn" class="action-btn">再来一组</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "1. 马克思主义哲学认为，物质的根本属性是？",
+                options: ["运动", "静止", "客观实在性", "可知性"],
+                correct: 0, // 对应选项数组的索引
+                explanation: "马克思主义哲学认为，运动是物质的存在方式和根本属性，一切物质都处在永恒的运动之中。"
+            },
+            {
+                question: "2. 中国特色社会主义理论体系的开创者是？",
+                options: ["毛泽东", "邓小平", "江泽民", "胡锦涛"],
+                correct: 1,
+                explanation: "邓小平理论是中国特色社会主义理论体系的开创者，它科学回答了“什么是社会主义、怎样建设社会主义”的问题。"
+            },
+            {
+                question: "3. 衡量社会生产力发展水平的根本标志是？",
+                options: ["劳动工具", "劳动对象", "劳动者", "生产关系"],
+                correct: 0,
+                explanation: "劳动工具是生产力中最活跃、最具革命性的因素，是衡量社会生产力发展水平的根本标志。"
+            },
+            {
+                question: "4. 经济基础决定上层建筑，上层建筑反作用于经济基础。这体现了马克思主义的哪个基本原理？",
+                options: ["生产力与生产关系", "经济基础与上层建筑", "物质与意识", "量变与质变"],
+                correct: 1,
+                explanation: "经济基础与上层建筑的关系是马克思主义历史唯物主义的重要原理，揭示了社会形态发展的基本规律。"
+            },
+            {
+                question: "5. 在社会主义初级阶段，我国的基本经济制度是？",
+                options: ["国有经济为主体、多种所有制经济共同发展", "公有制为主体、多种所有制经济共同发展", "混合所有制经济为主体、多种所有制经济共同发展", "计划经济为主体、市场经济为补充"],
+                correct: 1,
+                explanation: "这是社会主义初级阶段基本经济制度的显著特征，有利于解放和发展社会生产力。"
+            },
+            {
+                question: "6. 剩余价值理论的创立者是？",
+                options: ["亚当·斯密", "大卫·李嘉图", "马克思", "恩格斯"],
+                correct: 2,
+                explanation: "马克思通过剩余价值理论揭示了资本主义剥削的秘密。"
+            },
+            {
+                question: "7. “两个务必”思想是在哪次会议上提出的？",
+                options: ["遵义会议", "七届二中全会", "十一届三中全会", "党的十八大"],
+                correct: 1,
+                explanation: "“两个务必”指务必使同志们继续地保持谦虚、谨慎、不骄、不躁的作风，务必使同志们继续地保持艰苦奋斗的作风。"
+            },
+            {
+                question: "8. 新时代中国特色社会主义思想明确，我国社会主要矛盾已经转化为？",
+                options: ["人民日益增长的物质文化需要同落后的社会生产之间的矛盾", "人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾", "无产阶级和资产阶级的矛盾", "先进的生产关系与落后的生产力之间的矛盾"],
+                correct: 1,
+                explanation: "这是党的十九大报告对我国社会主要矛盾作出的重大判断。"
+            },
+            {
+                question: "9. 科学发展观的核心立场是？",
+                options: ["以经济建设为中心", "以人为本", "全面协调可持续发展", "统筹兼顾"],
+                correct: 1,
+                explanation: "科学发展观强调一切为了人民、一切依靠人民，不断实现好、维护好、发展好最广大人民的根本利益。"
+            },
+            {
+                question: "10. 建设中国特色社会主义法治体系的根本遵循是？",
+                options: ["宪法", "法律法规", "社会主义核心价值观", "党章"],
+                correct: 0,
+                explanation: "宪法是国家的根本大法，是治国安邦的总章程，具有最高的法律效力。"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let wrongAnswers = [];
+        let selectedOptionIndex = null;
+        let quizSubmittedForCurrentQuestion = false;
+
+        const quizContainer = document.getElementById('quiz-container');
+        const resultContainer = document.getElementById('result-container');
+        const questionTextElement = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const scoreDisplay = document.getElementById('score-display');
+        const wrongAnswersList = document.getElementById('wrong-answers-list');
+        const retryBtn = document.getElementById('retry-btn');
+        const questionIndexElement = document.getElementById('question-index');
+
+        function loadQuestion() {
+            // 重置当前题目状态
+            selectedOptionIndex = null;
+            quizSubmittedForCurrentQuestion = false;
+            submitBtn.textContent = '提交答案';
+            submitBtn.disabled = true;
+
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionIndexElement.textContent = `第 ${currentQuestionIndex + 1} / ${quizData.length} 题`;
+            questionTextElement.textContent = currentQuestion.question;
+            optionsContainer.innerHTML = ''; // 清空旧选项
+
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.classList.add('option-btn');
+                button.textContent = String.fromCharCode(65 + index) + '. ' + option; // A. B. C. D.
+                button.addEventListener('click', () => selectOption(index, button));
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectOption(index, button) {
+            if (quizSubmittedForCurrentQuestion) return; // 题目已提交则不能再选择
+
+            // 移除所有选项的选中状态
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // 添加当前选中选项的选中状态
+            button.classList.add('selected');
+            selectedOptionIndex = index;
+            submitBtn.disabled = false; // 选中后启用提交按钮
+        }
+
+        function checkAnswer() {
+            if (selectedOptionIndex === null) {
+                alert('请选择一个答案！');
+                return;
+            }
+
+            quizSubmittedForCurrentQuestion = true;
+            submitBtn.disabled = false; // 即使是最后一题，也要保持启用以便“查看结果”
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const isCorrect = selectedOptionIndex === currentQuestion.correct;
+            const optionButtons = document.querySelectorAll('.option-btn');
+
+            // 禁用所有选项
+            optionButtons.forEach(btn => btn.disabled = true);
+
+            if (isCorrect) {
+                score++;
+                optionButtons[selectedOptionIndex].classList.add('correct');
+            } else {
+                wrongAnswers.push({
+                    question: currentQuestion.question,
+                    userAnswer: currentQuestion.options[selectedOptionIndex],
+                    correctAnswer: currentQuestion.options[currentQuestion.correct],
+                    explanation: currentQuestion.explanation,
+                    userAnswerIndex: selectedOptionIndex, // 记录用户选择的索引
+                    correctAnswerIndex: currentQuestion.correct // 记录正确答案的索引
+                });
+                optionButtons[selectedOptionIndex].classList.add('incorrect');
+                // 显示正确答案
+                optionButtons[currentQuestion.correct].classList.add('correct');
+            }
+
+            // 更新提交按钮文本
+            if (currentQuestionIndex < quizData.length - 1) {
+                submitBtn.textContent = '下一题';
+            } else {
+                submitBtn.textContent = '查看结果';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultContainer.classList.remove('hidden');
+
+            scoreDisplay.textContent = `您的得分是：${score} / ${quizData.length}`;
+            wrongAnswersList.innerHTML = '';
+
+            if (wrongAnswers.length === 0) {
+                wrongAnswersList.innerHTML = '<p style="text-align: center; color: #555;">恭喜您，全部答对！</p>';
+            } else {
+                wrongAnswers.forEach((item, qIdx) => {
+                    const wrongItemDiv = document.createElement('div');
+                    wrongItemDiv.classList.add('wrong-item');
+
+                    wrongItemDiv.innerHTML = `
+                        <p class="question-text">${qIdx + 1}. ${item.question}</p>
+                        <p>您的答案：<span class="user-answer">${String.fromCharCode(65 + item.userAnswerIndex)}. ${item.userAnswer}</span></p>
+                        <p>正确答案：<span class="correct-answer">${String.fromCharCode(65 + item.correctAnswerIndex)}. ${item.correctAnswer}</span></p>
+                        <p class="explanation">解析：${item.explanation}</p>
+                    `;
+                    wrongAnswersList.appendChild(wrongItemDiv);
+                });
+            }
+        }
+
+        function resetQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            wrongAnswers = [];
+            selectedOptionIndex = null;
+            quizSubmittedForCurrentQuestion = false;
+
+            quizContainer.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            loadQuestion();
+        }
+
+        // 事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            submitBtn.addEventListener('click', () => {
+                if (!quizSubmittedForCurrentQuestion) {
+                    checkAnswer();
+                } else {
+                    nextQuestion();
+                }
+            });
+            retryBtn.addEventListener('click', resetQuiz);
+
+            loadQuestion(); // 页面加载时初始化第一题
+        });
+    </script>
+</body>
+</html>

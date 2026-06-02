@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>光的折射演示</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            color: #333;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        p {
+            font-size: 0.9rem;
+            margin: 10px 20px;
+            color: #555;
+        }
+
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            height: 400px;
+            background-color: #87ceeb; /* Light blue for air */
+            border: 2px solid #333;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        #slider-container {
+            margin: 10px 0;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .equation {
+            font-size: 0.9rem;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .water {
+            position: absolute;
+            bottom: 40%;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background-color: #187bcd; /* Water blue */
+        }
+    </style>
+</head>
+<body>
+    <h1>光的折射演示</h1>
+    <p>拖动滑动条调整入射角，实时观察折射角变化。</p>
+    <div id="canvas-container">
+        <canvas id="refractionCanvas"></canvas>
+        <div class="water"></div>
+    </div>
+    <div id="slider-container">
+        <input type="range" id="angleSlider" min="0" max="90" value="45">
+    </div>
+    <div class="equation">
+        折射定律公式: <br><strong>n<sub>1</sub>sinθ<sub>1</sub> = n<sub>2</sub>sinθ<sub>2</sub></strong>
+    </div>
+    <script>
+        const canvas = document.getElementById('refractionCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('angleSlider');
+
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        const airRefractiveIndex = 1.0; // n1 for air
+        const waterRefractiveIndex = 1.33; // n2 for water
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height * 0.4; // Air-Water boundary
+
+        function drawScene(angle) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw boundary
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(canvas.width, centerY);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw normal line
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, canvas.height);
+            ctx.setLineDash([5, 5]); // Dotted line
+            ctx.strokeStyle = '#666';
+            ctx.stroke();
+
+            // Reset dashed line
+            ctx.setLineDash([]);
+
+            // Convert angle from degree to radian
+            const angleRad = (Math.PI / 180) * angle;
+
+            // Snell's Law: n1 sinθ1 = n2 sinθ2
+            const sinIncident = Math.sin(angleRad);
+            const refractedAngle = Math.asin(airRefractiveIndex * sinIncident / waterRefractiveIndex);
+
+            // Draw incident ray
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX - 200 * Math.cos(angleRad), centerY - 200 * Math.sin(angleRad));
+            ctx.strokeStyle = '#ff0000'; // Red for incident ray
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw refracted ray
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(centerX + 200 * Math.cos(refractedAngle), centerY + 200 * Math.sin(refractedAngle));
+            ctx.strokeStyle = '#0000ff'; // Blue for refracted ray
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        slider.addEventListener('input', () => {
+            const angle = parseInt(slider.value, 10);
+            drawScene(angle);
+        });
+
+        // Initial draw
+        drawScene(parseInt(slider.value, 10));
+    </script>
+</body>
+</html>

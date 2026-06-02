@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跨模型对比工具 - Model vs Model</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #16213e;
+            padding: 20px;
+            border-bottom: 2px solid #0f3460;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .controls label {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .controls input, .controls select {
+            padding: 8px 12px;
+            background: #0f3460;
+            border: 1px solid #533483;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            background: #e94560;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .controls button:hover {
+            background: #ff6b6b;
+        }
+
+        .controls button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        .view-mode {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .view-mode button {
+            background: #0f3460;
+            border: 1px solid #533483;
+        }
+
+        .view-mode button.active {
+            background: #533483;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px dashed #533483;
+        }
+
+        .upload-section h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed #0f3460;
+            border-radius: 8px;
+            padding: 50px;
+            text-align: center;
+            background: #0a0a14;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-dropzone:hover {
+            border-color: #e94560;
+            background: #16213e;
+        }
+
+        .upload-dropzone.dragover {
+            border-color: #e94560;
+            background: #1a1a2e;
+        }
+
+        .upload-dropzone.has-content {
+            border-color: #2d6a4f;
+            background: #16213e;
+        }
+
+        .upload-dropzone input[type="file"][webkitdirectory] {
+            display: none;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #533483;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .folder-structure-hint {
+            font-family: monospace;
+            background: #0a0a14;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #aaa;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .folder-structure-hint code {
+            color: #e94560;
+        }
+
+        /* Model Selection */
+        .model-selection {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #0f3460;
+        }
+
+        .model-select-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .model-select-box h4 {
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .model-dropdown {
+            width: 100%;
+            padding: 10px;
+            background: #0f3460;
+            border: 1px solid #533483;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .model-stats {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* List View */
+        .list-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .compare-card {
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #0f3460;
+        }
+
+        .compare-card .card-header {
+            padding: 12px 15px;
+            background: #0f3460;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .compare-card .card-header h3 {
+            font-size: 16px;
+        }
+
+        .image-pair {
+            display: flex;
+            gap: 0;
+        }
+
+        .image-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .image-box label {
+            display: block;
+            padding: 8px;
+            background: #0f3460;
+            font-size: 12px;
+            text-align: center;
+            color: #aaa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .image-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #000;
+            cursor: zoom-in;
+        }
+
+        .image-box img.error {
+            height: 150px;
+            object-fit: contain;
+            background: #1a1a2e;
+        }
+
+        /* Single View */
+        .single-view {
+            display: none;
+        }
+
+        .single-view.active {
+            display: block;
+        }
+
+        .single-compare-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 280px);
+        }
+
+        .single-image-box {
+            flex: 1;
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .single-image-box .img-header {
+            padding: 12px;
+            background: #0f3460;
+            font-size: 14px;
+        }
+
+        .single-image-box .img-content {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            background: #0a0a14;
+        }
+
+        .single-image-box img {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .nav-controls button {
+            padding: 10px 20px;
+            background: #533483;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .nav-controls button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+
+        .nav-controls span {
+            font-size: 16px;
+        }
+
+        /* Overlay View */
+        .overlay-view {
+            display: none;
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .overlay-view.active {
+            display: block;
+        }
+
+        .overlay-container {
+            position: relative;
+            display: inline-block;
+            background: #0a0a14;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .overlay-container img {
+            max-width: 100%;
+            display: block;
+        }
+
+        .overlay-container .img-model-b {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            clip-path: inset(0 50% 0 0);
+        }
+
+        .overlay-slider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: #e94560;
+            cursor: ew-resize;
+            z-index: 10;
+        }
+
+        .overlay-slider::before {
+            content: '◀ ▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #e94560;
+            color: #fff;
+            padding: 8px 4px;
+            border-radius: 20px;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        .overlay-labels {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .overlay-labels span {
+            background: rgba(0,0,0,0.7);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #533483;
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .filter-section {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .stats {
+            background: #0f3460;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .folder-info {
+            background: #0a0a14;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .folder-info h4 {
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .model-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .model-tag {
+            background: #0f3460;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .model-tag.selected {
+            background: #533483;
+            color: #fff;
+        }
+
+        /* Content Type Toggle */
+        .content-type-toggle {
+            display: flex;
+            gap: 5px;
+            background: #0f3460;
+            padding: 4px;
+            border-radius: 6px;
+            margin-left: 15px;
+        }
+
+        .content-type-toggle button {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            color: #aaa;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .content-type-toggle button.active {
+            background: #533483;
+            color: #fff;
+        }
+
+        /* HTML iframe styling */
+        .html-box {
+            flex: 1;
+            position: relative;
+            background: #fff;
+        }
+
+        .html-box label {
+            display: block;
+            padding: 8px;
+            background: #0f3460;
+            font-size: 12px;
+            text-align: center;
+            color: #aaa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .html-box iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+
+        /* Mixed content type in list view */
+        .html-box + .image-box,
+        .image-box + .html-box {
+            border-left: 2px solid #0f3460;
+        }
+
+        .single-html-box {
+            flex: 1;
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .single-html-box .html-header {
+            padding: 12px;
+            background: #0f3460;
+            font-size: 14px;
+        }
+
+        .single-html-box .html-content {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0;
+            background: #fff;
+        }
+
+        .single-html-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>跨模型对比工具</h1>
+        <div class="controls">
+            <label>搜索:</label>
+            <input type="text" id="searchId" placeholder="输入ID或文件名" onkeyup="applyFilter()">
+            <div class="stats" id="stats">请上传文件夹</div>
+
+            <div class="content-type-toggle">
+                <button id="imageModeBtn" class="active" onclick="setContentType('image')">图片</button>
+                <button id="htmlModeBtn" onclick="setContentType('html')">HTML</button>
+            </div>
+
+            <div class="view-mode" style="margin-left: auto;">
+                <button id="listModeBtn" class="active" onclick="setViewMode('list')">列表模式</button>
+                <button id="singleModeBtn" onclick="setViewMode('single')">单图模式</button>
+                <button id="overlayModeBtn" onclick="setViewMode('overlay')">叠加对比</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <h3>上传文件夹</h3>
+            <div class="upload-dropzone" id="dropzone" onclick="document.getElementById('folderInput').click()">
+                <input type="file" id="folderInput" webkitdirectory directory multiple onchange="handleFolderUpload(event)">
+                <div class="upload-btn">选择文件夹</div>
+                <div>或将文件夹拖放到此处</div>
+                <div class="folder-structure-hint">
+                    预期文件夹结构:<br>
+                    <code>render/</code><br>
+                    &nbsp;&nbsp;├── <code>model-a/</code><br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 1.png / 1.html<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 2.png / 2.html<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── ...<br>
+                    &nbsp;&nbsp;├── <code>model-b/</code><br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── 1.png / 1.html<br>
+                    &nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── ...<br>
+                    &nbsp;&nbsp;└── ...
+                </div>
+                <div class="upload-hint">支持: PNG, JPG, JPEG, GIF, WebP, HTML</div>
+            </div>
+
+            <div id="folderInfo" class="folder-info" style="display: none;">
+                <h4>检测到的模型文件夹:</h4>
+                <div id="modelList" class="model-list"></div>
+            </div>
+
+            <div class="model-selection" id="modelSelection" style="display: none;">
+                <div class="model-select-box">
+                    <h4>选择模型 A</h4>
+                    <select id="modelSelectA" class="model-dropdown" onchange="onModelChange()">
+                        <option value="">-- 选择模型 --</option>
+                    </select>
+                    <div id="modelStatsA" class="model-stats"></div>
+                </div>
+                <div class="model-select-box">
+                    <h4>选择模型 B</h4>
+                    <select id="modelSelectB" class="model-dropdown" onchange="onModelChange()">
+                        <option value="">-- 选择模型 --</option>
+                    </select>
+                    <div id="modelStatsB" class="model-stats"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div id="listView" class="list-view"></div>
+
+        <!-- Single View -->
+        <div id="singleView" class="single-view">
+            <!-- Content will be dynamically generated by loadSingleView -->
+        </div>
+
+        <!-- Overlay View -->
+        <div id="overlayView" class="overlay-view">
+            <div class="nav-controls">
+                <button onclick="prevImage()">← 上一个</button>
+                <span id="overlayCurrentId">-</span>
+                <button onclick="nextImage()">下一个 →</button>
+            </div>
+            <div style="text-align: center;">
+                <div class="overlay-container" id="overlayContainer">
+                    <img id="overlayImgA" src="" alt="Model A">
+                    <img id="overlayImgB" src="" alt="Model B" class="img-model-b">
+                    <div class="overlay-slider" id="overlaySlider"></div>
+                    <div class="overlay-labels">
+                        <span id="overlayLabelA">模型 A</span>
+                        <span id="overlayLabelB">模型 B</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let uploadedData = null; // { rootName: string, models: Map(modelName -> { items: Map(id -> {url, file, type}) }) }
+        let imageIds = [];
+        let filteredIds = [];
+        let currentIndex = 0;
+        let currentViewMode = 'list';
+        let contentType = 'image'; // 'image' or 'html'
+
+        // Handle folder upload
+        function handleFolderUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            processFiles(Array.from(files));
+        }
+
+        // Process uploaded files
+        function processFiles(files) {
+            // Get root folder name
+            const firstFile = files[0];
+            const pathParts = firstFile.webkitRelativePath.split('/');
+            const rootName = pathParts[0];
+
+            // Group files by model folder
+            const models = new Map();
+
+            // Detect content type from first valid file
+            let detectedType = 'image';
+
+            files.forEach(file => {
+                const parts = file.webkitRelativePath.split('/');
+
+                // Skip files not in subfolders
+                if (parts.length < 3) return;
+
+                const modelName = parts[1];
+                const fileName = parts[parts.length - 1];
+
+                // Check if it's an image or HTML
+                const ext = fileName.toLowerCase();
+                const isImage = ext.endsWith('.png') || ext.endsWith('.jpg') ||
+                    ext.endsWith('.jpeg') || ext.endsWith('.gif') || ext.endsWith('.webp');
+                const isHtml = ext.endsWith('.html') || ext.endsWith('.htm');
+
+                if (!isImage && !isHtml) return;
+
+                // Detect content type
+                if (isHtml) detectedType = 'html';
+
+                // Parse ID from filename
+                const id = parseImageId(fileName);
+                if (!id) return;
+
+                // Create model entry if not exists
+                if (!models.has(modelName)) {
+                    models.set(modelName, { items: new Map() });
+                }
+
+                // Add file to model
+                const url = URL.createObjectURL(file);
+                const type = isHtml ? 'html' : 'image';
+                models.get(modelName).items.set(id, { url, file, type });
+            });
+
+            // Check if we have at least 2 models
+            if (models.size < 2) {
+                alert(`只检测到 ${models.size} 个模型文件夹，需要至少 2 个模型进行对比`);
+                return;
+            }
+
+            // Set content type based on detected files
+            contentType = detectedType;
+            updateContentTypeUI();
+
+            // Store data
+            uploadedData = { rootName, models };
+
+            // Update UI
+            updateUploadUI();
+            populateModelSelects();
+
+            // Auto select first two models
+            const modelNames = Array.from(models.keys());
+            document.getElementById('modelSelectA').value = modelNames[0];
+            document.getElementById('modelSelectB').value = modelNames[1] || modelNames[0];
+
+            onModelChange();
+        }
+
+        // Parse image ID from filename
+        function parseImageId(filename) {
+            // Remove extension
+            const name = filename.replace(/\.[^.]+$/, '');
+
+            // Try patterns: number or letter+number (e.g., "123", "E001")
+            if (/^(\d+|[A-Z]\d+)$/i.test(name)) {
+                return name.toUpperCase();
+            }
+
+            // Try to extract leading number or letter+number
+            const match = name.match(/^(\d+|[A-Z]\d+)/i);
+            if (match) {
+                return match[1].toUpperCase();
+            }
+
+            // Use full name
+            return name;
+        }
+
+        // Update upload UI
+        function updateUploadUI() {
+            const dropzone = document.getElementById('dropzone');
+            dropzone.classList.add('has-content');
+            dropzone.innerHTML = `
+                <div style="font-size: 18px; color: #2d6a4f;">✓ 文件夹已上传</div>
+                <div style="margin-top: 10px; color: #aaa;">${uploadedData.rootName}</div>
+                <div style="margin-top: 15px;">
+                    <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('folderInput').click()" style="font-size: 14px; padding: 8px 20px;">重新选择</button>
+                </div>
+                <input type="file" id="folderInput" webkitdirectory directory multiple onchange="handleFolderUpload(event)" style="display: none;">
+            `;
+
+            // Show folder info
+            document.getElementById('folderInfo').style.display = 'block';
+            const modelList = document.getElementById('modelList');
+            modelList.innerHTML = Array.from(uploadedData.models.keys()).map(name => {
+                const count = uploadedData.models.get(name).items.size;
+                return `<span class="model-tag">${name} (${count})</span>`;
+            }).join('');
+
+            // Show model selection
+            document.getElementById('modelSelection').style.display = 'flex';
+        }
+
+        // Populate model selects
+        function populateModelSelects() {
+            const selectA = document.getElementById('modelSelectA');
+            const selectB = document.getElementById('modelSelectB');
+
+            const options = Array.from(uploadedData.models.keys()).map(name =>
+                `<option value="${name}">${name}</option>`
+            ).join('');
+
+            selectA.innerHTML = '<option value="">-- 选择模型 --</option>' + options;
+            selectB.innerHTML = '<option value="">-- 选择模型 --</option>' + options;
+        }
+
+        // On model selection change
+        function onModelChange() {
+            const modelA = document.getElementById('modelSelectA').value;
+            const modelB = document.getElementById('modelSelectB').value;
+
+            // Update stats
+            const itemLabel = contentType === 'html' ? '个HTML文件' : '张图片';
+            if (modelA && uploadedData.models.has(modelA)) {
+                const count = uploadedData.models.get(modelA).items.size;
+                document.getElementById('modelStatsA').textContent = `${count} ${itemLabel}`;
+            } else {
+                document.getElementById('modelStatsA').textContent = '';
+            }
+
+            if (modelB && uploadedData.models.has(modelB)) {
+                const count = uploadedData.models.get(modelB).items.size;
+                document.getElementById('modelStatsB').textContent = `${count} ${itemLabel}`;
+            } else {
+                document.getElementById('modelStatsB').textContent = '';
+            }
+
+            // Refresh if both selected
+            if (modelA && modelB) {
+                refreshComparison();
+            }
+        }
+
+        // Refresh comparison
+        function refreshComparison() {
+            const modelA = document.getElementById('modelSelectA').value;
+            const modelB = document.getElementById('modelSelectB').value;
+
+            if (!modelA || !modelB || !uploadedData) {
+                document.getElementById('stats').textContent = '请选择两个模型';
+                return;
+            }
+
+            const itemsA = uploadedData.models.get(modelA).items;
+            const itemsB = uploadedData.models.get(modelB).items;
+
+            // Find common IDs
+            const idsA = Array.from(itemsA.keys());
+            const idsB = Array.from(itemsB.keys());
+            imageIds = idsA.filter(id => idsB.includes(id));
+
+            // Sort IDs
+            imageIds.sort((a, b) => {
+                const numA = parseInt(a);
+                const numB = parseInt(b);
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                }
+                if (!isNaN(numA)) return -1;
+                if (!isNaN(numB)) return 1;
+                return a.localeCompare(b);
+            });
+
+            applyFilter();
+        }
+
+        // Apply filter
+        function applyFilter() {
+            const search = document.getElementById('searchId').value.trim().toLowerCase();
+
+            filteredIds = imageIds.filter(id => {
+                if (search && !id.toLowerCase().includes(search)) {
+                    return false;
+                }
+                return true;
+            });
+
+            if (currentViewMode === 'list') {
+                renderList();
+            } else {
+                currentIndex = 0;
+                if (filteredIds.length > 0) {
+                    loadSingleView(filteredIds[0]);
+                }
+            }
+
+            updateStats();
+        }
+
+        // Update stats
+        function updateStats() {
+            const modelA = document.getElementById('modelSelectA').value;
+            const modelB = document.getElementById('modelSelectB').value;
+            const commonCount = imageIds.length;
+            const showingCount = filteredIds.length;
+
+            const itemLabel = contentType === 'html' ? '个HTML' : '张图片';
+
+            let text = '';
+            if (modelA && modelB) {
+                text = `${modelA} vs ${modelB} | 共有: ${commonCount}${itemLabel} | 显示: ${showingCount}${itemLabel}`;
+            }
+            document.getElementById('stats').textContent = text;
+        }
+
+        // Set content type
+        function setContentType(type) {
+            contentType = type;
+            updateContentTypeUI();
+            onModelChange();
+        }
+
+        // Update content type UI
+        function updateContentTypeUI() {
+            document.querySelectorAll('.content-type-toggle button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(contentType === 'html' ? 'htmlModeBtn' : 'imageModeBtn').classList.add('active');
+
+            // Update overlay mode button visibility (disable overlay for HTML)
+            const overlayBtn = document.getElementById('overlayModeBtn');
+            if (contentType === 'html') {
+                overlayBtn.style.display = 'none';
+                if (currentViewMode === 'overlay') {
+                    setViewMode('list');
+                }
+            } else {
+                overlayBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Get content URL
+        function getContentUrl(side, id) {
+            const model = side === 'A'
+                ? document.getElementById('modelSelectA').value
+                : document.getElementById('modelSelectB').value;
+
+            if (!uploadedData || !uploadedData.models.has(model)) return null;
+
+            const items = uploadedData.models.get(model).items;
+            if (!items.has(id)) return null;
+
+            return items.get(id).url;
+        }
+
+        // Get model name
+        function getModelName(side) {
+            return side === 'A'
+                ? document.getElementById('modelSelectA').value
+                : document.getElementById('modelSelectB').value;
+        }
+
+        // Get content type for an item
+        function getContentType(side, id) {
+            const model = side === 'A'
+                ? document.getElementById('modelSelectA').value
+                : document.getElementById('modelSelectB').value;
+
+            if (!uploadedData || !uploadedData.models.has(model)) return 'image';
+
+            const items = uploadedData.models.get(model).items;
+            if (!items.has(id)) return 'image';
+
+            return items.get(id).type || 'image';
+        }
+
+        // Render list
+        function renderList() {
+            const listView = document.getElementById('listView');
+            const modelAName = getModelName('A');
+            const modelBName = getModelName('B');
+
+            if (filteredIds.length === 0) {
+                const emptyText = contentType === 'html' ? '没有找到匹配的HTML文件' : '没有找到匹配的图片';
+                listView.innerHTML = `<div class="empty-state">${emptyText}</div>`;
+                return;
+            }
+
+            listView.innerHTML = filteredIds.map(id => {
+                const urlA = getContentUrl('A', id);
+                const urlB = getContentUrl('B', id);
+                const typeA = getContentType('A', id);
+                const typeB = getContentType('B', id);
+
+                // Check if either side is HTML
+                const hasHtml = typeA === 'html' || typeB === 'html';
+
+                // Build content boxes based on individual types
+                const boxA = typeA === 'html'
+                    ? `<div class="html-box">
+                        <label title="${modelAName}">${modelAName} [HTML]</label>
+                        <iframe src="${urlA || ''}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-pointer-lock allow-top-navigation-by-user-activation" loading="lazy"></iframe>
+                    </div>`
+                    : `<div class="image-box">
+                        <label title="${modelAName}">${modelAName} [图片]</label>
+                        <img src="${urlA || ''}" alt="${id} - A"
+                             onerror="this.classList.add('error'); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23666%22>加载失败</text></svg>';"
+                             onclick="openSingleView('${id}')">
+                    </div>`;
+
+                const boxB = typeB === 'html'
+                    ? `<div class="html-box">
+                        <label title="${modelBName}">${modelBName} [HTML]</label>
+                        <iframe src="${urlB || ''}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-pointer-lock allow-top-navigation-by-user-activation" loading="lazy"></iframe>
+                    </div>`
+                    : `<div class="image-box">
+                        <label title="${modelBName}">${modelBName} [图片]</label>
+                        <img src="${urlB || ''}" alt="${id} - B"
+                             onerror="this.classList.add('error'); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23666%22>加载失败</text></svg>';"
+                             onclick="openSingleView('${id}')">
+                    </div>`;
+
+                return `
+                    <div class="compare-card" data-id="${id}">
+                        <div class="card-header">
+                            <h3>ID: ${id}</h3>
+                        </div>
+                        <div class="image-pair">
+                            ${boxA}
+                            ${boxB}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Set view mode
+        function setViewMode(mode) {
+            // Disable overlay mode for HTML content
+            if (mode === 'overlay' && contentType === 'html') {
+                mode = 'single';
+            }
+
+            currentViewMode = mode;
+
+            document.querySelectorAll('.view-mode button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(mode + 'ModeBtn').classList.add('active');
+
+            document.getElementById('listView').style.display = mode === 'list' ? 'grid' : 'none';
+            document.getElementById('singleView').classList.toggle('active', mode === 'single' || mode === 'html');
+            document.getElementById('overlayView').classList.toggle('active', mode === 'overlay');
+
+            if (mode !== 'list' && filteredIds.length > 0) {
+                loadSingleView(filteredIds[currentIndex]);
+            }
+        }
+
+        // Open single view
+        function openSingleView(id) {
+            currentIndex = filteredIds.indexOf(id);
+            if (currentIndex === -1) currentIndex = 0;
+            setViewMode('single');
+        }
+
+        // Load single view
+        function loadSingleView(id) {
+            if (!id) return;
+
+            const modelAName = getModelName('A');
+            const modelBName = getModelName('B');
+
+            const urlA = getContentUrl('A', id);
+            const urlB = getContentUrl('B', id);
+            const typeA = getContentType('A', id);
+            const typeB = getContentType('B', id);
+
+            const hasHtml = typeA === 'html' || typeB === 'html';
+
+            // Get containers
+            const singleView = document.getElementById('singleView');
+
+            // Render comparison based on individual content types
+            const boxA = typeA === 'html'
+                ? `<div class="single-html-box">
+                    <div class="html-header">${modelAName} <span style="color:#888;font-size:12px;">[HTML]</span></div>
+                    <div class="html-content">
+                        <iframe src="${urlA || ''}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-pointer-lock allow-top-navigation-by-user-activation" style="width:100%;height:100%;"></iframe>
+                    </div>
+                </div>`
+                : `<div class="single-image-box">
+                    <div class="img-header">${modelAName} <span style="color:#888;font-size:12px;">[图片]</span></div>
+                    <div class="img-content">
+                        <img src="${urlA || ''}" alt="Model A" style="max-width:100%;height:auto;">
+                    </div>
+                </div>`;
+
+            const boxB = typeB === 'html'
+                ? `<div class="single-html-box">
+                    <div class="html-header">${modelBName} <span style="color:#888;font-size:12px;">[HTML]</span></div>
+                    <div class="html-content">
+                        <iframe src="${urlB || ''}" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-pointer-lock allow-top-navigation-by-user-activation" style="width:100%;height:100%;"></iframe>
+                    </div>
+                </div>`
+                : `<div class="single-image-box">
+                    <div class="img-header">${modelBName} <span style="color:#888;font-size:12px;">[图片]</span></div>
+                    <div class="img-content">
+                        <img src="${urlB || ''}" alt="Model B" style="max-width:100%;height:auto;">
+                    </div>
+                </div>`;
+
+            singleView.innerHTML = `
+                <div class="nav-controls">
+                    <button onclick="prevImage()">← 上一个</button>
+                    <span id="singleCurrentId">${id}</span>
+                    <button onclick="nextImage()">下一个 →</button>
+                </div>
+                <div class="single-compare-container">
+                    ${boxA}
+                    ${boxB}
+                </div>
+            `;
+
+            // Update overlay view current ID
+            document.getElementById('overlayCurrentId').textContent = id;
+
+            // Update overlay view (only for images)
+            document.getElementById('overlayLabelA').textContent = modelAName;
+            document.getElementById('overlayLabelB').textContent = modelBName;
+            document.getElementById('overlayImgA').src = urlA || '';
+            document.getElementById('overlayImgB').src = urlB || '';
+
+            // Reset overlay slider
+            document.getElementById('overlaySlider').style.left = '50%';
+            document.getElementById('overlayImgB').style.clipPath = 'inset(0 50% 0 0)';
+        }
+
+        // Navigation
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadSingleView(filteredIds[currentIndex]);
+            }
+        }
+
+        function nextImage() {
+            if (currentIndex < filteredIds.length - 1) {
+                currentIndex++;
+                loadSingleView(filteredIds[currentIndex]);
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (currentViewMode === 'list') return;
+
+            if (e.key === 'ArrowLeft') {
+                prevImage();
+            } else if (e.key === 'ArrowRight') {
+                nextImage();
+            } else if (e.key === 'Escape') {
+                setViewMode('list');
+            }
+        });
+
+        // Drag and drop
+        function setupDragAndDrop() {
+            const dropzone = document.getElementById('dropzone');
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dragover');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+
+                const items = e.dataTransfer.items;
+                if (!items) return;
+
+                const files = [];
+                let pending = 0;
+
+                const checkComplete = () => {
+                    pending--;
+                    if (pending === 0) {
+                        processFiles(files);
+                    }
+                };
+
+                const traverse = (item, path = '') => {
+                    if (item.isFile) {
+                        pending++;
+                        item.file(file => {
+                            // Add webkitRelativePath
+                            Object.defineProperty(file, 'webkitRelativePath', {
+                                value: path + file.name
+                            });
+                            files.push(file);
+                            checkComplete();
+                        });
+                    } else if (item.isDirectory) {
+                        const dirReader = item.createReader();
+                        dirReader.readEntries(entries => {
+                            entries.forEach(entry => {
+                                traverse(entry, path + item.name + '/');
+                            });
+                        });
+                    }
+                };
+
+                for (let i = 0; i < items.length; i++) {
+                    const entry = items[i].webkitGetAsEntry();
+                    if (entry) {
+                        traverse(entry);
+                    }
+                }
+            });
+        }
+
+        // Overlay slider
+        let isDragging = false;
+        const overlaySlider = document.getElementById('overlaySlider');
+        const overlayContainer = document.getElementById('overlayContainer');
+        const overlayImgB = document.getElementById('overlayImgB');
+
+        overlaySlider.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+
+            const rect = overlayContainer.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+
+            const percent = (x / rect.width) * 100;
+            overlaySlider.style.left = percent + '%';
+            overlayImgB.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Touch support
+        overlaySlider.addEventListener('touchstart', (e) => {
+            isDragging = true;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+
+            const touch = e.touches[0];
+            const rect = overlayContainer.getBoundingClientRect();
+            let x = touch.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+
+            const percent = (x / rect.width) * 100;
+            overlaySlider.style.left = percent + '%';
+            overlayImgB.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // Initialize
+        window.onload = () => {
+            setupDragAndDrop();
+        };
+
+        // Cleanup
+        window.onbeforeunload = () => {
+            if (uploadedData) {
+                uploadedData.models.forEach(model => {
+                    model.items.forEach(item => URL.revokeObjectURL(item.url));
+                });
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteFlow - 智能课堂笔记</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d0d0f;
+            --bg-secondary: #151518;
+            --bg-tertiary: #1c1c21;
+            --bg-hover: #242429;
+            --fg-primary: #f5f5f7;
+            --fg-secondary: #a1a1aa;
+            --fg-muted: #52525b;
+            --accent: #f97316;
+            --accent-soft: rgba(249, 115, 22, 0.15);
+            --border: #27272a;
+            --card: #18181b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6, .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--fg-muted);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fg-secondary);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(249, 115, 22, 0.5);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .animate-fade-in {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Background */
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(249, 115, 22, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(249, 115, 22, 0.05), transparent);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 60px !important;
+        }
+
+        .sidebar.collapsed .sidebar-text {
+            opacity: 1; /* fixed: was 0 */
+            width: 0;
+            overflow: hidden;
+        }
+
+        /* Sidebar item hover effect */
+        .sidebar-item {
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: var(--accent);
+            border-radius: 0 2px 2px 0;
+            transition: height 0.2s ease;
+        }
+
+        .sidebar-item:hover::before,
+        .sidebar-item.active::before {
+            height: 60%;
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-soft);
+        }
+
+        /* Note card */
+        .note-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #fb923c);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .note-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .note-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        /* Tags */
+        .tag {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .tag:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+        }
+
+        .tag.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        /* Editor */
+        .editor-area {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 400px;
+            transition: border-color 0.2s ease;
+        }
+
+        .editor-area:focus-within {
+            border-color: var(--accent);
+        }
+
+        .editor-line {
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: background 0.2s ease;
+        }
+
+        .editor-line:hover {
+            background: var(--bg-hover);
+        }
+
+        .editor-line:last-child {
+            border-bottom: none;
+        }
+
+        .line-number {
+            color: var(--fg-muted);
+            font-size: 12px;
+            min-width: 24px;
+            text-align: right;
+            user-select: none;
+        }
+
+        .editor-content {
+            flex: 1;
+            outline: none;
+            line-height: 1.6;
+        }
+
+        .editor-content:empty::before {
+            content: attr(data-placeholder);
+            color: var(--fg-muted);
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #ea580c);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--fg-primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--fg-muted);
+        }
+
+        /* Input */
+        .input-field {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--fg-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .input-field::placeholder {
+            color: var(--fg-muted);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            z-index: 101;
+            min-width: 400px;
+            max-width: 90vw;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0.3;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Category colors */
+        .category-math { --cat-color: #3b82f6; }
+        .category-physics { --cat-color: #10b981; }
+        .category-chemistry { --cat-color: #8b5cf6; }
+        .category-biology { --cat-color: #f43f5e; }
+        .category-literature { --cat-color: #eab308; }
+        .category-history { --cat-color: #06b6d4; }
+
+        .category-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cat-color, var(--accent));
+        }
+
+        /* Focus visible */
+        *:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Staggered animation */
+        .stagger-item {
+            opacity: 1; /* fixed: was 0 */
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Floating particles -->
+    <div id="particles"></div>
+
+    <!-- Main Layout -->
+    <div class="flex h-screen relative z-10">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 flex flex-col h-full shrink-0">
+            <!-- Logo -->
+            <div class="p-4 border-b border-zinc-800 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <span class="font-display font-semibold text-lg sidebar-text">NoteFlow</span>
+                </div>
+                <button id="toggleSidebar" class="p-1.5 rounded-md hover:bg-zinc-800 transition-colors" aria-label="切换侧边栏">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="p-3 sidebar-text">
+                <div class="relative">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="搜索笔记..." class="input-field pl-10 py-2 text-sm">
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="p-3 sidebar-text">
+                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2 px-2">分类</div>
+                <nav id="categoryList" class="space-y-1">
+                    <!-- Categories will be rendered here -->
+                </nav>
+            </div>
+
+            <!-- Divider -->
+            <div class="border-t border-zinc-800 mx-3 my-2"></div>
+
+            <!-- Recent Notes -->
+            <div class="flex-1 overflow-y-auto p-3 sidebar-text">
+                <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2 px-2">最近笔记</div>
+                <div id="recentNotes" class="space-y-1">
+                    <!-- Recent notes will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="p-3 border-t border-zinc-800">
+                <button id="newNoteBtn" class="btn-primary w-full flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span class="sidebar-text">新建笔记</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <h1 id="currentCategory" class="font-display text-2xl font-bold">全部笔记</h1>
+                        <p id="noteCount" class="text-zinc-500 text-sm mt-1">共 0 篇笔记</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex gap-2">
+                            <button id="viewGrid" class="p-2 rounded-lg bg-zinc-800 text-white" aria-label="网格视图">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                                </svg>
+                            </button>
+                            <button id="viewList" class="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400" aria-label="列表视图">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tags Filter -->
+                <div class="px-6 pb-4 flex gap-2 flex-wrap" id="tagFilter">
+                    <!-- Tags will be rendered here -->
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-6">
+                <!-- Notes Grid -->
+                <div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Notes will be rendered here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden flex-col items-center justify-center h-full text-center">
+                    <div class="w-24 h-24 rounded-full bg-zinc-800 flex items-center justify-center mb-6">
+                        <svg class="w-12 h-12 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-xl font-semibold mb-2">还没有笔记</h3>
+                    <p class="text-zinc-500 mb-6">点击"新建笔记"开始记录你的课堂内容</p>
+                    <button onclick="openModal()" class="btn-primary">创建第一篇笔记</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Note Editor Panel -->
+        <aside id="editorPanel" class="w-0 lg:w-[480px] border-l border-zinc-800 bg-zinc-900/30 overflow-hidden transition-all duration-300">
+            <div class="h-full flex flex-col w-[480px]">
+                <!-- Editor Header -->
+                <div class="p-4 border-b border-zinc-800 flex items-center justify-between">
+                    <h3 class="font-display font-semibold">编辑笔记</h3>
+                    <div class="flex gap-2">
+                        <button id="saveNote" class="btn-secondary text-sm">保存</button>
+                        <button id="closeEditor" class="p-2 rounded-lg hover:bg-zinc-800" aria-label="关闭编辑器">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Editor Content -->
+                <div class="flex-1 overflow-y-auto p-4">
+                    <input type="text" id="noteTitle" placeholder="笔记标题" class="input-field text-lg font-display font-semibold mb-4">
+                    
+                    <div class="mb-4">
+                        <label class="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">分类</label>
+                        <select id="noteCategory" class="input-field">
+                            <option value="math">数学</option>
+                            <option value="physics">物理</option>
+                            <option value="chemistry">化学</option>
+                            <option value="biology">生物</option>
+                            <option value="literature">文学</option>
+                            <option value="history">历史</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">标签 (用逗号分隔)</label>
+                        <input type="text" id="noteTags" placeholder="重要, 公式, 复习" class="input-field">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-xs text-zinc-500 uppercase tracking-wider mb-2 block">内容</label>
+                        <div id="editor" class="editor-area">
+                            <div class="editor-line">
+                                <span class="line-number">1</span>
+                                <div class="editor-content" contenteditable="true" data-placeholder="开始输入你的笔记内容..."></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="font-display text-xl font-semibold mb-4">新建笔记</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm text-zinc-400 mb-1 block">标题</label>
+                    <input type="text" id="modalTitle" placeholder="输入笔记标题" class="input-field">
+                </div>
+                <div>
+                    <label class="text-sm text-zinc-400 mb-1 block">分类</label>
+                    <select id="modalCategory" class="input-field">
+                        <option value="math">数学</option>
+                        <option value="physics">物理</option>
+                        <option value="chemistry">化学</option>
+                        <option value="biology">生物</option>
+                        <option value="literature">文学</option>
+                        <option value="history">历史</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-sm text-zinc-400 mb-1 block">标签</label>
+                    <input type="text" id="modalTags" placeholder="用逗号分隔多个标签" class="input-field">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeModal()" class="btn-secondary">取消</button>
+                <button onclick="createNote()" class="btn-primary">创建</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const categories = [
+            { id: 'all', name: '全部', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10', count: 0 },
+            { id: 'math', name: '数学', icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z', count: 0 },
+            { id: 'physics', name: '物理', icon: 'M13 10V3L4 14h7v7l9-11h-7z', count: 0 },
+            { id: 'chemistry', name: '化学', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z', count: 0 },
+            { id: 'biology', name: '生物', icon: 'M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4', count: 0 },
+            { id: 'literature', name: '文学', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', count: 0 },
+            { id: 'history', name: '历史', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', count: 0 }
+        ];
+
+        let notes = [
+            {
+                id: 1,
+                title: '微积分基本定理',
+                category: 'math',
+                tags: ['重要', '公式', '考试重点'],
+                content: '微积分基本定理建立了微分和积分之间的联系...\n\n牛顿-莱布尼茨公式：\n∫[a,b] f(x)dx = F(b) - F(a)',
+                date: '2024-01-15',
+                categoryClass: 'category-math'
+            },
+            {
+                id: 2,
+                title: '牛顿运动定律',
+                category: 'physics',
+                tags: ['力学', '基础'],
+                content: '第一定律：惯性定律\n第二定律：F = ma\n第三定律：作用力与反作用力',
+                date: '2024-01-14',
+                categoryClass: 'category-physics'
+            },
+            {
+                id: 3,
+                title: '有机化学基础',
+                category: 'chemistry',
+                tags: ['有机', '结构'],
+                content: '碳原子的杂化方式：\n- sp3杂化：四面体构型\n- sp2杂化：平面三角形\n- sp杂化：直线型',
+                date: '2024-01-13',
+                categoryClass: 'category-chemistry'
+            },
+            {
+                id: 4,
+                title: '细胞结构与功能',
+                category: 'biology',
+                tags: ['细胞', '重要'],
+                content: '细胞器功能总结：\n- 线粒体：有氧呼吸主要场所\n- 叶绿体：光合作用场所\n- 核糖体：蛋白质合成',
+                date: '2024-01-12',
+                categoryClass: 'category-biology'
+            },
+            {
+                id: 5,
+                title: '唐诗鉴赏方法',
+                category: 'literature',
+                tags: ['诗歌', '分析方法'],
+                content: '诗歌鉴赏步骤：\n1. 了解创作背景\n2. 分析意象与意境\n3. 把握情感主旨\n4. 赏析艺术手法',
+                date: '2024-01-11',
+                categoryClass: 'category-literature'
+            },
+            {
+                id: 6,
+                title: '法国大革命',
+                category: 'history',
+                tags: ['世界史', '革命'],
+                content: '1789年法国大革命的意义：\n- 推翻了封建君主专制\n- 传播了自由平等思想\n- 对欧洲乃至世界产生深远影响',
+                date: '2024-01-10',
+                categoryClass: 'category-history'
+            }
+        ];
+
+        let currentCategory = 'all';
+        let currentTags = [];
+        let currentNoteId = null;
+        let searchQuery = '';
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const toggleSidebarBtn = document.getElementById('toggleSidebar');
+        const categoryList = document.getElementById('categoryList');
+        const notesGrid = document.getElementById('notesGrid');
+        const recentNotes = document.getElementById('recentNotes');
+        const tagFilter = document.getElementById('tagFilter');
+        const searchInput = document.getElementById('searchInput');
+        const modal = document.getElementById('modal');
+        const editorPanel = document.getElementById('editorPanel');
+        const emptyState = document.getElementById('emptyState');
+        const particlesContainer = document.getElementById('particles');
+
+        // Initialize
+        function init() {
+            createParticles();
+            renderCategories();
+            renderNotes();
+            renderTagFilter();
+            updateNoteCounts();
+            setupEventListeners();
+            animateEntrance();
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const count = 15;
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 4 + 's';
+                particle.style.animationDuration = (4 + Math.random() * 4) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Animate entrance
+        function animateEntrance() {
+            const items = document.querySelectorAll('.note-card');
+            items.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.1}s`;
+                item.classList.add('stagger-item');
+            });
+        }
+
+        // Render categories
+        function renderCategories() {
+            categoryList.innerHTML = categories.map(cat => `
+                <button class="sidebar-item w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all ${currentCategory === cat.id ? 'active text-white' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'}" 
+                        onclick="setCategory('${cat.id}')"
+                        aria-label="选择${cat.name}分类">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${cat.icon}"/>
+                    </svg>
+                    <span class="sidebar-text flex-1">${cat.name}</span>
+                    <span class="sidebar-text text-xs bg-zinc-800 px-2 py-0.5 rounded-full">${cat.count}</span>
+                </button>
+            `).join('');
+        }
+
+        // Render notes
+        function renderNotes() {
+            let filteredNotes = notes;
+
+            // Filter by category
+            if (currentCategory !== 'all') {
+                filteredNotes = filteredNotes.filter(n => n.category === currentCategory);
+            }
+
+            // Filter by tags
+            if (currentTags.length > 0) {
+                filteredNotes = filteredNotes.filter(n => 
+                    currentTags.some(tag => n.tags.includes(tag))
+                );
+            }
+
+            // Filter by search
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filteredNotes = filteredNotes.filter(n => 
+                    n.title.toLowerCase().includes(query) || 
+                    n.content.toLowerCase().includes(query) ||
+                    n.tags.some(t => t.toLowerCase().includes(query))
+                );
+            }
+
+            // Update header
+            document.getElementById('currentCategory').textContent = 
+                currentCategory === 'all' ? '全部笔记' : categories.find(c => c.id === currentCategory)?.name || '笔记';
+            document.getElementById('noteCount').textContent = `共 ${filteredNotes.length} 篇笔记`;
+
+            // Show/hide empty state
+            if (filteredNotes.length === 0) {
+                notesGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                notesGrid.classList.remove('hidden');
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+            }
+
+            notesGrid.innerHTML = filteredNotes.map((note, index) => `
+                <article class="note-card p-5 cursor-pointer ${note.categoryClass}" 
+                         onclick="openNote(${note.id})"
+                         style="animation-delay: ${index * 0.05}s"
+                         tabindex="0"
+                         role="button"
+                         aria-label="打开笔记：${note.title}">
+                    <div class="flex items-start justify-between mb-3">
+                        <h3 class="font-display font-semibold text-lg leading-tight">${note.title}</h3>
+                        <div class="category-dot shrink-0 mt-2"></div>
+                    </div>
+                    <p class="text-zinc-400 text-sm mb-4 line-clamp-3">${note.content.substring(0, 120)}...</p>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        ${note.tags.map(tag => `<span class="tag text-xs">${tag}</span>`).join('')}
+                    </div>
+                    <div class="text-xs text-zinc-500">${note.date}</div>
+                </article>
+            `).join('');
+
+            // Render recent notes in sidebar
+            renderRecentNotes();
+        }
+
+        // Render recent notes
+        function renderRecentNotes() {
+            const recent = [...notes].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            recentNotes.innerHTML = recent.map(note => `
+                <button class="sidebar-item w-full text-left px-3 py-2 rounded-lg text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all truncate"
+                        onclick="openNote(${note.id})">
+                    ${note.title}
+                </button>
+            `).join('');
+        }
+
+        // Render tag filter
+        function renderTagFilter() {
+            const allTags = [...new Set(notes.flatMap(n => n.tags))];
+            tagFilter.innerHTML = allTags.map(tag => `
+                <button class="tag ${currentTags.includes(tag) ? 'active' : ''}" 
+                        onclick="toggleTag('${tag}')"
+                        aria-pressed="${currentTags.includes(tag)}">
+                    ${tag}
+                </button>
+            `).join('');
+        }
+
+        // Update note counts
+        function updateNoteCounts() {
+            categories.forEach(cat => {
+                cat.count = cat.id === 'all' ? notes.length : notes.filter(n => n.category === cat.id).length;
+            });
+            renderCategories();
+        }
+
+        // Set category
+        function setCategory(categoryId) {
+            currentCategory = categoryId;
+            renderCategories();
+            renderNotes();
+        }
+
+        // Toggle tag
+        function toggleTag(tag) {
+            const index = currentTags.indexOf(tag);
+            if (index > -1) {
+                currentTags.splice(index, 1);
+            } else {
+                currentTags.push(tag);
+            }
+            renderTagFilter();
+            renderNotes();
+        }
+
+        // Open note in editor
+        function openNote(noteId) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+
+            currentNoteId = noteId;
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteCategory').value = note.category;
+            document.getElementById('noteTags').value = note.tags.join(', ');
+            
+            const editorContent = document.querySelector('.editor-content');
+            editorContent.innerHTML = note.content.split('\n').map(line => 
+                line ? `<p>${line}</p>` : '<p><br></p>'
+            ).join('');
+
+            editorPanel.style.width = '480px';
+        }
+
+        // Close editor
+        function closeEditor() {
+            editorPanel.style.width = '0';
+            currentNoteId = null;
+        }
+
+        // Save note
+        function saveNote() {
+            if (!currentNoteId) return;
+
+            const note = notes.find(n => n.id === currentNoteId);
+            if (!note) return;
+
+            note.title = document.getElementById('noteTitle').value || '无标题';
+            note.category = document.getElementById('noteCategory').value;
+            note.tags = document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(t => t);
+            
+            const editorContent = document.querySelector('.editor-content');
+            note.content = editorContent.innerText;
+
+            renderNotes();
+            renderTagFilter();
+            updateNoteCounts();
+        }
+
+        // Modal functions
+        function openModal() {
+            modal.classList.add('active');
+            document.getElementById('modalTitle').focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+        }
+
+        function createNote() {
+            const title = document.getElementById('modalTitle').value || '无标题';
+            const category = document.getElementById('modalCategory').value;
+            const tags = document.getElementById('modalTags').value.split(',').map(t => t.trim()).filter(t => t);
+
+            const categoryClassMap = {
+                'math': 'category-math',
+                'physics': 'category-physics',
+                'chemistry': 'category-chemistry',
+                'biology': 'category-biology',
+                'literature': 'category-literature',
+                'history': 'category-history'
+            };
+
+            const newNote = {
+                id: Date.now(),
+                title,
+                category,
+                tags,
+                content: '开始编写你的笔记...',
+                date: new Date().toISOString().split('T')[0],
+                categoryClass: categoryClassMap[category] || ''
+            };
+
+            notes.unshift(newNote);
+            closeModal();
+            renderNotes();
+            renderTagFilter();
+            updateNoteCounts();
+            
+            // Reset modal
+            document.getElementById('modalTitle').value = '';
+            document.getElementById('modalTags').value = '';
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Toggle sidebar
+            toggleSidebarBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+            });
+
+            // Search
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value;
+                renderNotes();
+            });
+
+            // New note button
+            document.getElementById('newNoteBtn').addEventListener('click', openModal);
+
+            // Close editor
+            document.getElementById('closeEditor').addEventListener('click', closeEditor);
+
+            // Save note
+            document.getElementById('saveNote').addEventListener('click', saveNote);
+
+            // Modal close on overlay click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + N for new note
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    openModal();
+                }
+                // Escape to close modal
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeEditor();
+                }
+                // Ctrl/Cmd + S to save
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    saveNote();
+                }
+            });
+
+            // View toggle
+            document.getElementById('viewGrid').addEventListener('click', () => {
+                notesGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4';
+                document.getElementById('viewGrid').classList.add('bg-zinc-800', 'text-white');
+                document.getElementById('viewGrid').classList.remove('text-zinc-400');
+                document.getElementById('viewList').classList.remove('bg-zinc-800', 'text-white');
+                document.getElementById('viewList').classList.add('text-zinc-400');
+            });
+
+            document.getElementById('viewList').addEventListener('click', () => {
+                notesGrid.className = 'grid grid-cols-1 gap-2';
+                document.getElementById('viewList').classList.add('bg-zinc-800', 'text-white');
+                document.getElementById('viewList').classList.remove('text-zinc-400');
+                document.getElementById('viewGrid').classList.remove('bg-zinc-800', 'text-white');
+                document.getElementById('viewGrid').classList.add('text-zinc-400');
+            });
+
+            // Add editor line on Enter
+            const editor = document.getElementById('editor');
+            editor.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const lines = editor.querySelectorAll('.editor-line');
+                    const newLine = document.createElement('div');
+                    newLine.className = 'editor-line';
+                    newLine.innerHTML = `
+                        <span class="line-number">${lines.length + 1}</span>
+                        <div class="editor-content" contenteditable="true" data-placeholder="继续输入..."></div>
+                    `;
+                    editor.appendChild(newLine);
+                    newLine.querySelector('.editor-content').focus();
+                }
+            });
+
+            // Note card keyboard navigation
+            notesGrid.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    const card = e.target.closest('.note-card');
+                    if (card) {
+                        e.preventDefault();
+                        card.click();
+                    }
+                }
+            });
+        }
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>

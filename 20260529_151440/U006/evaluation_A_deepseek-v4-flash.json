@@ -1,0 +1,33 @@
+{
+  "index": 107,
+  "id": "U006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做个今晚吃啥的抽签小工具，我可以自己加候选餐厅或菜品,点一下按钮随机抽一个,带个简单的转盘动画。",
+  "evaluation": {
+    "total_score": 74,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Style is coherent and appropriate for a lightweight mobile random-picker: soft background, centered card, restrained palette, and a clear red accent for actions. The layout feels intentional, though the wheel area is visually too empty and the app lacks stronger personality beyond a generic clean card style."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, rounded corners, shadows, and spacing are mostly consistent and polished. Input, chips, and buttons align well. However, the wheel surface is overly plain, the pointer feels slightly detached, and the duplicate '抽一签' label in both wheel center and bottom CTA creates minor finish issues."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the title, wheel, input area, candidate tags, and primary draw button. The main action is prominent and the page is not overloaded. Perception is capped because the large blank wheel dominates the screen without showing current options or segmentation, so the visual focus does not fully support the task."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "The add flow is understandable: type a dish or restaurant, tap plus, then draw. Tags with close icons are familiar. But the wheel does not visually communicate how random selection works, there is no visible result state in the screenshot, and the relationship between the center '抽一签' and the bottom CTA may be slightly ambiguous."
+      }
+    },
+    "summary": "This is a solid, launch-near mobile mini-tool with clear task fit, readable structure, and a consistent lightweight visual system. The biggest hard cap is that the core mechanic—the wheel—looks mostly decorative rather than informative, so the main interaction lacks semantic clarity and payoff. Good usability and polish overall, but not yet a fully convincing or delightfully complete random-picker experience."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U006_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:38:44.227514"
+}

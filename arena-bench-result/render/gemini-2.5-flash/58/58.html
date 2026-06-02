@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sawasdee Thai Cuisine - Authentic Flavors, Warm Hospitality</title>
+    <!-- Google Fonts for a warm and elegant look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            background-color: #FDF8E7; /* Soft cream */
+            color: #3E2723; /* Dark brown */
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Lora', serif;
+            color: #3E2723;
+            margin-bottom: 20px;
+        }
+
+        h1 { font-size: 3em; }
+        h2 { font-size: 2.5em; text-align: center; margin-bottom: 40px; }
+        h3 { font-size: 1.8em; }
+
+        a {
+            color: #D4AF37; /* Primary gold */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #c0a030; /* Slightly darker gold */
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            background-color: #D4AF37; /* Primary gold */
+            color: #FFF;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #c0a030; /* Slightly darker gold */
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #3E2723; /* Dark brown */
+        }
+
+        .btn-secondary:hover {
+            background-color: #2a1c1a;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        /* Header */
+        header {
+            background-color: #FDF8E7; /* Match body for seamless look, or make it slightly different */
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo a {
+            font-family: 'Lora', serif;
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #3E2723;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav li {
+            margin-left: 30px;
+        }
+
+        nav a {
+            color: #3E2723;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 5px; /* For underline effect */
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background-color: #D4AF37;
+            left: 0;
+            bottom: 0;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            /* Placeholder image: Replace with your high-quality Thai food or restaurant interior image */
+            /* Example: url('path/to/your-thai-food-hero.jpg') */
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1549729577-4c07c4d57c1c?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #FFF;
+            padding: 40px 20px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-content h1 {
+            color: #FFF;
+            font-size: 4.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .hero-content p {
+            font-size: 1.5em;
+            margin-bottom: 40px;
+            font-style: italic;
+            color: #f0f0f0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+        }
+
+        /* Section Styling */
+        .section-padding {
+            padding: 80px 0;
+        }
+
+        .about-us, .hours-section, .contact-section {
+            background-color: #FFF; /* White background for contrast */
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .menu-highlight {
+            background-color: #F5F5DC; /* Light beige for menu section */
+            margin-bottom: 40px;
+        }
+
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .menu-item-card {
+            background-color: #FFF;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .menu-item-card h3 {
+            color: #D4AF37;
+            margin-bottom: 10px;
+        }
+
+        .menu-item-card p {
+            font-size: 1em;
+            color: #555;
+        }
+
+        .menu-note {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+            color: #777;
+        }
+
+        /* Hours Section */
+        .hours-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .day-time {
+            background-color: #FDF8E7;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .day-time p {
+            margin: 5px 0;
+            font-size: 1.1em;
+        }
+
+        .day-time p:first-child {
+            font-weight: 700;
+            color: #D4AF37;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Reservations Section */
+        .reservations-section {
+            background-color: #FFF;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            border-radius: 8px;
+        }
+
+        .reservation-form {
+            max-width: 600px;
+            margin: 40px auto 0 auto;
+            padding: 30px;
+            background-color: #FDF8E7;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3E2723;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="date"],
+        .form-group input[type="time"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 1em;
+            color: #3E2723;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #D4AF37;
+            outline: none;
+            box-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+        }
+
+        .reservation-form button {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .reservation-note {
+            text-align: center;
+            margin-top: 30px;
+            font-style: italic;
+            color: #777;
+        }
+
+        /* Contact Section */
+        .contact-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .contact-item {
+            background-color: #FDF8E7;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .contact-item h3 {
+            color: #D4AF37;
+            margin-bottom: 10px;
+        }
+
+        .contact-item p {
+            margin: 5px 0;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #3E2723; /* Dark brown */
+            color: #FDF8E7;
+            padding: 30px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        footer a {
+            color: #D4AF37;
+            margin: 0 10px;
+        }
+
+        .social-links {
+            margin-top: 15px;
+        }
+
+        /* Scroll to Top Button */
+        #scrollToTopBtn {
+            display: none; /* Hidden by default */
+            position: fixed; /* Fixed position */
+            bottom: 30px; /* Place at the bottom */
+            right: 30px; /* Place at the right */
+            z-index: 99; /* Make sure it does not overlap */
+            border: none; /* Remove borders */
+            outline: none; /* Remove outline */
+            background-color: #D4AF37; /* Set a background color */
+            color: white; /* Text color */
+            cursor: pointer; /* Add a mouse pointer on hover */
+            padding: 15px 20px; /* Some padding */
+            border-radius: 50%; /* Rounded corners */
+            font-size: 18px; /* Increase font size */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        #scrollToTopBtn:hover {
+            background-color: #c0a030; /* Darker gold on hover */
+            transform: translateY(-3px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 3em; }
+            h2 { font-size: 2em; }
+
+            header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav ul {
+                flex-direction: column;
+                margin-top: 15px;
+            }
+
+            nav li {
+                margin: 10px 0;
+            }
+
+            .hero {
+                min-height: 450px;
+            }
+
+            .hero-content h1 {
+                font-size: 3em;
+            }
+
+            .hero-content p {
+                font-size: 1.2em;
+            }
+
+            .menu-items, .hours-grid, .contact-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-padding {
+                padding: 50px 0;
+            }
+
+            .reservation-form {
+                padding: 20px;
+            }
+
+            #scrollToTopBtn {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 16px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 1.8em; }
+
+            .hero-content h1 {
+                font-size: 2.5em;
+            }
+
+            .hero-content p {
+                font-size: 1em;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            header {
+                padding: 10px 0;
+            }
+
+            .logo a {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <a href="#home">Sawasdee Thai Cuisine</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#menu">Menu</a></li>
+                    <li><a href="#hours">Hours</a></li>
+                    <li><a href="#reservations">Reservations</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1>Sawasdee Thai Cuisine</h1>
+                <p>Where Authentic Thai Flavors Meet Warm Hospitality</p>
+                <a href="#menu" class="btn">Explore Our Menu</a>
+            </div>
+        </section>
+
+        <section id="about" class="about-us container section-padding">
+            <h2>Welcome to Sawasdee</h2>
+            <p>Step into Sawasdee Thai Cuisine and embark on a culinary journey to the heart of Thailand. Our chefs meticulously craft each dish using traditional recipes and the freshest ingredients, bringing you an authentic taste of Thai culture. From the vibrant spices of a Green Curry to the comforting sweetness of Pad Thai, every bite is a celebration of flavor.</p>
+            <p>We believe in creating more than just a meal; we offer an experience – a warm, inviting atmosphere perfect for family dinners, romantic evenings, or casual gatherings. Come and discover your new favorite Thai dish!</p>
+        </section>
+
+        <section id="menu" class="menu-highlight section-padding">
+            <div class="container">
+                <h2>Our Delicious Menu</h2>
+                <div class="menu-items">
+                    <div class="menu-item-card">
+                        <h3>Pad Thai</h3>
+                        <p>Our signature stir-fried rice noodles with shrimp or chicken, tofu, peanuts, bean sprouts, and lime.</p>
+                    </div>
+                    <div class="menu-item-card">
+                        <h3>Green Curry</h3>
+                        <p>Aromatic green curry paste cooked with coconut milk, bamboo shoots, eggplant, bell peppers, and your choice of protein.</p>
+                    </div>
+                    <div class="menu-item-card">
+                        <h3>Tom Yum Goong</h3>
+                        <p>Spicy and sour shrimp soup infused with lemongrass, galangal, kaffir lime leaves, and mushrooms.</p>
+                    </div>
+                </div>
+                <a href="#" class="btn btn-secondary">View Full Menu</a>
+                <p class="menu-note">Vegetarian and vegan options available upon request.</p>
+            </div>
+        </section>
+
+        <section id="hours" class="hours-section section-padding">
+            <div class="container">
+                <h2>Opening Hours</h2>
+                <div class="hours-grid">
+                    <div class="day-time">
+                        <p>Monday - Friday:</p>
+                        <p>11:30 AM - 2:30 PM (Lunch)</p>
+                        <p>5:00 PM - 9:30 PM (Dinner)</p>
+                    </div>
+                    <div class="day-time">
+                        <p>Saturday - Sunday:</p>
+                        <p>12:00 PM - 10:00 PM (All Day)</p>
+                    </div>
+                    <div class="day-time">
+                        <p>Public Holidays:</p>
+                        <p>Please call ahead</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reservations" class="reservations-section section-padding">
+            <div class="container">
+                <h2>Make a Reservation</h2>
+                <p>Planning a special meal? Book your table in advance and ensure a delightful dining experience with us.</p>
+                <form class="reservation-form" onsubmit="handleReservation(event)">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone:</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time:</label>
+                        <input type="time" id="time" name="time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Number of Guests:</label>
+                        <input type="number" id="guests" name="guests" min="1" max="10" value="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Special Requests:</label>
+                        <textarea id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Book Now</button>
+                </form>
+                <p class="reservation-note">For groups larger than 10, please call us directly at <a href="tel:+6612345678">(+66) 123-45678</a>.</p>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section section-padding">
+            <div class="container">
+                <h2>Contact Us</h2>
+                <div class="contact-info-grid">
+                    <div class="contact-item">
+                        <h3>Address</h3>
+                        <p>123 Thai Taste Street, Flavor City, Thailand</p>
+                        <a href="https://maps.app.goo.gl/your-location-link" target="_blank" class="btn btn-small">Get Directions</a>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Phone</h3>
+                        <p><a href="tel:+6612345678">(+66) 123-45678</a></p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Email</h3>
+                        <p><a href="mailto:info@sawasdeethaicuisine.com">info@sawasdeethaicuisine.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p id="copyright-year">&copy; 2023 Sawasdee Thai Cuisine. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" target="_blank">Facebook</a>
+                <a href="#" target="_blank">Instagram</a>
+            </div>
+        </div>
+    </footer>
+
+    <button id="scrollToTopBtn" title="Go to top">↑</button>
+
+    <script>
+        // --- Scroll to Top Button Logic ---
+        const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {
+            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+                scrollToTopBtn.style.display = "block";
+            } else {
+                scrollToTopBtn.style.display = "none";
+            }
+        };
+
+        // When the user clicks on the button, scroll to the top of the document smoothly
+        scrollToTopBtn.addEventListener("click", function() {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+
+        // --- Reservation Form Logic ---
+        function handleReservation(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get form values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const guests = document.getElementById('guests').value;
+            const notes = document.getElementById('notes').value;
+
+            // Basic validation
+            if (!name || !email || !date || !time || !guests) {
+                alert("Please fill in all required fields (Name, Email, Date, Time, Number of Guests).");
+                return;
+            }
+
+            // In a real application, you would send this data to a server using fetch() or XMLHttpRequest.
+            // For this client-side example, we'll just show an alert and log to console.
+            console.log("Reservation Details:", { name, email, phone, date, time, guests, notes });
+            alert(`Thank you, ${name}! Your reservation for ${guests} on ${date} at ${time} has been received. We will send a confirmation to ${email} shortly.`);
+
+            // Optionally clear the form after submission
+            event.target.reset();
+        }
+
+        // --- Smooth scrolling for navigation links ---
+        document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // --- Dynamic Year in Footer ---
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearParagraph = document.getElementById('copyright-year');
+            if (yearParagraph) {
+                yearParagraph.innerHTML = `&copy; ${new Date().getFullYear()} Sawasdee Thai Cuisine. All rights reserved.`;
+            }
+        });
+    </script>
+</body>
+</html>

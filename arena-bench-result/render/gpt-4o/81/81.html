@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn French</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    header {
+      background: #007bff;
+      color: white;
+      padding: 1rem 0;
+      text-align: center;
+    }
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h1, h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    button {
+      display: inline-block;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      text-align: center;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    input[type="text"] {
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .output {
+      margin-top: 10px;
+      color: #28a745;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Learn French</h1>
+  </header>
+  <div class="container">
+    <div class="section">
+      <h2>Vocabulary Practice</h2>
+      <p>Match the French word with its English translation:</p>
+      <p><strong>Bonjour</strong> means...</p>
+      <button onclick="checkVocabulary()">Check Answer</button>
+      <div id="vocabularyOutput" class="output"></div>
+    </div>
+
+    <div class="section">
+      <h2>Grammar Exercise</h2>
+      <p>Fill in the blank: "Je ____ français." (speak)</p>
+      <input type="text" id="grammarInput" placeholder="Your answer">
+      <button onclick="checkGrammar()">Check Answer</button>
+      <div id="grammarOutput" class="output"></div>
+    </div>
+
+    <div class="section">
+      <h2>Interactive Practice</h2>
+      <p>Type a French sentence and see how you did:</p>
+      <input type="text" id="interactiveInput" placeholder="Type in French">
+      <button onclick="checkInteractive()">Submit</button>
+      <div id="interactiveOutput" class="output"></div>
+    </div>
+  </div>
+
+  <script>
+    // Vocabulary Check
+    function checkVocabulary() {
+      const correctAnswer = "Hello";
+      const userAnswer = prompt("What does 'Bonjour' mean in English?");
+      const output = document.getElementById('vocabularyOutput');
+      
+      if (userAnswer && userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+        output.textContent = "Correct! 'Bonjour' means 'Hello.'";
+      } else {
+        output.textContent = "Incorrect. The correct answer is 'Hello.'";
+      }
+    }
+
+    // Grammar Check
+    function checkGrammar() {
+      const correctAnswer = "parle";
+      const userAnswer = document.getElementById('grammarInput').value.trim().toLowerCase();
+      const output = document.getElementById('grammarOutput');
+      
+      if (userAnswer === correctAnswer) {
+        output.textContent = "Correct! 'Je parle français.' means 'I speak French.'";
+      } else {
+        output.textContent = "Incorrect. The answer is 'parle.'";
+      }
+    }
+
+    // Interactive Feedback
+    function checkInteractive() {
+      const userInput = document.getElementById('interactiveInput').value.trim();
+      const output = document.getElementById('interactiveOutput');
+      
+      if (userInput) {
+        output.textContent = `You wrote: "${userInput}". Keep practicing!`;
+      } else {
+        output.textContent = "Please type something to submit.";
+      }
+    }
+  </script>
+</body>
+</html>

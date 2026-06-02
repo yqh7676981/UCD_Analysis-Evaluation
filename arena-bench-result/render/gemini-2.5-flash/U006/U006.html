@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>今晚吃啥？</title>
+    <style>
+        /* 基础样式和移动端适配 */
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* 内容从顶部开始，允许滚动 */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 100%;
+            max-width: 420px; /* 限制最大宽度，模拟手机屏幕 */
+            box-sizing: border-box;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 10px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        textarea {
+            width: calc(100% - 20px); /* 减去padding */
+            height: 120px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.5;
+            resize: vertical; /* 只允许垂直方向调整大小 */
+            margin-bottom: 15px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            -webkit-appearance: none; /* 移除iOS默认样式 */
+            appearance: none;
+            outline: none; /* 移除焦点边框 */
+        }
+        textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* 焦点光晕效果 */
+        }
+
+        button {
+            display: block; /* 按钮占据整行 */
+            width: 100%;
+            padding: 12px 20px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease; /* 平滑过渡效果 */
+            -webkit-appearance: none;
+            appearance: none;
+            outline: none;
+        }
+
+        button.primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+        button.primary:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        button.primary:active:not(:disabled) {
+            transform: translateY(1px); /* 点击下沉效果 */
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+            color: #fff;
+            margin-bottom: 25px;
+        }
+        button.secondary:hover:not(:disabled) {
+            background-color: #5a6268;
+        }
+        button.secondary:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.8;
+        }
+
+        .spinner-area {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .spinner {
+            width: 250px;
+            height: 250px;
+            border: 8px solid #007bff;
+            border-radius: 50%; /* 圆形 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: 700;
+            color: #333;
+            background-color: #e9f5ff;
+            margin-bottom: 20px;
+            box-shadow: 0 0 0 8px rgba(0, 123, 255, 0.2), inset 0 0 10px rgba(0, 0, 0, 0.1); /* 外圈光晕和内阴影 */
+            overflow: hidden; /* 隐藏溢出文本 */
+            white-space: nowrap; /* 防止文本换行 */
+            text-overflow: ellipsis; /* 文本溢出显示省略号 */
+            padding: 10px; /* 防止文本紧贴边缘 */
+            box-sizing: border-box;
+        }
+
+        .spinner.spinning {
+            animation: spin 1s linear infinite; /* 持续旋转动画 */
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .result {
+            font-size: 28px;
+            font-weight: 700;
+            color: #28a745; /* 成功绿色 */
+            margin-top: 20px;
+            min-height: 34px; /* 保持高度，避免内容为空时布局跳动 */
+        }
+
+        /* 针对更小屏幕的响应式调整 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+                border-radius: 10px;
+                margin-top: 15px;
+            }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            .section-title {
+                font-size: 17px;
+                margin-top: 20px;
+            }
+            textarea {
+                height: 100px;
+                font-size: 15px;
+                padding: 8px;
+            }
+            button {
+                padding: 10px 15px;
+                font-size: 16px;
+                margin-top: 8px;
+            }
+            .spinner {
+                width: 200px;
+                height: 200px;
+                font-size: 28px;
+                border-width: 6px;
+                margin-bottom: 15px;
+                box-shadow: 0 0 0 6px rgba(0, 123, 255, 0.2), inset 0 0 8px rgba(0, 0, 0, 0.1);
+            }
+            .result {
+                font-size: 24px;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>今晚吃啥？🤔</h1>
+
+        <div class="options-editor">
+            <h2 class="section-title">我的候选 (每行一个)</h2>
+            <textarea id="optionsTextarea" placeholder="例如：
+麻辣烫
+寿司
+汉堡王
+螺蛳粉
+烤肉"></textarea>
+            <button id="updateOptionsButton" class="secondary">更新候选</button>
+        </div>
+
+        <div class="spinner-area">
+            <h2 class="section-title" style="margin-top:0;">随机抽取结果</h2>
+            <div id="spinner" class="spinner">
+                点击下方按钮开始
+            </div>
+            <button id="spinButton" class="primary">就决定是你了！✨</button>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const optionsTextarea = document.getElementById('optionsTextarea');
+        const updateOptionsButton = document.getElementById('updateOptionsButton');
+        const spinButton = document.getElementById('spinButton');
+        const spinnerDiv = document.getElementById('spinner');
+        const resultDiv = document.getElementById('result');
+
+        let optionsArray = []; // 存储候选项目的数组
+        let isSpinning = false; // 标记是否正在旋转，防止重复点击
+        const spinDuration = 3000; // 旋转动画持续时间 (毫秒)
+
+        // --- 数据持久化 (使用 localStorage) ---
+        function saveOptions() {
+            localStorage.setItem('foodLotteryOptions', optionsTextarea.value);
+        }
+
+        function loadOptions() {
+            const savedOptions = localStorage.getItem('foodLotteryOptions');
+            if (savedOptions) {
+                optionsTextarea.value = savedOptions;
+            } else {
+                // 如果没有保存的选项，提供一些默认值
+                optionsTextarea.value = `麻辣烫
+寿司
+汉堡王
+沙县小吃
+螺蛳粉
+烤肉
+水饺
+米线
+火锅
+烧烤
+家常菜`;
+            }
+            updateOptions(); // 加载后立即更新候选列表和UI
+        }
+
+        // --- 核心逻辑 ---
+        function updateOptions() {
+            const rawText = optionsTextarea.value;
+            // 将文本区域内容按行分割，去除空行和首尾空格
+            optionsArray = rawText.split('\n')
+                                  .map(option => option.trim())
+                                  .filter(option => option !== '');
+            
+            // 根据候选项目数量更新提示文本
+            spinnerDiv.textContent = optionsArray.length > 0 ? "点击下方按钮开始" : "请添加候选项目";
+            resultDiv.textContent = ''; // 清空上次结果
+            spinButton.disabled = optionsArray.length === 0; // 如果没有候选，禁用旋转按钮
+            saveOptions(); // 更新后保存到 localStorage
+        }
+
+        function spin() {
+            if (isSpinning || optionsArray.length === 0) {
+                if (optionsArray.length === 0) {
+                    alert('请先在上方添加候选餐厅或菜品！');
+                }
+                return; // 如果正在旋转或没有候选项目，则不执行
+            }
+
+            isSpinning = true;
+            spinnerDiv.textContent = '抽取中...'; // 旋转时显示提示
+            resultDiv.textContent = '';
+            spinButton.disabled = true; // 禁用按钮
+            updateOptionsButton.disabled = true;
+
+            spinnerDiv.classList.add('spinning'); // 添加CSS类启动旋转动画
+
+            // 随机选择一个项目
+            const randomIndex = Math.floor(Math.random() * optionsArray.length);
+            const selectedOption = optionsArray[randomIndex];
+
+            // 模拟旋转结束，显示结果
+            setTimeout(() => {
+                spinnerDiv.classList.remove('spinning'); // 移除CSS类停止动画
+                spinnerDiv.textContent = selectedOption; // 在转盘中央显示结果
+                resultDiv.textContent = `恭喜！今晚吃：${selectedOption} 🎉`;
+                isSpinning = false; // 重置旋转状态
+                spinButton.disabled = false; // 重新启用按钮
+                updateOptionsButton.disabled = false;
+            }, spinDuration);
+        }
+
+        // --- 事件监听器 ---
+        updateOptionsButton.addEventListener('click', updateOptions);
+        spinButton.addEventListener('click', spin);
+
+        // --- 初始化设置 ---
+        window.addEventListener('load', loadOptions); // 页面加载完成后加载保存的选项
+    </script>
+</body>
+</html>

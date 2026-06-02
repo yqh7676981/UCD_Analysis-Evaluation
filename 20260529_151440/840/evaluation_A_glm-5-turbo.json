@@ -1,0 +1,33 @@
+{
+  "index": 262,
+  "id": "840",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为同人小说门户网站创建用户界面。它应该具有一个包含门户概述和最受好评的故事的登陆页面。包括带有过滤器和实时更新的提要，默认情况下展示最近的故事。提供用户故事、草稿和收藏的部分、角色和同人圈的类似页面、活跃作者列表以及用户个人资料页面。",
+  "evaluation": {
+    "total_score": 62,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark theme with restrained gold accents is coherent and fits a fiction portal tone. Navigation, cards, chips, and buttons generally share one system. However, the page feels generic and overly sparse, with a large empty hero area and limited visual storytelling for a fanfiction community product."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Typography, card borders, and spacing are mostly consistent, and the layout grid is clean. But contrast is weak in several secondary texts, metadata is small and low-emphasis, card interiors feel slightly cramped, and some content looks placeholder-like or unfinished (e.g., '0.0M' total reads, very short fandom list)."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can identify the main landing message, top-rated stories, and fandom section quickly. Still, information priority is not well matched to the requested task: the huge hero dominates while operational content is pushed down, and required areas like live feed, filters, user stories/drafts/favorites, active authors, character pages, and profile entry are not visible in the screenshot."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Top navigation labels are familiar and the story cards are semantically understandable with ratings, tags, status, and date. But primary actions are vague ('开始探索', '了解更多'), the difference between sections is not strongly action-oriented, and key requested functions such as real-time feed/filter behavior and personal content management are not evident from the interface."
+      }
+    },
+    "summary": "This is a usable, visually consistent landing page with clear story-card semantics and a suitable dark literary tone. The main limitation is scenario coverage and task support: it works as a homepage concept, but not as a complete fanfiction portal experience matching the request. Missing visible feed/filter mechanisms and absent sections for drafts, favorites, active authors, character pages, and profile workflows cap the score."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/840_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:17:13.582752"
+}

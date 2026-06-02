@@ -1,0 +1,33 @@
+{
+  "index": 271,
+  "id": "H001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个每日热量记录工具，可以从常见食物库里选择，自动累加今天摄入的卡路里，对比每日目标显示进度条。",
+  "evaluation": {
+    "total_score": 62,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark theme is coherent and suitable for a focused health tool, with consistent rounded cards and restrained orange accents. However, the screen feels generic and visually flat, with limited brand character and weak focal refinement beyond the central ring."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Typography is mostly readable and spacing is generally consistent, but several elements feel unfinished: low-contrast secondary text, thin/dim progress bars in macro cards, heavy empty space below, and iconography that looks stock rather than polished."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "The main information hierarchy is clear: title, calorie goal chip, central progress, macro summary, add-food action, then today's records. But the calorie progress is not strongly actionable, the empty-state area dominates the lower screen, and the food-selection entry is the only task path visible."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Users can understand the basic purpose and likely add foods to accumulate calories, but the requested 'common food library' is not visible, the dashed add area is vague about what happens next, and the ring/progress relationship to daily goal lacks explicit labeling beyond remaining calories."
+      }
+    },
+    "summary": "This is a usable but simplified mobile calorie tracker with a clear core layout and acceptable visual consistency. The strongest part is immediate recognition of today's calorie status and macro summary. The hard cap comes from limited task support for the requested scenario: no visible food library, weak operational affordance beyond a single add button, and a somewhat unfinished empty-state-heavy screen. It feels directionally correct and functional, but not yet fully complete or especially polished."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/H001_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:18:51.475750"
+}

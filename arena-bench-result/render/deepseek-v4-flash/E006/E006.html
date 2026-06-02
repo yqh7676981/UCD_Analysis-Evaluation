@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>产品经理面试模拟</title>
+    <style>
+        /* Reset & base */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px 16px 40px;
+        }
+
+        #app {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+            letter-spacing: 1px;
+        }
+        header p {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        /* progress */
+        .progress-container {
+            margin-bottom: 20px;
+        }
+        .progress-text {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #4A90D9, #50E3C2);
+            transition: width 0.4s ease;
+            width: 12.5%;
+        }
+
+        /* card */
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+        }
+
+        .question-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #1a1a2e;
+        }
+
+        .options-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #f8f9fc;
+            border: 2px solid #e8eaef;
+            border-radius: 16px;
+            padding: 16px 18px;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: #2c3e50;
+            transition: background 0.2s, border-color 0.2s, transform 0.1s;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+        }
+        .option:active {
+            transform: scale(0.97);
+        }
+        .option.selected {
+            border-color: #4A90D9;
+            background: #f0f7ff;
+            color: #1a1a2e;
+        }
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .option-label {
+            font-weight: 600;
+            margin-right: 12px;
+            color: #4A90D9;
+            flex-shrink: 0;
+            width: 1.5rem;
+        }
+
+        /* button */
+        .btn-next {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #4A90D9, #357ABD);
+            border: none;
+            border-radius: 16px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            touch-action: manipulation;
+            outline: none;
+            box-shadow: 0 6px 14px rgba(74,144,217,0.25);
+            transition: opacity 0.25s, transform 0.1s, box-shadow 0.25s;
+        }
+        .btn-next:active {
+            transform: scale(0.97);
+            box-shadow: 0 3px 8px rgba(74,144,217,0.3);
+        }
+        .btn-next:disabled {
+            opacity: 0.4;
+            box-shadow: none;
+            pointer-events: none;
+            transform: none;
+        }
+
+        /* result */
+        .result-card .score-section {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+        .score-number {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            display: inline-block;
+        }
+        .score-max {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-top: 4px;
+        }
+        .grade-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 12px;
+        }
+        .suggestion {
+            background: #f8f9fc;
+            padding: 16px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: #3a3a5a;
+            line-height: 1.6;
+            margin: 16px 0 20px;
+        }
+        .review-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2c3e50;
+        }
+        .review-item {
+            display: flex;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        .review-num {
+            flex-shrink: 0;
+            width: 36px;
+            height: 36px;
+            background: #eef2f8;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #4A90D9;
+        }
+        .review-content {
+            flex: 1;
+        }
+        .review-question {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #1a1a2e;
+        }
+        .review-answer {
+            font-size: 0.85rem;
+            color: #6b7a8f;
+        }
+
+        /* responsive tweaks */
+        @media (max-width: 420px) {
+            #app {
+                padding: 0 4px;
+            }
+            .card {
+                padding: 20px 16px;
+            }
+            .option {
+                padding: 14px 14px;
+                font-size: 0.95rem;
+            }
+            .btn-next {
+                padding: 16px 20px;
+                font-size: 1rem;
+            }
+            .score-number {
+                font-size: 3.2rem;
+            }
+            header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (min-width: 420px) and (max-width: 600px) {
+            .option {
+                padding: 16px 18px;
+            }
+        }
+
+        /* fade animation */
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <header>
+        <h1>📋 PM 面试模拟</h1>
+        <p>8 道精选问题 · 测测你的产品思维</p>
+    </header>
+
+    <!-- 答题区域 -->
+    <div id="quizArea">
+        <div class="progress-container">
+            <span id="progressText" class="progress-text">第 1 / 8 题</span>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill" style="width: 12.5%;"></div>
+            </div>
+        </div>
+
+        <div class="card" id="questionCard">
+            <p id="questionText" class="question-text">问题加载中...</p>
+            <ul id="optionsList" class="options-list"></ul>
+        </div>
+
+        <button id="nextBtn" class="btn-next" disabled>下一题</button>
+    </div>
+
+    <!-- 结果区域 -->
+    <div id="resultArea" style="display: none;"></div>
+</div>
+
+<script>
+    (function() {
+        // ------- 预置 8 个问题（每个问题 4 个选项，分值 0-3） -------
+        const questions = [
+            {
+                text: '你认为产品经理最核心的职责是什么？',
+                options: [
+                    { text: '撰写需求文档', score: 0 },
+                    { text: '协调团队按时交付', score: 1 },
+                    { text: '定义产品战略与愿景', score: 3 },
+                    { text: '分析用户行为数据', score: 2 }
+                ]
+            },
+            {
+                text: '你如何确定功能需求的优先级？',
+                options: [
+                    { text: '凭直觉判断', score: 0 },
+                    { text: '参考竞争对手', score: 1 },
+                    { text: '与团队成员讨论', score: 2 },
+                    { text: '基于用户反馈与数据验证', score: 3 }
+                ]
+            },
+            {
+                text: '关于 MVP 你的理解是？',
+                options: [
+                    { text: '快速并且低价地上线', score: 1 },
+                    { text: '节约开发成本', score: 0 },
+                    { text: '用最快方式验证核心假设', score: 3 },
+                    { text: '以最小功能获取首批用户', score: 2 }
+                ]
+            },
+            {
+                text: '如何衡量一个功能是否成功？',
+                options: [
+                    { text: '没有 Bug', score: 0 },
+                    { text: '用户主动点赞', score: 1 },
+                    { text: '达到预设的关键指标', score: 3 },
+                    { text: '活跃用户数提升', score: 2 }
+                ]
+            },
+            {
+                text: '当研发团队与你产生分歧，你会？',
+                options: [
+                    { text: '坚持需求不变', score: 0 },
+                    { text: '向项目经理求助', score: 1 },
+                    { text: '数据驱动理性沟通', score: 3 },
+                    { text: '适当妥协', score: 2 }
+                ]
+            },
+            {
+                text: '你习惯用什么工具进行需求管理？',
+                options: [
+                    { text: '不特别用工具', score: 0 },
+                    { text: 'Excel', score: 1 },
+                    { text: 'JIRA / ClickUp 等', score: 2 },
+                    { text: '组合工具链', score: 3 }
+                ]
+            },
+            {
+                text: '你如何持续学习产品知识？',
+                options: [
+                    { text: '偶尔看看文章', score: 0 },
+                    { text: '读书', score: 1 },
+                    { text: '参加线上课程', score: 2 },
+                    { text: '多来源系统学习与实践', score: 3 }
+                ]
+            },
+            {
+                text: '面对用户反馈的负面评价，你首先想到的是？',
+                options: [
+                    { text: '用户不会用', score: 0 },
+                    { text: '修复问题', score: 1 },
+                    { text: '分析根本原因改进产品', score: 3 },
+                    { text: '安抚用户情绪', score: 2 }
+                ]
+            }
+        ];
+
+        // ------- 状态 -------
+        const maxScore = questions.length * 3;          // 满分 24
+        let currentIndex = 0;
+        let totalScore = 0;
+        let userAnswers = new Array(questions.length).fill(-1); // 每题所选选项索引，-1 表示未答
+        let selectedOption = -1;                        // 当前题选中的选项索引
+
+        // ------- DOM 引用 -------
+        const quizArea = document.getElementById('quizArea');
+        const resultArea = document.getElementById('resultArea');
+        const questionText = document.getElementById('questionText');
+        const optionsList = document.getElementById('optionsList');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressText = document.getElementById('progressText');
+        const progressFill = document.getElementById('progressFill');
+
+        // ------- 辅助函数 -------
+        function getScore(questionIndex, optionIndex) {
+            return questions[questionIndex].options[optionIndex].score;
+        }
+
+        // ------- 渲染当前题目 -------
+        function renderQuestion(index) {
+            // 重置当前选择状态
+            selectedOption = -1;
+            nextBtn.disabled = true;
+
+            const q = questions[index];
+            questionText.textContent = q.text;
+
+            // 构建选项列表（带字母序号）
+            let html = '';
+            q.options.forEach((opt, i) => {
+                const letter = String.fromCharCode(65 + i); // A, B, C, D
+                html += `<li class="option" data-index="${i}">
+                            <span class="option-label">${letter}.</span>
+                            ${opt.text}
+                         </li>`;
+            });
+            optionsList.innerHTML = html;
+
+            // 如果该题之前已经答过，恢复选中状态
+            if (userAnswers[index] !== -1) {
+                const prevIdx = userAnswers[index];
+                const prevOption = optionsList.querySelector(`.option[data-index="${prevIdx}"]`);
+                if (prevOption) {
+                    prevOption.classList.add('selected');
+                    selectedOption = prevIdx;
+                    nextBtn.disabled = false;
+                }
+            }
+
+            // 更新进度
+            progressText.textContent = `第 ${index + 1} / ${questions.length} 题`;
+            const percent = ((index + 1) / questions.length) * 100;
+            progressFill.style.width = percent + '%';
+
+            // 按钮文字
+            nextBtn.textContent = (index === questions.length - 1) ? '查看评估' : '提交并下一题';
+
+            // 淡入动画
+            document.getElementById('questionCard').classList.add('fade-in');
+            setTimeout(() => {
+                document.getElementById('questionCard').classList.remove('fade-in');
+            }, 350);
+        }
+
+        // ------- 选项选中逻辑 -------
+        function selectOption(index) {
+            // 清除所有选中
+            const allOptions = optionsList.querySelectorAll('.option');
+            allOptions.forEach(opt => opt.classList.remove('selected'));
+
+            // 选中当前选项
+            const target = optionsList.querySelector(`.option[data-index="${index}"]`);
+            if (target) {
+                target.classList.add('selected');
+            }
+
+            selectedOption = index;
+            nextBtn.disabled = false;
+        }
+
+        // ------- 下一题 / 提交 -------
+        function handleNext() {
+            if (selectedOption === -1) return;  // 安全保护
+
+            // 保存当前答案
+            const qIndex = currentIndex;
+            userAnswers[qIndex] = selectedOption;
+            totalScore += questions[qIndex].options[selectedOption].score;
+
+            // 如果是最后一题，显示结果
+            if (currentIndex === questions.length - 1) {
+                showResult();
+            } else {
+                currentIndex++;
+                renderQuestion(currentIndex);
+            }
+        }
+
+        // ------- 显示结果 -------
+        function showResult() {
+            quizArea.style.display = 'none';
+            resultArea.style.display = 'block';
+
+            // 计算等级
+            let gradeText, gradeColor, suggestion;
+            if (totalScore >= 21) {
+                gradeText = '卓越产品经理思维';
+                gradeColor = '#4CAF50';
+                suggestion = '太棒了！你具备非常出色的产品思维和决策能力。继续保持，在实际项目中锻炼，你将成为优秀的产品经理！';
+            } else if (totalScore >= 16) {
+                gradeText = '优秀，有潜力';
+                gradeColor = '#8BC34A';
+                suggestion = '不错！你有很好的产品潜能，但部分领域还需提升。建议多参与产品实践，强化数据驱动决策。';
+            } else if (totalScore >= 11) {
+                gradeText = '基础具备，仍需努力';
+                gradeColor = '#FF9800';
+                suggestion = '你有一定的产品知识，但还需要系统学习产品思维和方法论。推荐阅读《启示录》《人人都是产品经理》等书籍。';
+            } else {
+                gradeText = '需要加强学习';
+                gradeColor = '#F44336';
+                suggestion = '目前对产品经理的理解还不够深入。建议从基础开始，了解产品生命周期，学习用户研究、数据分析等技能。';
+            }
+
+            // 构建题目回顾
+            let reviewHtml = '';
+            for (let i = 0; i < questions.length; i++) {
+                const q = questions[i];
+                const ansIdx = userAnswers[i];
+                const selectedText = (ansIdx !== -1) ? q.options[ansIdx].text : '未作答';
+                const score = (ansIdx !== -1) ? q.options[ansIdx].score : 0;
+                reviewHtml += `
+                    <div class="review-item">
+                        <div class="review-num">Q${i+1}</div>
+                        <div class="review-content">
+                            <p class="review-question">${q.text}</p>
+                            <p class="review-answer">你的选择：${selectedText}（得分：${score}）</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 构建结果区域 HTML
+            resultArea.innerHTML = `
+                <div class="card result-card">
+                    <div class="score-section">
+                        <div class="score-number" style="color: ${gradeColor};">${totalScore}</div>
+                        <div class="score-max">满分 ${maxScore}</div>
+                        <div class="grade-badge" style="background: ${gradeColor};">${gradeText}</div>
+                    </div>
+                    <div class="suggestion">${suggestion}</div>
+                    <div class="review-section">
+                        <h3>📝 题目回顾</h3>
+                        ${reviewHtml}
+                    </div>
+                    <button id="restartBtn" class="btn-next" style="margin-top: 16px;">重新测试</button>
+                </div>
+            `;
+
+            // 重新测试按钮
+            document.getElementById('restartBtn').addEventListener('click', restart);
+        }
+
+        // ------- 重新开始 -------
+        function restart() {
+            currentIndex = 0;
+            totalScore = 0;
+            userAnswers = new Array(questions.length).fill(-1);
+            selectedOption = -1;
+
+            quizArea.style.display = 'block';
+            resultArea.style.display = 'none';
+
+            renderQuestion(0);
+        }
+
+        // ------- 事件绑定 -------
+        // 选项点击（事件委托）
+        optionsList.addEventListener('click', function(e) {
+            const optionItem = e.target.closest('.option');
+            if (!optionItem) return;
+            const index = parseInt(optionItem.dataset.index, 10);
+            selectOption(index);
+        });
+
+        // 下一题按钮点击
+        nextBtn.addEventListener('click', handleNext);
+
+        // ------- 启动 -------
+        renderQuestion(0);
+    })();
+</script>
+</body>
+</html>

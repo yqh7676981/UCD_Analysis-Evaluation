@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>倒计时</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f0d;
+            --bg-card: #141a17;
+            --fg: #e8ebe9;
+            --muted: #6b7c72;
+            --accent: #c8ff00;
+            --accent-dim: rgba(200, 255, 0, 0.15);
+            --border: #2a3530;
+            --danger: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Animated background */
+        .bg-gradient {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(200, 255, 0, 0.08), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 100%, rgba(200, 255, 0, 0.05), transparent),
+                var(--bg);
+            z-index: -1;
+        }
+
+        .bg-noise {
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Floating orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        .orb-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent);
+            top: 10%;
+            left: -50px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 255, 136, 0.5);
+            bottom: 20%;
+            right: -30px;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* Main countdown card */
+        .countdown-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(20, 26, 23, 0.8));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .countdown-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .countdown-number {
+            font-size: clamp(80px, 25vw, 140px);
+            font-weight: 700;
+            line-height: 1;
+            background: linear-gradient(180deg, var(--fg) 0%, var(--muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .countdown-number.accent {
+            background: linear-gradient(180deg, var(--accent) 0%, rgba(200, 255, 0, 0.6) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Event list items */
+        .event-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-dim), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .event-item:hover::after,
+        .event-item:active::after {
+            opacity: 1;
+        }
+
+        .event-item:active {
+            transform: scale(0.98);
+        }
+
+        /* Category badges */
+        .badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-birthday {
+            background: rgba(255, 107, 129, 0.15);
+            color: #ff6b81;
+        }
+
+        .badge-exam {
+            background: rgba(84, 160, 255, 0.15);
+            color: #54a0ff;
+        }
+
+        .badge-deadline {
+            background: rgba(255, 195, 0, 0.15);
+            color: #ffc300;
+        }
+
+        .badge-other {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* FAB button */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(200, 255, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .fab:active {
+            transform: scale(0.92);
+            box-shadow: 0 4px 16px rgba(200, 255, 0, 0.2);
+        }
+
+        .fab svg {
+            width: 24px;
+            height: 24px;
+            color: var(--bg);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom, 0));
+            z-index: 201;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Form inputs */
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--fg);
+            font-size: 16px;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .input-field::placeholder {
+            color: var(--muted);
+        }
+
+        /* Category selector */
+        .category-option {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .category-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: var(--bg);
+            font-weight: 600;
+            font-size: 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 16px;
+            background: transparent;
+            color: var(--muted);
+            font-weight: 500;
+            font-size: 16px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 1; /* fixed: was 0 */ }
+        .delay-2 { animation-delay: 0.2s; opacity: 1; /* fixed: was 0 */ }
+        .delay-3 { animation-delay: 0.3s; opacity: 1; /* fixed: was 0 */ }
+
+        /* Days indicator */
+        .days-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: var(--accent-dim);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* Delete button */
+        .delete-btn {
+            opacity: 1; /* fixed: was 0 */
+            transition: opacity 0.2s;
+        }
+
+        .event-item:hover .delete-btn,
+        .event-item:active .delete-btn {
+            opacity: 1;
+        }
+
+        @media (hover: none) {
+            .delete-btn {
+                opacity: 1;
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="bg-noise"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <main class="px-4 py-6 pb-24 max-w-lg mx-auto">
+        <!-- Header -->
+        <header class="mb-6 animate-in">
+            <h1 class="font-display text-2xl font-bold tracking-tight">倒计时</h1>
+            <p class="text-sm mt-1" style="color: var(--muted);">追踪重要时刻</p>
+        </header>
+
+        <!-- Main Countdown -->
+        <section id="mainCountdown" class="countdown-card p-6 mb-6 animate-in delay-1">
+            <div id="countdownContent">
+                <!-- Dynamic content -->
+            </div>
+        </section>
+
+        <!-- Event List -->
+        <section class="animate-in delay-2">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-display text-lg font-semibold">全部事件</h2>
+                <span id="eventCount" class="text-sm" style="color: var(--muted);">0 个事件</span>
+            </div>
+            <div id="eventList" class="space-y-3">
+                <!-- Dynamic events -->
+            </div>
+        </section>
+    </main>
+
+    <!-- FAB -->
+    <button class="fab" onclick="openModal()" aria-label="添加事件">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
+
+    <!-- Modal -->
+    <div id="modal" class="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-display text-xl font-bold">添加事件</h3>
+                <button onclick="closeModal()" class="p-2" style="color: var(--muted);" aria-label="关闭">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="eventForm" onsubmit="addEvent(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm mb-2" style="color: var(--muted);">事件名称</label>
+                        <input type="text" id="eventName" class="input-field" placeholder="例如：期末考试" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-2" style="color: var(--muted);">日期</label>
+                        <input type="date" id="eventDate" class="input-field" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm mb-3" style="color: var(--muted);">类别</label>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div class="category-option selected" data-category="birthday" onclick="selectCategory(this)">
+                                <span class="badge badge-birthday">生日</span>
+                            </div>
+                            <div class="category-option" data-category="exam" onclick="selectCategory(this)">
+                                <span class="badge badge-exam">考试</span>
+                            </div>
+                            <div class="category-option" data-category="deadline" onclick="selectCategory(this)">
+                                <span class="badge badge-deadline">截止</span>
+                            </div>
+                            <div class="category-option" data-category="other" onclick="selectCategory(this)">
+                                <span class="badge badge-other">其他</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 space-y-3">
+                    <button type="submit" class="btn-primary">保存事件</button>
+                    <button type="button" onclick="closeModal()" class="btn-secondary">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data
+        let events = JSON.parse(localStorage.getItem('countdownEvents')) || [];
+        let selectedCategory = 'birthday';
+
+        // Category config
+        const categoryConfig = {
+            birthday: { label: '生日', badgeClass: 'badge-birthday' },
+            exam: { label: '考试', badgeClass: 'badge-exam' },
+            deadline: { label: '截止', badgeClass: 'badge-deadline' },
+            other: { label: '其他', badgeClass: 'badge-other' }
+        };
+
+        // Calculate days until
+        function getDaysUntil(dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const target = new Date(dateStr);
+            target.setHours(0, 0, 0, 0);
+            const diff = target - today;
+            return Math.ceil(diff / (1000 * 60 * 60 * 24));
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${month}月${day}日`;
+        }
+
+        // Render main countdown
+        function renderMainCountdown() {
+            const container = document.getElementById('countdownContent');
+            
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="mb-4">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--muted); margin: 0 auto;">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12,6 12,12 16,14"></polyline>
+                            </svg>
+                        </div>
+                        <p class="text-lg font-medium mb-2">暂无事件</p>
+                        <p class="text-sm" style="color: var(--muted);">点击下方按钮添加你的第一个倒计时</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort events by date and get nearest
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const nearestEvent = sortedEvents[0];
+            const days = getDaysUntil(nearestEvent.date);
+
+            let daysClass = 'countdown-number';
+            let statusText = '天后';
+            let indicator = '';
+
+            if (days < 0) {
+                daysClass += ' accent';
+                statusText = '天前';
+                indicator = '<span class="days-indicator" style="background: rgba(255, 71, 87, 0.15); color: #ff4757;">已过去</span>';
+            } else if (days === 0) {
+                daysClass += ' accent';
+                statusText = '';
+                indicator = '<span class="days-indicator">就是今天</span>';
+            } else if (days <= 7) {
+                daysClass += ' accent';
+                indicator = '<span class="days-indicator">即将到来</span>';
+            }
+
+            const absDays = Math.abs(days);
+
+            container.innerHTML = `
+                <div class="text-center">
+                    ${indicator}
+                    <div class="mt-4">
+                        <span class="${daysClass} font-display">${absDays}</span>
+                        <span class="text-2xl font-light ml-1" style="color: var(--muted);">${statusText}</span>
+                    </div>
+                    <p class="mt-4 text-lg font-medium">${nearestEvent.name}</p>
+                    <p class="text-sm mt-1" style="color: var(--muted);">${formatDate(nearestEvent.date)}</p>
+                    <span class="badge ${categoryConfig[nearestEvent.category].badgeClass} mt-3 inline-block">${categoryConfig[nearestEvent.category].label}</span>
+                </div>
+            `;
+        }
+
+        // Render event list
+        function renderEventList() {
+            const container = document.getElementById('eventList');
+            const countEl = document.getElementById('eventCount');
+            
+            countEl.textContent = `${events.length} 个事件`;
+
+            if (events.length === 0) {
+                container.innerHTML = `
+                    <div class="event-item p-6 text-center">
+                        <p style="color: var(--muted);">还没有添加任何事件</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by days until
+            const sortedEvents = [...events].sort((a, b) => {
+                const daysA = getDaysUntil(a.date);
+                const daysB = getDaysUntil(b.date);
+                if (daysA < 0 && daysB >= 0) return 1;
+                if (daysA >= 0 && daysB < 0) return -1;
+                return Math.abs(daysA) - Math.abs(daysB);
+            });
+
+            container.innerHTML = sortedEvents.map((event, index) => {
+                const days = getDaysUntil(event.date);
+                const absDays = Math.abs(days);
+                let daysText = '';
+                let daysColor = 'var(--fg)';
+
+                if (days < 0) {
+                    daysText = `${absDays}天前`;
+                    daysColor = 'var(--muted)';
+                } else if (days === 0) {
+                    daysText = '今天';
+                    daysColor = 'var(--accent)';
+                } else {
+                    daysText = `${absDays}天`;
+                    daysColor = days <= 7 ? 'var(--accent)' : 'var(--fg)';
+                }
+
+                return `
+                    <div class="event-item p-4 flex items-center justify-between" data-id="${event.id}">
+                        <div class="flex items-center gap-3 relative z-10">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center font-display font-bold text-lg" 
+                                 style="background: var(--bg); color: ${daysColor};">
+                                ${absDays}
+                            </div>
+                            <div>
+                                <p class="font-medium">${event.name}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs" style="color: var(--muted);">${formatDate(event.date)}</span>
+                                    <span class="badge ${categoryConfig[event.category].badgeClass}" style="font-size: 10px; padding: 2px 6px;">${categoryConfig[event.category].label}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="deleteEvent('${event.id}')" class="delete-btn p-2 rounded-lg relative z-10" style="color: var(--muted);" aria-label="删除事件">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <path d="M3 6h18"></path>
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            document.getElementById('eventName').focus();
+            // Set min date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').min = today;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.getElementById('eventForm').reset();
+            // Reset category selection
+            document.querySelectorAll('.category-option').forEach(el => el.classList.remove('selected'));
+            document.querySelector('[data-category="birthday"]').classList.add('selected');
+            selectedCategory = 'birthday';
+        }
+
+        function closeModalOnOverlay(e) {
+            if (e.target === document.getElementById('modal')) {
+                closeModal();
+            }
+        }
+
+        // Category selection
+        function selectCategory(el) {
+            document.querySelectorAll('.category-option').forEach(opt => opt.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedCategory = el.dataset.category;
+        }
+
+        // Add event
+        function addEvent(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('eventName').value.trim();
+            const date = document.getElementById('eventDate').value;
+
+            if (!name || !date) return;
+
+            const newEvent = {
+                id: Date.now().toString(),
+                name: name,
+                date: date,
+                category: selectedCategory
+            };
+
+            events.push(newEvent);
+            saveEvents();
+            renderAll();
+            closeModal();
+
+            // Haptic feedback if available
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        // Delete event
+        function deleteEvent(id) {
+            events = events.filter(event => event.id !== id);
+            saveEvents();
+            renderAll();
+        }
+
+        // Save to localStorage
+        function saveEvents() {
+            localStorage.setItem('countdownEvents', JSON.stringify(events));
+        }
+
+        // Render all
+        function renderAll() {
+            renderMainCountdown();
+            renderEventList();
+        }
+
+        // Initialize
+        renderAll();
+
+        // Handle escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Prevent scroll when modal is open
+        document.getElementById('modal').addEventListener('touchmove', (e) => {
+            if (e.target === document.getElementById('modal')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

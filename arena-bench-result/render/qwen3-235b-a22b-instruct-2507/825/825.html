@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA中国 | 篮球新闻、比分和球员数据</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(to right, #c8102e, #006bb6);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo span {
+            color: #fdb927;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 2rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+        
+        nav ul li a:hover {
+            color: #fdb927;
+            border-bottom: 2px solid #fdb927;
+        }
+        
+        .hero {
+            background-image: url('https://cdn.nba.com/manage/2022/09/GettyImages-1417252949.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            text-align: center;
+            color: white;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #c8102e;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 2px solid #c8102e;
+        }
+        
+        .btn:hover {
+            background-color: transparent;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 20px;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #c8102e;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid #c8102e;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .live-scores {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .scoreboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .game-card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .team-vs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+        }
+        
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+        
+        .team-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-name {
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .vs {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #c8102e;
+        }
+        
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .status {
+            text-align: center;
+            margin-top: 1rem;
+            font-weight: bold;
+            color: #c8102e;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .news-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .news-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .news-content {
+            padding: 1.5rem;
+        }
+        
+        .news-category {
+            display: inline-block;
+            background-color: #c8102e;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .news-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .news-excerpt {
+            color: #666;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        .stats-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #c8102e;
+            color: #c8102e;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .stats-table th, .stats-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stats-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .stats-table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .player-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .player-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 1rem;
+        }
+        
+        .team-logo-small {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            margin-right: 0.5rem;
+        }
+        
+        footer {
+            background-color: #1a1a1a;
+            color: #ddd;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-column h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 2px;
+            background-color: #c8102e;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-column ul li a {
+            color: #aaa;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: #c8102e;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: #c8102e;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid #333;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+            }
+            
+            nav ul li {
+                margin: 0 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .scoreboard, .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo">NBA<span>中国</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#news">新闻</a></li>
+                    <li><a href="#scores">比分</a></li>
+                    <li><a href="#players">球员</a></li>
+                    <li><a href="#teams">球队</a></li>
+                    <li><a href="#stats">数据统计</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="hero-content">
+            <h1>欢迎来到NBA中国</h1>
+            <p>获取最新的篮球新闻、实时比分和球员统计数据，体验最精彩的篮球世界</p>
+            <a href="#scores" class="btn">查看今日比赛</a>
+        </div>
+    </div>
+
+    <main>
+        <section id="scores">
+            <h2 class="section-title">实时比分</h2>
+            <div class="live-scores">
+                <div class="scoreboard">
+                    <div class="game-card">
+                        <div class="game-header">
+                            <span>常规赛</span>
+                            <span>第三节 2:15</span>
+                        </div>
+                        <div class="team-vs">
+                            <div class="team">
+                                <img src="https://cdn.nba.com/logos/nba/1610612744/global/L/logo.svg" alt="Lakers" class="team-logo">
+                                <span class="team-name">洛杉矶湖人</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg" alt="Lakers" class="team-logo">
+                                <span class="team-name">金州勇士</span>
+                            </div>
+                        </div>
+                        <div class="score">89 - 85</div>
+                        <div class="status">湖人领先</div>
+                    </div>
+
+                    <div class="game-card">
+                        <div class="game-header">
+                            <span>常规赛</span>
+                            <span>第四节 8:30</span>
+                        </div>
+                        <div class="team-vs">
+                            <div class="team">
+                                <img src="https://cdn.nba.com/logos/nba/1610612752/global/L/logo.svg" alt="Lakers" class="team-logo">
+                                <span class="team-name">布鲁克林篮网</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="https://cdn.nba.com/logos/nba/1610612737/global/L/logo.svg" alt="Lakers" class="team-logo">
+                                <span class="team-name">波士顿凯尔特人</span>
+                            </div>
+                        </div>
+                        <div class="score">92 - 98</div>
+                        <div class="status">凯尔特人领先</div>
+                    </div>
+
+                    <div class="game-card">
+                        <div class="game-header">
+                            <span>常规赛</span>
+                            <span>已结束</span>
+                        </div>
+                        <div class="team-vs">
+                            <div class="team">
+                                <img src="https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg" alt="Lakers" class="team-logo">
+                                <span class="team-name">迈阿密热火</span>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <img src="https://cdn.nba.com/logos/nba/1610612761/global/L/logo.svg" alt="Lakers" class="team-logo">
+                                <span class="team-name">密尔沃基雄鹿</span>
+                            </div>
+                        </div>
+                        <div class="score">108 - 115</div>
+                        <div class="status">雄鹿胜</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="news">
+            <h2 class="section-title">最新新闻</h2>
+            <div class="news-grid">
+                <div class="news-card">
+                    <img src="https://cdn.nba.com/manage/2023/04/Kevin-Durant-Finals-Media-Day-Bucks-1.jpg" alt="杜兰特" class="news-img">
+                    <div class="news-content">
+                        <span class="news-category">球员新闻</span>
+                        <h3 class="news-title">杜兰特宣布续约太阳队，承诺冲击总冠军</h3>
+                        <p class="news-excerpt">在今天的新闻发布会上，凯文·杜兰特正式宣布与菲尼克斯太阳队达成续约协议，他表示将继续为球队带来冠军竞争力。</p>
+                        <div class="news-meta">
+                            <span>2小时前</span>
+                            <span>阅读 12.5k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-card">
+                    <img src="https://cdn.nba.com/manage/2023/05/Stephen-Curry-warriors-media-day-2023-1.jpg" alt="库里" class="news-img">
+                    <div class="news-content">
+                        <span class="news-category">球队动态</span>
+                        <h3 class="news-title">库里新赛季目标：带领勇士重返巅峰</h3>
+                        <p class="news-excerpt">斯蒂芬·库里在接受采访时表示，尽管上赛季遭遇挫折，但他对新赛季充满信心，相信勇士队能够重回争冠行列。</p>
+                        <div class="news-meta">
+                            <span>4小时前</span>
+                            <span>阅读 8.2k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-card">
+                    <img src="https://cdn.nba.com/manage/2023/06/NBA-Finals-Games-1-and-2-1.jpg" alt="总决赛" class="news-img">
+                    <div class="news-content">
+                        <span class="news-category">赛事前瞻</span>
+                        <h3 class="news-title">2024赛季季后赛形势分析：谁能问鼎总冠军？</h3>
+                        <p class="news-excerpt">随着常规赛进入尾声，各支球队的排名逐渐明朗。本文深入分析东西部各强队的优劣势，预测季后赛走势。</p>
+                        <div class="news-meta">
+                            <span>6小时前</span>
+                            <span>阅读 15.8k</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="stats">
+            <h2 class="section-title">球员统计数据</h2>
+            <div class="stats-section">
+                <div class="tabs">
+                    <div class="tab active" onclick="openTab(event, 'points')">得分榜</div>
+                    <div class="tab" onclick="openTab(event, 'rebounds')">篮板榜</div>
+                    <div class="tab" onclick="openTab(event, 'assists')">助攻榜</div>
+                    <div class="tab" onclick="openTab(event, 'blocks')">盖帽榜</div>
+                </div>
+
+                <div id="points" class="tab-content active">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>球员</th>
+                                <th>球队</th>
+                                <th>场均得分</th>
+                                <th>出场次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/201939.png" alt="Jayson Tatum" class="player-photo">
+                                        <span>Jayson Tatum</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612738/global/L/logo.svg" alt="Celtics" class="team-logo-small">
+                                        <span>凯尔特人</span>
+                                    </div>
+                                </td>
+                                <td>30.1</td>
+                                <td>68</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png" alt="Giannis Antetokounmpo" class="player-photo">
+                                        <span>Giannis A.</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg" alt="Bucks" class="team-logo-small">
+                                        <span>雄鹿</span>
+                                    </div>
+                                </td>
+                                <td>29.9</td>
+                                <td>63</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/202331.png" alt="Joel Embiid" class="player-photo">
+                                        <span>Joel Embiid</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg" alt="76ers" class="team-logo-small">
+                                        <span>76人</span>
+                                    </div>
+                                </td>
+                                <td>29.8</td>
+                                <td>59</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/201566.png" alt="Stephen Curry" class="player-photo">
+                                        <span>Stephen Curry</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612744/global/L/logo.svg" alt="Warriors" class="team-logo-small">
+                                        <span>勇士</span>
+                                    </div>
+                                </td>
+                                <td>29.4</td>
+                                <td>69</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png" alt="Luka Dončić" class="player-photo">
+                                        <span>Luka Dončić</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612742/global/L/logo.svg" alt="Mavericks" class="team-logo-small">
+                                        <span>独行侠</span>
+                                    </div>
+                                </td>
+                                <td>28.9</td>
+                                <td>67</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="rebounds" class="tab-content">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>球员</th>
+                                <th>球队</th>
+                                <th>场均篮板</th>
+                                <th>出场次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png" alt="Joel Embiid" class="player-photo">
+                                        <span>Joel Embiid</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg" alt="76ers" class="team-logo-small">
+                                        <span>76人</span>
+                                    </div>
+                                </td>
+                                <td>11.2</td>
+                                <td>59</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/201188.png" alt="Nikola Jokić" class="player-photo">
+                                        <span>Nikola Jokić</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612743/global/L/logo.svg" alt="Nuggets" class="team-logo-small">
+                                        <span>掘金</span>
+                                    </div>
+                                </td>
+                                <td>10.8</td>
+                                <td>70</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png" alt="Domantas Sabonis" class="player-photo">
+                                        <span>Domantas S.</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612758/global/L/logo.svg" alt="Kings" class="team-logo-small">
+                                        <span>国王</span>
+                                    </div>
+                                </td>
+                                <td>10.5</td>
+                                <td>68</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203460.png" alt="Rudy Gobert" class="player-photo">
+                                        <span>Rudy Gobert</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612762/global/L/logo.svg" alt="Timberwolves" class="team-logo-small">
+                                        <span>森林狼</span>
+                                    </div>
+                                </td>
+                                <td>10.3</td>
+                                <td>69</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203903.png" alt="Anthony Davis" class="player-photo">
+                                        <span>Anthony Davis</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg" alt="Lakers" class="team-logo-small">
+                                        <span>湖人</span>
+                                    </div>
+                                </td>
+                                <td>10.1</td>
+                                <td>63</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="assists" class="tab-content">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>球员</th>
+                                <th>球队</th>
+                                <th>场均助攻</th>
+                                <th>出场次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203924.png" alt="Tyrese Haliburton" class="player-photo">
+                                        <span>Tyrese H.</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612754/global/L/logo.svg" alt="Pacers" class="team-logo-small">
+                                        <span>步行者</span>
+                                    </div>
+                                </td>
+                                <td>10.9</td>
+                                <td>53</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/201566.png" alt="Chris Paul" class="player-photo">
+                                        <span>Chris Paul</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612745/global/L/logo.svg" alt="Suns" class="team-logo-small">
+                                        <span>太阳</span>
+                                    </div>
+                                </td>
+                                <td>10.8</td>
+                                <td>69</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/202710.png" alt="James Harden" class="player-photo">
+                                        <span>James Harden</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg" alt="Clippers" class="team-logo-small">
+                                        <span>快船</span>
+                                    </div>
+                                </td>
+                                <td>9.8</td>
+                                <td>65</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png" alt="Luka Dončić" class="player-photo">
+                                        <span>Luka Dončić</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612742/global/L/logo.svg" alt="Mavericks" class="team-logo-small">
+                                        <span>独行侠</span>
+                                    </div>
+                                </td>
+                                <td>9.5</td>
+                                <td>67</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/201566.png" alt="Stephen Curry" class="player-photo">
+                                        <span>Stephen Curry</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612744/global/L/logo.svg" alt="Warriors" class="team-logo-small">
+                                        <span>勇士</span>
+                                    </div>
+                                </td>
+                                <td>6.8</td>
+                                <td>69</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="blocks" class="tab-content">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>球员</th>
+                                <th>球队</th>
+                                <th>场均盖帽</th>
+                                <th>出场次数</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203460.png" alt="Rudy Gobert" class="player-photo">
+                                        <span>Rudy Gobert</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612762/global/L/logo.svg" alt="Timberwolves" class="team-logo-small">
+                                        <span>森林狼</span>
+                                    </div>
+                                </td>
+                                <td>2.7</td>
+                                <td>69</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203903.png" alt="Anthony Davis" class="player-photo">
+                                        <span>Anthony Davis</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612747/global/L/logo.svg" alt="Lakers" class="team-logo-small">
+                                        <span>湖人</span>
+                                    </div>
+                                </td>
+                                <td>2.3</td>
+                                <td>63</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203076.png" alt="Giannis Antetokounmpo" class="player-photo">
+                                        <span>Giannis A.</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612749/global/L/logo.svg" alt="Bucks" class="team-logo-small">
+                                        <span>雄鹿</span>
+                                    </div>
+                                </td>
+                                <td>2.1</td>
+                                <td>63</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png" alt="Joel Embiid" class="player-photo">
+                                        <span>Joel Embiid</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612755/global/L/logo.svg" alt="76ers" class="team-logo-small">
+                                        <span>76人</span>
+                                    </div>
+                                </td>
+                                <td>1.9</td>
+                                <td>59</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/headshots/nba/latest/1040x760/202685.png" alt="Myles Turner" class="player-photo">
+                                        <span>Myles Turner</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="player-info">
+                                        <img src="https://cdn.nba.com/logos/nba/1610612754/global/L/logo.svg" alt="Pacers" class="team-logo-small">
+                                        <span>步行者</span>
+                                    </div>
+                                </td>
+                                <td>1.8</td>
+                                <td>53</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <h3>NBA中国</h3>
+                <ul>
+                    <li><a href="#">关于我们</a></li>
+                    <li><a href="#">联系我们</a></li>
+                    <li><a href="#">招聘信息</a></li>
+                    <li><a href="#">NBA商店</a></li>
+                    <li><a href="#">NBA票务</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>球队</h3>
+                <ul>
+                    <li><a href="#">湖人</a></li>
+                    <li><a href="#">勇士</a></li>
+                    <li><a href="#">篮网</a></li>
+                    <li><a href="#">凯尔特人</a></li>
+                    <li><a href="#">更多球队</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>资源</h3>
+                <ul>
+                    <li><a href="#">视频集锦</a></li>
+                    <li><a href="#">精彩图片</a></li>
+                    <li><a href="#">NBA纪录片</a></li>
+                    <li><a href="#">篮球技巧</a></li>
+                    <li><a href="#">青训计划</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>关注我们</h3>
+                <div class="social-links">
+                    <a href="#" aria-label="微博">W</a>
+                    <a href="#" aria-label="微信">X</a>
+                    <a href="#" aria-label="抖音">D</a>
+                    <a href="#" aria-label="Instagram">I</a>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #aaa;">扫描二维码关注官方账号</p>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>© 2023 NBA中国. 版权所有. 本网站内容仅供参考，不代表NBA官方立场.</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #666;">注：本演示网站所有数据均为模拟数据，仅用于展示目的.</p>
+        </div>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            // 隐藏所有标签内容
+            var tabcontent = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].className = tabcontent[i].className.replace(" active", "");
+            }
+            
+            // 移除所有标签的激活状态
+            var tablinks = document.getElementsByClassName("tab");
+            for (var i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            
+            // 显示当前标签内容并添加激活类
+            document.getElementById(tabName).className += " active";
+            evt.currentTarget.className += " active";
+        }
+        
+        // 页面加载时确保第一个标签是激活状态
+        window.onload = function() {
+            // 默认第一个标签已经激活，无需额外操作
+            // 如果需要动态控制，可以在这里添加代码
+        };
+        
+        // 添加平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字银行平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        
+        main {
+            padding: 30px 0;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 25px;
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .accounts-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #1a73e8;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 10px;
+        }
+        
+        .account-cards {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .account-card {
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .account-card::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+        
+        .account-type {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .account-balance {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .account-number {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        
+        .quick-actions {
+            margin-top: 25px;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .action-btn {
+            background-color: white;
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: #1a73e8;
+        }
+        
+        .activity-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .transactions-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a73e8;
+        }
+        
+        .transaction-details h4 {
+            font-size: 1rem;
+            margin-bottom: 3px;
+        }
+        
+        .transaction-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .positive {
+            color: #0f9d58;
+        }
+        
+        .negative {
+            color: #db4437;
+        }
+        
+        .add-transaction {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .add-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto;
+        }
+        
+        .add-btn:hover {
+            background-color: #0d62c9;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .close-modal {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #0d62c9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">数字银行</div>
+            <div class="user-info">
+                <span>欢迎，张三</span>
+                <div class="user-avatar">Z</div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <main>
+            <div class="dashboard">
+                <div class="accounts-section">
+                    <h2 class="section-title">我的账户</h2>
+                    <div class="account-cards">
+                        <div class="account-card">
+                            <div class="account-type">活期账户</div>
+                            <div class="account-balance">¥12,458.67</div>
+                            <div class="account-number">**** **** **** 1234</div>
+                        </div>
+                        <div class="account-card">
+                            <div class="account-type">储蓄账户</div>
+                            <div class="account-balance">¥45,230.00</div>
+                            <div class="account-number">**** **** **** 5678</div>
+                        </div>
+                        <div class="account-card">
+                            <div class="account-type">信用卡</div>
+                            <div class="account-balance">可用额度 ¥8,750.00</div>
+                            <div class="account-number">**** **** **** 9012</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <h3 class="section-title">快捷操作</h3>
+                        <div class="actions-grid">
+                            <div class="action-btn" id="transferBtn">
+                                <div class="action-icon">📤</div>
+                                <span>转账</span>
+                            </div>
+                            <div class="action-btn" id="payBillBtn">
+                                <div class="action-icon">🧾</div>
+                                <span>支付账单</span>
+                            </div>
+                            <div class="action-btn" id="depositBtn">
+                                <div class="action-icon">📥</div>
+                                <span>存款</span>
+                            </div>
+                            <div class="action-btn" id="exchangeBtn">
+                                <div class="action-icon">💱</div>
+                                <span>货币兑换</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-section">
+                    <h2 class="section-title">最近交易</h2>
+                    <div class="transactions-list" id="transactionsList">
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">🏪</div>
+                                <div class="transaction-details">
+                                    <h4>超市购物</h4>
+                                    <span class="transaction-date">今天 14:32</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount negative">-¥234.50</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">💰</div>
+                                <div class="transaction-details">
+                                    <h4>工资收入</h4>
+                                    <span class="transaction-date">昨天 09:15</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount positive">+¥12,500.00</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">🍔</div>
+                                <div class="transaction-details">
+                                    <h4>快餐店</h4>
+                                    <span class="transaction-date">昨天 12:45</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount negative">-¥78.00</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">🏠</div>
+                                <div class="transaction-details">
+                                    <h4>房租支付</h4>
+                                    <span class="transaction-date">04/01/2023</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount negative">-¥3,500.00</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">💸</div>
+                                <div class="transaction-details">
+                                    <h4>朋友转账</h4>
+                                    <span class="transaction-date">03/28/2023</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount positive">+¥500.00</div>
+                        </div>
+                        <div class="transaction-item">
+                            <div class="transaction-info">
+                                <div class="transaction-icon">💳</div>
+                                <div class="transaction-details">
+                                    <h4>信用卡还款</h4>
+                                    <span class="transaction-date">03/25/2023</span>
+                                </div>
+                            </div>
+                            <div class="transaction-amount negative">-¥2,800.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="add-transaction">
+                        <button id="addTransactionBtn" class="add-btn">➕ 添加新交易</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加新交易</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="transactionType">交易类型</label>
+                    <select id="transactionType" required>
+                        <option value="">请选择类型</option>
+                        <option value="expense">支出</option>
+                        <option value="income">收入</option>
+                        <option value="transfer">转账</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDescription">描述</label>
+                    <input type="text" id="transactionDescription" placeholder="请输入交易描述" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionAmount">金额 (¥)</label>
+                    <input type="number" id="transactionAmount" placeholder="0.00" min="0.01" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDate">日期</label>
+                    <input type="date" id="transactionDate" required>
+                </div>
+                <button type="submit">保存交易</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Action Modals -->
+    <div id="transferModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>转账</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <form id="transferForm">
+                <div class="form-group">
+                    <label for="fromAccount">从账户</label>
+                    <select id="fromAccount" required>
+                        <option value="checking">活期账户 (¥12,458.67)</option>
+                        <option value="savings">储蓄账户 (¥45,230.00)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="toAccount">到账户</label>
+                    <select id="toAccount" required>
+                        <option value="savings">储蓄账户</option>
+                        <option value="credit">信用卡</option>
+                        <option value="external">外部账户</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transferAmount">转账金额 (¥)</label>
+                    <input type="number" id="transferAmount" placeholder="0.00" min="0.01" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="transferNote">备注</label>
+                    <input type="text" id="transferNote" placeholder="可选">
+                </div>
+                <button type="submit">确认转账</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Get current date for the transaction date field
+        document.getElementById('transactionDate').valueAsDate = new Date();
+        
+        // Modal elements
+        const transactionModal = document.getElementById('transactionModal');
+        const transferModal = document.getElementById('transferModal');
+        const addTransactionBtn = document.getElementById('addTransactionBtn');
+        const transferBtn = document.getElementById('transferBtn');
+        const payBillBtn = document.getElementById('payBillBtn');
+        const depositBtn = document.getElementById('depositBtn');
+        const exchangeBtn = document.getElementById('exchangeBtn');
+        
+        // Close buttons
+        const closeButtons = document.querySelectorAll('.close-modal');
+        
+        // Open modals
+        addTransactionBtn.addEventListener('click', () => {
+            transactionModal.style.display = 'flex';
+        });
+        
+        transferBtn.addEventListener('click', () => {
+            transferModal.style.display = 'flex';
+        });
+        
+        // Pay Bill button - just show an alert for demo purposes
+        payBillBtn.addEventListener('click', () => {
+            alert('账单支付功能即将上线！');
+        });
+        
+        depositBtn.addEventListener('click', () => {
+            alert('存款功能即将上线！');
+        });
+        
+        exchangeBtn.addEventListener('click', () => {
+            alert('货币兑换功能即将上线！');
+        });
+        
+        // Close modals
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                transactionModal.style.display = 'none';
+                transferModal.style.display = 'none';
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target === transactionModal) {
+                transactionModal.style.display = 'none';
+            }
+            if (event.target === transferModal) {
+                transferModal.style.display = 'none';
+            }
+        });
+        
+        // Handle form submissions
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('transactionType').value;
+            const description = document.getElementById('transactionDescription').value;
+            const amount = parseFloat(document.getElementById('transactionAmount').value).toFixed(2);
+            const date = document.getElementById('transactionDate').value;
+            
+            // Format date for display
+            const dateObj = new Date(date);
+            const formattedDate = dateObj.toLocaleDateString('zh-CN');
+            
+            // Create new transaction element
+            const transactionsList = document.getElementById('transactionsList');
+            const newTransaction = document.createElement('div');
+            newTransaction.className = 'transaction-item';
+            
+            // Determine icon and amount formatting based on type
+            let icon = '🛍️';
+            let amountClass = 'negative';
+            let amountPrefix = '-';
+            
+            if (type === 'income') {
+                icon = '💰';
+                amountClass = 'positive';
+                amountPrefix = '+';
+            } else if (type === 'transfer') {
+                icon = '🔄';
+            }
+            
+            newTransaction.innerHTML = `
+                <div class="transaction-info">
+                    <div class="transaction-icon">${icon}</div>
+                    <div class="transaction-details">
+                        <h4>${description}</h4>
+                        <span class="transaction-date">${formattedDate}</span>
+                    </div>
+                </div>
+                <div class="transaction-amount ${amountClass}">${amountPrefix}¥${amount}</div>
+            `;
+            
+            // Add to the top of the list
+            transactionsList.insertBefore(newTransaction, transactionsList.firstChild);
+            
+            // Reset form and close modal
+            this.reset();
+            document.getElementById('transactionDate').valueAsDate = new Date();
+            transactionModal.style.display = 'none';
+            
+            alert('交易已成功添加！');
+        });
+        
+        document.getElementById('transferForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const amount = document.getElementById('transferAmount').value;
+            transferModal.style.display = 'none';
+            this.reset();
+            
+            // Show success message
+            alert(`成功转账 ¥${amount}！`);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>同人小说门户网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-bottom: 2px solid #4CAF50;
+            display: inline-block;
+        }
+
+        .grid {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            flex: 1 1 calc(33% - 20px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+        }
+
+        .card h3 {
+            color: #4CAF50;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #222;
+            color: #fff;
+            margin-top: 20px;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #4CAF50;
+            padding: 10px 20px;
+        }
+
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            margin: 0 10px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        /* Real-Time Feed Section */
+        #feed-container {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .story-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .story-item:last-child {
+            border-bottom: none;
+        }
+
+        .story-item span {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            background: #ffffff;
+            border: 1px solid #ddd;
+            flex: 1;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>同人小说门户网站</h1>
+        <p>探索无限的故事创意与灵感</p>
+    </header>
+
+    <nav class="navbar">
+        <a href="#home">首页</a>
+        <a href="#overview">门户概述</a>
+        <a href="#favorites">收藏</a>
+        <a href="#authors">活跃作者</a>
+        <a href="#profile">个人资料</a>
+    </nav>
+
+    <main>
+        <!-- Landing Page -->
+        <section id="overview">
+            <h2 class="section-title">门户概述</h2>
+            <p>这里是向世界展示你的同人作品的地方，同时发现其他粉丝创作者的优秀作品。</p>
+        </section>
+
+        <!-- Most Popular Stories -->
+        <section id="popular-stories">
+            <h2 class="section-title">最受好评的作品</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>故事标题 1</h3>
+                    <p>这是一个吸引人的故事简介，让读者想要阅读更多。</p>
+                </div>
+                <div class="card">
+                    <h3>故事标题 2</h3>
+                    <p>这是另一个精彩的好评故事。这本同人小说很受欢迎。</p>
+                </div>
+                <div class="card">
+                    <h3>故事标题 3</h3>
+                    <p>这部故事收到了大量粉丝的正反馈，一定不要错过。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Real-Time Feed -->
+        <section id="feed">
+            <h2 class="section-title">最新故事</h2>
+            <div id="feed-container">
+                <div class="story-item">
+                    <span>2023-03-15</span>
+                    <p>用户A上传了一部新作“故事的奇遇”。</p>
+                </div>
+                <div class="story-item">
+                    <span>2023-03-14</span>
+                    <p>用户B上传了一部精彩的冒险故事。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sidebar Content -->
+        <section id="sidebar-section">
+            <h2 class="section-title">快速导航</h2>
+            <div class="sidebar">
+                <h3>我的故事</h3>
+                <p>查看您上传的所有公开作品和草稿。</p>
+
+                <h3>角色与同人圈</h3>
+                <p>发现更多共同爱好的粉丝，全新创作机会。</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 同人小说门户 | 创意无限，故事无尽</p>
+    </footer>
+
+    <script>
+        // Example JavaScript for Real-Time Updates
+        setInterval(() => {
+            const feedContainer = document.getElementById("feed-container");
+            const newStory = document.createElement("div");
+            newStory.classList.add("story-item");
+            const now = new Date();
+            const time = now.toISOString().split('T')[0];
+            newStory.innerHTML = `<span>${time}</span><p>用户X刚刚上传了新的故事！快来查看。</p>`;
+            feedContainer.prepend(newStory);
+        }, 10000); // Adds a new story every 10 seconds
+    </script>
+</body>
+
+</html>

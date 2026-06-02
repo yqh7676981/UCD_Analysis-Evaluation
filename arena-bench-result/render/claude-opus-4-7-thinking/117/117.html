@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SciConnect · 科学家协作平台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #4f46e5;
+    --primary-dark: #3730a3;
+    --accent: #06b6d4;
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --success: #10b981;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  header {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    color: white;
+    padding: 16px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+  }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a {
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: white; }
+  .btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+  .btn-light {
+    background: white;
+    color: var(--primary);
+  }
+  .btn-light:hover { background: #f1f5f9; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: #f1f5f9; }
+
+  .hero {
+    text-align: center;
+    padding: 70px 20px 50px;
+    background: linear-gradient(180deg, rgba(79,70,229,0.06), transparent);
+  }
+  .hero h1 {
+    font-size: 44px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 680px;
+    margin: 0 auto 28px;
+  }
+  .hero-actions { display: flex; gap: 12px; justify-content: center; }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 30px auto;
+  }
+  .stat {
+    background: var(--card);
+    padding: 22px;
+    border-radius: 14px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    gap: 24px;
+    margin: 40px auto 60px;
+  }
+  .sidebar {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    height: fit-content;
+    position: sticky;
+    top: 88px;
+  }
+  .sidebar h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .field-list { list-style: none; }
+  .field-list li {
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.15s;
+  }
+  .field-list li:hover { background: #f1f5f9; }
+  .field-list li.active {
+    background: linear-gradient(135deg, rgba(79,70,229,0.1), rgba(6,182,212,0.1));
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .field-count {
+    font-size: 12px;
+    background: #e2e8f0;
+    color: var(--muted);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .feed { display: flex; flex-direction: column; gap: 16px; }
+  .composer {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .composer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    display: grid;
+    place-items: center;
+    color: white;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .composer textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .composer textarea:focus { border-color: var(--primary); }
+  .composer input[type="text"] {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+    margin-bottom: 10px;
+    font-family: inherit;
+  }
+  .composer input[type="text"]:focus { border-color: var(--primary); }
+  .composer-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    gap: 10px;
+  }
+  .composer-footer select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+  }
+
+  .post {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .post-head {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .post-meta h4 { font-size: 15px; font-weight: 600; }
+  .post-meta .info {
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 2px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    background: rgba(79,70,229,0.1);
+    color: var(--primary);
+  }
+  .post-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .post-body {
+    font-size: 14px;
+    color: #334155;
+    margin-bottom: 14px;
+  }
+  .post-actions {
+    display: flex;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .act-btn {
+    background: none;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .act-btn:hover { background: #f1f5f9; color: var(--primary); }
+  .act-btn.liked { color: #ef4444; }
+  .act-btn.collab { color: var(--success); }
+
+  .comments {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    display: none;
+  }
+  .comments.open { display: block; }
+  .comment {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .comment .avatar { width: 32px; height: 32px; font-size: 13px; }
+  .comment-body {
+    background: #f1f5f9;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    flex: 1;
+  }
+  .comment-body strong { display: block; font-size: 12px; margin-bottom: 2px; }
+  .comment-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .comment-input input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 14px;
+    outline: none;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .comment-input input:focus { border-color: var(--primary); }
+
+  .widget {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .widget h3 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .scientist {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .scientist:last-child { border-bottom: none; }
+  .scientist-info { flex: 1; }
+  .scientist-info .name { font-size: 14px; font-weight: 600; }
+  .scientist-info .field { font-size: 12px; color: var(--muted); }
+  .follow-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    border: 1px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .follow-btn.following { background: var(--primary); color: white; }
+
+  .topic {
+    padding: 8px 0;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .topic:hover { color: var(--primary); }
+  .topic .hash { color: var(--accent); font-weight: 600; }
+  .topic .count { font-size: 11px; color: var(--muted); }
+
+  footer {
+    background: #0f172a;
+    color: #cbd5e1;
+    padding: 30px 20px;
+    text-align: center;
+    font-size: 13px;
+  }
+  footer a { color: #06b6d4; text-decoration: none; }
+
+  @media (max-width: 960px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 32px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">
+      <div class="logo-icon">🔬</div>
+      <span>SciConnect</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#feed">动态</a>
+      <a href="#collab">协作</a>
+      <a href="#topics">话题</a>
+      <a href="#about">关于</a>
+    </nav>
+    <button class="btn btn-light">登录 / 注册</button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>让思想跨越学科的边界</h1>
+  <p>SciConnect 是一个面向全球科学家的协作平台，在这里分享你的研究想法，发现跨学科合作机会，与各领域专家共同推动科学前沿。</p>
+  <div class="hero-actions">
+    <button class="btn btn-primary" onclick="document.getElementById('post-input').focus()">✦ 发布想法</button>
+    <button class="btn btn-ghost">了解更多</button>
+  </div>
+</section>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="stat-users">12,480</div><div class="stat-label">活跃科研人员</div></div>
+    <div class="stat"><div class="stat-num" id="stat-ideas">3,256</div><div class="stat-label">研究想法</div></div>
+    <div class="stat"><div class="stat-num">847</div><div class="stat-label">跨学科项目</div></div>
+    <div class="stat"><div class="stat-num">62</div><div class="stat-label">国家与地区</div></div>
+  </div>
+
+  <div class="main-grid">
+    <aside class="sidebar">
+      <h3>研究领域</h3>
+      <ul class="field-list" id="field-list">
+        <li class="active" data-field="all">全部 <span class="field-count" id="count-all">0</span></li>
+        <li data-field="物理">🪐 物理学 <span class="field-count">124</span></li>
+        <li data-field="生物">🧬 生物学 <span class="field-count">203</span></li>
+        <li data-field="化学">⚗️ 化学 <span class="field-count">89</span></li>
+        <li data-field="计算机">💻 计算机科学 <span class="field-count">317</span></li>
+        <li data-field="医学">🩺 医学 <span class="field-count">156</span></li>
+        <li data-field="数学">📐 数学 <span class="field-count">72</span></li>
+        <li data-field="天文">🌌 天文学 <span class="field-count">48</span></li>
+        <li data-field="心理">🧠 心理学 <span class="field-count">91</span></li>
+      </ul>
+    </aside>
+
+    <main class="feed" id="feed">
+      <div class="composer">
+        <div class="composer-header">
+          <div class="avatar">我</div>
+          <div>
+            <div style="font-weight:600;">分享你的研究想法</div>
+            <div style="font-size:12px;color:var(--muted);">想法可能启发下一次突破</div>
+          </div>
+        </div>
+        <input type="text" id="post-title" placeholder="想法标题，例如：利用机器学习预测蛋白质折叠">
+        <textarea id="post-input" placeholder="详细描述你的研究想法、假设或遇到的问题……"></textarea>
+        <div class="composer-footer">
+          <select id="post-field">
+            <option value="物理">物理学</option>
+            <option value="生物">生物学</option>
+            <option value="化学">化学</option>
+            <option value="计算机" selected>计算机科学</option>
+            <option value="医学">医学</option>
+            <option value="数学">数学</option>
+            <option value="天文">天文学</option>
+            <option value="心理">心理学</option>
+          </select>
+          <button class="btn btn-primary" onclick="publishPost()">发布想法</button>
+        </div>
+      </div>
+      <div id="posts"></div>
+    </main>
+
+    <aside>
+      <div class="widget">
+        <h3>推荐科学家</h3>
+        <div class="scientist">
+          <div class="avatar" style="background:linear-gradient(135deg,#ec4899,#f59e0b);">陈</div>
+          <div class="scientist-info"><div class="name">陈思源 博士</div><div class="field">量子计算</div></div>
+          <button class="follow-btn" onclick="toggleFollow(this)">关注</button>
+        </div>
+        <div class="scientist">
+          <div class="avatar" style="background:linear-gradient(135deg,#10b981,#06b6d4);">Dr</div>
+          <div class="scientist-info"><div class="name">Dr. A. Kumar</div><div class="field">合成生物学</div></div>
+          <button class="follow-btn" onclick="toggleFollow(this)">关注</button>
+        </div>
+        <div class="scientist">
+          <div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899);">李</div>
+          <div class="scientist-info"><div class="name">李雯 教授</div><div class="field">神经科学</div></div>
+          <button class="follow-btn" onclick="toggleFollow(this)">关注</button>
+        </div>
+      </div>
+
+      <div class="widget" id="topics">
+        <h3>热门话题</h3>
+        <div class="topic"><span class="hash">#</span>CRISPR基因编辑 <div class="count">2,341 篇讨论</div></div>
+        <div class="topic"><span class="hash">#</span>量子纠错码 <div class="count">1,208 篇讨论</div></div>
+        <div class="topic"><span class="hash">#</span>气候模型 <div class="count">987 篇讨论</div></div>
+        <div class="topic"><span class="hash">#</span>大语言模型与科研 <div class="count">3,542 篇讨论</div></div>
+        <div class="topic"><span class="hash">#</span>蛋白质结构预测 <div class="count">765 篇讨论</div></div>
+      </div>
+
+      <div class="widget" id="collab" style="background:linear-gradient(135deg,#4f46e5,#06b6d4);color:white;border:none;">
+        <h3 style="color:rgba(255,255,255,0.8);">寻找合作</h3>
+        <p style="font-size:13px;margin-bottom:12px;">跨学科合作能带来意想不到的突破。发布你的合作需求，匹配全球专家。</p>
+        <button class="btn btn-light" style="width:100%;">发起合作项目</button>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div style="margin-bottom:8px;">© 2025 SciConnect · 让科学走得更远</div>
+  <div>由科学家构建，为科学家服务 · <a href="#">联系我们</a> · <a href="#">学术准则</a></div>
+</footer>
+
+<script>
+  const fieldIcons = {
+    '物理':'🪐','生物':'🧬','化学':'⚗️','计算机':'💻',
+    '医学':'🩺','数学':'📐','天文':'🌌','心理':'🧠'
+  };
+
+  let posts = [
+    {
+      id: 1,
+      author: 'Dr. 林婉清',
+      avatar: '林',
+      gradient: 'linear-gradient(135deg,#ef4444,#f59e0b)',
+      field: '生物',
+      time: '2 小时前',
+      title: '利用类器官模型研究阿尔茨海默症的早期机制',
+      body: '我们正在构建带有免疫细胞的脑类器官，希望观察 tau 蛋白异常聚集的早期事件。期待与有 iPSC 技术或单细胞测序经验的团队交流，共同设计实验路径。',
+      likes: 48, liked: false,
+      collabs: 7,
+      comments: [
+        {author: 'Dr. Kumar', text: '我们实验室有完整 scRNA-seq 流程，欢迎私信讨论合作细节。'},
+        {author: '王研究员', text: '建议加入微胶质细胞共培养，能更好地模拟炎症反应。'}
+      ],
+      commentsOpen: false
+    },
+    {
+      id: 2,
+      author: '周明远 教授',
+      avatar: '周',
+      gradient: 'linear-gradient(135deg,#4f46e5,#06b6d4)',
+      field: '计算机',
+      time: '5 小时前',
+      title: '用图神经网络辅助材料发现，寻找交叉学科合作者',
+      body: '我们在 GNN 框架上已积累了稳定的分子表征能力，正在拓展到无机晶体材料。如果有化学或材料领域的团队有标注数据或合成验证条件，欢迎合作发文。',
+      likes: 92, liked: false,
+      collabs: 14,
+      comments: [
+        {author: '张博士', text: '我们组有钙钛矿相关的实验数据，可以考虑联合建模。'}
+      ],
+      commentsOpen: false
+    },
+    {
+      id: 3,
+      author: 'Prof. Ana Ruiz',
+      avatar: 'A',
+      gradient: 'linear-gradient(135deg,#10b981,#06b6d4)',
+      field: '天文',
+      time: '昨天',
+      title: '系外行星大气光谱的非监督聚类分析',
+      body: '通过 JWST 最新释放的数据集，我尝试用变分自编码器对行星大气进行聚类。初步看到 3 个明显簇，想听听统计学界同仁的方法论意见。',
+      likes: 134, liked: true,
+      collabs: 21,
+      comments: [],
+      commentsOpen: false
+    },
+    {
+      id: 4,
+      author: '高琳 研究员',
+      avatar: '高',
+      gradient: 'linear-gradient(135deg,#8b5cf6,#ec4899)',
+      field: '心理',
+      time: '2 天前',
+      title: '数字疗法对青少年焦虑的长期效果：寻找临床合作',
+      body: '我们开发了基于 CBT 的 APP 干预方案，小规模试验效果显著。希望扩大到多中心研究，寻找精神科与数据分析团队共同推进。',
+      likes: 67, liked: false,
+      collabs: 9,
+      comments: [],
+      commentsOpen: false
+    }
+  ];
+
+  let currentFilter = 'all';
+
+  function renderPosts() {
+    const container = document.getElementById('posts');
+    const visible = posts.filter(p => currentFilter === 'all' || p.field === currentFilter);
+    document.getElementById('count-all').textContent = posts.length;
+    if (visible.length === 0) {
+      container.innerHTML = '<div class="post" style="text-align:center;color:var(--muted);">这个领域还没有想法，快来分享第一个吧 ✦</div>';
+      return;
+    }
+    container.innerHTML = visible.map(p => `
+      <article class="post" data-id="${p.id}">
+        <div class="post-head">
+          <div class="avatar" style="background:${p.gradient};">${p.avatar}</div>
+          <div class="post-meta" style="flex:1;">
+            <h4>${p.author}</h4>
+            <div class="info">
+              <span class="tag">${fieldIcons[p.field]||''} ${p.field}</span>
+              <span>· ${p.time}</span>
+            </div>
+          </div>
+        </div>
+        <div class="post-title">${p.title}</div>
+        <div class="post-body">${p.body}</div>
+        <div class="post-actions">
+          <button class="act-btn ${p.liked?'liked':''}" onclick="toggleLike(${p.id})">
+            ${p.liked?'❤️':'🤍'} <span>${p.likes}</span>
+          </button>
+          <button class="act-btn" onclick="toggleComments(${p.id})">💬 <span>${p.comments.length}</span></button>
+          <button class="act-btn collab" onclick="requestCollab(${p.id})">🤝 合作 (${p.collabs})</button>
+          <button class="act-btn" onclick="sharePost(${p.id})">🔗 分享</button>
+        </div>
+        <div class="comments ${p.commentsOpen?'open':''}">
+          ${p.comments.map(c=>`
+            <div class="comment">
+              <div class="avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8);">${c.author[0]}</div>
+              <div class="comment-body"><strong>${c.author}</strong>${c.text}</div>
+            </div>
+          `).join('')}
+          <div class="comment-input">
+            <input type="text" placeholder="发表你的专业见解…" onkeydown="if(event.key==='Enter')addComment(${p.id},this)">
+            <button class="btn btn-primary" onclick="addComment(${p.id},this.previousElementSibling)">发送</button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+  }
+
+  function toggleLike(id) {
+    const p = posts.find(x => x.id === id);
+    p.liked = !p.liked;
+    p.likes += p.liked ? 1 : -1;
+    renderPosts();
+  }
+
+  function toggleComments(id) {
+    const p = posts.find(x => x.id === id);
+    p.commentsOpen = !p.commentsOpen;
+    renderPosts();
+  }
+
+  function addComment(id, input) {
+    const text = input.value.trim();
+    if (!text) return;
+    const p = posts.find(x => x.id === id);
+    p.comments.push({author:'我', text});
+    p.commentsOpen = true;
+    renderPosts();
+  }
+
+  function requestCollab(id) {
+    const p = posts.find(x => x.id === id);
+    p.collabs += 1;
+    alert(`✓ 已向「${p.author}」发送合作邀请！\n他们会收到你的专业背景并回复你。`);
+    renderPosts();
+  }
+
+  function sharePost(id) {
+    const p = posts.find(x => x.id === id);
+    alert(`🔗 链接已复制：\nsciconnect.org/idea/${id}\n标题：${p.title}`);
+  }
+
+  function publishPost() {
+    const title = document.getElementById('post-title').value.trim();
+    const body = document.getElementById('post-input').value.trim();
+    const field = document.getElementById('post-field').value;
+    if (!title || !body) {
+      alert('请填写标题和内容，让同行更好地理解你的想法 ✦');
+      return;
+    }
+    posts.unshift({
+      id: Date.now(),
+      author: '我（研究员）',
+      avatar: '我',
+      gradient: 'linear-gradient(135deg,#4f46e5,#06b6d4)',
+      field, time: '刚刚',
+      title, body,
+      likes: 0, liked: false,
+      collabs: 0,
+      comments: [],
+      commentsOpen: false
+    });
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-input').value = '';
+    document.getElementById('stat-ideas').textContent = (parseInt(document.getElementById('stat-ideas').textContent.replace(',',''))+1).toLocaleString();
+    renderPosts();
+    window.scrollTo({top: document.querySelector('#posts').offsetTop - 100, behavior: 'smooth'});
+  }
+
+  function toggleFollow(btn) {
+    btn.classList.toggle('following');
+    btn.textContent = btn.classList.contains('following') ? '已关注' : '关注';
+  }
+
+  document.getElementById('field-list').addEventListener('click', e => {
+    const li = e.target.closest('li');
+    if (!li) return;
+    document.querySelectorAll('#field-list li').forEach(x => x.classList.remove('active'));
+    li.classList.add('active');
+    currentFilter = li.dataset.field;
+    renderPosts();
+  });
+
+  renderPosts();
+</script>
+</body>
+</html>

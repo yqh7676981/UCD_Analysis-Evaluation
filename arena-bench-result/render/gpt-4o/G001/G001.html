@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>飞机大战</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            touch-action: none; /* 禁止触摸滚动 */
+        }
+        canvas {
+            display: block;
+        }
+        #score {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+<div id="score">Score: 0</div>
+<canvas id="gameCanvas"></canvas>
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// 设置Canvas的宽高为手机屏幕大小
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// 游戏元素
+const player = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 80,
+    width: 50,
+    height: 50,
+    speed: 5,
+    bullets: [],
+};
+
+const enemies = [];
+let score = 0;
+
+// 创建敌机
+function createEnemy() {
+    const x = Math.random() * (canvas.width - 50);
+    enemies.push({ x, y: -50, width: 50, height: 50, speed: 2 + Math.random() * 2 });
+}
+
+setInterval(createEnemy, 1000);
+
+// 玩家移动方向
+const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
+
+// 按键事件
+window.addEventListener('keydown', (e) => {
+    if (keys.hasOwnProperty(e.key)) {
+        keys[e.key] = true;
+    }
+});
+window.addEventListener('keyup', (e) => {
+    if (keys.hasOwnProperty(e.key)) {
+        keys[e.key] = false;
+    }
+});
+
+// 自动发射子弹
+setInterval(() => {
+    player.bullets.push({ x: player.x + 23, y: player.y, width: 4, height: 10, speed: 5 });
+}, 300);
+
+// 游戏循环
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 更新玩家位置
+    if (keys.ArrowLeft && player.x > 0) {
+        player.x -= player.speed;
+    }
+    if (keys.ArrowRight && player.x + player.width < canvas.width) {
+        player.x += player.speed;
+    }
+    if (keys.ArrowUp && player.y > 0) {
+        player.y -= player.speed;
+    }
+    if (keys.ArrowDown && player.y + player.height < canvas.height) {
+        player.y += player.speed;
+    }
+
+    // 绘制玩家
+    ctx.fillStyle = 'blue';
+    ctx.fillRect(player.x, player.y, player.width, player.height);
+
+    // 更新和绘制子弹
+    player.bullets = player.bullets.filter(bullet => bullet.y > 0);
+    ctx.fillStyle = 'yellow';
+    player.bullets.forEach(bullet => {
+        bullet.y -= bullet.speed;
+        ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+    });
+
+    // 更新敌机
+    enemies.forEach(enemy => {
+        enemy.y += enemy.speed;
+    });
+    enemies = enemies.filter(enemy => enemy.y < canvas.height);
+
+    // 绘制敌机
+    ctx.fillStyle = 'red';
+    enemies.forEach(enemy => {
+        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+    });
+
+    // 检测碰撞
+    player.bullets.forEach((bullet, bulletIndex) => {
+        enemies.forEach((enemy, enemyIndex) => {
+            if (bullet.x < enemy.x + enemy.width &&
+                bullet.x + bullet.width > enemy.x &&
+                bullet.y < enemy.y + enemy.height &&
+                bullet.y + bullet.height > enemy.y) {
+                // 子弹击中敌机
+                player.bullets.splice(bulletIndex, 1);
+                enemies.splice(enemyIndex, 1);
+                score += 10;
+                document.getElementById('score').innerText = `Score: ${score}`;
+            }
+        });
+    });
+
+    // 检测玩家与敌机碰撞
+    enemies.forEach((enemy) => {
+        if (player.x < enemy.x + enemy.width &&
+            player.x + player.width > enemy.x &&
+            player.y < enemy.y + enemy.height &&
+            player.y + player.height > enemy.y) {
+            alert('Game Over! Your score is: ' + score);
+            document.location.reload();
+        }
+    });
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
+</body>
+</html>

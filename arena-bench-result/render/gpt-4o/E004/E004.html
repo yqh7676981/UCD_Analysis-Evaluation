@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>错题本工具</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            margin: 16px 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            font-size: 14px;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        input, select, textarea, button {
+            width: 100%;
+            padding: 12px;
+            margin: 0;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:active {
+            background-color: #0056b3;
+        }
+        .filter-section {
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .filter-section label {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .list {
+            margin-top: 24px;
+        }
+        .list-item {
+            margin-bottom: 16px;
+            padding: 12px;
+            background-color: #fff;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .list-item h3 {
+            font-size: 16px;
+            margin: 0 0 8px;
+        }
+        .list-item p {
+            margin: 4px 0;
+        }
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            input, select, textarea, button {
+                font-size: 14px;
+                padding: 10px;
+            }
+            label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>错题本工具</h1>
+
+        <!-- 筛选区 -->
+        <div class="filter-section">
+            <label for="filter-subject">按学科筛选</label>
+            <select id="filter-subject" onchange="filterList()">
+                <option value="">所有学科</option>
+                <option value="数学">数学</option>
+                <option value="物理">物理</option>
+                <option value="化学">化学</option>
+                <option value="英语">英语</option>
+            </select>
+        </div>
+
+        <!-- 录入错题 -->
+        <form id="wrong-question-form" onsubmit="addQuestion(event)">
+            <div class="form-group">
+                <label for="subject">学科</label>
+                <select id="subject" required>
+                    <option value="">选择学科</option>
+                    <option value="数学">数学</option>
+                    <option value="物理">物理</option>
+                    <option value="化学">化学</option>
+                    <option value="英语">英语</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="topic">知识点</label>
+                <input type="text" id="topic" placeholder="请输入知识点" required>
+            </div>
+
+            <div class="form-group">
+                <label for="wrong-reason">错误原因</label>
+                <textarea id="wrong-reason" placeholder="请输入错误原因" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="correct-solution">正确解法</label>
+                <textarea id="correct-solution" placeholder="请输入正确解法" required></textarea>
+            </div>
+
+            <button type="submit">添加错题</button>
+        </form>
+
+        <!-- 错题列表 -->
+        <div id="question-list" class="list"></div>
+    </div>
+
+    <script>
+        const questionList = [];
+
+        function addQuestion(event) {
+            event.preventDefault();
+
+            const subject = document.getElementById("subject").value;
+            const topic = document.getElementById("topic").value;
+            const wrongReason = document.getElementById("wrong-reason").value;
+            const correctSolution = document.getElementById("correct-solution").value;
+
+            questionList.push({ subject, topic, wrongReason, correctSolution });
+            renderList();
+
+            // 清空表单
+            document.getElementById("wrong-question-form").reset();
+        }
+
+        function renderList() {
+            const listContainer = document.getElementById("question-list");
+            const filterSubject = document.getElementById("filter-subject").value;
+
+            listContainer.innerHTML = "";
+
+            const filteredList = questionList.filter(q => !filterSubject || q.subject === filterSubject);
+
+            if (filteredList.length === 0) {
+                listContainer.innerHTML = "<p>暂无数据</p>";
+                return;
+            }
+
+            filteredList.forEach((item, index) => {
+                const listItem = document.createElement("div");
+                listItem.className = "list-item";
+
+                listItem.innerHTML = `
+                    <h3>${item.subject} - ${item.topic}</h3>
+                    <p><strong>错误原因：</strong> ${item.wrongReason}</p>
+                    <p><strong>正确解法：</strong> ${item.correctSolution}</p>
+                `;
+
+                listContainer.appendChild(listItem);
+            });
+        }
+
+        function filterList() {
+            renderList();
+        }
+    </script>
+</body>
+</html>

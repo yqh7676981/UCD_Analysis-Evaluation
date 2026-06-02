@@ -1,0 +1,33 @@
+{
+  "index": 105,
+  "id": "705",
+  "group": "A",
+  "class": "Desktop",
+  "model": "deepseek-v4-flash",
+  "question": "为天气应用程序创建一个界面，提供火星天气状况（而不是地球天气状况）的更新，展示火星上的温度、风速和大气变化。",
+  "evaluation": {
+    "total_score": 76,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent Mars-themed visual direction: dark space-like background, warm brown/orange card palette, rounded cards, and restrained highlights. The single centered panel creates a clear product focus, though the style is somewhat generic and the top red dot/icon feels decorative rather than integrated into a stronger weather identity."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, spacing, and card treatment are mostly consistent, and the main temperature block is cleanly presented. However, some small labels and footer text are low-contrast and hard to read, the weather/tornado icon looks slightly blurry, and several data chips feel visually cramped relative to the large empty margins around them."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can immediately find the main temperature, wind information, atmospheric metrics, and the update action. The reading order is straightforward from header to main stat to supporting stats. The main weakness is that secondary metrics have fairly similar visual weight, and the atmospheric change condition is presented as a single alert line without stronger emphasis or explanation."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "The core content matches the requested scenario well: Mars temperature, wind speed/direction, and atmospheric data are all present and labeled in understandable Chinese. Still, some terms are ambiguous for general users, the iconography is not very informative on its own, and the button only offers 'refresh data' rather than broader weather-app actions or clearer status context."
+      }
+    },
+    "summary": "This is a solid, visually coherent Mars weather card that communicates the main scenario quickly and covers the requested data types. Its strongest qualities are theme consistency and a simple, scannable layout. The hard caps are limited semantic depth, minor readability issues in smaller text, and a somewhat minimal, card-only presentation that feels more like a polished concept panel than a fully complete desktop weather product."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/705_A_deepseek-v4-flash/screenshot_desktop.png",
+  "time": "2026-05-29T15:38:25.497245"
+}

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泰香园 - 真正的泰国风味</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fdf6ed;
+            color: #5d4037;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1563245372-f21724e3856d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            padding: 1rem;
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        
+        .tagline {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #d84315;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+            background-color: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #d84315;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            border-bottom: 3px solid #ffcc80;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .menu-item {
+            border: 1px solid #ffe0b2;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .menu-info {
+            padding: 1rem;
+        }
+        
+        .menu-title {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #5d4037;
+        }
+        
+        .menu-desc {
+            color: #7d7d7d;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+        
+        .menu-price {
+            font-weight: 700;
+            color: #d84315;
+        }
+        
+        .hours-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .hour-day {
+            font-weight: 600;
+            color: #d84315;
+        }
+        
+        .reservation-form {
+            display: grid;
+            gap: 1rem;
+            max-width: 600px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #5d4037;
+        }
+        
+        input, textarea, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        
+        footer {
+            background-color: #5d4037;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .contact-info {
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .tagline {
+                font-size: 1.2rem;
+            }
+            
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">泰香园</div>
+        <div class="tagline">正宗泰国风味，家的温暖体验</div>
+        <a href="#reservation" class="btn">立即预订</a>
+    </header>
+    
+    <main>
+        <section id="menu">
+            <h2>精选菜单</h2>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1587049352851-8d4e89133924?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="冬阴功汤">
+                    <div class="menu-info">
+                        <div class="menu-title">冬阴功汤</div>
+                        <div class="menu-desc">经典泰国酸辣汤，配以新鲜虾仁、蘑菇和香茅</div>
+                        <div class="menu-price">¥48</div>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1602923815004-668859f8ce89?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="泰式绿咖喱鸡">
+                    <div class="menu-info">
+                        <div class="menu-title">泰式绿咖喱鸡</div>
+                        <div class="menu-desc">嫩鸡肉与椰奶、绿咖喱酱慢炖，搭配时令蔬菜</div>
+                        <div class="menu-price">¥68</div>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1618923050947-f468e655ab5e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="泰式炒河粉">
+                    <div class="menu-info">
+                        <div class="menu-title">泰式炒河粉</div>
+                        <div class="menu-desc">传统泰式炒粉，加入鸡蛋、豆腐、虾仁和花生碎</div>
+                        <div class="menu-price">¥42</div>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img src="https://images.unsplash.com/photo-1626078272561-49c525ab047d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="芒果糯米饭">
+                    <div class="menu-info">
+                        <div class="menu-title">芒果糯米饭</div>
+                        <div class="menu-desc">新鲜芒果搭配椰奶糯米饭，甜蜜的完美收尾</div>
+                        <div class="menu-price">¥32</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="hours">
+            <h2>营业时间</h2>
+            <div class="hours-info">
+                <div>
+                    <div class="hour-day">周一至周四</div>
+                    <div>11:00 - 22:00</div>
+                </div>
+                <div>
+                    <div class="hour-day">周五至周六</div>
+                    <div>11:00 - 23:00</div>
+                </div>
+                <div>
+                    <div class="hour-day">周日</div>
+                    <div>10:00 - 21:00</div>
+                </div>
+                <div>
+                    <div class="hour-day">节假日</div>
+                    <div>正常营业</div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="reservation">
+            <h2>在线预订</h2>
+            <form class="reservation-form" id="bookingForm">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">电话</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">日期</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="time">时间</label>
+                    <select id="time" required>
+                        <option value="">选择时间</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                        <option value="18:30">18:30</option>
+                        <option value="19:00">19:00</option>
+                        <option value="19:30">19:30</option>
+                        <option value="20:00">20:00</option>
+                        <option value="20:30">20:30</option>
+                        <option value="21:00">21:00</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="guests">人数</label>
+                    <select id="guests" required>
+                        <option value="1">1人</option>
+                        <option value="2" selected>2人</option>
+                        <option value="3">3人</option>
+                        <option value="4">4人</option>
+                        <option value="5">5人</option>
+                        <option value="6">6人</option>
+                        <option value="7">7人</option>
+                        <option value="8">8人</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="special">特殊要求</label>
+                    <textarea id="special" rows="3" placeholder="如：靠窗座位、生日庆祝等"></textarea>
+                </div>
+                
+                <button type="submit" class="btn">确认预订</button>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="logo">泰香园</div>
+        <div class="contact-info">
+            <p>地址：上海市黄浦区南京东路123号</p>
+            <p>电话：021-1234-5678</p>
+            <p>邮箱：info@thaiflavor.com</p>
+        </div>
+        <div style="margin-top: 1rem; color: #ffcc80;">
+            &copy; 2023 泰香园泰国餐厅. 保留所有权利.
+        </div>
+    </footer>
+    
+    <script>
+        // 设置最小日期为今天
+        document.getElementById('date').min = new Date().toISOString().split('T')[0];
+        
+        // 预订表单提交处理
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const name = document.getElementById('name').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            
+            // 显示成功消息
+            alert(`亲爱的${name}，您的预订已成功！\n预订日期：${date}\n用餐时间：${time}\n我们期待您的光临！`);
+            
+            // 重置表单
+            this.reset();
+            
+            // 重新设置最小日期（因为reset会清空）
+            document.getElementById('date').min = new Date().toISOString().split('T')[0];
+        });
+        
+        // 平滑滚动到预订部分
+        document.querySelector('header a').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#reservation').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    </script>
+</body>
+</html>

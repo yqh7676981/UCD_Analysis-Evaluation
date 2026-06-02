@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锐峰资本 — 驱动未来创新</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #f5f5f4; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #78716c, #57534e); border-radius: 3px; }
+
+        /* Glass */
+        .glass { background: rgba(23,23,23,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); }
+
+        /* Grid Pattern */
+        .grid-pattern { background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 60px 60px; }
+
+        /* Gradient Text */
+        .gradient-text { background: linear-gradient(135deg, #d6d3d1 0%, #a8a29e 50%, #78716c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-text-warm { background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 50%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* Animations */
+        @keyframes float { 0%,100%{transform:translateY(0) rotate(0deg)} 25%{transform:translateY(-20px) rotate(2deg)} 50%{transform:translateY(-10px) rotate(0deg)} 75%{transform:translateY(-25px) rotate(-2deg)} }
+        @keyframes morph { 0%,100%{border-radius:60% 40% 30% 70%/60% 30% 70% 40%} 50%{border-radius:50% 60% 30% 60%/30% 60% 70% 40%} }
+        @keyframes pulse-glow { 0%,100%{opacity:0.4;transform:scale(1)} 50%{opacity:0.8;transform:scale(1.05)} }
+        @keyframes rotate-slow { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        @keyframes fade-up { from{opacity:0;transform:translateY(60px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fade-in { from{opacity:0} to{opacity:1} }
+        @keyframes slide-right { from{opacity:0;transform:translateX(-40px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes count-up { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+        .animate-float { animation: float 8s ease-in-out infinite; }
+        .animate-morph { animation: morph 15s ease-in-out infinite; }
+        .animate-pulse-glow { animation: pulse-glow 4s ease-in-out infinite; }
+        .animate-rotate-slow { animation: rotate-slow 30s linear infinite; }
+
+        /* Reveal on scroll */
+        .reveal { opacity: 1; /* fixed: was 0 */ transform: translateY(60px); transition: all 1s cubic-bezier(0.17,0.55,0.55,1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .reveal-scale { opacity: 1; /* fixed: was 0 */ transform: scale(0.8); transition: all 1s cubic-bezier(0.17,0.55,0.55,1); }
+        .reveal-scale.active { opacity: 1; transform: scale(1); }
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+        .stagger-6 { transition-delay: 0.6s; }
+
+        /* Hover lift */
+        .hover-lift { transition: all 0.5s cubic-bezier(0.17,0.55,0.55,1); }
+        .hover-lift:hover { transform: translateY(-12px); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.5); }
+
+        /* Card shine */
+        .card-shine { position: relative; overflow: hidden; }
+        .card-shine::after { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:linear-gradient(45deg,transparent 40%,rgba(255,255,255,0.03) 50%,transparent 60%); opacity:0; transition:opacity 0.5s; pointer-events:none; }
+        .card-shine:hover::after { opacity:1; }
+
+        /* Nav link underline */
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; bottom:-2px; left:0; width:0; height:1px; background:linear-gradient(90deg,#f59e0b,transparent); transition:width 0.4s; }
+        .nav-link:hover::after { width:100%; }
+
+        /* Focus area icon glow */
+        .icon-glow { position: relative; }
+        .icon-glow::before { content:''; position:absolute; inset:-4px; border-radius:16px; background:linear-gradient(135deg,rgba(245,158,11,0.2),transparent); opacity:0; transition:opacity 0.5s; }
+        .card-shine:hover .icon-glow::before { opacity:1; }
+
+        /* Team card hover */
+        .team-card .team-img { transition: transform 0.6s cubic-bezier(0.17,0.55,0.55,1); }
+        .team-card:hover .team-img { transform: scale(1.05); }
+        .team-card .team-overlay { opacity: 1; /* fixed: was 0 */ transition: opacity 0.5s; }
+        .team-card:hover .team-overlay { opacity: 1; }
+
+        /* Orbit */
+        .orbit { border: 1px solid rgba(168,162,158,0.1); border-radius: 50%; position: absolute; }
+        .orbit-dot { width: 6px; height: 6px; border-radius: 50%; background: #a8a29e; box-shadow: 0 0 20px rgba(168,162,158,0.5); position: absolute; }
+
+        /* Particle */
+        .particle { width: 4px; height: 4px; border-radius: 50%; background: rgba(168,162,158,0.4); position: absolute; }
+
+        /* Mobile menu */
+        .mobile-menu { transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.17,0.55,0.55,1); }
+        .mobile-menu.open { transform: translateX(0); }
+
+        /* Stat number */
+        .stat-number { font-variant-numeric: tabular-nums; }
+
+        /* Section divider */
+        .section-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(168,162,158,0.2), transparent); }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="grid-pattern overflow-x-hidden">
+
+    <!-- Decorative Background Elements -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div class="absolute top-1/4 -left-32 w-96 h-96 bg-gradient-to-br from-stone-800/30 to-stone-900/30 animate-morph blur-3xl"></div>
+        <div class="absolute top-2/3 -right-32 w-80 h-80 bg-gradient-to-br from-amber-900/20 to-stone-900/20 animate-morph blur-3xl" style="animation-delay:-7s"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-stone-900/20 to-transparent animate-morph blur-3xl" style="animation-delay:-4s"></div>
+        <!-- Particles -->
+        <div class="particle animate-float" style="top:15%;left:10%;animation-delay:0s"></div>
+        <div class="particle animate-float" style="top:30%;left:80%;animation-delay:-2s"></div>
+        <div class="particle animate-float" style="top:60%;left:25%;animation-delay:-4s"></div>
+        <div class="particle animate-float" style="top:75%;left:70%;animation-delay:-6s"></div>
+        <div class="particle animate-float" style="top:45%;left:55%;animation-delay:-1s"></div>
+        <div class="particle animate-float" style="top:85%;left:40%;animation-delay:-3s"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 py-4 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass rounded-2xl px-6 py-4 flex items-center justify-between">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-lg font-semibold tracking-tight">锐峰资本</span>
+                </a>
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#mission" class="nav-link text-sm text-stone-400 hover:text-stone-200 transition-colors">使命</a>
+                    <a href="#focus" class="nav-link text-sm text-stone-400 hover:text-stone-200 transition-colors">投资重点</a>
+                    <a href="#portfolio" class="nav-link text-sm text-stone-400 hover:text-stone-200 transition-colors">投资组合</a>
+                    <a href="#team" class="nav-link text-sm text-stone-400 hover:text-stone-200 transition-colors">团队</a>
+                    <a href="#contact" class="px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-r from-stone-600 to-stone-700 hover:from-amber-600 hover:to-amber-700 transition-all duration-500 text-white">联系我们</a>
+                </div>
+                <!-- Mobile Toggle -->
+                <button id="menuToggle" class="md:hidden text-stone-400 hover:text-stone-200 transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu fixed inset-0 z-[60] bg-neutral-950/98 backdrop-blur-xl flex flex-col items-center justify-center gap-8">
+        <button id="menuClose" class="absolute top-8 right-8 text-stone-400 hover:text-stone-200 transition-colors">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <a href="#mission" class="text-2xl font-light text-stone-300 hover:text-amber-400 transition-colors mobile-link">使命</a>
+        <a href="#focus" class="text-2xl font-light text-stone-300 hover:text-amber-400 transition-colors mobile-link">投资重点</a>
+        <a href="#portfolio" class="text-2xl font-light text-stone-300 hover:text-amber-400 transition-colors mobile-link">投资组合</a>
+        <a href="#team" class="text-2xl font-light text-stone-300 hover:text-amber-400 transition-colors mobile-link">团队</a>
+        <a href="#contact" class="mt-4 px-8 py-3 text-lg font-medium rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 text-white mobile-link">联系我们</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative px-6">
+        <!-- Orbit decoration -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="orbit w-[400px] h-[400px] animate-rotate-slow" style="opacity:0.3">
+                <div class="orbit-dot" style="top:-3px;left:50%"></div>
+            </div>
+            <div class="orbit w-[600px] h-[600px] animate-rotate-slow" style="opacity:0.2;animation-direction:reverse;animation-duration:25s">
+                <div class="orbit-dot" style="bottom:-3px;right:20%"></div>
+            </div>
+            <div class="orbit w-[800px] h-[800px] animate-rotate-slow" style="opacity:0.1;animation-duration:35s">
+                <div class="orbit-dot" style="top:30%;left:-3px"></div>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto text-center relative z-10">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8" style="animation: fade-up 1s ease forwards">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse-glow"></span>
+                <span class="text-xs font-medium uppercase tracking-[0.3em] text-stone-400">驱动未来创新</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tight mb-8" style="animation: fade-up 1s ease 0.2s both">
+                <span class="gradient-text">投资变革</span><br>
+                <span class="gradient-text-warm">塑造未来</span>
+            </h1>
+            <p class="text-lg font-light leading-relaxed text-stone-400 max-w-2xl mx-auto mb-12" style="animation: fade-up 1s ease 0.4s both">
+                锐峰资本致力于发现并支持最具潜力的早期科技企业，<br class="hidden md:block">以远见与资本赋能下一代颠覆性创新。
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4" style="animation: fade-up 1s ease 0.6s both">
+                <a href="#focus" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 text-white font-medium hover:from-amber-500 hover:to-amber-600 transition-all duration-500 hover:shadow-lg hover:shadow-amber-900/30">
+                    了解投资重点
+                </a>
+                <a href="#team" class="px-8 py-4 rounded-2xl glass text-stone-300 font-medium hover:text-white transition-all duration-500 hover-lift">
+                    认识团队
+                </a>
+            </div>
+
+            <!-- Stats row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 max-w-4xl mx-auto" style="animation: fade-up 1s ease 0.8s both">
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold leading-none gradient-text-warm stat-number" data-target="50">0</div>
+                    <div class="text-sm text-stone-500 mt-2">亿+ 管理规模</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold leading-none gradient-text-warm stat-number" data-target="120">0</div>
+                    <div class="text-sm text-stone-500 mt-2">+ 投资企业</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold leading-none gradient-text-warm stat-number" data-target="15">0</div>
+                    <div class="text-sm text-stone-500 mt-2">+ 成功退出</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl md:text-5xl font-bold leading-none gradient-text-warm stat-number" data-target="8">0</div>
+                    <div class="text-sm text-stone-500 mt-2">年深耕</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float" style="animation-duration:3s">
+            <span class="text-xs text-stone-600 uppercase tracking-[0.2em]">向下滚动</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-stone-600"></i>
+        </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider max-w-4xl mx-auto"></div>
+
+    <!-- Mission Section -->
+    <section id="mission" class="py-32 px-6 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="reveal">
+                        <span class="text-xs font-medium uppercase tracking-[0.3em] text-amber-500">我们的使命</span>
+                        <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-4 leading-tight">
+                            <span class="gradient-text">以资本为翼</span><br>
+                            <span class="gradient-text">助创新腾飞</span>
+                        </h2>
+                    </div>
+                    <div class="reveal stagger-2 mt-8">
+                        <p class="text-lg font-light leading-relaxed text-stone-400">
+                            我们相信，真正改变世界的力量源于那些敢于挑战现状的创业者。锐峰资本的使命是成为他们最坚实的后盾——不仅提供资金支持，更以深厚的行业洞察、广泛的资源网络和长远的战略眼光，助力企业从零到一、从一到百。
+                        </p>
+                    </div>
+                    <div class="reveal stagger-3 mt-8">
+                        <p class="text-lg font-light leading-relaxed text-stone-400">
+                            我们追求的不仅是财务回报，更是与卓越创业者共同书写产业变革的篇章。每一个投资决策，都承载着我们对未来的信念。
+                        </p>
+                    </div>
+                    <div class="reveal stagger-4 mt-10 flex items-center gap-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center">
+                                <i data-lucide="eye" class="w-5 h-5 text-amber-500"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-stone-200">远见</div>
+                                <div class="text-xs text-stone-500">洞察未来趋势</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center">
+                                <i data-lucide="handshake" class="w-5 h-5 text-amber-500"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-stone-200">共赢</div>
+                                <div class="text-xs text-stone-500">与创业者同行</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-amber-500"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-stone-200">坚守</div>
+                                <div class="text-xs text-stone-500">长期价值投资</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mission visual -->
+                <div class="reveal stagger-3 relative">
+                    <div class="relative aspect-square max-w-md mx-auto">
+                        <!-- Decorative rings -->
+                        <div class="absolute inset-0 rounded-3xl border border-stone-800/50 animate-pulse-glow"></div>
+                        <div class="absolute inset-4 rounded-3xl border border-stone-800/30"></div>
+                        <div class="absolute inset-8 rounded-3xl glass overflow-hidden">
+                            <img src="https://picsum.photos/seed/vc-mission/600/600.jpg" alt="Mission" class="w-full h-full object-cover opacity-60">
+                            <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                            <div class="absolute bottom-6 left-6 right-6">
+                                <div class="text-3xl font-bold gradient-text-warm">"做时间的朋友"</div>
+                                <div class="text-sm text-stone-500 mt-2">— 锐峰资本投资哲学</div>
+                            </div>
+                        </div>
+                        <!-- Floating badge -->
+                        <div class="absolute -top-4 -right-4 glass rounded-2xl p-4 animate-float" style="animation-delay:-2s">
+                            <div class="text-2xl font-bold text-amber-400">8+</div>
+                            <div class="text-xs text-stone-500">年行业深耕</div>
+                        </div>
+                        <div class="absolute -bottom-4 -left-4 glass rounded-2xl p-4 animate-float" style="animation-delay:-5s">
+                            <div class="text-2xl font-bold text-amber-400">Top 10</div>
+                            <div class="text-xs text-stone-500">中国早期VC</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider max-w-4xl mx-auto"></div>
+
+    <!-- Investment Focus Section -->
+    <section id="focus" class="py-32 px-6 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <div class="reveal">
+                    <span class="text-xs font-medium uppercase tracking-[0.3em] text-amber-500">投资重点</span>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-4 gradient-text">聚焦前沿赛道</h2>
+                </div>
+                <div class="reveal stagger-2 mt-6">
+                    <p class="text-lg font-light leading-relaxed text-stone-400 max-w-2xl mx-auto">
+                        我们专注于具有深远变革潜力的技术领域，寻找那些能够重新定义行业格局的卓越企业。
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Focus Card 1 -->
+                <div class="reveal stagger-1 card-shine hover-lift glass rounded-3xl p-8 group">
+                    <div class="icon-glow w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-900/40 to-stone-900/40 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="brain" class="w-7 h-7 text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-100 mb-3">人工智能</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-400">
+                        大模型、具身智能、AI基础设施。投资从算法突破到商业落地的全链条机会，赋能AI原生应用。
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-amber-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>深入了解</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Focus Card 2 -->
+                <div class="reveal stagger-2 card-shine hover-lift glass rounded-3xl p-8 group">
+                    <div class="icon-glow w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-900/40 to-stone-900/40 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="cpu" class="w-7 h-7 text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-100 mb-3">半导体与硬科技</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-400">
+                        芯片设计、先进制造、量子计算。关注底层技术突破，助力硬科技从实验室走向规模化量产。
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-amber-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>深入了解</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Focus Card 3 -->
+                <div class="reveal stagger-3 card-shine hover-lift glass rounded-3xl p-8 group">
+                    <div class="icon-glow w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-900/40 to-stone-900/40 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="leaf" class="w-7 h-7 text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-100 mb-3">绿色科技</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-400">
+                        新能源、储能技术、碳管理。以资本推动碳中和进程，投资可持续发展的未来。
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-amber-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>深入了解</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Focus Card 4 -->
+                <div class="reveal stagger-4 card-shine hover-lift glass rounded-3xl p-8 group">
+                    <div class="icon-glow w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-900/40 to-stone-900/40 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="heart-pulse" class="w-7 h-7 text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-100 mb-3">数字健康</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-400">
+                        精准医疗、数字疗法、生物计算。以科技重塑医疗健康产业，让优质医疗触手可及。
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-amber-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>深入了解</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Focus Card 5 -->
+                <div class="reveal stagger-5 card-shine hover-lift glass rounded-3xl p-8 group">
+                    <div class="icon-glow w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-900/40 to-stone-900/40 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="globe" class="w-7 h-7 text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-100 mb-3">企业服务</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-400">
+                        云原生、数据智能、安全合规。赋能企业数字化转型，构建下一代商业基础设施。
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-amber-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>深入了解</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- Focus Card 6 -->
+                <div class="reveal stagger-6 card-shine hover-lift glass rounded-3xl p-8 group">
+                    <div class="icon-glow w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-900/40 to-stone-900/40 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="rocket" class="w-7 h-7 text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold tracking-tight text-stone-100 mb-3">先进制造</h3>
+                    <p class="text-sm font-light leading-relaxed text-stone-400">
+                        工业机器人、3D打印、智能工厂。以技术创新驱动制造业升级，重塑全球供应链格局。
+                    </p>
+                    <div class="mt-6 flex items-center gap-2 text-amber-500 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <span>深入了解</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider max-w-4xl mx-auto"></div>
+
+    <!-- Portfolio Section -->
+    <section id="portfolio" class="py-32 px-6 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <div class="reveal">
+                    <span class="text-xs font-medium uppercase tracking-[0.3em] text-amber-500">投资组合</span>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-4 gradient-text">部分被投企业</h2>
+                </div>
+                <div class="reveal stagger-2 mt-6">
+                    <p class="text-lg font-light leading-relaxed text-stone-400 max-w-2xl mx-auto">
+                        我们有幸陪伴众多杰出企业成长，以下是我们投资组合中的部分代表。
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="reveal stagger-1 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="sparkles" class="w-8 h-8 text-blue-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">深智科技</h4>
+                    <p class="text-xs text-stone-500 mt-1">AI大模型</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">B轮</div>
+                </div>
+
+                <div class="reveal stagger-2 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="zap" class="w-8 h-8 text-green-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">碳能未来</h4>
+                    <p class="text-xs text-stone-500 mt-1">储能技术</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">A轮</div>
+                </div>
+
+                <div class="reveal stagger-3 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="microchip" class="w-8 h-8 text-purple-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">芯元半导体</h4>
+                    <p class="text-xs text-stone-500 mt-1">芯片设计</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">C轮</div>
+                </div>
+
+                <div class="reveal stagger-4 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="dna" class="w-8 h-8 text-rose-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">基因方舟</h4>
+                    <p class="text-xs text-stone-500 mt-1">精准医疗</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">B轮</div>
+                </div>
+
+                <div class="reveal stagger-1 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="cloud" class="w-8 h-8 text-cyan-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">云极数据</h4>
+                    <p class="text-xs text-stone-500 mt-1">云原生</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">A+轮</div>
+                </div>
+
+                <div class="reveal stagger-2 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="bot" class="w-8 h-8 text-orange-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">智造机器人</h4>
+                    <p class="text-xs text-stone-500 mt-1">工业机器人</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">B+轮</div>
+                </div>
+
+                <div class="reveal stagger-3 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="shield" class="w-8 h-8 text-teal-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">安全堡垒</h4>
+                    <p class="text-xs text-stone-500 mt-1">网络安全</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">A轮</div>
+                </div>
+
+                <div class="reveal stagger-4 card-shine hover-lift glass rounded-2xl p-6 text-center group">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-900/40 to-stone-900/40 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-500">
+                        <i data-lucide="atom" class="w-8 h-8 text-yellow-400"></i>
+                    </div>
+                    <h4 class="font-semibold text-stone-100">量子星</h4>
+                    <p class="text-xs text-stone-500 mt-1">量子计算</p>
+                    <div class="mt-3 inline-block px-2 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs">天使轮</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider max-w-4xl mx-auto"></div>
+
+    <!-- Team Section -->
+    <section id="team" class="py-32 px-6 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <div class="reveal">
+                    <span class="text-xs font-medium uppercase tracking-[0.3em] text-amber-500">核心团队</span>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-4 gradient-text">与卓越者同行</h2>
+                </div>
+                <div class="reveal stagger-2 mt-6">
+                    <p class="text-lg font-light leading-relaxed text-stone-400 max-w-2xl mx-auto">
+                        我们的团队汇聚了来自投资、技术与产业领域的资深人士，以多元视角和深厚经验赋能每一次投资决策。
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Team Member 1 -->
+                <div class="reveal stagger-1 team-card card-shine hover-lift glass rounded-3xl overflow-hidden group">
+                    <div class="relative h-72 overflow-hidden">
+                        <img src="https://picsum.photos/seed/vc-team1/400/400.jpg" alt="陈志远" class="team-img w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                        <div class="team-overlay absolute inset-0 bg-amber-500/10"></div>
+                        <!-- Social links -->
+                        <div class="team-overlay absolute bottom-4 right-4 flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold tracking-tight text-stone-100">陈志远</h3>
+                        <p class="text-sm text-amber-400 mt-1">创始合伙人</p>
+                        <p class="text-sm font-light leading-relaxed text-stone-500 mt-3">
+                            前红杉资本合伙人，20年风险投资经验。主导投资超过40家科技企业，其中12家成功IPO。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team Member 2 -->
+                <div class="reveal stagger-2 team-card card-shine hover-lift glass rounded-3xl overflow-hidden group">
+                    <div class="relative h-72 overflow-hidden">
+                        <img src="https://picsum.photos/seed/vc-team2/400/400.jpg" alt="林晓薇" class="team-img w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                        <div class="team-overlay absolute inset-0 bg-amber-500/10"></div>
+                        <div class="team-overlay absolute bottom-4 right-4 flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold tracking-tight text-stone-100">林晓薇</h3>
+                        <p class="text-sm text-amber-400 mt-1">管理合伙人</p>
+                        <p class="text-sm font-light leading-relaxed text-stone-500 mt-3">
+                            前谷歌AI研究科学家，斯坦福计算机博士。深耕人工智能投资，擅长技术评估与投后赋能。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team Member 3 -->
+                <div class="reveal stagger-3 team-card card-shine hover-lift glass rounded-3xl overflow-hidden group">
+                    <div class="relative h-72 overflow-hidden">
+                        <img src="https://picsum.photos/seed/vc-team3/400/400.jpg" alt="王建国" class="team-img w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                        <div class="team-overlay absolute inset-0 bg-amber-500/10"></div>
+                        <div class="team-overlay absolute bottom-4 right-4 flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold tracking-tight text-stone-100">王建国</h3>
+                        <p class="text-sm text-amber-400 mt-1">合伙人 · 硬科技</p>
+                        <p class="text-sm font-light leading-relaxed text-stone-500 mt-3">
+                            前中芯国际副总裁，15年半导体行业经验。对芯片产业链有深刻理解，投资多个明星项目。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team Member 4 -->
+                <div class="reveal stagger-4 team-card card-shine hover-lift glass rounded-3xl overflow-hidden group">
+                    <div class="relative h-72 overflow-hidden">
+                        <img src="https://picsum.photos/seed/vc-team4/400/400.jpg" alt="张明月" class="team-img w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                        <div class="team-overlay absolute inset-0 bg-amber-500/10"></div>
+                        <div class="team-overlay absolute bottom-4 right-4 flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold tracking-tight text-stone-100">张明月</h3>
+                        <p class="text-sm text-amber-400 mt-1">合伙人 · 绿色科技</p>
+                        <p class="text-sm font-light leading-relaxed text-stone-500 mt-3">
+                            前国家能源集团战略投资部负责人，新能源领域专家。推动多个百亿级绿色项目落地。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team Member 5 -->
+                <div class="reveal stagger-5 team-card card-shine hover-lift glass rounded-3xl overflow-hidden group">
+                    <div class="relative h-72 overflow-hidden">
+                        <img src="https://picsum.photos/seed/vc-team5/400/400.jpg" alt="李思远" class="team-img w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                        <div class="team-overlay absolute inset-0 bg-amber-500/10"></div>
+                        <div class="team-overlay absolute bottom-4 right-4 flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold tracking-tight text-stone-100">李思远</h3>
+                        <p class="text-sm text-amber-400 mt-1">合伙人 · 数字健康</p>
+                        <p class="text-sm font-light leading-relaxed text-stone-500 mt-3">
+                            前强生创新中心亚太区负责人，哈佛医学院博士后。在数字健康与生物科技领域拥有广泛资源。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Team Member 6 -->
+                <div class="reveal stagger-6 team-card card-shine hover-lift glass rounded-3xl overflow-hidden group">
+                    <div class="relative h-72 overflow-hidden">
+                        <img src="https://picsum.photos/seed/vc-team6/400/400.jpg" alt="赵雨晴" class="team-img w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/50 to-transparent"></div>
+                        <div class="team-overlay absolute inset-0 bg-amber-500/10"></div>
+                        <div class="team-overlay absolute bottom-4 right-4 flex gap-2">
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="linkedin" class="w-4 h-4"></i>
+                            </a>
+                            <a href="#" class="w-8 h-8 rounded-lg glass flex items-center justify-center text-stone-400 hover:text-amber-400 transition-colors">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-semibold tracking-tight text-stone-100">赵雨晴</h3>
+                        <p class="text-sm text-amber-400 mt-1">首席运营官</p>
+                        <p class="text-sm font-light leading-relaxed text-stone-500 mt-3">
+                            前麦肯锡全球合伙人，专注科技与金融交叉领域。负责基金运营管理与投后生态建设。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Divider -->
+    <div class="section-divider max-w-4xl mx-auto"></div>
+
+    <!-- CTA / Contact Section -->
+    <section id="contact" class="py-32 px-6 relative">
+        <div class="max-w-6xl mx-auto">
+            <div class="reveal glass rounded-3xl p-12 md:p-20 text-center relative overflow-hidden">
+                <!-- Background decoration -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-amber-900/20 to-transparent rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-stone-800/30 to-transparent rounded-full blur-3xl"></div>
+
+                <div class="relative z-10">
+                    <span class="text-xs font-medium uppercase tracking-[0.3em] text-amber-500">联系我们</span>
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mt-4 gradient-text">开启对话</h2>
+                    <p class="text-lg font-light leading-relaxed text-stone-400 max-w-2xl mx-auto mt-6">
+                        无论您是寻求融资的创业者，还是希望了解合作机会的伙伴，我们都期待与您交流。
+                    </p>
+
+                    <div class="grid md:grid-cols-3 gap-6 mt-12 max-w-3xl mx-auto">
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center">
+                                <i data-lucide="mail" class="w-5 h-5 text-amber-400"></i>
+                            </div>
+                            <div class="text-sm text-stone-400">bp@ruifeng.vc</div>
+                        </div>
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center">
+                                <i data-lucide="map-pin" class="w-5 h-5 text-amber-400"></i>
+                            </div>
+                            <div class="text-sm text-stone-400">北京 · 上海 · 深圳</div>
+                        </div>
+                        <div class="flex flex-col items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center">
+                                <i data-lucide="phone" class="w-5 h-5 text-amber-400"></i>
+                            </div>
+                            <div class="text-sm text-stone-400">+86 10 8888 6666</div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12">
+                        <a href="mailto:bp@ruifeng.vc" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-600 to-amber-700 text-white font-medium hover:from-amber-500 hover:to-amber-600 transition-all duration-500 hover:shadow-lg hover:shadow-amber-900/30 flex items-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>提交商业计划</span>
+                        </a>
+                        <a href="#" class="px-8 py-4 rounded-2xl glass text-stone-300 font-medium hover:text-white transition-all duration-500 hover-lift flex items-center gap-2">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            <span>预约会议</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-neutral-800 py-16 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12">
+                <div class="md:col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
+                            <i data-lucide="trending-up" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="text-lg font-semibold tracking-tight">锐峰资本</span>
+                    </div>
+                    <p class="text-sm font-light leading-relaxed text-stone-500 max-w-sm">
+                        锐峰资本成立于2016年，是一家专注于早期科技投资的风险投资机构，管理规模超过50亿元人民币。
+                    </p>
+                    <div class="flex items-center gap-3 mt-6">
+                        <a href="#" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-stone-500 hover:text-amber-400 transition-colors">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-stone-500 hover:text-amber-400 transition-colors">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-stone-500 hover:text-amber-400 transition-colors">
+                            <i data-lucide="github" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-stone-300 mb-4">快速导航</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#mission" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">使命</a></li>
+                        <li><a href="#focus" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">投资重点</a></li>
+                        <li><a href="#portfolio" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">投资组合</a></li>
+                        <li><a href="#team" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">团队</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-stone-300 mb-4">法律信息</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">使用条款</a></li>
+                        <li><a href="#" class="text-sm text-stone-500 hover:text-stone-200 transition-colors">免责声明</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="section-divider mt-12 mb-8"></div>
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-stone-600">© 2024 锐峰资本. 保留所有权利.</p>
+                <p class="text-xs text-stone-600">京ICP备XXXXXXXX号</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const menuClose = document.getElementById('menuClose');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        });
+
+        menuClose.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+            document.body.style.overflow = '';
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+
+        // Scroll reveal
+        const revealElements = document.querySelectorAll('.reveal, .reveal-scale');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Stat counter animation
+        const statNumbers = document.querySelectorAll('.stat-number');
+        let statAnimated = false;
+
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !statAnimated) {
+                    statAnimated = true;
+                    statNumbers.forEach(num => {
+                        const target = parseInt(num.dataset.target);
+                        const duration = 2000;
+                        const startTime = performance.now();
+
+                        function updateNumber(currentTime) {
+                            const elapsed = currentTime - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            // Ease out cubic
+                            const eased = 1 - Math.pow(1 - progress, 3);
+                            const current = Math.round(eased * target);
+                            num.textContent = current;
+
+                            if (progress < 1) {
+                                requestAnimationFrame(updateNumber);
+                            }
+                        }
+
+                        requestAnimationFrame(updateNumber);
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        statNumbers.forEach(num => statObserver.observe(num));
+
+        // Navbar background on scroll
+        const nav = document.querySelector('nav');
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                nav.style.opacity = currentScroll > lastScroll ? '0.7' : '1';
+            } else {
+                nav.style.opacity = '1';
+            }
+
+            lastScroll = currentScroll;
+        }, { passive: true });
+
+        nav.addEventListener('mouseenter', () => {
+            nav.style.opacity = '1';
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offset = 100;
+                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Parallax for decorative elements
+        window.addEventListener('scroll', () => {
+            const scrollY = window.pageYOffset;
+            const decorElements = document.querySelectorAll('.animate-morph');
+            decorElements.forEach((el, i) => {
+                const speed = 0.02 + (i * 0.01);
+                el.style.transform = `translateY(${scrollY * speed}px)`;
+            });
+        }, { passive: true });
+    </script>
+</body>
+</html>

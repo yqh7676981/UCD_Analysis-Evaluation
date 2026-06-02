@@ -1,0 +1,33 @@
+{
+  "index": 193,
+  "id": "G001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gemini-2.5-flash",
+  "question": "做一个简单的飞机大战小游戏，玩家飞机用键盘方向键控制,自动发射子弹击落从上方飞来的敌机,显示得分。",
+  "evaluation": {
+    "total_score": 44,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The neon green on black arcade theme is coherent and fits a retro shooter, but the screen feels sparse and visually underdeveloped. Glow effects dominate more than gameplay focus, and the layout reads like a framed prototype rather than a polished mobile game UI."
+      },
+      "local_details": {
+        "score": 4,
+        "reason": "There is basic consistency in borders and glow styling, but element craftsmanship is weak: oversized empty playfield, simple emoji arrows for controls, limited typographic hierarchy, and crude button interiors make the interface feel unfinished."
+      },
+      "easy_to_perceive": {
+        "score": 5,
+        "reason": "Users can quickly find the score and left/right controls, and the player plane is visible. However, the screen lacks clear gameplay feedback, enemy presence, firing cues, or instructional hierarchy, so the main action loop is not perceptually established from the rendered state."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The requested interaction was keyboard arrow control, but the mobile UI shows on-screen left/right buttons instead, creating scenario mismatch. There is no visible indication of auto-fire, no up/down movement option, and no onboarding or state feedback to explain how play works."
+      }
+    },
+    "summary": "This is a recognizable but immature airplane shooter mockup. The retro visual direction is consistent enough to signal a game, and score plus movement controls are easy to spot. But the experience is heavily limited by mismatch with the requested control model, minimal gameplay communication, and unfinished element detail. It feels more like a basic visual shell than a complete, intuitive mobile game experience."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G001_A_gemini-2.5-flash/screenshot_mobile.png",
+  "time": "2026-05-29T16:02:17.036350"
+}

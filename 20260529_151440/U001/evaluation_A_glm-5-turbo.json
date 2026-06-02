@@ -1,0 +1,33 @@
+{
+  "index": 273,
+  "id": "U001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个家庭账单记录工具，可以分类记录水电、燃气、网费等月度账单，能看到每月总支出和分类占比。",
+  "evaluation": {
+    "total_score": 61,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark theme is coherent and the orange accent creates a clear brand focus. Card shapes, shadows, and gradients are mostly consistent. However, the interface feels generic and sparse, with limited scenario-specific expression for a household billing tool."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Typography is generally clean and readable, and spacing inside cards is mostly controlled. But several details reduce finish: low-contrast secondary text, oversized empty regions, weak chart rendering, and the floating add button feels detached from nearby content."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly find the month selector, total spend, category section, and add action. But the page is dominated by empty-state space, the donut chart provides little useful information, and the relationship between summary, chart, and detailed list is visually loose."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Core semantics are understandable: browse month, view total, see category share, check bill list, and add a record. Labels are plain and familiar. Still, category entry is missing, the chart has no legend or explanation, and there is no visible guidance for how a user records water, electricity, gas, or internet bills."
+      }
+    },
+    "summary": "This is a usable but basic mobile household billing interface. It has a stable dark visual system, readable structure, and an obvious primary action, so users can understand the main purpose. The main limitations are low information value in the empty state, weak support for the requested category-recording scenario, and a lack of richer hierarchy or operational guidance. The result feels directionally correct but not yet fully complete or polished enough for a stronger score."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U001_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:19:17.964387"
+}

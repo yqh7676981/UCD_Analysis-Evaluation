@@ -1,0 +1,33 @@
+{
+  "index": 61,
+  "id": "E004",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个错题本工具，支持录入错题、错误原因和正确解法，按学科和知识点分类，能筛选查看。",
+  "evaluation": {
+    "total_score": 48,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 4,
+        "reason": "The page has a basic consistent form style with uniform inputs and one primary button, but it is visually generic and sparse. There is little product character for a study tool, weak visual focus beyond the title/button, and the light gray background plus default white fields feels unfinished rather than intentional."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Alignment and spacing are mostly orderly, and fields have acceptable padding and borders. However, typography hierarchy is minimal, labels and placeholders rely on similar styling, the filter card and main form use nearly identical treatment, and the textarea/selector internals look default-browser rather than polished."
+      },
+      "easy_to_perceive": {
+        "score": 5,
+        "reason": "Users can quickly see the main inputs needed to add a wrong question, and the primary action is obvious. But the screen underuses hierarchy: the top filter section competes with the entry form, there is no visible list/history area for reviewing or filtering existing items, and grouping between '筛选查看' and '录入错题' is not clearly separated."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Field labels are straightforward and match the task scenario, so users can infer what to enter. The main limitation is semantic completeness: the requested '按学科和知识点分类，能筛选查看' is only partially represented, with no visible results area, no explicit knowledge-point filter control for browsing, and no clear distinction between adding new records and viewing filtered records."
+      }
+    },
+    "summary": "This is a usable but immature mobile form. It covers core entry fields and uses familiar controls, so users can add a wrong-question record without much confusion. The hard cap comes from weak scenario fulfillment and low visual/system maturity: filtering and viewing are not meaningfully supported in the visible UI, hierarchy between sections is shallow, and the interface feels like a basic form rather than a complete错题本工具."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E004_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:28:03.818460"
+}

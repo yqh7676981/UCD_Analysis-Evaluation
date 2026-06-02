@@ -1,0 +1,33 @@
+{
+  "index": 43,
+  "id": "G001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个简单的飞机大战小游戏，玩家飞机用键盘方向键控制,自动发射子弹击落从上方飞来的敌机,显示得分。",
+  "evaluation": {
+    "total_score": 42,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The interface has a consistent dark arcade-like tone with a centered title and green primary button, but it is extremely generic and sparse. There is little visual identity, weak focus beyond the button, and the presentation does not feel adapted to the stated mobile context."
+      },
+      "local_details": {
+        "score": 4,
+        "reason": "Basic alignment is acceptable, but several polish issues are visible: the score text in the top-left has very low contrast, the bottom instruction text is cramped and visibly clipped, and the overall typography and spacing feel unfinished rather than productized."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly find the title and the start button, so the primary action is discoverable. However, the screen is overly empty, the score is visually weak, and the interface gives almost no preview of gameplay, controls, or status hierarchy beyond the single CTA."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The semantics are mismatched to the device context: the page is evaluated as mobile, yet the game instructs keyboard arrow control. The bottom instruction is truncated, so users cannot fully read the rule. This creates immediate confusion about how to actually play."
+      }
+    },
+    "summary": "This is a recognizable but immature start screen for a simple plane-shooter game. Its main strength is a clear title and obvious start button, but the experience is capped by weak detail quality, clipped instructional text, low-contrast score display, and a major device mismatch between mobile presentation and keyboard-only controls. Usable in direction, but not complete or well-adapted."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G001_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:24:12.337872"
+}

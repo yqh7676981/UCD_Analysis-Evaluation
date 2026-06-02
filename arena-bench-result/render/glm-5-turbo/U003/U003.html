@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>旅行打包清单</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1419;
+            --bg-secondary: #161c22;
+            --card: #1c242d;
+            --card-hover: #222c37;
+            --border: #2a3544;
+            --fg: #e8ecf1;
+            --fg-muted: #7a8a9e;
+            --accent: #f0a030;
+            --accent-glow: rgba(240, 160, 48, 0.15);
+            --accent-dim: rgba(240, 160, 48, 0.08);
+            --success: #34d399;
+            --success-glow: rgba(52, 211, 153, 0.15);
+            --danger: #f87171;
+            --cat-clothing: #60a5fa;
+            --cat-toiletry: #a78bfa;
+            --cat-electronics: #f472b6;
+            --cat-documents: #34d399;
+            --radius: 14px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            padding-bottom: 100px;
+        }
+
+        /* 背景装饰 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -120px;
+            right: -80px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -80px;
+            left: -60px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, var(--success-glow) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 顶部区域 */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 20, 25, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px 14px;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title i {
+            font-size: 20px;
+            color: var(--accent);
+        }
+
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--fg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.92);
+            background: var(--card-hover);
+        }
+
+        /* 进度条 */
+        .progress-section {
+            margin-bottom: 2px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: 12px;
+            color: var(--fg-muted);
+            font-weight: 400;
+        }
+
+        .progress-count {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #fbbf24);
+            border-radius: 3px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+            border-radius: 3px;
+        }
+
+        /* 主内容 */
+        .main {
+            position: relative;
+            z-index: 1;
+            padding: 16px 16px 0;
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .cat-tab {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 16px;
+            border-radius: 20px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--fg-muted);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+
+        .cat-tab:active {
+            transform: scale(0.95);
+        }
+
+        .cat-tab i {
+            font-size: 13px;
+        }
+
+        .cat-tab.active {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .cat-tab .cat-count {
+            font-size: 11px;
+            background: var(--border);
+            color: var(--fg-muted);
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .cat-tab.active .cat-count {
+            background: rgba(240,160,48,0.2);
+            color: var(--accent);
+        }
+
+        /* 分类卡片 */
+        .category-section {
+            margin-bottom: 20px;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 0 4px;
+        }
+
+        .category-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .category-name {
+            font-size: 15px;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        .category-stat {
+            font-size: 12px;
+            color: var(--fg-muted);
+            font-weight: 500;
+        }
+
+        /* 物品列表 */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .item-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 14px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 0 2px 2px 0;
+            transition: background 0.3s;
+        }
+
+        .item-card:active {
+            transform: scale(0.98);
+        }
+
+        .item-card.checked {
+            background: rgba(52, 211, 153, 0.04);
+            border-color: rgba(52, 211, 153, 0.15);
+        }
+
+        .item-card.checked::before {
+            background: var(--success);
+        }
+
+        /* 自定义复选框 */
+        .custom-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .custom-check i {
+            font-size: 12px;
+            color: white;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .item-card.checked .custom-check {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 12px var(--success-glow);
+        }
+
+        .item-card.checked .custom-check i {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .item-card.checked .item-name {
+            color: var(--fg-muted);
+            text-decoration: line-through;
+            text-decoration-color: rgba(122,138,158,0.4);
+        }
+
+        .item-delete {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--fg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            opacity: 1; /* fixed: was 0 */
+            flex-shrink: 0;
+        }
+
+        .item-card:hover .item-delete,
+        .item-card:active .item-delete {
+            opacity: 1;
+        }
+
+        .item-delete:active {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--danger);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--fg-muted);
+        }
+
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 底部添加栏 */
+        .add-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(22, 28, 34, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+
+        .add-bar-inner {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .add-input {
+            flex: 1;
+            height: 44px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--fg);
+            padding: 0 14px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .add-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .add-input:focus {
+            border-color: var(--accent);
+        }
+
+        .cat-select {
+            height: 44px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--fg);
+            padding: 0 10px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            min-width: 72px;
+            text-align: center;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a8a9e'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 22px;
+        }
+
+        .cat-select:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-add {
+            height: 44px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent), #e89420);
+            color: #0f1419;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .btn-add:active {
+            transform: scale(0.94);
+        }
+
+        .btn-add i {
+            font-size: 14px;
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 999;
+            opacity: 1; /* fixed: was 0 */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .toast.success i {
+            color: var(--success);
+            margin-right: 6px;
+        }
+
+        .toast.warning {
+            border-color: rgba(240, 160, 48, 0.3);
+        }
+
+        .toast.warning i {
+            color: var(--accent);
+            margin-right: 6px;
+        }
+
+        /* 确认弹窗 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            transition: opacity 0.25s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-sheet {
+            background: var(--bg-secondary);
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px;
+            padding-bottom: max(24px, env(safe-area-inset-bottom));
+            width: 100%;
+            max-width: 420px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.show .modal-sheet {
+            transform: translateY(0);
+        }
+
+        .modal-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0 auto 18px;
+        }
+
+        .modal-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            color: var(--fg-muted);
+            text-align: center;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 14px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.96);
+        }
+
+        .modal-btn.cancel {
+            background: var(--card);
+            color: var(--fg-muted);
+            border: 1px solid var(--border);
+        }
+
+        .modal-btn.confirm {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* 完成动画 */
+        @keyframes confettiPulse {
+            0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
+        }
+
+        .all-done .progress-bar-fill {
+            background: linear-gradient(90deg, var(--success), #6ee7b7);
+        }
+
+        /* 通用滚动条 */
+        ::-webkit-scrollbar {
+            width: 0;
+        }
+
+        /* 减少动画偏好 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- 顶部栏 -->
+    <header class="header">
+        <div class="header-top">
+            <div class="header-title">
+                <i class="fa-solid fa-suitcase-rolling"></i>
+                <h1>旅行打包清单</h1>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="btnUncheckAll" title="全部取消" aria-label="全部取消勾选">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+                <button class="btn-icon" id="btnClearAll" title="清空清单" aria-label="清空所有物品">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            </div>
+        </div>
+        <div class="progress-section">
+            <div class="progress-info">
+                <span class="progress-label">打包进度</span>
+                <span class="progress-count" id="progressText">0 / 0</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 分类标签 -->
+    <main class="main">
+        <div class="category-tabs" id="categoryTabs" role="tablist"></div>
+        <div id="itemSections"></div>
+    </main>
+
+    <!-- 底部添加栏 -->
+    <div class="add-bar">
+        <div class="add-bar-inner">
+            <input type="text" class="add-input" id="itemInput" placeholder="输入物品名称..." maxlength="30" aria-label="物品名称">
+            <select class="cat-select" id="catSelect" aria-label="选择分类">
+                <option value="clothing">衣物</option>
+                <option value="toiletry">洗漱</option>
+                <option value="electronics">电子</option>
+                <option value="documents">证件</option>
+            </select>
+            <button class="btn-add" id="btnAdd" aria-label="添加物品">
+                <i class="fa-solid fa-plus"></i>
+                <span>添加</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 确认弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-sheet">
+            <div class="modal-handle"></div>
+            <div class="modal-title" id="modalTitle">确认操作</div>
+            <div class="modal-desc" id="modalDesc">确定要执行此操作吗？</div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" id="modalCancel">取消</button>
+                <button class="modal-btn confirm" id="modalConfirm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 分类配置
+        const CATEGORIES = {
+            clothing: { name: '衣物', icon: 'fa-shirt', color: 'var(--cat-clothing)' },
+            toiletry: { name: '洗漱', icon: 'fa-pump-soap', color: 'var(--cat-toiletry)' },
+            electronics: { name: '电子', icon: 'fa-plug', color: 'var(--cat-electronics)' },
+            documents: { name: '证件', icon: 'fa-id-card', color: 'var(--cat-documents)' }
+        };
+
+        // 预设物品
+        const DEFAULT_ITEMS = [
+            { category: 'clothing', name: 'T恤/衬衫', checked: false },
+            { category: 'clothing', name: '长裤/短裤', checked: false },
+            { category: 'clothing', name: '内衣/袜子', checked: false },
+            { category: 'clothing', name: '外套/夹克', checked: false },
+            { category: 'clothing', name: '睡衣', checked: false },
+            { category: 'toiletry', name: '牙刷/牙膏', checked: false },
+            { category: 'toiletry', name: '洗面奶', checked: false },
+            { category: 'toiletry', name: '防晒霜', checked: false },
+            { category: 'toiletry', name: '毛巾', checked: false },
+            { category: 'electronics', name: '手机充电器', checked: false },
+            { category: 'electronics', name: '充电宝', checked: false },
+            { category: 'electronics', name: '耳机', checked: false },
+            { category: 'electronics', name: '转换插头', checked: false },
+            { category: 'documents', name: '身份证/护照', checked: false },
+            { category: 'documents', name: '机票/车票', checked: false },
+            { category: 'documents', name: '酒店预订单', checked: false },
+        ];
+
+        // 数据管理
+        let items = [];
+        let activeTab = 'all';
+        let modalCallback = null;
+
+        // 从 localStorage 读取
+        function loadData() {
+            try {
+                const saved = localStorage.getItem('travelPackList');
+                if (saved) {
+                    items = JSON.parse(saved);
+                } else {
+                    items = DEFAULT_ITEMS.map((item, i) => ({ ...item, id: Date.now() + i }));
+                }
+            } catch (e) {
+                items = DEFAULT_ITEMS.map((item, i) => ({ ...item, id: Date.now() + i }));
+            }
+        }
+
+        // 保存到 localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('travelPackList', JSON.stringify(items));
+            } catch (e) { /* 忽略存储异常 */ }
+        }
+
+        // 渲染分类标签
+        function renderTabs() {
+            const tabsEl = document.getElementById('categoryTabs');
+            let html = `<button class="cat-tab ${activeTab === 'all' ? 'active' : ''}" data-cat="all" role="tab" aria-selected="${activeTab === 'all'}">
+                <i class="fa-solid fa-layer-group"></i> 全部
+                <span class="cat-count">${items.length}</span>
+            </button>`;
+
+            for (const [key, cat] of Object.entries(CATEGORIES)) {
+                const count = items.filter(i => i.category === key).length;
+                html += `<button class="cat-tab ${activeTab === key ? 'active' : ''}" data-cat="${key}" role="tab" aria-selected="${activeTab === key}">
+                    <i class="fa-solid ${cat.icon}"></i> ${cat.name}
+                    <span class="cat-count">${count}</span>
+                </button>`;
+            }
+
+            tabsEl.innerHTML = html;
+
+            tabsEl.querySelectorAll('.cat-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    activeTab = tab.dataset.cat;
+                    renderTabs();
+                    renderItems();
+                });
+            });
+        }
+
+        // 渲染物品列表
+        function renderItems() {
+            const container = document.getElementById('itemSections');
+            const filteredCategories = activeTab === 'all'
+                ? Object.keys(CATEGORIES)
+                : [activeTab];
+
+            let html = '';
+            let hasAny = false;
+
+            for (const catKey of filteredCategories) {
+                const catItems = items.filter(i => i.category === catKey);
+                const cat = CATEGORIES[catKey];
+                const checkedCount = catItems.filter(i => i.checked).length;
+
+                if (activeTab !== 'all' || catItems.length > 0) {
+                    hasAny = true;
+                    html += `<section class="category-section">
+                        <div class="category-header">
+                            <div class="category-dot" style="background:${cat.color}"></div>
+                            <span class="category-name">${cat.name}</span>
+                            <span class="category-stat">${checkedCount}/${catItems.length}</span>
+                        </div>
+                        <div class="item-list">`;
+
+                    if (catItems.length === 0) {
+                        html += `<div class="empty-state" style="padding:24px 16px">
+                            <p style="font-size:13px;opacity:0.5">暂无物品，点击下方添加</p>
+                        </div>`;
+                    } else {
+                        for (const item of catItems) {
+                            html += `<div class="item-card ${item.checked ? 'checked' : ''}" data-id="${item.id}" style="--cat-color:${cat.color}">
+                                <div class="custom-check">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <div class="item-info">
+                                    <span class="item-name">${escapeHtml(item.name)}</span>
+                                </div>
+                                <button class="item-delete" data-delete="${item.id}" aria-label="删除${item.name}">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>`;
+                        }
+                    }
+
+                    html += `</div></section>`;
+                }
+            }
+
+            if (!hasAny || (activeTab === 'all' && items.length === 0)) {
+                html = `<div class="empty-state">
+                    <i class="fa-solid fa-suitcase"></i>
+                    <p>清单还是空的<br>添加你的旅行物品吧</p>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+
+            // 绑定勾选事件
+            container.querySelectorAll('.item-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // 如果点击了删除按钮则不处理
+                    if (e.target.closest('.item-delete')) return;
+                    const id = Number(card.dataset.id);
+                    toggleItem(id);
+                });
+            });
+
+            // 绑定删除事件
+            container.querySelectorAll('.item-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = Number(btn.dataset.delete);
+                    deleteItem(id);
+                });
+            });
+
+            updateProgress();
+        }
+
+        // 切换勾选状态
+        function toggleItem(id) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                item.checked = !item.checked;
+                saveData();
+                renderItems();
+                renderTabs();
+
+                // 全部完成提示
+                if (items.length > 0 && items.every(i => i.checked)) {
+                    showToast('全部打包完成，准备出发！', 'success');
+                }
+            }
+        }
+
+        // 删除物品
+        function deleteItem(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+            items = items.filter(i => i.id !== id);
+            saveData();
+            renderItems();
+            renderTabs();
+            showToast(`已删除「${item.name}」`, 'warning');
+        }
+
+        // 添加物品
+        function addItem() {
+            const input = document.getElementById('itemInput');
+            const select = document.getElementById('catSelect');
+            const name = input.value.trim();
+
+            if (!name) {
+                showToast('请输入物品名称', 'warning');
+                input.focus();
+                return;
+            }
+
+            // 检查重复
+            if (items.some(i => i.name === name && i.category === select.value)) {
+                showToast('该分类下已存在相同物品', 'warning');
+                return;
+            }
+
+            items.push({
+                id: Date.now(),
+                category: select.value,
+                name: name,
+                checked: false
+            });
+
+            saveData();
+            input.value = '';
+            renderItems();
+            renderTabs();
+            showToast(`已添加「${name}」`, 'success');
+
+            // 滚动到底部
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const total = items.length;
+            const checked = items.filter(i => i.checked).length;
+            const pct = total > 0 ? (checked / total * 100) : 0;
+
+            document.getElementById('progressText').textContent = `${checked} / ${total}`;
+            document.getElementById('progressBar').style.width = pct + '%';
+
+            const header = document.querySelector('.header');
+            if (total > 0 && checked === total) {
+                header.classList.add('all-done');
+            } else {
+                header.classList.remove('all-done');
+            }
+        }
+
+        // 全部取消勾选
+        function uncheckAll() {
+            if (items.length === 0) return;
+            showModal('重置进度', '确定要将所有物品标记为未装入吗？', () => {
+                items.forEach(i => i.checked = false);
+                saveData();
+                renderItems();
+                renderTabs();
+                showToast('已重置所有进度', 'warning');
+            });
+        }
+
+        // 清空清单
+        function clearAll() {
+            if (items.length === 0) return;
+            showModal('清空清单', '确定要删除所有物品吗？此操作不可恢复。', () => {
+                items = [];
+                saveData();
+                renderItems();
+                renderTabs();
+                showToast('清单已清空', 'warning');
+            });
+        }
+
+        // Toast 通知
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i>${message}`;
+            // 触发重排以重置动画
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2200);
+        }
+
+        // 弹窗
+        function showModal(title, desc, onConfirm) {
+            const overlay = document.getElementById('modalOverlay');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalDesc').textContent = desc;
+            modalCallback = onConfirm;
+            overlay.classList.add('show');
+        }
+
+        function hideModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            modalCallback = null;
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 事件绑定
+        document.getElementById('btnAdd').addEventListener('click', addItem);
+        document.getElementById('itemInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addItem();
+        });
+        document.getElementById('btnUncheckAll').addEventListener('click', uncheckAll);
+        document.getElementById('btnClearAll').addEventListener('click', clearAll);
+        document.getElementById('modalCancel').addEventListener('click', hideModal);
+        document.getElementById('modalConfirm').addEventListener('click', () => {
+            if (modalCallback) modalCallback();
+            hideModal();
+        });
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) hideModal();
+        });
+
+        // 初始化
+        loadData();
+        renderTabs();
+        renderItems();
+    </script>
+</body>
+</html>

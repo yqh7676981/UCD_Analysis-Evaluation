@@ -1,0 +1,11 @@
+{
+  "index": 103,
+  "id": "197",
+  "group": "A",
+  "class": "Desktop",
+  "model": "deepseek-v4-flash",
+  "question": "开发用于 API 管理的仪表板，用户可以在其中查看最近的活动、访问摘要统计数据并有效处理 API 密钥。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/197_A_deepseek-v4-flash/screenshot_desktop.png",
+  "time": "2026-05-29T15:37:58.930542"
+}

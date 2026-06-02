@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>会议纪要整理工具</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Noto Sans SC', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #f5f3f0;
+            --fg: #1a1a1a;
+            --muted: #6b6b6b;
+            --accent: #2d5a4a;
+            --accent-light: #3d7a64;
+            --card: #ffffff;
+            --border: #e0deda;
+            --success: #2d8a5a;
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(45, 90, 74, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(45, 138, 90, 0.05) 0%, transparent 50%),
+                linear-gradient(180deg, #f5f3f0 0%, #ebe9e5 100%);
+            background-attachment: fixed;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(0, 0, 0, 0.06);
+        }
+
+        .input-field {
+            background: #fafafa;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(45, 90, 74, 0.12);
+        }
+
+        .input-field::placeholder {
+            color: #a8a8a8;
+        }
+
+        textarea.input-field {
+            resize: none;
+            min-height: 100px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            touch-action: manipulation;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            background: var(--accent-light);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            touch-action: manipulation;
+        }
+
+        .btn-secondary:active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0efed;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            touch-action: manipulation;
+        }
+
+        .btn-icon:active {
+            background: var(--accent);
+            color: white;
+            transform: scale(0.95);
+        }
+
+        .btn-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0efed;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 4px;
+            animation: tagIn 0.25s ease;
+        }
+
+        @keyframes tagIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .tag-remove {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .tag-remove:active {
+            background: rgba(255, 100, 100, 0.2);
+        }
+
+        .todo-item {
+            background: #fafafa;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .todo-checkbox {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            border: 2px solid var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .todo-checkbox.checked {
+            background: var(--accent);
+        }
+
+        .todo-text {
+            flex: 1;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .todo-text.completed {
+            color: var(--muted);
+            text-decoration: line-through;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--fg);
+        }
+
+        .preview-container {
+            background: #fefefe;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .preview-container h2 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .preview-container h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+            margin: 16px 0 8px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 24px 24px 0 0;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--fg);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 200;
+            opacity: 1; /* fixed: was 0 */
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.4s ease forwards;
+            opacity: 1; /* fixed: was 0 */
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="bg-pattern">
+    <div class="max-w-md mx-auto px-4 py-6 pb-32">
+        <!-- Header -->
+        <header class="text-center mb-8 fade-in" style="animation-delay: 0.1s;">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold" style="color: var(--fg);">会议纪要整理</h1>
+            <p class="text-sm mt-1" style="color: var(--muted);">快速记录，高效整理</p>
+        </header>
+
+        <!-- Form -->
+        <form id="meetingForm" class="space-y-5">
+            <!-- Meeting Title -->
+            <div class="card p-5 fade-in" style="animation-delay: 0.15s;">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(45, 90, 74, 0.1);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                    </div>
+                    <span class="section-title">会议主题</span>
+                </div>
+                <input type="text" id="meetingTitle" class="input-field" placeholder="输入会议主题或标题">
+            </div>
+
+            <!-- Date & Time -->
+            <div class="card p-5 fade-in" style="animation-delay: 0.2s;">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(45, 138, 90, 0.1);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2d8a5a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </div>
+                    <span class="section-title">会议时间</span>
+                </div>
+                <input type="datetime-local" id="meetingTime" class="input-field">
+            </div>
+
+            <!-- Attendees -->
+            <div class="card p-5 fade-in" style="animation-delay: 0.25s;">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(100, 120, 180, 0.1);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6478b4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <span class="section-title">参会人员</span>
+                </div>
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="attendeeInput" class="input-field flex-1" placeholder="输入姓名后点击添加">
+                    <button type="button" id="addAttendeeBtn" class="btn-icon" style="background: var(--accent); color: white;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div id="attendeeTags" class="flex flex-wrap"></div>
+            </div>
+
+            <!-- Discussion Points -->
+            <div class="card p-5 fade-in" style="animation-delay: 0.3s;">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(200, 150, 80, 0.1);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c89650" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </div>
+                    <span class="section-title">讨论要点</span>
+                </div>
+                <textarea id="discussionPoints" class="input-field" rows="5" placeholder="记录会议讨论的主要内容、决策和关键信息..."></textarea>
+            </div>
+
+            <!-- Action Items -->
+            <div class="card p-5 fade-in" style="animation-delay: 0.35s;">
+                <div class="section-header">
+                    <div class="section-icon" style="background: rgba(180, 80, 80, 0.1);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b45050" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                    <span class="section-title">待办事项</span>
+                </div>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="todoInput" class="input-field flex-1" placeholder="添加待办事项">
+                    <button type="button" id="addTodoBtn" class="btn-icon" style="background: #b45050; color: white;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div id="todoList"></div>
+            </div>
+        </form>
+
+        <!-- Fixed Bottom Actions -->
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent" style="background: linear-gradient(to top, var(--card) 70%, transparent);">
+            <div class="max-w-md mx-auto flex gap-3">
+                <button type="button" id="previewBtn" class="btn-secondary">预览纪要</button>
+                <button type="button" id="generateBtn" class="btn-primary">生成纪要</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-lg font-bold">会议纪要预览</h2>
+                <button id="closeModal" class="btn-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div id="previewContent" class="preview-container"></div>
+            <div class="mt-5">
+                <button id="copyBtn" class="btn-primary flex items-center justify-center gap-2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    一键复制
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">已复制到剪贴板</div>
+
+    <script>
+        // Initialize data
+        let attendees = [];
+        let todos = [];
+
+        // DOM Elements
+        const attendeeInput = document.getElementById('attendeeInput');
+        const attendeeTags = document.getElementById('attendeeTags');
+        const addAttendeeBtn = document.getElementById('addAttendeeBtn');
+
+        const todoInput = document.getElementById('todoInput');
+        const todoList = document.getElementById('todoList');
+        const addTodoBtn = document.getElementById('addTodoBtn');
+
+        const previewBtn = document.getElementById('previewBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const previewModal = document.getElementById('previewModal');
+        const closeModal = document.getElementById('closeModal');
+        const previewContent = document.getElementById('previewContent');
+        const copyBtn = document.getElementById('copyBtn');
+        const toast = document.getElementById('toast');
+
+        // Set default date/time
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('meetingTime').value = now.toISOString().slice(0, 16);
+
+        // Add attendee
+        function addAttendee() {
+            const name = attendeeInput.value.trim();
+            if (name && !attendees.includes(name)) {
+                attendees.push(name);
+                renderAttendees();
+                attendeeInput.value = '';
+            }
+        }
+
+        addAttendeeBtn.addEventListener('click', addAttendee);
+        attendeeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addAttendee();
+            }
+        });
+
+        function renderAttendees() {
+            attendeeTags.innerHTML = attendees.map((name, index) => `
+                <div class="tag">
+                    <span>${name}</span>
+                    <div class="tag-remove" onclick="removeAttendee(${index})">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.removeAttendee = function(index) {
+            attendees.splice(index, 1);
+            renderAttendees();
+        };
+
+        // Add todo
+        function addTodo() {
+            const text = todoInput.value.trim();
+            if (text) {
+                todos.push({ text, completed: false });
+                renderTodos();
+                todoInput.value = '';
+            }
+        }
+
+        addTodoBtn.addEventListener('click', addTodo);
+        todoInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTodo();
+            }
+        });
+
+        function renderTodos() {
+            todoList.innerHTML = todos.map((item, index) => `
+                <div class="todo-item">
+                    <div class="todo-checkbox ${item.completed ? 'checked' : ''}" onclick="toggleTodo(${index})">
+                        ${item.completed ? `
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        ` : ''}
+                    </div>
+                    <span class="todo-text ${item.completed ? 'completed' : ''}">${item.text}</span>
+                    <div class="btn-icon" style="width: 36px; height: 36px;" onclick="removeTodo(${index})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.toggleTodo = function(index) {
+            todos[index].completed = !todos[index].completed;
+            renderTodos();
+        };
+
+        window.removeTodo = function(index) {
+            todos.splice(index, 1);
+            renderTodos();
+        };
+
+        // Generate preview content
+        function generatePreview() {
+            const title = document.getElementById('meetingTitle').value.trim() || '会议纪要';
+            const time = document.getElementById('meetingTime').value;
+            const discussion = document.getElementById('discussionPoints').value.trim();
+
+            let formattedTime = '';
+            if (time) {
+                const date = new Date(time);
+                formattedTime = date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                }) + ' ' + date.toLocaleTimeString('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            let content = `<h2>${title}</h2>`;
+
+            if (formattedTime) {
+                content += `<h3>会议时间</h3>`;
+                content += `<p>${formattedTime}</p>`;
+            }
+
+            if (attendees.length > 0) {
+                content += `<h3>参会人员</h3>`;
+                content += `<p>${attendees.join('、')}</p>`;
+            }
+
+            if (discussion) {
+                content += `<h3>讨论要点</h3>`;
+                content += `<p>${discussion.replace(/\n/g, '<br>')}</p>`;
+            }
+
+            if (todos.length > 0) {
+                content += `<h3>待办事项</h3>`;
+                todos.forEach((item, index) => {
+                    const status = item.completed ? '已完成' : '待处理';
+                    content += `<p>${index + 1}. ${item.text} 【${status}】</p>`;
+                });
+            }
+
+            return content;
+        }
+
+        // Generate plain text for copy
+        function generatePlainText() {
+            const title = document.getElementById('meetingTitle').value.trim() || '会议纪要';
+            const time = document.getElementById('meetingTime').value;
+            const discussion = document.getElementById('discussionPoints').value.trim();
+
+            let formattedTime = '';
+            if (time) {
+                const date = new Date(time);
+                formattedTime = date.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                }) + ' ' + date.toLocaleTimeString('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+
+            let text = `【${title}】\n\n`;
+
+            if (formattedTime) {
+                text += `会议时间：${formattedTime}\n\n`;
+            }
+
+            if (attendees.length > 0) {
+                text += `参会人员：${attendees.join('、')}\n\n`;
+            }
+
+            if (discussion) {
+                text += `讨论要点：\n${discussion}\n\n`;
+            }
+
+            if (todos.length > 0) {
+                text += `待办事项：\n`;
+                todos.forEach((item, index) => {
+                    const status = item.completed ? '已完成' : '待处理';
+                    text += `${index + 1}. ${item.text} 【${status}】\n`;
+                });
+            }
+
+            return text;
+        }
+
+        // Show preview modal
+        function showPreview() {
+            previewContent.innerHTML = generatePreview();
+            previewModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        previewBtn.addEventListener('click', showPreview);
+        generateBtn.addEventListener('click', showPreview);
+
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            previewModal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) {
+                previewModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Copy to clipboard
+        copyBtn.addEventListener('click', async () => {
+            const text = generatePlainText();
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast();
+            } catch (err) {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast();
+            }
+        });
+
+        function showToast() {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

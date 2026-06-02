@@ -1,0 +1,33 @@
+{
+  "index": 220,
+  "id": "E003",
+  "group": "A",
+  "class": "Mobile",
+  "model": "claude-opus-4-7-thinking",
+  "question": "做一个考研政治刷题工具，预置 10 道单选题，做完显示得分和错题解析，可以再来一组。",
+  "evaluation": {
+    "total_score": 64,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The interface has a coherent exam-practice tone with a consistent red header, rounded cards, and neutral answer options. The layout feels unified, but the visual system is generic and sparse, with a large empty body area and limited brand or study-tool character beyond the header color."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is readable, spacing inside options is mostly consistent, and the progress/header elements are clean. However, the bottom button looks unfinished and overly heavy, the page has excessive unused space, and the option rows rely on basic gray blocks with limited refinement or active/selected states visible."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly see the current question, progress, and answer choices. But hierarchy is somewhat flat: the question area and options are clear while completion status and next-step affordance are weak, and the large blank middle/lower area reduces density efficiency on mobile."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The core quiz interaction is familiar and labels are understandable. Still, the primary action is ambiguous because '下一题' appears disabled-looking before any visible selection state, and the screenshot/code evidence does not show clear feedback for chosen answers, scoring flow, wrong-answer explanations, or '再来一组' recovery path."
+      }
+    },
+    "summary": "This is a usable mobile quiz page with decent readability, a coherent visual direction, and an immediately recognizable single-choice practice task. The hard cap comes from weak interaction clarity and incomplete task closure: selection/answer states are not evident, the next-step control looks inactive, and the required score, wrong-answer explanation, and replay flow are not demonstrated. Solid foundation, but not yet a polished closed-loop exam tool."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E003_A_claude-opus-4-7-thinking/screenshot_mobile.png",
+  "time": "2026-05-29T16:08:22.166301"
+}

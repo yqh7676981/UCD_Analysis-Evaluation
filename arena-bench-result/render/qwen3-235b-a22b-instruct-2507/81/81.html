@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法语学习助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            flex-grow: 1;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-bottom: 3px solid #4facfe;
+            color: #4facfe;
+        }
+        
+        .content {
+            padding: 30px;
+            display: none;
+        }
+        
+        .content.active {
+            display: block;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #4facfe;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        /* 词汇部分样式 */
+        .vocabulary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .word-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .french-word {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .english-translation {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .part-of-speech {
+            font-size: 0.8rem;
+            background-color: #4facfe;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 8px;
+            display: inline-block;
+        }
+        
+        /* 语法练习样式 */
+        .grammar-question {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4facfe;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .option {
+            padding: 10px 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option:hover {
+            background-color: #e9f7fe;
+            border-color: #4facfe;
+        }
+        
+        .option.selected {
+            background-color: #4facfe;
+            color: white;
+            border-color: #4facfe;
+        }
+        
+        .feedback {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        button {
+            background-color: #4facfe;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background-color: #3a91db;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+        
+        /* 交互式练习样式 */
+        .interactive-exercise {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        
+        .prompt {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .user-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .user-input:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+        }
+        
+        .conversation {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        
+        .message {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+        
+        .user-message {
+            background-color: #4facfe;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .ai-message {
+            background-color: #f0f0f0;
+            color: #333;
+            align-self: flex-start;
+        }
+        
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-bubble {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇫🇷 法语学习助手</h1>
+            <p class="subtitle">提升您的法语词汇、语法和会话技能</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="vocabulary">词汇学习</div>
+            <div class="tab" data-tab="grammar">语法练习</div>
+            <div class="tab" data-tab="interactive">交互练习</div>
+        </div>
+        
+        <div class="content active" id="vocabulary">
+            <h2 class="section-title">📚 词汇学习</h2>
+            <p>点击卡片查看单词的英文翻译。掌握基础法语词汇，为语言学习打下坚实基础。</p>
+            
+            <div class="vocabulary-grid">
+                <div class="word-card">
+                    <div class="french-word">Bonjour</div>
+                    <div class="english-translation">Hello / Good day</div>
+                    <div class="part-of-speech">问候语</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Merci</div>
+                    <div class="english-translation">Thank you</div>
+                    <div class="part-of-speech">表达</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Oui</div>
+                    <div class="english-translation">Yes</div>
+                    <div class="part-of-speech">副词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Non</div>
+                    <div class="english-translation">No</div>
+                    <div class="part-of-speech">副词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Homme</div>
+                    <div class="english-translation">Man</div>
+                    <div class="part-of-speech">名词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Femme</div>
+                    <div class="english-translation">Woman</div>
+                    <div class="part-of-speech">名词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Maison</div>
+                    <div class="english-translation">House</div>
+                    <div class="part-of-speech">名词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">École</div>
+                    <div class="english-translation">School</div>
+                    <div class="part-of-speech">名词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Petit</div>
+                    <div class="english-translation">Small</div>
+                    <div class="part-of-speech">形容词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Grand</div>
+                    <div class="english-translation">Big</div>
+                    <div class="part-of-speech">形容词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Aimer</div>
+                    <div class="english-translation">To love / To like</div>
+                    <div class="part-of-speech">动词</div>
+                </div>
+                
+                <div class="word-card">
+                    <div class="french-word">Parler</div>
+                    <div class="english-translation">To speak</div>
+                    <div class="part-of-speech">动词</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="content" id="grammar">
+            <h2 class="section-title">✍️ 语法练习</h2>
+            <p>选择正确的选项来完成句子。通过实践掌握法语语法结构。</p>
+            
+            <div class="grammar-question">
+                <div class="question-text">1. Choisissez la bonne forme du verbe "être" (to be):<br><strong>Je _____ étudiant.</strong></div>
+                <div class="options" id="q1-options">
+                    <div class="option" data-correct="true">suis</div>
+                    <div class="option">es</div>
+                    <div class="option">est</div>
+                    <div class="option">sommes</div>
+                </div>
+                <div class="feedback" id="q1-feedback"></div>
+            </div>
+            
+            <div class="grammar-question">
+                <div class="question-text">2. Quel article indéfini utilise-t-on avec "livre" (book)?<br><strong>J'ai acheté _____ livre intéressant.</strong></div>
+                <div class="options" id="q2-options">
+                    <div class="option">un</div>
+                    <div class="option" data-correct="true">un</div>
+                    <div class="option">une</div>
+                    <div class="option">des</div>
+                </div>
+                <div class="feedback" id="q2-feedback"></div>
+            </div>
+            
+            <div class="grammar-question">
+                <div class="question-text">3. Comment dit-on "the big house" en français?<br><strong>_____ grande maison.</strong></div>
+                <div class="options" id="q3-options">
+                    <div class="option">Le</div>
+                    <div class="option">La</div>
+                    <div class="option" data-correct="true">La</div>
+                    <div class="option">Les</div>
+                </div>
+                <div class="feedback" id="q3-feedback"></div>
+            </div>
+            
+            <button id="check-answers">检查答案</button>
+            <button id="reset-quiz" style="background-color: #6c757d; margin-left: 10px;">重置练习</button>
+        </div>
+        
+        <div class="content" id="interactive">
+            <h2 class="section-title">💬 交互式练习</h2>
+            <p>与虚拟对话伙伴练习法语对话。输入您的回答并获得反馈。</p>
+            
+            <div class="interactive-exercise">
+                <div class="prompt">AI 助手：Bonjour ! Comment t'appelles-tu ? (你好！你叫什么名字？)</div>
+                
+                <div class="input-area">
+                    <input type="text" class="user-input" placeholder="输入您的回答...">
+                    <button id="send-response">发送</button>
+                </div>
+                
+                <div class="conversation">
+                    <div class="messages-container" id="chat-messages">
+                        <div class="message-bubble">
+                            <div class="message ai-message">Bonjour ! Comment t'appelles-tu ?</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="new-conversation">开始新对话</button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 法语学习助手 | 通过实践掌握法语</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Vocabulary cards flip on click
+        document.querySelectorAll('.word-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const translation = card.querySelector('.english-translation');
+                if (translation.style.display === 'none') {
+                    translation.style.display = 'block';
+                } else {
+                    translation.style.display = 'none';
+                }
+            });
+        });
+        
+        // Grammar quiz functionality
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove previous selection in this question
+                this.parentNode.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked option
+                this.classList.add('selected');
+            });
+        });
+        
+        // Check answers button
+        document.getElementById('check-answers').addEventListener('click', function() {
+            let score = 0;
+            let total = 3;
+            
+            // Check each question
+            for (let i = 1; i <= 3; i++) {
+                const options = document.querySelectorAll(`#q${i}-options .option`);
+                const feedback = document.getElementById(`q${i}-feedback`);
+                
+                let selectedOption = null;
+                let correctOption = null;
+                
+                options.forEach(option => {
+                    if (option.classList.contains('selected')) {
+                        selectedOption = option;
+                    }
+                    if (option.getAttribute('data-correct') === 'true') {
+                        correctOption = option;
+                    }
+                });
+                
+                if (!selectedOption) {
+                    feedback.textContent = '请先选择一个答案。';
+                    feedback.className = 'feedback incorrect';
+                    feedback.style.display = 'block';
+                } else if (selectedOption === correctOption) {
+                    feedback.textContent = '正确！✅';
+                    feedback.className = 'feedback correct';
+                    feedback.style.display = 'block';
+                    score++;
+                } else {
+                    feedback.textContent = `不正确。正确答案是: ${correctOption.textContent}。`;
+                    feedback.className = 'feedback incorrect';
+                    feedback.style.display = 'block';
+                }
+            }
+            
+            // Show final score
+            if (score === total) {
+                alert(`太棒了！您答对了全部 ${score}/${total} 道题目！`);
+            } else if (score > 0) {
+                alert(`不错！您答对了 ${score}/${total} 道题目。继续加油！`);
+            } else {
+                alert(`不要灰心！您答对了 ${score}/${total} 道题目。再试一次吧！`);
+            }
+        });
+        
+        // Reset quiz button
+        document.getElementById('reset-quiz').addEventListener('click', function() {
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            document.querySelectorAll('.feedback').forEach(feedback => {
+                feedback.style.display = 'none';
+            });
+        });
+        
+        // Interactive conversation functionality
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.querySelector('.user-input');
+        const sendButton = document.getElementById('send-response');
+        const newConversationButton = document.getElementById('new-conversation');
+        
+        // Predefined responses for the AI
+        const aiResponses = [
+            "Enchanté de faire votre connaissance !",
+            "Quel beau prénom !",
+            "J'espère que vous passez une bonne journée.",
+            "Vous parlez déjà bien français !",
+            "C'est un plaisir de discuter avec vous."
+        ];
+        
+        function addMessage(text, isUser) {
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            
+            const message = document.createElement('div');
+            message.className = isUser ? 'message user-message' : 'message ai-message';
+            message.textContent = text;
+            
+            messageBubble.appendChild(message);
+            chatMessages.appendChild(messageBubble);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function sendResponse() {
+            const text = userInput.value.trim();
+            if (text) {
+                addMessage(text, true);
+                userInput.value = '';
+                
+                // Simulate AI thinking time
+                setTimeout(() => {
+                    const randomResponse = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+                    addMessage(randomResponse, false);
+                }, 1000);
+            }
+        }
+        
+        sendButton.addEventListener('click', sendResponse);
+        
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendResponse();
+            }
+        });
+        
+        newConversationButton.addEventListener('click', function() {
+            // Clear chat and start new conversation
+            chatMessages.innerHTML = '';
+            addMessage("Bonjour ! Comment t'appelles-tu ?", false);
+        });
+    </script>
+</body>
+</html>

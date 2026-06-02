@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今晚吃啥抽签工具</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            color: #333;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 24px;
+        }
+
+        #wheel-container {
+            position: relative;
+            margin: 50px auto;
+            width: 300px;
+            height: 300px;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #ffa500;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            background: conic-gradient(
+                #ffcccb 0% 16.66%,
+                #add8e6 16.66% 33.33%,
+                #90ee90 33.33% 50%,
+                #ffa07a 50% 66.66%,
+                #d3d3d3 66.66% 83.33%,
+                #ffffe0 83.33% 100%
+            );
+        }
+
+        #wheel span {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            transform-origin: 50% 100%;
+        }
+
+        #wheel span:nth-child(1) { transform: rotate(30deg); }
+        #wheel span:nth-child(2) { transform: rotate(90deg); }
+        #wheel span:nth-child(3) { transform: rotate(150deg); }
+        #wheel span:nth-child(4) { transform: rotate(210deg); }
+        #wheel span:nth-child(5) { transform: rotate(270deg); }
+        #wheel span:nth-child(6) { transform: rotate(330deg); }
+
+        #spin-btn {
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #ffa500;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 4px #d49a00;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        #spin-btn:active {
+            box-shadow: 0 2px #d49a00;
+            transform: translateY(2px);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>今晚吃啥？</h1>
+    <div id="wheel-container">
+        <div id="wheel">
+            <span>火锅</span>
+            <span>烤肉</span>
+            <span>意面</span>
+            <span>寿司</span>
+            <span>炸鸡</span>
+            <span>沙拉</span>
+        </div>
+    </div>
+    <button id="spin-btn">抽签</button>
+    <div id="result"></div>
+
+    <script>
+        const wheel = document.getElementById('wheel');
+        const result = document.getElementById('result');
+        let spinning = false;
+
+        document.getElementById('spin-btn').addEventListener('click', () => {
+            if (spinning) return;
+            spinning = true;
+
+            // Random spin duration and angle
+            const rotationAngle = Math.floor(Math.random() * 360) + 720; // Ensure at least 2 full spins
+
+            // Assign random rotation to the wheel
+            wheel.style.transition = 'transform 3s ease-out';
+            wheel.style.transform = `rotate(${rotationAngle}deg)`;
+
+            // Calculate result after spinning
+            setTimeout(() => {
+                const normalizedAngle = rotationAngle % 360;
+                const sectionAngle = 360 / 6; // Divide wheel into 6 sections
+                const selectedIndex = Math.floor((360 - normalizedAngle) / sectionAngle) % 6;
+
+                const options = ['火锅', '烤肉', '意面', '寿司', '炸鸡', '沙拉'];
+                result.textContent = `抽到的是：${options[selectedIndex]}`;
+                spinning = false;
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

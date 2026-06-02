@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邓稼先学术贡献展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a472a, #2d6a4f);
+            color: white;
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            background: white;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        section:hover {
+            transform: translateY(-5px);
+        }
+        
+        section h2 {
+            background: #2d6a4f;
+            color: white;
+            padding: 1.2rem;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .profile-img {
+            width: 250px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            flex-shrink: 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-text {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .profile-text h3 {
+            color: #2d6a4f;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .publications, .projects, .contributions {
+            list-style: none;
+        }
+        
+        .publications li, .projects li, .contributions li {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px dashed #e0e0e0;
+        }
+        
+        .publications li:last-child, .projects li:last-child, .contributions li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .publication-title, .project-title, .contribution-title {
+            font-weight: 600;
+            color: #1a472a;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .publication-year, .project-year, .contribution-year {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .publication-desc, .project-desc, .contribution-desc {
+            color: #555;
+        }
+        
+        footer {
+            background: #1a472a;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        footer p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            section h2 {
+                font-size: 1.5rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <header>
+        <h1>邓稼先学术贡献展示</h1>
+        <p class="subtitle">中国核物理学家、"两弹一星"功勋奖章获得者，为中国原子能科学事业做出了开创性贡献</p>
+    </header>
+    
+    <div class="container">
+        <section id="profile">
+            <h2>人物简介</h2>
+            <div class="content">
+                <div class="profile">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/%E9%82%93%E7%A8%BC%E5%85%88.jpg/440px-%E9%82%93%E7%A8%BC%E5%85%88.jpg" alt="邓稼先" class="profile-img">
+                    <div class="profile-text">
+                        <h3>邓稼先（1924-1986）</h3>
+                        <p>邓稼先是中国著名的核物理学家，中国科学院院士，中国核武器研制工作的开拓者和奠基者之一。他领导完成了中国原子弹、氢弹的理论设计工作，为中国的核武器事业发展作出了不可磨灭的贡献。</p>
+                        <p>1945年毕业于西南联合大学物理系，1948年赴美留学，1950年获普渡大学物理学博士学位后立即回国。他隐姓埋名28年，全身心投入到中国核武器的研制工作中，被誉为"两弹元勋"。</p>
+                        <p>邓稼先不仅在科研上成就卓著，还培养了大批优秀的科技人才，为中国原子能科学事业的发展奠定了坚实基础。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="publications">
+            <h2>主要出版物</h2>
+            <div class="content">
+                <ul class="publications">
+                    <li>
+                        <span class="publication-title">《初级阶段氢弹理论设计》</span>
+                        <span class="publication-year">1965年</span>
+                        <p class="publication-desc">该著作系统阐述了氢弹初级阶段的理论框架和计算方法，为中国氢弹的快速突破提供了理论基础，是核武器理论研究的重要文献。</p>
+                    </li>
+                    <li>
+                        <span class="publication-title">《中子物理导论》</span>
+                        <span class="publication-year">1972年</span>
+                        <p class="publication-desc">作为内部教材广泛使用，系统介绍了中子与物质相互作用的原理、中子扩散理论和中子输运方程等内容，培养了大批核物理研究人员。</p>
+                    </li>
+                    <li>
+                        <span class="publication-title">《爆炸物理若干问题研究》</span>
+                        <span class="publication-year">1978年</span>
+                        <p class="publication-desc">深入探讨了核爆炸过程中的物理现象和数学模型，对冲击波传播、能量释放机制等关键问题进行了理论分析和数值模拟。</p>
+                    </li>
+                    <li>
+                        <span class="publication-title">《核武器理论研究文集》</span>
+                        <span class="publication-year">1985年</span>
+                        <p class="publication-desc">收录了邓稼先及其团队在核武器理论研究方面的代表性论文，涵盖了从原子弹到氢弹的完整理论体系，是核武器研究的重要参考资料。</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="projects">
+            <h2>主持的重大项目</h2>
+            <div class="content">
+                <ul class="projects">
+                    <li>
+                        <span class="project-title">原子弹理论设计项目</span>
+                        <span class="project-year">1960-1964年</span>
+                        <p class="project-desc">作为理论部主任，领导团队完成中国第一颗原子弹的理论设计方案。在极其困难的条件下，组织科研人员攻克了中子点火、链式反应控制、临界质量计算等关键技术难题，为1964年10月16日中国第一颗原子弹成功爆炸奠定了理论基础。</p>
+                    </li>
+                    <li>
+                        <span class="project-title">氢弹理论突破项目</span>
+                        <span class="project-year">1965-1967年</span>
+                        <p class="project-desc">提出并验证了"于敏构型"的可行性，领导完成了氢弹的理论设计。创造性地解决了热核燃料点燃和能量传递等核心问题，使中国仅用2年8个月就实现了从原子弹到氢弹的跨越，创造了世界纪录。</p>
+                    </li>
+                    <li>
+                        <span class="project-title">核武器小型化研究项目</span>
+                        <span class="project-year">1970-1980年代</span>
+                        <p class="project-desc">主持核武器小型化和轻量化研究，解决了高密度装药、新型引爆系统等关键技术，提高了核武器的实战性能，为战略武器的发展提供了技术支撑。</p>
+                    </li>
+                    <li>
+                        <span class="project-title">核试验安全评估体系建立</span>
+                        <span class="project-year">1964-1986年</span>
+                        <p class="project-desc">建立了完整的核试验安全评估理论体系，包括辐射防护、环境影响评估、试验场安全标准等，确保了多次核试验的安全进行，保护了科研人员和周边居民的健康安全。</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        
+        <section id="contributions">
+            <h2>对学术界的贡献</h2>
+            <div class="content">
+                <ul class="contributions">
+                    <li>
+                        <span class="contribution-title">创建中国核武器理论研究体系</span>
+                        <span class="contribution-year">1960年代起</span>
+                        <p class="contribution-desc">邓稼先从零开始，建立了中国独立自主的核武器理论研究体系。他组建并领导了理论物理研究团队，制定了科学研究规范和方法论，形成了具有中国特色的核武器理论研究范式，为中国后续的核科技发展奠定了制度基础。</p>
+                    </li>
+                    <li>
+                        <span class="contribution-title">培养高层次科技人才</span>
+                        <span class="contribution-year">1960-1986年</span>
+                        <p class="contribution-desc">作为导师和领导者，邓稼先培养了一大批杰出的核物理学家和工程技术专家。他注重理论与实践结合，强调严谨的科学态度，其学生和同事后来大多成为中国核科技领域的骨干力量，形成了传承有序的人才梯队。</p>
+                    </li>
+                    <li>
+                        <span class="contribution-title">推动交叉学科融合发展</span>
+                        <span class="contribution-year">1970年代起</span>
+                        <p class="contribution-desc">邓稼先倡导物理学、数学、化学、材料科学等多学科协同攻关，在核武器研究中引入了先进的计算方法和实验技术，促进了中国在计算物理、高温高压物理、放射化学等交叉学科领域的发展，提升了整体科研水平。</p>
+                    </li>
+                    <li>
+                        <span class="contribution-title">建立科研管理创新模式</span>
+                        <span class="contribution-year">1960年代起</span>
+                        <p class="contribution-desc">在特殊历史时期，邓稼先探索出一套高效的科研组织管理模式，实行"大协作、小自由"的科研机制，既保证了国家重大任务的集中攻关，又给予科研人员必要的学术自由，这种模式后来被推广到其他重大科技工程中。</p>
+                    </li>
+                    <li>
+                        <span class="contribution-title">促进国际学术交流（间接）</span>
+                        <span class="contribution-year">改革开放后</span>
+                        <p class="contribution-desc">虽然邓稼先本人因工作性质限制难以直接参与国际交流，但他建立的理论体系和研究成果通过学术传承影响了后来的国际学术交流。他培养的学生在改革开放后成为中外科技合作的重要桥梁，将中国核物理研究融入国际学术共同体。</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <p>本网站旨在纪念邓稼先先生对中国科学事业的卓越贡献</p>
+        <p>资料来源：公开出版物、学术文献及权威媒体报道 | 更新时间：2024年</p>
+    </footer>
+
+    <script>
+        // 添加平滑滚动效果
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 添加简单的动画效果
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // 为所有section添加入场动画
+        document.querySelectorAll('section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>

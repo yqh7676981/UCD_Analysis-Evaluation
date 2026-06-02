@@ -1,0 +1,33 @@
+{
+  "index": 298,
+  "id": "E006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个产品经理岗位的模拟面试工具，预置 8 个常见面试问题，答完一题进入下一题，最后生成简单评估。",
+  "evaluation": {
+    "total_score": 61,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark mobile landing style is coherent and scenario-appropriate, with a consistent orange accent and unified card treatment. However, it feels generic, with heavy gradient atmosphere and limited product-specific visual identity beyond three feature cards."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is readable, spacing is generally even, and cards/buttons have consistent radius and padding. But the subtitle contrast is weak, the headline wraps awkwardly into two dense lines, and the large empty middle area makes the screen feel unfinished rather than precisely composed."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly find the main CTA and understand this is a mock interview entry page. Still, information hierarchy is shallow: the page shows only marketing bullets, not the core task structure such as question progress, answer method, or expected flow, and the oversized blank space weakens reading rhythm."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The primary action '开始面试' is clear, and the three feature statements are understandable. But the interface does not expose key semantics of the requested tool: no visible 8-question structure, no next-question mechanism, no timing behavior, and no preview of the final evaluation, so users must infer how the tool works."
+      }
+    },
+    "summary": "This is a clean, usable mobile intro screen with solid baseline polish and a clear start action, but it functions more like a promotional splash page than a complete mock interview tool. The biggest limitations are weak task disclosure and lack of visible workflow details for answering 8 preset questions and receiving an evaluation. Visually competent but product UX is only partially expressed, which caps the score in the qualified-average range."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E006_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:24:38.425659"
+}

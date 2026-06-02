@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SciConnect: 科学思想协作平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #2c3e50; /* 深蓝色 */
+            --secondary-color: #3498db; /* 亮蓝色 */
+            --accent-color: #e74c3c; /* 红色 */
+            --background-light: #f4f7f6; /* 浅灰色背景 */
+            --background-dark: #ecf0f1; /* 稍深的浅灰色背景 */
+            --text-color-dark: #333;
+            --text-color-light: #fff;
+            --border-color: #ddd;
+            --font-main: 'Roboto', sans-serif;
+            --font-heading: 'Montserrat', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-light);
+            color: var(--text-color-dark);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        a {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--accent-color);
+        }
+
+        button, .button {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--text-color-light);
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: center;
+        }
+
+        button:hover, .button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        button:active, .button:active {
+            transform: translateY(0);
+        }
+
+        /* 头部导航栏 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-color-light);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* 允许在小屏幕上换行 */
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color-light);
+            text-decoration: none;
+            flex-shrink: 0; /* 防止logo缩小 */
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap; /* 允许导航项在小屏幕上换行 */
+            justify-content: center; /* 居中导航项 */
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            color: var(--text-color-light);
+            font-weight: 400;
+            font-size: 1.05rem;
+            padding: 5px 0;
+            position: relative;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--secondary-color);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        /* 英雄区 */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://source.unsplash.com/random/1600x600/?science,research') no-repeat center center/cover;
+            color: var(--text-color-light);
+            text-align: center;
+            padding: 100px 20px;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            color: var(--text-color-light);
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            max-width: 800px;
+            opacity: 0.9;
+        }
+
+        /* 特性区 */
+        .features {
+            padding: 60px 0;
+            background-color: var(--background-dark);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--text-color-light);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .feature-card .icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        /* Using simple text icons for demonstration, could be SVG/font-awesome */
+        .feature-card .icon::before {
+            content: "💡"; /* Placeholder icons */
+        }
+        .feature-card:nth-child(2) .icon::before { content: "🤝"; }
+        .feature-card:nth-child(3) .icon::before { content: "📚"; }
+        .feature-card:nth-child(4) .icon::before { content: "💬"; }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        /* 最新研究/帖子区 */
+        .recent-posts {
+            padding: 60px 0;
+        }
+
+        .recent-posts h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .post-card {
+            background-color: var(--text-color-light);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .post-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .post-card .meta {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .post-card p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 20px;
+            flex-grow: 1; /* Make paragraph take available space */
+        }
+
+        .post-card .read-more {
+            color: var(--secondary-color);
+            font-weight: bold;
+            display: block; /* Ensure button-like appearance */
+            margin-top: auto; /* Push to bottom */
+        }
+
+        /* 提交想法区 */
+        .submit-idea {
+            padding: 60px 0;
+            background-color: var(--background-dark);
+        }
+
+        .submit-idea h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .submit-form {
+            background-color: var(--text-color-light);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: var(--font-main);
+            box-sizing: border-box; /* Include padding in width */
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="email"]:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-form button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* 讨论区 (占位符) */
+        .discussions {
+            padding: 60px 0;
+        }
+
+        .discussions h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .discussion-card {
+            background-color: var(--text-color-light);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
+        }
+
+        .discussion-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+        }
+
+        .discussion-card .meta {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        /* 底部 */
+        footer {
+            background-color: var(--primary-color);
+            color: var(--text-color-light);
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 40px;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .social-links {
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            color: var(--text-color-light);
+            font-size: 1.5rem;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .logo {
+                margin-bottom: 15px;
+            }
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+                text-align: left;
+            }
+            nav ul li {
+                margin: 0 0 10px 0;
+            }
+            nav ul li:last-child {
+                margin-bottom: 0;
+            }
+            nav ul li a {
+                display: block;
+                padding: 8px 0;
+            }
+
+            .hero {
+                padding: 80px 20px;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .features h2, .recent-posts h2, .submit-idea h2, .discussions h2 {
+                font-size: 2rem;
+            }
+
+            .features-grid, .posts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .submit-form {
+                padding: 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            nav ul li {
+                margin-left: 0;
+            }
+            .features h2, .recent-posts h2, .submit-idea h2, .discussions h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <a href="#" class="logo">SciConnect</a>
+            <nav>
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#explore">探索研究</a></li>
+                    <li><a href="#submit">提交想法</a></li>
+                    <li><a href="#discussions">讨论区</a></li>
+                    <li><a href="#about">关于我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="container">
+                <h1>连接科学，激发创新</h1>
+                <p>一个为全球科学家打造的互动平台，分享前沿研究，促进跨学科合作与深度讨论。</p>
+                <a href="#submit" class="button">立即分享您的研究</a>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>平台特色</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="icon"></div>
+                        <h3>想法与研究分享</h3>
+                        <p>轻松发布您的实验结果、理论模型或创新想法，获得同行反馈。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon"></div>
+                        <h3>跨领域协作</h3>
+                        <p>寻找潜在的合作者，共同探索复杂科学问题，打破学科壁垒。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon"></div>
+                        <h3>知识库与资源</h3>
+                        <p>访问丰富的学术资源，学习最新研究进展，拓展您的知识视野。</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon"></div>
+                        <h3>活跃的讨论社区</h3>
+                        <p>参与深度学术讨论，质疑现有范式，共同推动科学进步。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="explore" class="recent-posts">
+            <div class="container">
+                <h2>最新研究与讨论</h2>
+                <div id="posts-container" class="posts-grid">
+                    <!-- 示例帖子 -->
+                    <div class="post-card">
+                        <h3>人工智能在材料发现中的应用</h3>
+                        <div class="meta">
+                            <span>作者: 李明</span>
+                            <span>发布日期: 2023-10-26</span>
+                        </div>
+                        <p>本文探讨了机器学习算法如何加速新型材料的筛选与合成，并提出了一个基于深度学习的预测模型，展示了其在特定合金设计中的潜力。</p>
+                        <a href="#" class="read-more">阅读更多 &rarr;</a>
+                    </div>
+                    <div class="post-card">
+                        <h3>深海微生物生态系统研究新进展</h3>
+                        <div class="meta">
+                            <span>作者: 王芳</span>
+                            <span>发布日期: 2023-10-25</span>
+                        </div>
+                        <p>揭示了深海热液喷口附近极端微生物群落的独特代谢路径及其对全球生物地球化学循环的影响。发现了多种未知的微生物种群。</p>
+                        <a href="#" class="read-more">阅读更多 &rarr;</a>
+                    </div>
+                    <div class="post-card">
+                        <h3>量子计算的伦理和社会影响</h3>
+                        <div class="meta">
+                            <span>作者: 张伟</span>
+                            <span>发布日期: 2023-10-24</span>
+                        </div>
+                        <p>随着量子技术的快速发展，我们必须审视其可能带来的伦理挑战，包括数据安全、隐私保护以及对传统计算模式的颠覆性影响。</p>
+                        <a href="#" class="read-more">阅读更多 &rarr;</a>
+                    </div>
+                    <div class="post-card">
+                        <h3>基于CRISPR-Cas9的基因编辑技术优化</h3>
+                        <div class="meta">
+                            <span>作者: 赵丽</span>
+                            <span>发布日期: 2023-10-23</span>
+                        </div>
+                        <p>本研究提出了一种改进的CRISPR-Cas9递送系统，显著提高了基因编辑的效率和特异性，为基因治疗提供了新的思路。</p>
+                        <a href="#" class="read-more">阅读更多 &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="submit" class="submit-idea">
+            <div class="container">
+                <h2>分享您的想法或研究</h2>
+                <form id="idea-submission-form" class="submit-form">
+                    <div class="form-group">
+                        <label for="idea-title">标题:</label>
+                        <input type="text" id="idea-title" placeholder="您的研究或想法的标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="idea-author">您的姓名/机构:</label>
+                        <input type="text" id="idea-author" placeholder="例如: 李华 / xx大学" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="idea-category">领域/类别:</label>
+                        <select id="idea-category" required>
+                            <option value="">请选择一个领域</option>
+                            <option value="AI">人工智能</option>
+                            <option value="Biology">生物学</option>
+                            <option value="Chemistry">化学</option>
+                            <option value="Physics">物理学</option>
+                            <option value="Materials">材料科学</option>
+                            <option value="Environmental">环境科学</option>
+                            <option value="Medicine">医学</option>
+                            <option value="Other">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="idea-content">研究摘要或详细内容:</label>
+                        <textarea id="idea-content" placeholder="请在这里详细描述您的研究、想法、实验结果或理论。" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="idea-tags">关键词 (用逗号分隔):</label>
+                        <input type="text" id="idea-tags" placeholder="例如: 基因编辑, 纳米材料, 气候变化">
+                    </div>
+                    <button type="submit">提交研究/想法</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="discussions" class="discussions">
+            <div class="container">
+                <h2>热门讨论</h2>
+                <div class="discussion-card">
+                    <h3>对“暗物质探测新方法”的质疑与探讨</h3>
+                    <div class="meta">
+                        <span>发起人: 物理学家A</span>
+                        <span>最近回复: 2023-10-26</span>
+                        <span>评论: 15</span>
+                    </div>
+                    <p>最近发表的关于暗物质探测的新理论引起了广泛关注，其实验装置的可行性和数据解释存在一些争议。欢迎大家深入讨论。</p>
+                    <a href="#" class="read-more">查看讨论 &rarr;</a>
+                </div>
+                <div class="discussion-card">
+                    <h3>如何有效促进跨学科合作？</h3>
+                    <div class="meta">
+                        <span>发起人: 平台管理员</span>
+                        <span>最近回复: 2023-10-25</span>
+                        <span>评论: 28</span>
+                    </div>
+                    <p>我们正在寻找提升本平台用户间跨学科合作效率的方法，您有什么建议或成功经验可以分享吗？</p>
+                    <a href="#" class="read-more">查看讨论 &rarr;</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="about">
+        <div class="container">
+            <p>&copy; 2023 SciConnect. 保留所有权利。</p>
+            <p>联系我们: <a href="mailto:info@sciconnect.com">info@sciconnect.com</a></p>
+            <div class="social-links">
+                <!-- 占位符，实际项目中可用图标库 -->
+                <a href="#" aria-label="Twitter">X</a>
+                <a href="#" aria-label="LinkedIn">in</a>
+                <a href="#" aria-label="ResearchGate">RG</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('idea-submission-form');
+            const postsContainer = document.getElementById('posts-container');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                const title = document.getElementById('idea-title').value;
+                const author = document.getElementById('idea-author').value;
+                const category = document.getElementById('idea-category').value;
+                const content = document.getElementById('idea-content').value;
+                const tags = document.getElementById('idea-tags').value;
+                const currentDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+                if (title && author && category && content) {
+                    // 创建新的帖子卡片元素
+                    const newPostCard = document.createElement('div');
+                    newPostCard.classList.add('post-card');
+                    newPostCard.innerHTML = `
+                        <h3>${title}</h3>
+                        <div class="meta">
+                            <span>作者: ${author}</span>
+                            <span>发布日期: ${currentDate}</span>
+                        </div>
+                        <p>${content.substring(0, 200)}...</p>
+                        <a href="#" class="read-more">阅读更多 &rarr;</a>
+                    `;
+
+                    // 将新帖子添加到帖子容器的顶部
+                    if (postsContainer.firstChild) {
+                        postsContainer.insertBefore(newPostCard, postsContainer.firstChild);
+                    } else {
+                        postsContainer.appendChild(newPostCard);
+                    }
+
+                    // 清空表单
+                    form.reset();
+                    alert('您的想法/研究已成功提交！');
+                } else {
+                    alert('请填写所有必填项 (标题, 您的姓名/机构, 领域/类别, 研究摘要/详细内容)。');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

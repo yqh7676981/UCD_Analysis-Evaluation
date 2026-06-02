@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API 管理仪表板</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset & Global Styles */
+        :root {
+            --primary-color: #4A90E2;
+            --secondary-color: #50B0D5;
+            --accent-color: #F5A623;
+            --text-color: #333;
+            --light-text-color: #666;
+            --bg-color: #f8faff;
+            --sidebar-bg: #2C3E50;
+            --sidebar-text: #ECF0F1;
+            --card-bg: #fff;
+            --border-color: #e0e0e0;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        button.primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        button.primary:hover {
+            background-color: #3a7bd5;
+        }
+
+        button.secondary {
+            background-color: #e0e0e0;
+            color: var(--text-color);
+        }
+
+        button.secondary:hover {
+            background-color: #d0d0d0;
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        button.danger:hover {
+            background-color: #c82333;
+        }
+
+        /* Layout */
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .sidebar-header span {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .sidebar-nav ul {
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav a {
+            display: block;
+            padding: 12px 25px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-left: 5px solid transparent;
+            font-weight: 500;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+            border-left-color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .sidebar-nav a.active {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left-color: var(--primary-color);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.2rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-info span {
+            margin-right: 10px;
+            color: var(--light-text-color);
+        }
+
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-color);
+        }
+
+        /* Sections */
+        .section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-header h2 {
+            font-size: 1.6rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        /* Summary Stats */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .stat-card.success { border-left-color: var(--success-color); }
+        .stat-card.danger { border-left-color: var(--danger-color); }
+        .stat-card.warning { border-left-color: var(--warning-color); }
+        .stat-card.info { border-left-color: var(--info-color); }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: var(--light-text-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .stat-card .change {
+            font-size: 0.85rem;
+            color: var(--success-color);
+            margin-top: 5px;
+        }
+
+        .stat-card .change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        .data-table th, .data-table td {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table th {
+            background-color: var(--bg-color);
+            color: var(--light-text-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f0f4f8;
+        }
+
+        .data-table td.status-active {
+            color: var(--success-color);
+            font-weight: 500;
+        }
+        .data-table td.status-inactive {
+            color: var(--danger-color);
+            font-weight: 500;
+        }
+        .data-table td.status-pending {
+            color: var(--warning-color);
+            font-weight: 500;
+        }
+
+        /* API Key Management specific */
+        .api-key-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .api-key-actions button {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        .api-key-value {
+            font-family: monospace;
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        /* Forms */
+        .form-container {
+            margin-top: 20px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--light-text-color);
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-20 { margin-top: 20px; }
+        .mb-20 { margin-bottom: 20px; }
+        .ml-10 { margin-left: 10px; }
+
+        /* Media Queries for basic responsiveness */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            .dashboard-header h1 {
+                font-size: 1.8rem;
+            }
+            .main-content {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                padding: 15px 0;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                order: -1; /* Place sidebar at top */
+            }
+            .sidebar-header {
+                display: none; /* Hide header on mobile for space */
+            }
+            .sidebar-nav ul {
+                display: flex;
+                justify-content: space-around;
+                padding: 0 10px;
+            }
+            .sidebar-nav li {
+                margin: 0;
+            }
+            .sidebar-nav a {
+                padding: 10px 15px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                text-align: center;
+                font-size: 0.9rem;
+            }
+            .sidebar-nav a:hover, .sidebar-nav a.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--primary-color);
+            }
+            .main-content {
+                padding: 20px 15px;
+            }
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 20px;
+            }
+            .dashboard-header h1 {
+                margin-bottom: 15px;
+            }
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .section-header h2 {
+                margin-bottom: 15px;
+            }
+            .data-table th, .data-table td {
+                padding: 8px 10px;
+            }
+            .api-key-value {
+                max-width: 150px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>API 管理</h2>
+            <span>仪表板</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#dashboard-overview" class="active" data-section="dashboard-overview">仪表板概览</a></li>
+                <li><a href="#recent-activity" data-section="recent-activity">最近活动</a></li>
+                <li><a href="#api-keys-management" data-section="api-keys-management">API 密钥</a></li>
+                <li><a href="#settings" data-section="settings">设置</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="dashboard-header">
+            <h1 id="current-section-title">仪表板概览</h1>
+            <div class="user-info">
+                <span>你好, 管理员!</span>
+                <img src="https://via.placeholder.com/40/4A90E2/FFFFFF?text=AD" alt="User Avatar">
+            </div>
+        </header>
+
+        <section id="dashboard-overview" class="section dashboard-section">
+            <div class="section-header">
+                <h2>摘要统计数据</h2>
+                <button class="primary">刷新数据</button>
+            </div>
+            <div class="summary-stats">
+                <div class="stat-card success">
+                    <div class="label">总 API 密钥</div>
+                    <div class="value" id="stat-total-keys">125</div>
+                    <div class="change">+5 本周</div>
+                </div>
+                <div class="stat-card info">
+                    <div class="label">活跃密钥</div>
+                    <div class="value" id="stat-active-keys">98</div>
+                    <div class="change">80% 活跃率</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="label">今日请求数</div>
+                    <div class="value" id="stat-today-requests">1.2M</div>
+                    <div class="change">+15% 较昨日</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="label">错误率</div>
+                    <div class="value" id="stat-error-rate">0.5%</div>
+                    <div class="change negative">-0.1% 较昨日</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="recent-activity" class="section dashboard-section hidden">
+            <div class="section-header">
+                <h2>最近活动</h2>
+                <button class="secondary">查看所有活动</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>活动类型</th>
+                        <th>API 密钥 ID</th>
+                        <th>详情</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-27 14:30</td>
+                        <td>API 调用</td>
+                        <td>key_abc123</td>
+                        <td>GET /users/123</td>
+                        <td class="status-active">成功</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-27 14:25</td>
+                        <td>密钥更新</td>
+                        <td>key_def456</td>
+                        <td>权限更新</td>
+                        <td class="status-active">完成</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-27 14:20</td>
+                        <td>API 调用</td>
+                        <td>key_ghi789</td>
+                        <td>POST /products</td>
+                        <td class="status-inactive">失败 (403)</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-27 14:15</td>
+                        <td>密钥创建</td>
+                        <td>key_jkl012</td>
+                        <td>新用户注册</td>
+                        <td class="status-active">完成</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-27 14:10</td>
+                        <td>API 调用</td>
+                        <td>key_abc123</td>
+                        <td>GET /orders</td>
+                        <td class="status-active">成功</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="text-center mt-20">
+                <button class="secondary">加载更多</button>
+            </div>
+        </section>
+
+        <section id="api-keys-management" class="section dashboard-section hidden">
+            <div class="section-header">
+                <h2>API 密钥管理</h2>
+                <button class="primary" id="create-key-btn">创建新密钥</button>
+            </div>
+
+            <div id="new-key-form-container" class="form-container hidden">
+                <h3>创建新的 API 密钥</h3>
+                <form id="new-api-key-form">
+                    <div class="form-group">
+                        <label for="key-name">密钥名称</label>
+                        <input type="text" id="key-name" placeholder="例如: 生产环境密钥, 移动应用" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="key-description">描述</label>
+                        <textarea id="key-description" rows="3" placeholder="密钥用途的简短描述 (可选)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="key-permissions">权限</label>
+                        <select id="key-permissions" multiple size="3">
+                            <option value="read">read:users</option>
+                            <option value="write">write:users</option>
+                            <option value="delete">delete:users</option>
+                            <option value="read_products">read:products</option>
+                            <option value="write_products">write:products</option>
+                        </select>
+                        <small style="color: var(--light-text-color);">按住 Ctrl/Cmd 键选择多个权限</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="primary">生成密钥</button>
+                        <button type="button" class="secondary" id="cancel-create-key">取消</button>
+                    </div>
+                </form>
+            </div>
+
+            <table class="data-table mt-20">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>密钥名称</th>
+                        <th>API 密钥</th>
+                        <th>状态</th>
+                        <th>创建日期</th>
+                        <th>上次使用</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="api-keys-table-body">
+                    <tr>
+                        <td>key_abc123</td>
+                        <td>Web 应用 (生产)</td>
+                        <td><span class="api-key-value">sk-asdfASdfghjklQWERTYuio</span></td>
+                        <td class="status-active">活跃</td>
+                        <td>2023-01-15</td>
+                        <td>2023-10-27</td>
+                        <td class="api-key-actions">
+                            <button class="secondary copy-key-btn" data-key="sk-asdfASdfghjklQWERTYuio">复制</button>
+                            <button class="danger revoke-key-btn" data-key-id="key_abc123">撤销</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>key_def456</td>
+                        <td>移动应用 (开发)</td>
+                        <td><span class="api-key-value">sk-zxcvBNMlkjhgFDSAasdfg</span></td>
+                        <td class="status-active">活跃</td>
+                        <td>2023-03-20</td>
+                        <td>2023-10-26</td>
+                        <td class="api-key-actions">
+                            <button class="secondary copy-key-btn" data-key="sk-zxcvBNMlkjhgFDSAasdfg">复制</button>
+                            <button class="danger revoke-key-btn" data-key-id="key_def456">撤销</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>key_ghi789</td>
+                        <td>测试密钥 (已过期)</td>
+                        <td><span class="api-key-value">sk-qwertyUIOPasdfGHJKLzxcv</span></td>
+                        <td class="status-inactive">已撤销</td>
+                        <td>2023-06-01</td>
+                        <td>2023-09-01</td>
+                        <td class="api-key-actions">
+                            <button class="secondary copy-key-btn" data-key="sk-qwertyUIOPasdfGHJKLzxcv" disabled>复制</button>
+                            <button class="danger delete-key-btn" data-key-id="key_ghi789">删除</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="settings" class="section dashboard-section hidden">
+            <div class="section-header">
+                <h2>设置</h2>
+            </div>
+            <p>API 管理设置将在此处显示。</p>
+            <div class="form-container">
+                <h3>账户设置</h3>
+                <div class="form-group">
+                    <label for="admin-email">管理员邮箱</label>
+                    <input type="text" id="admin-email" value="admin@example.com" disabled>
+                </div>
+                <button class="primary">保存更改</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+            const dashboardSections = document.querySelectorAll('.dashboard-section');
+            const currentSectionTitle = document.getElementById('current-section-title');
+            const createKeyBtn = document.getElementById('create-key-btn');
+            const newKeyFormContainer = document.getElementById('new-key-form-container');
+            const cancelCreateKeyBtn = document.getElementById('cancel-create-key');
+            const newApiKeyForm = document.getElementById('new-api-key-form');
+            const apiKeysTableBody = document.getElementById('api-keys-table-body');
+
+            // Function to show a section and hide others
+            const showSection = (targetId) => {
+                dashboardSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.remove('hidden');
+                        currentSectionTitle.textContent = section.querySelector('h2') ? section.querySelector('h2').textContent : '';
+                        if (targetId === 'dashboard-overview') {
+                            currentSectionTitle.textContent = '仪表板概览'; // Specific title for overview
+                        }
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+            };
+
+            // Initial section load
+            const initialSection = window.location.hash ? window.location.hash.substring(1) : 'dashboard-overview';
+            showSection(initialSection);
+
+            // Highlight active sidebar link
+            sidebarLinks.forEach(link => {
+                if (link.getAttribute('data-section') === initialSection) {
+                    link.classList.add('active');
+                }
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    sidebarLinks.forEach(item => item.classList.remove('active'));
+                    link.classList.add('active');
+                    const targetId = link.getAttribute('data-section');
+                    window.location.hash = targetId; // Update URL hash
+                    showSection(targetId);
+                });
+            });
+
+            // API Key Management - Show/Hide form
+            createKeyBtn.addEventListener('click', () => {
+                newKeyFormContainer.classList.remove('hidden');
+                createKeyBtn.classList.add('hidden');
+            });
+
+            cancelCreateKeyBtn.addEventListener('click', () => {
+                newKeyFormContainer.classList.add('hidden');
+                createKeyBtn.classList.remove('hidden');
+                newApiKeyForm.reset(); // Clear form fields
+            });
+
+            // API Key Management - Generate Key (dummy)
+            newApiKeyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const keyName = document.getElementById('key-name').value;
+                const keyDescription = document.getElementById('key-description').value;
+                const permissions = Array.from(document.getElementById('key-permissions').selectedOptions).map(option => option.value);
+
+                // Simulate API call to generate key
+                const newKeyId = 'key_' + Math.random().toString(36).substr(2, 9);
+                const newKeyValue = 'sk-' + Math.random().toString(36).substr(2, 25);
+                const currentDate = new Date().toISOString().slice(0, 10);
+
+                const newRow = `
+                    <tr>
+                        <td>${newKeyId}</td>
+                        <td>${keyName}</td>
+                        <td><span class="api-key-value">${newKeyValue}</span></td>
+                        <td class="status-active">活跃</td>
+                        <td>${currentDate}</td>
+                        <td>从未使用</td>
+                        <td class="api-key-actions">
+                            <button class="secondary copy-key-btn" data-key="${newKeyValue}">复制</button>
+                            <button class="danger revoke-key-btn" data-key-id="${newKeyId}">撤销</button>
+                        </td>
+                    </tr>
+                `;
+                apiKeysTableBody.insertAdjacentHTML('afterbegin', newRow); // Add to top of table
+
+                alert(`API 密钥 "${keyName}" 已生成! 密钥值: ${newKeyValue}`);
+                newKeyFormContainer.classList.add('hidden');
+                createKeyBtn.classList.remove('hidden');
+                newApiKeyForm.reset();
+                addKeyActionListeners(); // Re-add listeners for new row
+            });
+
+            // Function to add listeners for copy/revoke/delete buttons
+            const addKeyActionListeners = () => {
+                document.querySelectorAll('.copy-key-btn').forEach(button => {
+                    button.onclick = null; // Remove previous listeners
+                    button.addEventListener('click', (e) => {
+                        const keyToCopy = e.target.dataset.key;
+                        navigator.clipboard.writeText(keyToCopy).then(() => {
+                            const originalText = e.target.textContent;
+                            e.target.textContent = '已复制!';
+                            setTimeout(() => {
+                                e.target.textContent = originalText;
+                            }, 1500);
+                        }).catch(err => {
+                            console.error('无法复制文本: ', err);
+                            alert('复制失败，请手动复制: ' + keyToCopy);
+                        });
+                    });
+                });
+
+                document.querySelectorAll('.revoke-key-btn').forEach(button => {
+                    button.onclick = null; // Remove previous listeners
+                    button.addEventListener('click', (e) => {
+                        const keyId = e.target.dataset.keyId;
+                        if (confirm(`确定要撤销密钥 ${keyId} 吗？这将使其立即失效。`)) {
+                            // Simulate API call to revoke
+                            alert(`密钥 ${keyId} 已成功撤销！`);
+                            const row = e.target.closest('tr');
+                            if (row) {
+                                row.querySelector('.status-active').textContent = '已撤销';
+                                row.querySelector('.status-active').classList.remove('status-active');
+                                row.querySelector('.status-active').classList.add('status-inactive');
+                                e.target.classList.remove('revoke-key-btn');
+                                e.target.classList.add('delete-key-btn');
+                                e.target.textContent = '删除';
+                                e.target.previousElementSibling.disabled = true; // Disable copy button
+                            }
+                            addKeyActionListeners(); // Re-add listeners as button class changed
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.delete-key-btn').forEach(button => {
+                    button.onclick = null; // Remove previous listeners
+                    button.addEventListener('click', (e) => {
+                        const keyId = e.target.dataset.keyId;
+                        if (confirm(`确定要删除密钥 ${keyId} 吗？此操作不可逆。`)) {
+                            // Simulate API call to delete
+                            alert(`密钥 ${keyId} 已成功删除！`);
+                            const row = e.target.closest('tr');
+                            if (row) {
+                                row.remove();
+                            }
+                        }
+                    });
+                });
+            };
+
+            // Initial call to add listeners for existing keys
+            addKeyActionListeners();
+        });
+    </script>
+</body>
+</html>

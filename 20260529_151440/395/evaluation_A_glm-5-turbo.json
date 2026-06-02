@@ -1,0 +1,33 @@
+{
+  "index": 297,
+  "id": "395",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为一家风险投资公司创建一个主页，突出显示他们的使命、投资重点和关键团队成员。",
+  "evaluation": {
+    "total_score": 74,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The page has a coherent dark, premium investment-brand style with consistent orange accents, card treatment, and a stable vertical rhythm. It feels intentional and scenario-appropriate for a venture firm, though the heavy dark grid background and repeated glow effects are somewhat generic and occasionally overpower content."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, spacing, and card styling are mostly consistent, with aligned sections and repeatable component patterns. However, body text is quite small in multiple sections, some contrast is low against the dark background, and several image cards feel visually soft or decorative rather than precisely tuned to content."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can identify the main structure quickly: hero, mission, investment sectors, portfolio, team, and contact. Primary actions are visible in the hero and CTA area, but the page relies heavily on similar dark cards with close visual weight, making section scanning slower and reducing emphasis on the most important business proof points."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "The homepage uses familiar landing-page patterns and clear section labels, so the overall message is understandable. Still, some cards and metrics are semantically light, the team section is more image-led than credibility-led, and operations beyond basic CTA clicks are limited, so users get brand impression more easily than concrete decision support."
+      }
+    },
+    "summary": "This is a solid, polished venture-capital homepage with clear brand tone, recognizable information architecture, and acceptable task support for presenting mission, focus areas, portfolio, and team. The hard caps are readability and hierarchy precision: small low-contrast text, visually repetitive dark cards, and somewhat generic imagery reduce scan efficiency and trust depth. Good overall, but not outstanding or fully refined."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/395_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:24:24.500623"
+}

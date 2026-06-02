@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0a1628">
+<title>每日喝水追踪</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+  background:linear-gradient(160deg,#0a1628 0%,#1a3a5c 50%,#0d4d6e 100%);
+  color:#fff;display:flex;flex-direction:column;align-items:center;
+  padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  min-height:100vh;user-select:none;-webkit-user-select:none;
+}
+.app{width:100%;max-width:480px;display:flex;flex-direction:column;align-items:center;flex:1;padding-top:20px}
+header{text-align:center;margin-bottom:18px}
+header h1{font-size:24px;font-weight:600;letter-spacing:1px;background:linear-gradient(90deg,#7ee8fa,#80d0c7);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+header p{font-size:13px;color:#a8c5d6;margin-top:6px}
+
+.goal-bar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);padding:8px 14px;border-radius:24px;margin-bottom:20px;border:1px solid rgba(255,255,255,0.12)}
+.goal-bar span{font-size:13px;color:#cfe6f5}
+.goal-btn{width:30px;height:30px;border:none;border-radius:50%;background:rgba(126,232,250,0.2);color:#7ee8fa;font-size:18px;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s, background .2s}
+.goal-btn:active{transform:scale(0.88);background:rgba(126,232,250,0.4)}
+.goal-num{font-size:18px;font-weight:600;color:#fff;min-width:24px;text-align:center}
+
+.cup-wrap{position:relative;width:220px;height:300px;margin:10px 0 24px;display:flex;justify-content:center;align-items:center}
+.cup{
+  position:relative;width:200px;height:280px;
+  border:4px solid rgba(255,255,255,0.4);
+  border-top:none;
+  border-radius:8px 8px 36px 36px;
+  background:rgba(255,255,255,0.04);
+  overflow:hidden;
+  box-shadow:inset 0 0 30px rgba(255,255,255,0.05), 0 10px 40px rgba(0,0,0,0.3);
+}
+.cup::before{
+  content:"";position:absolute;top:0;left:-4px;right:-4px;height:8px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+  border-radius:50%;
+}
+.water{
+  position:absolute;left:0;right:0;bottom:0;
+  height:0%;
+  background:linear-gradient(180deg,#4ec9e8 0%,#1a8cb8 100%);
+  transition:height 1s cubic-bezier(0.34,1.2,0.64,1);
+}
+.wave{
+  position:absolute;left:0;width:200%;height:20px;top:-12px;
+  background-repeat:repeat-x;
+  background-size:50% 20px;
+}
+.wave1{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'><path d='M0,10 Q25,0 50,10 T100,10 L100,20 L0,20 Z' fill='%234ec9e8'/></svg>");
+  animation:wave 3s linear infinite;opacity:0.9;
+}
+.wave2{
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'><path d='M0,10 Q25,20 50,10 T100,10 L100,20 L0,20 Z' fill='%237ee8fa'/></svg>");
+  animation:wave 4.5s linear infinite reverse;opacity:0.5;top:-10px;
+}
+@keyframes wave{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.bubbles{position:absolute;left:0;right:0;bottom:0;top:0;pointer-events:none;overflow:hidden}
+.bubble{position:absolute;bottom:-10px;width:8px;height:8px;background:rgba(255,255,255,0.5);border-radius:50%;animation:rise linear infinite}
+@keyframes rise{
+  0%{transform:translateY(0) scale(1);opacity:0}
+  20%{opacity:0.8}
+  100%{transform:translateY(-260px) scale(0.3);opacity:0}
+}
+
+.percent{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:42px;font-weight:700;text-shadow:0 2px 12px rgba(0,0,0,0.5);
+  z-index:2;letter-spacing:-1px;
+}
+.percent small{font-size:18px;font-weight:400;opacity:0.85}
+
+.stats{display:flex;gap:14px;margin-bottom:22px;width:100%;justify-content:center}
+.stat{
+  background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:12px 18px;border-radius:16px;text-align:center;flex:1;max-width:130px;
+}
+.stat .v{font-size:22px;font-weight:700;color:#7ee8fa}
+.stat .l{font-size:11px;color:#a8c5d6;margin-top:3px;letter-spacing:0.5px}
+
+.actions{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;margin-bottom:20px}
+.drink-btn{
+  width:160px;height:160px;max-width:48vw;max-height:48vw;
+  border:none;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,#7ee8fa,#1a8cb8);
+  color:#fff;font-size:18px;font-weight:600;cursor:pointer;
+  box-shadow:0 8px 30px rgba(126,232,250,0.4), inset 0 -6px 16px rgba(0,0,0,0.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  transition:transform .2s, box-shadow .3s;
+  position:relative;overflow:hidden;
+}
+.drink-btn::after{
+  content:"";position:absolute;top:15%;left:20%;width:35%;height:25%;
+  background:rgba(255,255,255,0.3);border-radius:50%;filter:blur(6px);
+}
+.drink-btn:active{transform:scale(0.94);box-shadow:0 4px 20px rgba(126,232,250,0.5)}
+.drink-btn .icon{font-size:36px}
+.drink-btn:disabled{background:radial-gradient(circle at 30% 30%,#5cb85c,#2e7d32);box-shadow:0 8px 30px rgba(76,175,80,0.4)}
+
+.reset{
+  background:transparent;border:1px solid rgba(255,255,255,0.2);
+  color:#a8c5d6;padding:8px 22px;border-radius:20px;font-size:13px;cursor:pointer;
+  transition:all .2s;
+}
+.reset:active{background:rgba(255,255,255,0.1);transform:scale(0.95)}
+
+.toast{
+  position:fixed;top:30%;left:50%;transform:translate(-50%,-50%) scale(0.8);
+  background:rgba(0,0,0,0.85);color:#fff;padding:14px 24px;border-radius:14px;
+  font-size:14px;opacity: 1; /* fixed: was 0 */pointer-events:none;transition:all .3s;z-index:99;
+  backdrop-filter:blur(10px);
+}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+
+.celebrate{position:fixed;inset:0;pointer-events:none;z-index:50}
+.confetti{position:absolute;width:8px;height:14px;opacity: 1; /* fixed: was 0 */}
+@keyframes fall{
+  0%{transform:translateY(-20px) rotate(0);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+@media (max-height:700px){
+  .cup-wrap{width:180px;height:240px}
+  .cup{width:170px;height:230px}
+  .drink-btn{width:130px;height:130px;font-size:16px}
+  .drink-btn .icon{font-size:30px}
+  header h1{font-size:20px}
+  .percent{font-size:34px}
+}
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<div class="app">
+  <header>
+    <h1>💧 每日喝水追踪</h1>
+    <p>保持水分，元气满满</p>
+  </header>
+
+  <div class="goal-bar">
+    <span>每日目标</span>
+    <button class="goal-btn" id="dec" aria-label="减少">−</button>
+    <span class="goal-num" id="goal">8</span>
+    <button class="goal-btn" id="inc" aria-label="增加">+</button>
+    <span>杯</span>
+  </div>
+
+  <div class="cup-wrap">
+    <div class="cup">
+      <div class="water" id="water">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+      </div>
+      <div class="bubbles" id="bubbles"></div>
+    </div>
+    <div class="percent" id="percent">0<small>%</small></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="cups">0</div><div class="l">已喝杯数</div></div>
+    <div class="stat"><div class="v" id="ml">0</div><div class="l">毫升 (ml)</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="drink-btn" id="drink">
+      <span class="icon">🥤</span>
+      <span id="btnText">喝一杯</span>
+    </button>
+    <button class="reset" id="reset">重置今日记录</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="celebrate" id="celebrate"></div>
+
+<script>
+(function(){
+  const KEY='waterTracker_v1';
+  const today=new Date().toDateString();
+  let state={date:today,goal:8,cups:0};
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(s&&s.date===today) state=s;
+    else if(s) state.goal=s.goal||8;
+  }catch(e){}
+
+  const CUP_ML=250;
+  const $=id=>document.getElementById(id);
+  const water=$('water'),percent=$('percent'),goalEl=$('goal'),
+        cupsEl=$('cups'),mlEl=$('ml'),btn=$('drink'),btnText=$('btnText'),
+        toast=$('toast'),bubbles=$('bubbles');
+
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+  function showToast(msg){
+    toast.textContent=msg;toast.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t=setTimeout(()=>toast.classList.remove('show'),1500);
+  }
+
+  function spawnBubble(){
+    if(state.cups===0) return;
+    const b=document.createElement('div');
+    b.className='bubble';
+    b.style.left=(10+Math.random()*80)+'%';
+    const size=4+Math.random()*8;
+    b.style.width=b.style.height=size+'px';
+    const dur=2+Math.random()*2;
+    b.style.animationDuration=dur+'s';
+    bubbles.appendChild(b);
+    setTimeout(()=>b.remove(),dur*1000);
+  }
+  setInterval(spawnBubble,800);
+
+  function celebrate(){
+    const c=$('celebrate');
+    const colors=['#7ee8fa','#80d0c7','#ffd76d','#ff8a8a','#c490e4'];
+    for(let i=0;i<60;i++){
+      const e=document.createElement('div');
+      e.className='confetti';
+      e.style.left=Math.random()*100+'vw';
+      e.style.background=colors[i%colors.length];
+      e.style.animation='fall '+(2+Math.random()*2)+'s ease-in '+Math.random()*0.5+'s forwards';
+      e.style.transform='rotate('+Math.random()*360+'deg)';
+      c.appendChild(e);
+      setTimeout(()=>e.remove(),5000);
+    }
+  }
+
+  function render(){
+    goalEl.textContent=state.goal;
+    cupsEl.textContent=state.cups;
+    mlEl.textContent=state.cups*CUP_ML;
+    const pct=Math.min(100,Math.round(state.cups/state.goal*100));
+    water.style.height=pct+'%';
+    percent.innerHTML=pct+'<small>%</small>';
+    if(state.cups>=state.goal){
+      btn.disabled=true;
+      btnText.textContent='已达成目标 🎉';
+    }else{
+      btn.disabled=false;
+      btnText.textContent='喝一杯';
+    }
+  }
+
+  $('inc').addEventListener('click',()=>{
+    if(state.goal<20){state.goal++;save();render();}
+  });
+  $('dec').addEventListener('click',()=>{
+    if(state.goal>1){
+      state.goal--;
+      if(state.cups>state.goal) state.cups=state.goal;
+      save();render();
+    }
+  });
+
+  btn.addEventListener('click',()=>{
+    if(state.cups>=state.goal) return;
+    state.cups++;save();render();
+    if(state.cups>=state.goal){
+      showToast('🎉 今日目标达成！');
+      celebrate();
+    }else{
+      const left=state.goal-state.cups;
+      showToast('+1 杯 · 还差 '+left+' 杯');
+    }
+    if(navigator.vibrate)navigator.vibrate(30);
+  });
+
+  $('reset').addEventListener('click',()=>{
+    if(state.cups===0){showToast('暂无记录');return;}
+    state.cups=0;save();render();showToast('已重置今日记录');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

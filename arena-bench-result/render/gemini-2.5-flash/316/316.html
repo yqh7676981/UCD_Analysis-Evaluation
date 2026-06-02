@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiblioConnect - Your Literary Social Hub</title>
+    <style>
+        /* Basic Reset & Variables */
+        :root {
+            --primary-color: #5B84B1; /* A nice blue */
+            --secondary-color: #FC766A; /* A complementary coral */
+            --accent-color: #FC766A; /* Reusing secondary for accent */
+            --background-color: #F8F8F8; /* Light grey */
+            --text-color: #333;
+            --light-text-color: #666;
+            --border-color: #DDD;
+            --card-bg: #FFF;
+            --button-hover: #4A6F9E;
+            --button-secondary-bg: #EEE;
+            --button-secondary-hover: #DDD;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: var(--card-bg);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .logo {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .logo a {
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        nav {
+            margin: 0 20px; /* Space between logo and auth buttons */
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 5px 0; /* Add padding for better click area */
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--primary-color);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-buttons button {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .auth-buttons button:hover {
+            background-color: var(--primary-color);
+            color: var(--card-bg);
+        }
+
+        /* Call-to-Action Buttons */
+        .cta-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            background-color: var(--button-hover);
+        }
+
+        .cta-button.secondary {
+            background-color: var(--button-secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .cta-button.secondary:hover {
+            background-color: var(--button-secondary-hover);
+            color: var(--text-color);
+        }
+
+        .cta-button.small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        /* Main Content Sections */
+        main {
+            padding: 40px 0;
+        }
+
+        .section {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .section.hidden {
+            display: none;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 80px 40px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .hero-section h2 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .hero-section p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+
+        /* Discovery Section */
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-controls label {
+            font-weight: 600;
+            color: var(--light-text-color);
+        }
+
+        .filter-controls select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: white;
+            font-size: 1em;
+            min-width: 120px;
+        }
+
+        .discovery-cards-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            min-height: 300px; /* Ensure space */
+            align-items: center;
+        }
+
+        .discovery-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            width: 280px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .discovery-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .discovery-card img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .discovery-card h3 {
+            margin: 10px 0 5px;
+            color: var(--primary-color);
+            font-size: 1.3em;
+        }
+
+        .discovery-card p {
+            margin: 5px 0;
+            color: var(--light-text-color);
+            font-size: 0.95em;
+        }
+
+        .card-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .connect-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .connect-btn:hover {
+            background-color: var(--button-hover);
+        }
+
+        .skip-btn {
+            background-color: var(--button-secondary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .skip-btn:hover {
+            background-color: var(--button-secondary-hover);
+        }
+
+        /* Club Section */
+        .club-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .club-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .club-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .club-card p {
+            color: var(--light-text-color);
+            margin-bottom: 15px;
+        }
+
+        .club-card button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .club-card button:hover {
+            background-color: #e6665c;
+        }
+
+        /* Forum Section */
+        .forum-topics {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .topic-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .topic-card h3 {
+            margin: 0 0 5px;
+            font-size: 1.2em;
+        }
+
+        .topic-card h3 a {
+            text-decoration: none;
+            color: var(--primary-color);
+        }
+
+        .topic-card h3 a:hover {
+            text-decoration: underline;
+        }
+
+        .topic-card p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--light-text-color);
+        }
+
+        /* Progress Section */
+        .reading-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .book-progress-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+
+        .book-progress-card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        .book-progress-card p {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+            width: 0%; /* Initial width set by JS or inline style */
+            transition: width 0.5s ease-in-out;
+        }
+
+        .book-progress-card label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--light-text-color);
+        }
+
+        .book-progress-card input[type="number"] {
+            width: 80px;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .book-progress-card .update-progress-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .book-progress-card .update-progress-btn:hover {
+            background-color: var(--button-hover);
+        }
+
+        /* Profile Section */
+        .profile-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 0 0 5px rgba(var(--primary-color), 0.2);
+        }
+
+        .profile-details h3 {
+            margin-bottom: 10px;
+            font-size: 1.8em;
+            color: var(--primary-color);
+        }
+
+        .profile-details p {
+            margin-bottom: 8px;
+            max-width: 600px;
+            color: var(--light-text-color);
+        }
+
+        /* Footer Styling */
+        footer {
+            background-color: var(--text-color);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        footer .social-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+        }
+
+        footer .social-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1001; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            align-items: center; /* Center content vertically */
+            justify-content: center; /* Center content horizontally */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        .modal-content form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-content label {
+            font-weight: 600;
+            color: var(--light-text-color);
+        }
+
+        .modal-content input[type="email"],
+        .modal-content input[type="password"],
+        .modal-content input[type="text"] {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .modal-content button[type="submit"] {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav {
+                width: 100%; /* Take full width for centered nav */
+                margin: 0;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .auth-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero-section {
+                padding: 60px 20px;
+            }
+
+            .hero-section h2 {
+                font-size: 2em;
+            }
+
+            .hero-section p {
+                font-size: 1em;
+            }
+
+            .filter-controls {
+                flex-direction: column;
+                align-items: center; /* Center filter elements */
+            }
+
+            .discovery-card {
+                width: 90%;
+            }
+
+            .club-list, .reading-list {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1 class="logo"><a href="#home">BiblioConnect</a></h1>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#discover">Discover</a></li>
+                    <li><a href="#clubs">Clubs</a></li>
+                    <li><a href="#forum">Forum</a></li>
+                    <li><a href="#progress">My Progress</a></li>
+                    <li><a href="#profile">Profile</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <button id="loginBtn">Log In</button>
+                <button id="signupBtn">Sign Up</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="home" class="hero-section active">
+            <h2>Connect Through Stories</h2>
+            <p>Discover fellow book lovers, join vibrant clubs, track your reading, and dive into discussions.</p>
+            <button class="cta-button">Join the Community!</button>
+        </section>
+
+        <section id="discover" class="section hidden">
+            <h2>Find Your Next Read & Reading Buddy</h2>
+            <div class="filter-controls">
+                <label for="genre-filter">Genre:</label>
+                <select id="genre-filter">
+                    <option value="all">All</option>
+                    <option value="fantasy">Fantasy</option>
+                    <option value="scifi">Sci-Fi</option>
+                    <option value="mystery">Mystery</option>
+                    <option value="romance">Romance</option>
+                    <option value="thriller">Thriller</option>
+                </select>
+                <label for="audience-filter">Audience:</label>
+                <select id="audience-filter">
+                    <option value="all">All</option>
+                    <option value="ya">Young Adult</option>
+                    <option value="adult">Adult</option>
+                </select>
+            </div>
+            <div class="discovery-cards-wrapper">
+                <div class="discovery-card">
+                    <img src="https://via.placeholder.com/150/f0f0f0/333?text=Book+Cover+1" alt="Book Cover: The Starless Sea">
+                    <h3>The Starless Sea</h3>
+                    <p>Erin Morgenstern</p>
+                    <p>Genre: Fantasy, Romance</p>
+                    <p>Reader matches: 85%</p>
+                    <div class="card-actions">
+                        <button class="skip-btn">Skip</button>
+                        <button class="connect-btn">Connect</button>
+                    </div>
+                </div>
+                <div class="discovery-card hidden">
+                    <img src="https://via.placeholder.com/150/e0e0e0/333?text=Profile+Pic+1" alt="User Profile: Alice Wonderland">
+                    <h3>Alice Wonderland</h3>
+                    <p>Loves: Sci-Fi, Thrillers, Fantasy</p>
+                    <p>Currently Reading: "Project Hail Mary"</p>
+                    <p>Preference match: 92%</p>
+                    <div class="card-actions">
+                        <button class="skip-btn">Skip</button>
+                        <button class="connect-btn">Message</button>
+                    </div>
+                </div>
+                <div class="discovery-card hidden">
+                    <img src="https://via.placeholder.com/150/d0d0d0/333?text=Book+Cover+2" alt="Book Cover: Project Hail Mary">
+                    <h3>Project Hail Mary</h3>
+                    <p>Andy Weir</p>
+                    <p>Genre: Science Fiction, Adventure</p>
+                    <p>Reader matches: 88%</p>
+                    <div class="card-actions">
+                        <button class="skip-btn">Skip</button>
+                        <button class="connect-btn">Connect</button>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button id="nextMatchBtn" class="cta-button small">Next Match</button>
+            </div>
+        </section>
+
+        <section id="clubs" class="section hidden">
+            <h2>Your Book Clubs</h2>
+            <div class="club-list">
+                <div class="club-card">
+                    <h3>Fantasy Readers Guild</h3>
+                    <p>Members: 25 | Next Meeting: Wed, Oct 25 - "Mistborn"</p>
+                    <button>View Club</button>
+                </div>
+                <div class="club-card">
+                    <h3>Mystery Book Detectives</h3>
+                    <p>Members: 18 | Reading: "The Guest List"</p>
+                    <button>View Club</button>
+                </div>
+            </div>
+            <div style="text-align: center; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button class="cta-button">Browse All Clubs</button>
+                <button class="cta-button secondary">Create New Club</button>
+            </div>
+        </section>
+
+        <section id="forum" class="section hidden">
+            <h2>Community Discussions</h2>
+            <div class="forum-topics">
+                <div class="topic-card">
+                    <h3><a href="#">Thoughts on the ending of "Dune Messiah"?</a></h3>
+                    <p>Posted by: Paul_Muad'Dib | Last Reply: 2 hours ago | Replies: 12</p>
+                </div>
+                <div class="topic-card">
+                    <h3><a href="#">Best cozy fantasy recommendations?</a></h3>
+                    <p>Posted by: BookDragon | Last Reply: 1 day ago | Replies: 8</p>
+                </div>
+                <div class="topic-card">
+                    <h3><a href="#">Discussing characters in "Pride and Prejudice"</a></h3>
+                    <p>Posted by: JaneReads | Last Reply: 5 days ago | Replies: 20</p>
+                </div>
+            </div>
+            <div style="text-align: center; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button class="cta-button">Start New Topic</button>
+                <button class="cta-button secondary">View All Topics</button>
+            </div>
+        </section>
+
+        <section id="progress" class="section hidden">
+            <h2>My Reading Progress</h2>
+            <div class="reading-list">
+                <div class="book-progress-card">
+                    <h3>The Name of the Wind</h3>
+                    <p>Author: Patrick Rothfuss</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 70%;"></div>
+                    </div>
+                    <p>Progress: <span id="progress-percent-wind">70</span>%</p>
+                    <label for="pages-read-wind">Pages Read:</label>
+                    <input type="number" id="pages-read-wind" value="490"> / 704
+                    <button class="update-progress-btn" data-book="wind" data-total="704">Update</button>
+                </div>
+                <div class="book-progress-card">
+                    <h3>Project Hail Mary</h3>
+                    <p>Author: Andy Weir</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 30%;"></div>
+                    </div>
+                    <p>Progress: <span id="progress-percent-hailmary">30</span>%</p>
+                    <label for="pages-read-hailmary">Pages Read:</label>
+                    <input type="number" id="pages-read-hailmary" value="150"> / 496
+                    <button class="update-progress-btn" data-book="hailmary" data-total="496">Update</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="profile" class="section hidden">
+            <h2>My Profile</h2>
+            <div class="profile-details">
+                <img src="https://via.placeholder.com/120/ccc/333?text=Avatar" alt="Profile Picture" class="profile-avatar">
+                <h3>Jane Doe</h3>
+                <p><strong>Reading Interests:</strong> Fantasy, Sci-Fi, Historical Fiction, Thrillers</p>
+                <p><strong>Favorite Authors:</strong> Brandon Sanderson, Neil Gaiman, Jane Austen</p>
+                <button class="cta-button secondary">Edit Profile</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 BiblioConnect. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#">Facebook</a> | <a href="#">Twitter</a> | <a href="#">Instagram</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals for Login/Signup -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Log In</h2>
+            <form>
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" required>
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" required>
+                <button type="submit" class="cta-button">Log In</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Sign Up</h2>
+            <form>
+                <label for="signup-username">Username:</label>
+                <input type="text" id="signup-username" required>
+                <label for="signup-email">Email:</label>
+                <input type="email" id="signup-email" required>
+                <label for="signup-password">Password:</label>
+                <input type="password" id="signup-password" required>
+                <label for="signup-confirm-password">Confirm Password:</label>
+                <input type="password" id="signup-confirm-password" required>
+                <button type="submit" class="cta-button">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Section Navigation Logic ---
+            const navLinks = document.querySelectorAll('nav ul li a');
+            const sections = document.querySelectorAll('main .section');
+
+            const showSection = (targetId) => {
+                // Hide all sections
+                sections.forEach(sec => sec.classList.add('hidden'));
+                // Show the target section
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+            };
+
+            const activateNavLink = (targetId) => {
+                // Deactivate all links
+                navLinks.forEach(nav => nav.classList.remove('active'));
+                // Activate the corresponding link
+                const activeLink = document.querySelector(`nav ul li a[href="#${targetId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            };
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    showSection(targetId);
+                    activateNavLink(targetId);
+                });
+            });
+
+            // Set initial active state for Home and show Home section on page load
+            const initialSectionId = window.location.hash ? window.location.hash.substring(1) : 'home';
+            showSection(initialSectionId);
+            activateNavLink(initialSectionId);
+
+
+            // --- Modal Logic (Login/Signup) ---
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const loginModal = document.getElementById('loginModal');
+            const signupModal = document.getElementById('signupModal');
+            const closeButtons = document.querySelectorAll('.modal .close-button');
+
+            const openModal = (modal) => {
+                modal.style.display = 'flex'; // Use flex to center the modal
+                document.body.style.overflow = 'hidden'; // Prevent scrolling background
+            };
+
+            const closeModal = (modal) => {
+                modal.style.display = 'none';
+                document.body.style.overflow = ''; // Restore scrolling
+            };
+
+            loginBtn.addEventListener('click', () => openModal(loginModal));
+            signupBtn.addEventListener('click', () => openModal(signupModal));
+
+            closeButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    closeModal(e.target.closest('.modal'));
+                });
+            });
+
+            // Close modal if clicking outside the content
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) {
+                    closeModal(loginModal);
+                }
+                if (e.target === signupModal) {
+                    closeModal(signupModal);
+                }
+            });
+
+            // --- Discovery Card Simulation ---
+            const discoveryCards = document.querySelectorAll('.discovery-cards-wrapper .discovery-card');
+            const nextMatchBtn = document.getElementById('nextMatchBtn');
+            let currentCardIndex = 0;
+
+            const showDiscoveryCard = (index) => {
+                discoveryCards.forEach((card, i) => {
+                    card.classList.add('hidden');
+                    if (i === index) {
+                        card.classList.remove('hidden');
+                    }
+                });
+            };
+
+            if (discoveryCards.length > 0) {
+                showDiscoveryCard(currentCardIndex); // Show the first card initially
+                nextMatchBtn.addEventListener('click', () => {
+                    currentCardIndex = (currentCardIndex + 1) % discoveryCards.length;
+                    showDiscoveryCard(currentCardIndex);
+                });
+            }
+
+            // --- Reading Progress Update ---
+            const updateProgress = (button) => {
+                const bookId = button.dataset.book;
+                const totalPages = parseInt(button.dataset.total);
+                const pagesReadInput = document.getElementById(`pages-read-${bookId}`);
+                const progressBar = button.closest('.book-progress-card').querySelector('.progress-bar');
+                const progressPercentSpan = document.getElementById(`progress-percent-${bookId}`);
+
+                let pagesRead = parseInt(pagesReadInput.value);
+
+                // Basic input validation
+                if (isNaN(pagesRead) || pagesRead < 0) {
+                    pagesRead = 0;
+                    pagesReadInput.value = 0;
+                }
+                if (pagesRead > totalPages) {
+                    pagesRead = totalPages;
+                    pagesReadInput.value = totalPages;
+                }
+
+                const percentage = (pagesRead / totalPages) * 100;
+                progressBar.style.width = `${percentage}%`;
+                progressPercentSpan.textContent = Math.round(percentage);
+            };
+
+            // Add event listeners to all update buttons
+            const updateProgressBtns = document.querySelectorAll('.update-progress-btn');
+            updateProgressBtns.forEach(button => {
+                button.addEventListener('click', () => updateProgress(button));
+            });
+
+            // Initial progress bar setup for all existing book cards on load
+            document.querySelectorAll('.book-progress-card').forEach(card => {
+                const updateButton = card.querySelector('.update-progress-btn');
+                if (updateButton) {
+                    updateProgress(updateButton); // Call update function for initial display
+                }
+            });
+        });
+    </script>
+</body>
+</html>

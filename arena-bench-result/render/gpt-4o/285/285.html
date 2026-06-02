@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Twitter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #1da1f2;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+
+        main {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+
+        .new-post {
+            background: white;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .new-post textarea {
+            width: 100%;
+            height: 80px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        .new-post button {
+            background-color: #1da1f2;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .new-post button:hover {
+            background-color: #0d85d8;
+        }
+
+        .post {
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .post p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .post-actions button {
+            background-color: transparent;
+            border: none;
+            color: #1da1f2;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .post-actions button:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Mini Twitter
+    </header>
+    <main>
+        <section class="new-post">
+            <textarea id="postContent" placeholder="What's happening?"></textarea>
+            <button onclick="createPost()">Tweet</button>
+        </section>
+        <section id="feed">
+            <!-- Posts will be dynamically inserted here -->
+        </section>
+    </main>
+
+    <script>
+        function createPost() {
+            const postContent = document.getElementById('postContent').value.trim();
+            if (postContent === '') {
+                alert('Post content cannot be empty!');
+                return;
+            }
+
+            const post = document.createElement('div');
+            post.classList.add('post');
+
+            const content = document.createElement('p');
+            content.textContent = postContent;
+            post.appendChild(content);
+
+            const actions = document.createElement('div');
+            actions.classList.add('post-actions');
+
+            const likeButton = document.createElement('button');
+            likeButton.textContent = 'Like';
+            likeButton.onclick = () => {
+                if (!likeButton.liked) {
+                    likeButton.textContent = 'Liked';
+                    likeButton.style.color = '#ff4757';
+                    likeButton.liked = true;
+                } else {
+                    likeButton.textContent = 'Like';
+                    likeButton.style.color = '#1da1f2';
+                    likeButton.liked = false;
+                }
+            };
+            actions.appendChild(likeButton);
+
+            const commentButton = document.createElement('button');
+            commentButton.textContent = 'Comment';
+            commentButton.onclick = () => {
+                const comment = prompt('Write your comment:');
+                if (comment) {
+                    const commentElement = document.createElement('p');
+                    commentElement.textContent = `Comment: ${comment}`;
+                    commentElement.style.fontStyle = 'italic';
+                    commentElement.style.marginLeft = '20px';
+                    post.appendChild(commentElement);
+                }
+            };
+            actions.appendChild(commentButton);
+
+            const retweetButton = document.createElement('button');
+            retweetButton.textContent = 'Retweet';
+            retweetButton.onclick = () => {
+                const retweet = document.createElement('div');
+                retweet.classList.add('post');
+                retweet.innerHTML = `<p>(Retweet)</p>${post.innerHTML}`;
+                document.getElementById('feed').prepend(retweet);
+            };
+            actions.appendChild(retweetButton);
+
+            post.appendChild(actions);
+
+            document.getElementById('feed').prepend(post);
+            document.getElementById('postContent').value = '';
+        }
+    </script>
+</body>
+</html>

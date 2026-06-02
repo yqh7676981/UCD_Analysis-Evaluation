@@ -1,0 +1,33 @@
+{
+  "index": 290,
+  "id": "U004",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个旅行行程规划页面，可以按天填写每天的景点、交通、餐厅安排，生成一份完整的旅行手册。",
+  "evaluation": {
+    "total_score": 62,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark theme with orange accents is coherent and reasonably suited to a travel planning tool. Card styling, rounded corners, and bottom navigation are consistent, but the page feels generic and sparse, with limited travel-specific character or strong visual focus beyond the header."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Typography is mostly clean and spacing is fairly even, but several details feel unfinished: the days control alignment is awkward, the plus/minus buttons look detached from the numeric value, icon strokes are light against the dark background, and the empty-state card/icon area lacks richer completion."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly identify the title, trip info card, day tabs, and add button. However, the main task flow is under-supported: the page shows little structure for daily attractions, transport, and restaurants, and the large empty area creates weak information guidance rather than a clear next-step path."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Core labels like trip name, departure date, days, edit/preview/export, and day tabs are understandable. But the semantics of how to add itinerary items are vague—the floating add button is unlabeled, no visible categories exist for 景点/交通/餐厅, and users must infer what happens after tapping."
+      }
+    },
+    "summary": "This is a usable but mid-level mobile itinerary planner with a clean dark visual system and understandable basic structure. The main limitation is scenario completeness: it does not clearly support the requested per-day planning of attractions, transport, and restaurants, and the empty-state flow relies too much on inference. Visual polish is decent, but hierarchy, task scaffolding, and operation clarity keep it from feeling launch-ready."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U004_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:22:56.518832"
+}

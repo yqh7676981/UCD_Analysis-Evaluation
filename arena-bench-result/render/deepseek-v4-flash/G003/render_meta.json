@@ -1,0 +1,10 @@
+{
+  "id": "G003",
+  "class": "Mobile",
+  "width": 390,
+  "height": 844,
+  "status": "success",
+  "error": null,
+  "html_path": "arena-bench-result/render/deepseek-v4-flash/G003/G003.html",
+  "screenshot_path": "arena-bench-result/render/deepseek-v4-flash/G003/G003.png"
+}

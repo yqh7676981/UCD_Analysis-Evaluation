@@ -1,0 +1,33 @@
+{
+  "index": 294,
+  "id": "439",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "创建一个旨在管理慢性病的医疗保健应用程序，重点关注跟踪症状、用药时间表并为用户提供教育资源。",
+  "evaluation": {
+    "total_score": 83,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 9,
+        "reason": "Dark medical dashboard style is coherent and well controlled: consistent teal accent, repeated card language, stable spacing rhythm, and scenario-appropriate calm tone. Minor cap: the page feels somewhat generic dashboard-like rather than distinctly healthcare-branded."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography, card padding, borders, and icon treatment are mostly polished and consistent. Progress bars, status pills, and appointment cards are neatly aligned. Small issues remain: some secondary text is low-contrast on the dark background, and a few dense cards make text feel slightly cramped."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Primary sections are clearly grouped: summary metrics, symptom tracking, medication list, appointments, quick actions, and education resources. The reading path is understandable, but the long single-page dashboard spreads attention across many blocks, and the lower education area is visually less prioritized for the core management task."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "Labels and module semantics are intuitive for chronic disease management, with clear nav categories and understandable medication states such as 已服用/待服用. However, some actions are slightly ambiguous from the screenshot alone, such as the floating plus near appointments and whether checkboxes directly mark medication completion."
+      }
+    },
+    "summary": "This is a strong, near-launch desktop healthcare dashboard with clear scenario fit, consistent visual system, and understandable modules for symptoms, medication, appointments, and education. The experience is held back from top-tier by slightly generic dashboard styling, some low-contrast secondary text, and a broad information spread that weakens focus on the most urgent daily tasks."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/439_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:23:46.306799"
+}

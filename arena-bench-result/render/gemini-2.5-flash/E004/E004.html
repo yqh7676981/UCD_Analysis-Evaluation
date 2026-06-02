@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的错题本</title>
+    <style>
+        /* 变量定义，方便主题管理和统一 */
+        :root {
+            --primary-color: #4CAF50; /* 主题绿 */
+            --primary-dark-color: #388E3C;
+            --secondary-color: #6c757d; /* 灰色 */
+            --background-color: #f9f9f9; /* 页面背景色 */
+            --card-background-color: #ffffff; /* 卡片背景色 */
+            --text-color: #333; /* 主要文字颜色 */
+            --light-text-color: #666; /* 次要文字颜色 */
+            --border-color: #eee; /* 边框颜色 */
+            --shadow-color: rgba(0, 0, 0, 0.1); /* 阴影颜色 */
+            --danger-color: #f44336; /* 危险操作颜色 */
+            --font-size-base: 16px;
+        }
+
+        /* 全局样式和重置 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: var(--font-size-base); /* 基础字体大小 */
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+        }
+
+        .container {
+            max-width: 600px; /* 移动端最大宽度，防止在大屏幕上过宽 */
+            margin: 0 auto; /* 居中显示 */
+            padding: 1rem; /* 内边距 */
+        }
+
+        /* 页面头部 */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            position: sticky; /* 头部固定在顶部 */
+            top: 0;
+            z-index: 1000;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8rem; /* 相对字体大小 */
+        }
+
+        /* 各个功能区段 */
+        section {
+            background-color: var(--card-background-color);
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: var(--primary-dark-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        /* 表单元素样式 */
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--light-text-color);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: calc(100% - 20px); /* 100% 宽度减去 padding */
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box; /* 边框和内边距包含在宽度内 */
+            -webkit-appearance: none; /* 移除 iOS 默认样式 */
+            appearance: none; /* 移除默认样式 */
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical; /* 允许垂直方向调整大小 */
+        }
+
+        select {
+            background-color: white;
+            /* 自定义下拉箭头图标 */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M287%2069.4L150.3%20206.5c-4.7%204.7-12.4%204.7-17.1%200L5.4%2069.4c-4.7-4.7-4.7-12.4%200-17.1c4.7-4.7%2012.4-4.7%2017.1%200l120.7%20120.7l120.7-120.7c4.7-4.7%2012.4-4.7%2017.1%200C291.7%2057%20291.7%2064.7%20287%2069.4z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            background-size: 12px;
+            padding-right: 2.5rem; /* 为箭头留出空间 */
+        }
+
+        /* 按钮样式 */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease; /* 动画效果 */
+            width: 100%; /* 按钮默认占满宽度 */
+            box-sizing: border-box;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark-color);
+        }
+
+        button:active {
+            transform: scale(0.99); /* 点击时微小形变 */
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        button.secondary:hover {
+            background-color: #5a6268;
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        button.danger:hover {
+            background-color: #c82333;
+        }
+
+        /* 筛选区布局 */
+        .filter-group {
+            display: flex;
+            flex-direction: column; /* 移动端垂直排列 */
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group select {
+            flex: 1; /* 占据可用空间 */
+            margin-bottom: 0;
+        }
+
+        /* 错题列表布局 */
+        .error-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        /* 错题卡片样式 */
+        .error-card {
+            background-color: var(--card-background-color);
+            padding: 1.2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+            border-left: 5px solid var(--primary-color); /* 左侧强调色条 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .error-card h3 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            color: var(--primary-dark-color);
+            word-break: break-word; /* 确保长文本能自动换行 */
+        }
+
+        .error-card p {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--light-text-color);
+        }
+        
+        .error-card p strong {
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .error-card .meta {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 0.8rem;
+        }
+
+        .error-card .meta span:not(:last-child) {
+            margin-right: 1rem;
+        }
+
+        .error-card .actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .error-card .actions button {
+            flex: 1; /* 编辑和删除按钮平分空间 */
+            padding: 0.6rem;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .no-errors {
+            text-align: center;
+            color: var(--light-text-color);
+            padding: 2rem;
+            font-size: 1.1rem;
+        }
+
+        /* 针对稍大屏幕的响应式调整 (如平板或横向手机) */
+        @media (min-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+            h2 {
+                font-size: 1.6rem;
+            }
+            .filter-group {
+                flex-direction: row; /* 筛选区横向排列 */
+            }
+            button {
+                width: auto; /* 按钮不再占满宽度 */
+                padding: 0.8rem 1.5rem;
+                display: inline-block;
+            }
+            .form-actions {
+                display: flex;
+                gap: 1rem;
+            }
+            .form-actions button {
+                flex: 1; /* 表单操作按钮平分空间 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>我的错题本</h1>
+        </header>
+
+        <section id="error-input-section">
+            <h2 id="form-title">添加错题</h2>
+            <input type="hidden" id="error-id"> <!-- 用于存储编辑中的错题ID -->
+            <label for="question">错题描述：</label>
+            <textarea id="question" placeholder="请输入错题的详细描述或截图说明"></textarea>
+
+            <label for="reason">错误原因：</label>
+            <textarea id="reason" placeholder="分析错误原因，例如知识点模糊、粗心计算等"></textarea>
+
+            <label for="solution">正确解法：</label>
+            <textarea id="solution" placeholder="记录正确解题思路和步骤"></textarea>
+
+            <label for="subject">学科：</label>
+            <select id="subject">
+                <option value="">选择学科</option>
+            </select>
+            <input type="text" id="new-subject" placeholder="或输入新学科（回车添加）" style="display: none;">
+
+            <label for="knowledgePoint">知识点：</label>
+            <select id="knowledgePoint">
+                <option value="">选择知识点</option>
+            </select>
+            <input type="text" id="new-knowledgePoint" placeholder="或输入新知识点（回车添加）" style="display: none;">
+            
+            <div class="form-actions">
+                <button id="save-error-btn">添加错题</button>
+                <button id="cancel-edit-btn" class="secondary" style="display: none;">取消编辑</button>
+            </div>
+        </section>
+
+        <section id="filter-section">
+            <h2>筛选错题</h2>
+            <div class="filter-group">
+                <select id="filter-subject">
+                    <option value="">所有学科</option>
+                </select>
+                <select id="filter-knowledgePoint">
+                    <option value="">所有知识点</option>
+                </select>
+            </div>
+        </section>
+
+        <section id="error-list-section">
+            <h2>错题列表</h2>
+            <div id="error-list" class="error-list">
+                <p class="no-errors" id="no-errors-message">暂无错题，快来添加吧！</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 获取DOM元素
+            const errorIdInput = document.getElementById('error-id');
+            const questionInput = document.getElementById('question');
+            const reasonInput = document.getElementById('reason');
+            const solutionInput = document.getElementById('solution');
+            const subjectSelect = document.getElementById('subject');
+            const newSubjectInput = document.getElementById('new-subject');
+            const knowledgePointSelect = document.getElementById('knowledgePoint');
+            const newKnowledgePointInput = document.getElementById('new-knowledgePoint');
+            const saveErrorBtn = document.getElementById('save-error-btn');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            const formTitle = document.getElementById('form-title');
+
+            const filterSubjectSelect = document.getElementById('filter-subject');
+            const filterKnowledgePointSelect = document.getElementById('filter-knowledgePoint');
+
+            const errorListContainer = document.getElementById('error-list');
+            const noErrorsMessage = document.getElementById('no-errors-message');
+
+            let errors = []; // 存储所有错题的数组
+            let currentEditId = null; // 记录当前正在编辑的错题ID
+
+            // 预定义学科和知识点，用于初始化选项
+            const predefinedSubjects = ['语文', '数学', '英语', '物理', '化学', '生物', '历史', '地理', '政治'];
+            const predefinedKnowledgePoints = ['概念理解', '公式应用', '计算错误', '审题不清', '逻辑推理', '实验操作', '语法错误', '单词拼写', '阅读理解'];
+
+            // --- 工具函数 ---
+
+            /** 生成唯一ID */
+            const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
+
+            /** 从LocalStorage加载错题数据 */
+            const loadErrors = () => {
+                const storedErrors = localStorage.getItem('errorNotebookErrors');
+                errors = storedErrors ? JSON.parse(storedErrors) : [];
+            };
+
+            /** 将错题数据保存到LocalStorage */
+            const saveErrors = () => {
+                localStorage.setItem('errorNotebookErrors', JSON.stringify(errors));
+            };
+
+            /** 清空表单 */
+            const clearForm = () => {
+                errorIdInput.value = '';
+                questionInput.value = '';
+                reasonInput.value = '';
+                solutionInput.value = '';
+                subjectSelect.value = '';
+                newSubjectInput.value = '';
+                newSubjectInput.style.display = 'none';
+                knowledgePointSelect.value = '';
+                newKnowledgePointInput.value = '';
+                newKnowledgePointInput.style.display = 'none';
+                saveErrorBtn.textContent = '添加错题';
+                cancelEditBtn.style.display = 'none';
+                formTitle.textContent = '添加错题';
+                currentEditId = null;
+                // 重新填充选项，确保在添加新学科/知识点后，下拉框选项是最新的
+                populateSubjectOptions(); 
+                populateKnowledgePointOptions();
+            };
+
+            /**
+             * 填充学科下拉选项
+             * @param {string} selectedSubject - 默认选中的学科
+             */
+            const populateSubjectOptions = (selectedSubject = '') => {
+                // 保存当前筛选器选中的值，避免刷新时丢失
+                const currentFilterValue = filterSubjectSelect.value; 
+
+                subjectSelect.innerHTML = '<option value="">选择学科</option>';
+                filterSubjectSelect.innerHTML = '<option value="">所有学科</option>';
+
+                const allSubjects = new Set([...predefinedSubjects]); // 从预定义学科开始
+                errors.forEach(error => allSubjects.add(error.subject)); // 添加所有已记录的学科
+
+                const sortedSubjects = Array.from(allSubjects).sort(); // 字母排序
+
+                sortedSubjects.forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub;
+                    option.textContent = sub;
+                    subjectSelect.appendChild(option);
+
+                    const filterOption = document.createElement('option');
+                    filterOption.value = sub;
+                    filterOption.textContent = sub;
+                    filterSubjectSelect.appendChild(filterOption);
+                });
+                
+                // 添加“添加新学科”选项
+                const newSubjectOption = document.createElement('option');
+                newSubjectOption.value = 'new-subject';
+                newSubjectOption.textContent = '添加新学科...';
+                subjectSelect.appendChild(newSubjectOption);
+
+                // 设置选中值
+                if (selectedSubject && allSubjects.has(selectedSubject)) {
+                    subjectSelect.value = selectedSubject;
+                } else if (selectedSubject) { 
+                    // 如果选中的是新的且不在列表中，则选择“添加新学科”并显示输入框
+                    subjectSelect.value = 'new-subject';
+                    newSubjectInput.value = selectedSubject;
+                    newSubjectInput.style.display = 'block';
+                }
+                
+                // 恢复筛选器选中值
+                filterSubjectSelect.value = currentFilterValue;
+            };
+
+            /**
+             * 填充知识点下拉选项
+             * @param {string} selectedKnowledgePoint - 默认选中的知识点
+             */
+            const populateKnowledgePointOptions = (selectedKnowledgePoint = '') => {
+                const currentFilterValue = filterKnowledgePointSelect.value;
+
+                knowledgePointSelect.innerHTML = '<option value="">选择知识点</option>';
+                filterKnowledgePointSelect.innerHTML = '<option value="">所有知识点</option>';
+
+                const allKnowledgePoints = new Set([...predefinedKnowledgePoints]);
+                errors.forEach(error => allKnowledgePoints.add(error.knowledgePoint));
+
+                const sortedKnowledgePoints = Array.from(allKnowledgePoints).sort();
+
+                sortedKnowledgePoints.forEach(kp => {
+                    const option = document.createElement('option');
+                    option.value = kp;
+                    option.textContent = kp;
+                    knowledgePointSelect.appendChild(option);
+
+                    const filterOption = document.createElement('option');
+                    filterOption.value = kp;
+                    filterOption.textContent = kp;
+                    filterKnowledgePointSelect.appendChild(filterOption);
+                });
+
+                // 添加“添加新知识点”选项
+                const newKPOption = document.createElement('option');
+                newKPOption.value = 'new-knowledgePoint';
+                newKPOption.textContent = '添加新知识点...';
+                knowledgePointSelect.appendChild(newKPOption);
+
+                if (selectedKnowledgePoint && allKnowledgePoints.has(selectedKnowledgePoint)) {
+                    knowledgePointSelect.value = selectedKnowledgePoint;
+                } else if (selectedKnowledgePoint) {
+                    knowledgePointSelect.value = 'new-knowledgePoint';
+                    newKnowledgePointInput.value = selectedKnowledgePoint;
+                    newKnowledgePointInput.style.display = 'block';
+                }
+
+                filterKnowledgePointSelect.value = currentFilterValue;
+            };
+
+            // --- 事件监听器 ---
+
+            // 学科选择框变化时，显示/隐藏新学科输入框
+            subjectSelect.addEventListener('change', () => {
+                if (subjectSelect.value === 'new-subject') {
+                    newSubjectInput.style.display = 'block';
+                    newSubjectInput.focus();
+                } else {
+                    newSubjectInput.style.display = 'none';
+                }
+            });
+
+            // 新学科输入框回车时，添加新学科
+            newSubjectInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && newSubjectInput.value.trim() !== '') {
+                    const newSub = newSubjectInput.value.trim();
+                    if (!predefinedSubjects.includes(newSub)) {
+                        predefinedSubjects.push(newSub); // 加入预定义列表
+                    }
+                    populateSubjectOptions(newSub); // 重新填充并选中新学科
+                    newSubjectInput.style.display = 'none';
+                    e.preventDefault(); // 阻止表单默认提交行为
+                }
+            });
+
+            // 知识点选择框变化时，显示/隐藏新知识点输入框
+            knowledgePointSelect.addEventListener('change', () => {
+                if (knowledgePointSelect.value === 'new-knowledgePoint') {
+                    newKnowledgePointInput.style.display = 'block';
+                    newKnowledgePointInput.focus();
+                } else {
+                    newKnowledgePointInput.style.display = 'none';
+                }
+            });
+
+            // 新知识点输入框回车时，添加新知识点
+            newKnowledgePointInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && newKnowledgePointInput.value.trim() !== '') {
+                    const newKP = newKnowledgePointInput.value.trim();
+                    if (!predefinedKnowledgePoints.includes(newKP)) {
+                        predefinedKnowledgePoints.push(newKP); // 加入预定义列表
+                    }
+                    populateKnowledgePointOptions(newKP); // 重新填充并选中新知识点
+                    newKnowledgePointInput.style.display = 'none';
+                    e.preventDefault();
+                }
+            });
+
+            // 保存/添加错题按钮点击事件
+            saveErrorBtn.addEventListener('click', () => {
+                const question = questionInput.value.trim();
+                const reason = reasonInput.value.trim();
+                const solution = solutionInput.value.trim();
+                let subject = subjectSelect.value;
+                let knowledgePoint = knowledgePointSelect.value;
+
+                // 如果选择了“添加新学科/知识点”，则取输入框的值
+                if (subject === 'new-subject') {
+                    subject = newSubjectInput.value.trim();
+                }
+                if (knowledgePoint === 'new-knowledgePoint') {
+                    knowledgePoint = newKnowledgePointInput.value.trim();
+                }
+
+                if (!question || !reason || !solution || !subject || !knowledgePoint) {
+                    alert('请填写所有必填项 (错题描述、错误原因、正确解法、学科、知识点)');
+                    return;
+                }
+
+                if (currentEditId) {
+                    // 编辑现有错题
+                    const index = errors.findIndex(err => err.id === currentEditId);
+                    if (index !== -1) {
+                        errors[index] = {
+                            id: currentEditId,
+                            question,
+                            reason,
+                            solution,
+                            subject,
+                            knowledgePoint,
+                            timestamp: errors[index].timestamp // 保持原有时间戳
+                        };
+                    }
+                } else {
+                    // 添加新错题
+                    const newError = {
+                        id: generateUniqueId(),
+                        question,
+                        reason,
+                        solution,
+                        subject,
+                        knowledgePoint,
+                        timestamp: new Date().toISOString() // 记录创建时间
+                    };
+                    errors.unshift(newError); // 将新错题添加到数组开头
+                }
+
+                saveErrors(); // 保存数据
+                clearForm(); // 清空表单
+                renderErrors(); // 重新渲染列表
+                // 滚动到列表顶部，方便查看新添加/修改的条目
+                document.getElementById('error-list-section').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // 取消编辑按钮点击事件
+            cancelEditBtn.addEventListener('click', clearForm);
+
+            // 筛选器变化时，自动重新渲染列表
+            filterSubjectSelect.addEventListener('change', renderErrors);
+            filterKnowledgePointSelect.addEventListener('change', renderErrors);
+
+            // --- 渲染函数 ---
+
+            /** 渲染错题列表 */
+            const renderErrors = () => {
+                errorListContainer.innerHTML = ''; // 清空现有列表
+                const currentFilterSubject = filterSubjectSelect.value;
+                const currentFilterKnowledgePoint = filterKnowledgePointSelect.value;
+
+                // 根据筛选条件过滤错题
+                const filteredErrors = errors.filter(error => {
+                    const matchesSubject = !currentFilterSubject || error.subject === currentFilterSubject;
+                    const matchesKnowledgePoint = !currentFilterKnowledgePoint || error.knowledgePoint === currentFilterKnowledgePoint;
+                    return matchesSubject && matchesKnowledgePoint;
+                });
+
+                if (filteredErrors.length === 0) {
+                    noErrorsMessage.style.display = 'block'; // 显示“暂无错题”信息
+                    return;
+                } else {
+                    noErrorsMessage.style.display = 'none';
+                }
+
+                // 遍历过滤后的错题，创建卡片并添加到DOM
+                filteredErrors.forEach(error => {
+                    const errorCard = document.createElement('div');
+                    errorCard.className = 'error-card';
+                    errorCard.setAttribute('data-id', error.id);
+
+                    // 格式化时间戳
+                    const date = new Date(error.timestamp).toLocaleString('zh-CN', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                        hour: '2-digit', minute: '2-digit'
+                    });
+
+                    errorCard.innerHTML = `
+                        <h3>${error.question.replace(/\n/g, '<br>')}</h3>
+                        <div class="meta">
+                            <span>学科: <strong>${error.subject}</strong></span>
+                            <span>知识点: <strong>${error.knowledgePoint}</strong></span>
+                            <span>记录于: ${date}</span>
+                        </div>
+                        <p><strong>错误原因:</strong> <br>${error.reason.replace(/\n/g, '<br>')}</p>
+                        <p><strong>正确解法:</strong> <br>${error.solution.replace(/\n/g, '<br>')}</p>
+                        <div class="actions">
+                            <button class="edit-btn secondary" data-id="${error.id}">编辑</button>
+                            <button class="delete-btn danger" data-id="${error.id}">删除</button>
+                        </div>
+                    `;
+                    errorListContainer.appendChild(errorCard);
+                });
+
+                // 为新创建的编辑和删除按钮绑定事件
+                errorListContainer.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', (e) => editError(e.target.dataset.id));
+                });
+                errorListContainer.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', (e) => deleteError(e.target.dataset.id));
+                });
+            };
+
+            /**
+             * 编辑错题
+             * @param {string} id - 错题ID
+             */
+            const editError = (id) => {
+                const errorToEdit = errors.find(error => error.id === id);
+                if (errorToEdit) {
+                    errorIdInput.value = errorToEdit.id;
+                    questionInput.value = errorToEdit.question;
+                    reasonInput.value = errorToEdit.reason;
+                    solutionInput.value = errorToEdit.solution;
+                    
+                    // 填充学科和知识点下拉框，如果当前学科/知识点不在预定义列表中，则显示输入框
+                    populateSubjectOptions(errorToEdit.subject);
+                    populateKnowledgePointOptions(errorToEdit.knowledgePoint);
+
+                    saveErrorBtn.textContent = '保存修改';
+                    cancelEditBtn.style.display = 'block';
+                    formTitle.textContent = '编辑错题';
+                    currentEditId = id;
+                    // 滚动到表单区，方便用户编辑
+                    document.getElementById('error-input-section').scrollIntoView({ behavior: 'smooth' });
+                }
+            };
+
+            /**
+             * 删除错题
+             * @param {string} id - 错题ID
+             */
+            const deleteError = (id) => {
+                if (confirm('确定要删除这道错题吗？此操作不可撤销。')) {
+                    errors = errors.filter(error => error.id !== id);
+                    saveErrors();
+                    renderErrors();
+                    clearForm(); // 如果正在编辑被删除的错题，清空表单
+                }
+            };
+
+            // --- 页面初始化 ---
+            loadErrors(); // 加载LocalStorage中的数据
+            populateSubjectOptions(); // 填充学科下拉选项
+            populateKnowledgePointOptions(); // 填充知识点下拉选项
+            renderErrors(); // 首次渲染错题列表
+        });
+    </script>
+</body>
+</html>

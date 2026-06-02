@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>吃药提醒小助手</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+    color: #2d2d2d;
+    min-height: 100vh;
+    font-size: 18px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 600px; margin: 0 auto; padding: 16px 16px 120px; }
+  header {
+    text-align: center;
+    padding: 18px 8px 10px;
+  }
+  header h1 {
+    font-size: 28px;
+    color: #c2410c;
+    font-weight: 800;
+    letter-spacing: 2px;
+  }
+  header p { font-size: 16px; color: #92400e; margin-top: 6px; }
+  .clock {
+    background: #fff;
+    border-radius: 18px;
+    padding: 18px;
+    margin: 14px 0 18px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(194, 65, 12, 0.08);
+  }
+  .clock .time { font-size: 42px; font-weight: 800; color: #c2410c; letter-spacing: 3px; }
+  .clock .date { font-size: 16px; color: #78716c; margin-top: 4px; }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #7c2d12;
+    margin: 8px 4px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .med-list { display: flex; flex-direction: column; gap: 12px; }
+  .med-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    border-left: 6px solid #f97316;
+  }
+  .med-card.due { border-left-color: #dc2626; background: #fef2f2; animation: pulse 1.5s infinite; }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 3px 10px rgba(220,38,38,0.2); }
+    50% { box-shadow: 0 3px 24px rgba(220,38,38,0.5); }
+  }
+  .med-name { font-size: 22px; font-weight: 700; color: #1c1917; margin-bottom: 6px; }
+  .med-dose { font-size: 17px; color: #57534e; margin-bottom: 10px; }
+  .med-times { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .time-tag {
+    background: #fff7ed;
+    color: #c2410c;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 17px;
+    font-weight: 600;
+    border: 1.5px solid #fdba74;
+  }
+  .time-tag.taken { background: #dcfce7; color: #15803d; border-color: #86efac; text-decoration: line-through; }
+  .card-actions { display: flex; gap: 10px; }
+  .btn {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.1s, opacity 0.2s;
+  }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: #f97316; color: #fff; }
+  .btn-success { background: #16a34a; color: #fff; }
+  .btn-ghost { background: #f5f5f4; color: #57534e; }
+  .btn-danger { background: #fee2e2; color: #dc2626; }
+  .btn-large {
+    width: 100%;
+    padding: 18px;
+    font-size: 20px;
+    background: #f97316;
+    color: #fff;
+    border-radius: 14px;
+    margin-top: 8px;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+  }
+  .empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #a8a29e;
+    background: #fff;
+    border-radius: 16px;
+  }
+  .empty .icon { font-size: 56px; margin-bottom: 10px; }
+  .fab {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 24px;
+    background: #ea580c;
+    color: #fff;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 32px;
+    font-size: 19px;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
+    cursor: pointer;
+    z-index: 50;
+  }
+  .fab:active { transform: translateX(-50%) scale(0.96); }
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: flex-end;
+    z-index: 100;
+  }
+  .modal.show { display: flex; }
+  .modal-content {
+    background: #fff;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 20px 20px 0 0;
+    padding: 22px 18px 28px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal h2 { font-size: 22px; color: #7c2d12; margin-bottom: 18px; text-align: center; }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 17px; font-weight: 600; color: #44403c; margin-bottom: 8px; }
+  .form-group input {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    border: 2px solid #e7e5e4;
+    border-radius: 12px;
+    font-family: inherit;
+    background: #fafaf9;
+  }
+  .form-group input:focus { outline: none; border-color: #f97316; background: #fff; }
+  .times-input { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .time-chip {
+    background: #fff7ed;
+    color: #c2410c;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 17px;
+    font-weight: 600;
+    border: 1.5px solid #fdba74;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .time-chip span.x { cursor: pointer; font-weight: 700; padding-left: 4px; }
+  .add-time {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .add-time input { flex: 1; padding: 12px; }
+  .add-time button {
+    padding: 12px 18px; background: #f97316; color: #fff;
+    border: none; border-radius: 12px; font-size: 17px; font-weight: 600; cursor: pointer;
+  }
+  .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+  /* Reminder Overlay */
+  .reminder-overlay {
+    position: fixed; inset: 0;
+    background: rgba(220, 38, 38, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+    animation: flashBg 1s infinite;
+  }
+  @keyframes flashBg {
+    0%, 100% { background: rgba(220, 38, 38, 0.92); }
+    50% { background: rgba(234, 88, 12, 0.92); }
+  }
+  .reminder-overlay.show { display: flex; }
+  .reminder-box {
+    background: #fff;
+    border-radius: 24px;
+    padding: 30px 22px;
+    text-align: center;
+    width: 100%;
+    max-width: 420px;
+  }
+  .reminder-box .bell { font-size: 64px; margin-bottom: 12px; animation: shake 0.6s infinite; }
+  @keyframes shake {
+    0%, 100% { transform: rotate(-12deg); }
+    50% { transform: rotate(12deg); }
+  }
+  .reminder-box h2 { font-size: 32px; color: #dc2626; margin-bottom: 14px; font-weight: 800; }
+  .reminder-box .med { font-size: 30px; font-weight: 800; color: #1c1917; margin: 14px 0 6px; }
+  .reminder-box .dose { font-size: 22px; color: #57534e; margin-bottom: 20px; }
+  .reminder-box .time-big { font-size: 48px; font-weight: 800; color: #ea580c; margin: 8px 0; }
+  .reminder-actions { display: flex; flex-direction: column; gap: 10px; }
+  .reminder-actions .btn { padding: 16px; font-size: 19px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>💊 吃药提醒</h1>
+    <p>爸妈安心，按时服药</p>
+  </header>
+  <div class="clock">
+    <div class="time" id="clockTime">--:--</div>
+    <div class="date" id="clockDate">加载中...</div>
+  </div>
+  <div class="section-title">📋 今日用药清单</div>
+  <div class="med-list" id="medList"></div>
+  <button class="btn btn-large" id="resetBtn" style="background:#fff;color:#c2410c;border:2px solid #fdba74;box-shadow:none;">🔄 重置今日打卡记录</button>
+</div>
+<button class="fab" id="addBtn">＋ 添加药品</button>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2 id="modalTitle">添加药品</h2>
+    <div class="form-group">
+      <label>药品名称</label>
+      <input type="text" id="medName" placeholder="例如：降压药" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>每次剂量</label>
+      <input type="text" id="medDose" placeholder="例如：1片 / 5毫升" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>服用时间（可多个）</label>
+      <div class="times-input" id="timesList"></div>
+      <div class="add-time">
+        <input type="time" id="newTime">
+        <button id="addTimeBtn">添加</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancelBtn">取消</button>
+      <button class="btn btn-primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="reminder-overlay" id="reminder">
+  <div class="reminder-box">
+    <div class="bell">🔔</div>
+    <h2>该吃药啦！</h2>
+    <div class="time-big" id="rmTime">--:--</div>
+    <div class="med" id="rmName">药品</div>
+    <div class="dose" id="rmDose">剂量</div>
+    <div class="reminder-actions">
+      <button class="btn btn-success" id="rmTaken">✅ 已经吃了</button>
+      <button class="btn btn-ghost" id="rmSnooze">⏰ 5分钟后再提醒</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'med_reminder_data_v1';
+  const TAKEN_KEY = 'med_reminder_taken_v1';
+  let meds = [];
+  let taken = {};
+  let editingId = null;
+  let editingTimes = [];
+  let snoozed = {};
+  let activeReminder = null;
+  let audioCtx = null;
+
+  const $ = (id) => document.getElementById(id);
+
+  function load() {
+    try { meds = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ meds = []; }
+    const tk = JSON.parse(localStorage.getItem(TAKEN_KEY) || '{}');
+    const today = todayKey();
+    taken = tk.date === today ? tk.data : {};
+    if (tk.date !== today) saveTaken();
+  }
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(meds)); }
+  function saveTaken() {
+    localStorage.setItem(TAKEN_KEY, JSON.stringify({date: todayKey(), data: taken}));
+  }
+  function todayKey() {
+    const d = new Date();
+    return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+  function renderClock() {
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    $('clockTime').textContent = hh + ':' + mm;
+    const week = ['日','一','二','三','四','五','六'][d.getDay()];
+    $('clockDate').textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${week}`;
+  }
+
+  function renderList() {
+    const list = $('medList');
+    if (meds.length === 0) {
+      list.innerHTML = '<div class="empty"><div class="icon">📭</div><div>还没有添加药品</div><div style="margin-top:6px;font-size:15px;">点击下方按钮添加</div></div>';
+      return;
+    }
+    const now = new Date();
+    const curMin = now.getHours()*60 + now.getMinutes();
+    list.innerHTML = meds.map(m => {
+      const isDue = m.times.some(t => {
+        const [h,mi] = t.split(':').map(Number);
+        const tMin = h*60+mi;
+        return Math.abs(curMin - tMin) <= 1 && !taken[m.id+'_'+t];
+      });
+      const tags = m.times.map(t => {
+        const isTaken = taken[m.id+'_'+t];
+        return `<span class="time-tag ${isTaken?'taken':''}">${t}${isTaken?' ✓':''}</span>`;
+      }).join('');
+      return `<div class="med-card ${isDue?'due':''}">
+        <div class="med-name">${escape(m.name)}</div>
+        <div class="med-dose">💊 每次 ${escape(m.dose)}</div>
+        <div class="med-times">${tags}</div>
+        <div class="card-actions">
+          <button class="btn btn-ghost" data-edit="${m.id}">✏️ 编辑</button>
+          <button class="btn btn-danger" data-del="${m.id}">🗑 删除</button>
+        </div>
+      </div>`;
+    }).join('');
+    list.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => openEdit(b.dataset.edit));
+    list.querySelectorAll('[data-del]').forEach(b => b.onclick = () => delMed(b.dataset.del));
+  }
+  function escape(s){return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  function openAdd() {
+    editingId = null;
+    editingTimes = [];
+    $('modalTitle').textContent = '添加药品';
+    $('medName').value = '';
+    $('medDose').value = '';
+    renderTimes();
+    $('modal').classList.add('show');
+  }
+  function openEdit(id) {
+    const m = meds.find(x => x.id === id);
+    if (!m) return;
+    editingId = id;
+    editingTimes = [...m.times];
+    $('modalTitle').textContent = '编辑药品';
+    $('medName').value = m.name;
+    $('medDose').value = m.dose;
+    renderTimes();
+    $('modal').classList.add('show');
+  }
+  function closeModal() { $('modal').classList.remove('show'); }
+  function renderTimes() {
+    editingTimes.sort();
+    $('timesList').innerHTML = editingTimes.length === 0
+      ? '<span style="color:#a8a29e;font-size:15px;">尚未添加时间</span>'
+      : editingTimes.map((t,i) => `<span class="time-chip">${t}<span class="x" data-rm="${i}">✕</span></span>`).join('');
+    $('timesList').querySelectorAll('[data-rm]').forEach(el => {
+      el.onclick = () => { editingTimes.splice(+el.dataset.rm, 1); renderTimes(); };
+    });
+  }
+  function addTime() {
+    const v = $('newTime').value;
+    if (!v) { alert('请选择时间'); return; }
+    if (editingTimes.includes(v)) { alert('该时间已添加'); return; }
+    editingTimes.push(v);
+    $('newTime').value = '';
+    renderTimes();
+  }
+  function saveMed() {
+    const name = $('medName').value.trim();
+    const dose = $('medDose').value.trim();
+    if (!name) { alert('请填写药品名称'); return; }
+    if (!dose) { alert('请填写剂量'); return; }
+    if (editingTimes.length === 0) { alert('请至少添加一个服用时间'); return; }
+    if (editingId) {
+      const m = meds.find(x => x.id === editingId);
+      m.name = name; m.dose = dose; m.times = [...editingTimes];
+    } else {
+      meds.push({id: uid(), name, dose, times: [...editingTimes]});
+    }
+    save(); renderList(); closeModal();
+  }
+  function delMed(id) {
+    if (!confirm('确定要删除这个药品吗？')) return;
+    meds = meds.filter(m => m.id !== id);
+    save(); renderList();
+  }
+
+  function checkReminder() {
+    if (activeReminder) return;
+    const now = new Date();
+    const curKey = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    for (const m of meds) {
+      for (const t of m.times) {
+        const taken_id = m.id + '_' + t;
+        if (taken[taken_id]) continue;
+        const sKey = m.id+'_'+t;
+        if (snoozed[sKey] && Date.now() < snoozed[sKey]) continue;
+        if (t === curKey || (snoozed[sKey] && Date.now() >= snoozed[sKey])) {
+          showReminder(m, t);
+          return;
+        }
+      }
+    }
+  }
+  function showReminder(m, t) {
+    activeReminder = {medId: m.id, time: t};
+    $('rmTime').textContent = t;
+    $('rmName').textContent = m.name;
+    $('rmDose').textContent = '请服用 ' + m.dose;
+    $('reminder').classList.add('show');
+    playBeep();
+    if ('vibrate' in navigator) navigator.vibrate([400,200,400,200,400]);
+  }
+  function playBeep() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      let i = 0;
+      const beep = () => {
+        if (i++ >= 3 || !activeReminder) return;
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.frequency.value = 880; o.type = 'sine';
+        g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+        o.start(); o.stop(audioCtx.currentTime + 0.5);
+        setTimeout(beep, 700);
+      };
+      beep();
+    } catch(e){}
+  }
+  function closeReminder(markTaken) {
+    if (!activeReminder) return;
+    const key = activeReminder.medId + '_' + activeReminder.time;
+    if (markTaken) {
+      taken[key] = true;
+      saveTaken();
+      delete snoozed[key];
+    } else {
+      snoozed[key] = Date.now() + 5*60*1000;
+    }
+    activeReminder = null;
+    $('reminder').classList.remove('show');
+    renderList();
+  }
+
+  $('addBtn').onclick = openAdd;
+  $('cancelBtn').onclick = closeModal;
+  $('saveBtn').onclick = saveMed;
+  $('addTimeBtn').onclick = addTime;
+  $('rmTaken').onclick = () => closeReminder(true);
+  $('rmSnooze').onclick = () => closeReminder(false);
+  $('resetBtn').onclick = () => {
+    if (confirm('确定要重置今日打卡记录吗？')) {
+      taken = {}; snoozed = {}; saveTaken(); renderList();
+    }
+  };
+  $('modal').onclick = (e) => { if (e.target.id === 'modal') closeModal(); };
+
+  load();
+  renderClock();
+  renderList();
+  setInterval(() => { renderClock(); checkReminder(); renderList(); }, 20000);
+  setInterval(renderClock, 1000);
+  setTimeout(checkReminder, 1500);
+})();
+</script>
+</body>
+</html>

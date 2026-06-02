@@ -1,0 +1,33 @@
+{
+  "index": 154,
+  "id": "G002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gemini-2.5-flash",
+  "question": "做一个经典贪吃蛇小游戏，方向键控制移动，吃到食物变长，碰到自己就 game over，显示当前长度和最高纪录。",
+  "evaluation": {
+    "total_score": 68,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The dark game-card layout is coherent and appropriate for a simple mobile arcade game. Colors are restrained and the start button is a clear focal accent, but the page feels generic and visually plain, with limited personality and some awkward empty outer space around the main panel."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Basic spacing and component shapes are consistent, and the button and control pads are visually complete. However, the score text contrast is weak against the dark background, the arrow icons look small and low-emphasis, and the board border and typography feel somewhat rough rather than polished."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the main areas: score at top, game board in center, controls below, and a prominent start action. The screen is not crowded and the reading path is straightforward. The main limitation is that the game state and interaction guidance are minimal beyond the start prompt."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The core model is understandable: start the game, use directional controls, track length and high score. But the requested 'direction keys control movement' is only partially supported by on-screen buttons with no visible indication of keyboard support, and there is no visible game-over state, restart affordance, or explanatory feedback in the shown state."
+      }
+    },
+    "summary": "This is a usable, straightforward mobile snake game UI with a clear central task and simple control structure. The strongest aspect is perceivability: users can immediately find the board, start button, and direction controls. The score is capped by limited visual refinement, weak score/control emphasis, and incomplete semantic feedback for key states like game over and restart. It feels functional and close to qualified, but not yet polished or fully closed-loop."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G002_A_gemini-2.5-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:51:18.627383"
+}

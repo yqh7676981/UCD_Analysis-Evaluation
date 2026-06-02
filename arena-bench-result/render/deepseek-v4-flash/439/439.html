@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>慢性病健康管理</title>
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f5f9fc;
+            color: #1e2a3a;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        /* ===== 头部 ===== */
+        .app-header {
+            background: linear-gradient(135deg, #1a7a7a 0%, #259696 100%);
+            color: #fff;
+            padding: 24px 32px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            box-shadow: 0 8px 24px rgba(26, 122, 122, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .app-header h1 {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header h1 span {
+            font-size: 30px;
+        }
+
+        .header-date {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 15px;
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== 网格布局 ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 750px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 通用卡片 ===== */
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 26px;
+            box-shadow: 0 4px 16px rgba(0, 20, 30, 0.06);
+            transition: box-shadow 0.2s ease;
+            border: 1px solid rgba(200, 220, 230, 0.35);
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 28px rgba(0, 20, 30, 0.10);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a4a5a;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e8f0f4;
+            padding-bottom: 12px;
+        }
+
+        .card-title .icon {
+            font-size: 22px;
+        }
+
+        /* ===== 症状追踪 ===== */
+        .symptom-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .symptom-form input,
+        .symptom-form select {
+            padding: 10px 14px;
+            border: 1.5px solid #dce7ed;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fafcfe;
+            transition: border 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .symptom-form input:focus,
+        .symptom-form select:focus {
+            border-color: #259696;
+            box-shadow: 0 0 0 3px rgba(37, 150, 150, 0.15);
+        }
+
+        .symptom-form input {
+            flex: 2 1 180px;
+        }
+
+        .symptom-form select {
+            flex: 0 1 100px;
+        }
+
+        .symptom-form button {
+            flex: 0 1 auto;
+            background: #259696;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .symptom-form button:hover {
+            background: #1a7a7a;
+        }
+
+        .symptom-form button:active {
+            transform: scale(0.96);
+        }
+
+        /* 症状列表 */
+        .symptom-list {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .symptom-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .symptom-list::-webkit-scrollbar-track {
+            background: #ecf3f7;
+            border-radius: 10px;
+        }
+
+        .symptom-list::-webkit-scrollbar-thumb {
+            background: #b6d0da;
+            border-radius: 10px;
+        }
+
+        .symptom-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: #f8fcfe;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #259696;
+            transition: background 0.15s;
+        }
+
+        .symptom-item:hover {
+            background: #f0f7fa;
+        }
+
+        .symptom-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .symptom-name {
+            font-weight: 600;
+            color: #1a3a4a;
+        }
+
+        .symptom-severity {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #3a6a7a;
+            background: #e4eff4;
+            padding: 2px 12px;
+            border-radius: 30px;
+        }
+
+        .severity-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #259696;
+        }
+
+        .severity-dot.low {
+            background: #7fc9b6;
+        }
+        .severity-dot.medium {
+            background: #f0b34b;
+        }
+        .severity-dot.high {
+            background: #e07060;
+        }
+
+        .symptom-date {
+            font-size: 12px;
+            color: #6a8a9a;
+        }
+
+        .symptom-delete {
+            background: none;
+            border: none;
+            color: #b0c8d4;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .symptom-delete:hover {
+            background: #fce8e4;
+            color: #d45a4a;
+        }
+
+        .empty-state {
+            color: #8aaab8;
+            text-align: center;
+            padding: 28px 0;
+            font-style: italic;
+        }
+
+        /* ===== 用药时间表 ===== */
+        .med-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .med-form input,
+        .med-form select {
+            padding: 10px 14px;
+            border: 1.5px solid #dce7ed;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fafcfe;
+            transition: border 0.2s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .med-form input:focus,
+        .med-form select:focus {
+            border-color: #259696;
+            box-shadow: 0 0 0 3px rgba(37, 150, 150, 0.15);
+        }
+
+        .med-form input[type="text"] {
+            flex: 2 1 160px;
+        }
+
+        .med-form input[type="time"] {
+            flex: 0 1 110px;
+        }
+
+        .med-form select {
+            flex: 0 1 100px;
+        }
+
+        .med-form button {
+            flex: 0 1 auto;
+            background: #259696;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .med-form button:hover {
+            background: #1a7a7a;
+        }
+
+        .med-form button:active {
+            transform: scale(0.96);
+        }
+
+        .med-list {
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .med-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .med-list::-webkit-scrollbar-track {
+            background: #ecf3f7;
+            border-radius: 10px;
+        }
+
+        .med-list::-webkit-scrollbar-thumb {
+            background: #b6d0da;
+            border-radius: 10px;
+        }
+
+        .med-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            background: #f8fcfe;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid #5ba88c;
+            transition: background 0.15s;
+        }
+
+        .med-item.taken {
+            border-left-color: #259696;
+            background: #f0f9f6;
+            opacity: 0.80;
+        }
+
+        .med-item:hover {
+            background: #f0f7fa;
+        }
+
+        .med-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .med-name {
+            font-weight: 600;
+            color: #1a3a4a;
+        }
+
+        .med-time {
+            font-size: 13px;
+            color: #3a6a7a;
+            background: #e4eff4;
+            padding: 2px 12px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .med-dose {
+            font-size: 13px;
+            color: #4a7a6a;
+            background: #e6f3ee;
+            padding: 2px 12px;
+            border-radius: 30px;
+        }
+
+        .med-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .med-take-btn {
+            background: #259696;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .med-take-btn:hover {
+            background: #1a7a7a;
+        }
+
+        .med-take-btn:active {
+            transform: scale(0.94);
+        }
+
+        .med-take-btn.taken {
+            background: #b6d0da;
+            cursor: default;
+        }
+
+        .med-delete {
+            background: none;
+            border: none;
+            color: #b0c8d4;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .med-delete:hover {
+            background: #fce8e4;
+            color: #d45a4a;
+        }
+
+        /* ===== 教育资源 ===== */
+        .education-section {
+            grid-column: 1 / -1;
+        }
+
+        .edu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 18px;
+            margin-top: 6px;
+        }
+
+        .edu-card {
+            background: #f8fcfe;
+            border-radius: 16px;
+            padding: 18px 20px;
+            border-left: 4px solid #259696;
+            transition: transform 0.15s, box-shadow 0.15s;
+            cursor: default;
+        }
+
+        .edu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(26, 122, 122, 0.10);
+        }
+
+        .edu-card h4 {
+            font-size: 16px;
+            color: #1a4a5a;
+            margin-bottom: 6px;
+        }
+
+        .edu-card p {
+            font-size: 14px;
+            color: #3a5a6a;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .edu-tag {
+            display: inline-block;
+            background: #e4eff4;
+            color: #1a5a6a;
+            font-size: 12px;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        /* ===== 底部 ===== */
+        .app-footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 18px 0 6px;
+            color: #8aaab8;
+            font-size: 13px;
+            border-top: 1px solid #e4edf2;
+        }
+
+        /* ===== 通知提示 ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1e2a3a;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.20);
+            transform: translateY(80px);
+            opacity: 1; /* fixed: was 0 */
+            transition: transform 0.35s ease, opacity 0.35s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 18px 20px;
+            }
+            .app-header h1 {
+                font-size: 20px;
+            }
+            .card {
+                padding: 18px 16px;
+            }
+            .symptom-form,
+            .med-form {
+                flex-direction: column;
+            }
+            .symptom-form input,
+            .symptom-form select,
+            .med-form input,
+            .med-form select {
+                width: 100%;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <div class="app-container">
+
+        <!-- ===== 头部 ===== -->
+        <header class="app-header">
+            <h1>
+                <span>🫀</span> 慢性病健康管理
+            </h1>
+            <div class="header-date">
+                <span>📅</span>
+                <span id="currentDate"></span>
+            </div>
+        </header>
+
+        <!-- ===== 主网格 ===== -->
+        <div class="dashboard-grid">
+
+            <!-- 症状追踪 -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📋</span> 症状追踪
+                </div>
+                <form class="symptom-form" id="symptomForm">
+                    <input type="text" id="symptomName" placeholder="症状名称，例如：头痛" required>
+                    <select id="symptomSeverity">
+                        <option value="1">🟢 轻微</option>
+                        <option value="2">🟢 较轻</option>
+                        <option value="3" selected>🟡 中等</option>
+                        <option value="4">🟠 较重</option>
+                        <option value="5">🔴 严重</option>
+                    </select>
+                    <button type="submit">➕ 记录</button>
+                </form>
+                <div class="symptom-list" id="symptomList">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+
+            <!-- 用药时间表 -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">💊</span> 用药时间表
+                </div>
+                <form class="med-form" id="medForm">
+                    <input type="text" id="medName" placeholder="药物名称" required>
+                    <input type="time" id="medTime" value="08:00" required>
+                    <select id="medDose">
+                        <option value="1 片">1 片</option>
+                        <option value="2 片">2 片</option>
+                        <option value="1 粒">1 粒</option>
+                        <option value="2 粒">2 粒</option>
+                        <option value="5 ml">5 ml</option>
+                        <option value="10 ml">10 ml</option>
+                        <option value="1 支">1 支</option>
+                        <option value="按医嘱">按医嘱</option>
+                    </select>
+                    <button type="submit">➕ 添加</button>
+                </form>
+                <div class="med-list" id="medList">
+                    <!-- 动态渲染 -->
+                </div>
+            </div>
+
+            <!-- 教育资源 -->
+            <div class="card education-section">
+                <div class="card-title">
+                    <span class="icon">📘</span> 教育资源 · 慢性病管理
+                </div>
+                <div class="edu-grid" id="eduGrid">
+                    <!-- 静态卡片由 HTML 直接构建 -->
+                    <div class="edu-card">
+                        <h4>🥗 均衡饮食</h4>
+                        <p>多摄入蔬菜、水果、全谷物和优质蛋白，限制钠、糖和饱和脂肪的摄入，有助于控制血压和血糖。</p>
+                        <span class="edu-tag">饮食</span>
+                    </div>
+                    <div class="edu-card">
+                        <h4>🚶 适度运动</h4>
+                        <p>每周至少 150 分钟中等强度有氧运动（如快走、游泳），结合力量训练，改善心肺功能和代谢。</p>
+                        <span class="edu-tag">运动</span>
+                    </div>
+                    <div class="edu-card">
+                        <h4>🧠 心理健康</h4>
+                        <p>慢性病管理需要关注情绪。正念冥想、社交支持、规律作息能有效减轻焦虑和抑郁情绪。</p>
+                        <span class="edu-tag">心理</span>
+                    </div>
+                    <div class="edu-card">
+                        <h4>🩺 定期监测</h4>
+                        <p>定期测量血压、血糖、血脂等指标，遵医嘱复查，及时调整治疗方案，防止并发症。</p>
+                        <span class="edu-tag">监测</span>
+                    </div>
+                    <div class="edu-card">
+                        <h4>💤 优质睡眠</h4>
+                        <p>保证 7–8 小时充足睡眠，建立固定的作息时间，改善睡眠环境，有助于内分泌和免疫系统稳定。</p>
+                        <span class="edu-tag">睡眠</span>
+                    </div>
+                    <div class="edu-card">
+                        <h4>📱 用药依从</h4>
+                        <p>使用药盒、闹钟提醒等方式按时服药，不随意停药或改量，记录用药反应并与医生沟通。</p>
+                        <span class="edu-tag">用药</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="app-footer">
+            🌱 慢性病健康管理 · 记录点滴，守护健康
+        </footer>
+    </div>
+
+    <!-- ===== Toast 通知 ===== -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============================================================
+        //  工具函数
+        // ============================================================
+        function getDateStr() {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            return `${y} 年 ${m} 月 ${day} 日 ${weekdays[d.getDay()]}`;
+        }
+
+        document.getElementById('currentDate').textContent = getDateStr();
+
+        // Toast 通知
+        let toastTimer = null;
+
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // ============================================================
+        //  数据层 (localStorage)
+        // ============================================================
+        const STORAGE_KEY_SYMPTOMS = 'chm_symptoms';
+        const STORAGE_KEY_MEDS = 'chm_meds';
+
+        function loadSymptoms() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_SYMPTOMS)) || [];
+            } catch { return []; }
+        }
+
+        function saveSymptoms(data) {
+            localStorage.setItem(STORAGE_KEY_SYMPTOMS, JSON.stringify(data));
+        }
+
+        function loadMeds() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_MEDS)) || [];
+            } catch { return []; }
+        }
+
+        function saveMeds(data) {
+            localStorage.setItem(STORAGE_KEY_MEDS, JSON.stringify(data));
+        }
+
+        // ============================================================
+        //  症状模块
+        // ============================================================
+        const symptomForm = document.getElementById('symptomForm');
+        const symptomListEl = document.getElementById('symptomList');
+
+        function renderSymptoms() {
+            const list = loadSymptoms();
+            if (list.length === 0) {
+                symptomListEl.innerHTML = `<div class="empty-state">📝 还没有记录，添加一条症状吧</div>`;
+                return;
+            }
+            // 按日期降序排列
+            list.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            let html = '';
+            list.forEach((item, index) => {
+                const sev = parseInt(item.severity, 10);
+                let dotClass = 'low';
+                let label = '轻微';
+                if (sev === 3) { dotClass = 'medium';
+                    label = '中等'; } else if (sev >= 4) { dotClass = 'high';
+                    label = '较重'; } else if (sev === 2) { label = '较轻'; } else { label = '轻微'; }
+                if (sev === 5) label = '严重';
+
+                const date = new Date(item.createdAt);
+                const dateStr =
+                    `${date.getMonth()+1}月${date.getDate()}日 ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+
+                html += `
+                        <div class="symptom-item">
+                            <div class="symptom-info">
+                                <span class="symptom-name">${escapeHtml(item.name)}</span>
+                                <span class="symptom-severity">
+                                    <span class="severity-dot ${dotClass}"></span> ${label}
+                                </span>
+                                <span class="symptom-date">${dateStr}</span>
+                            </div>
+                            <button class="symptom-delete" data-index="${index}" title="删除">✕</button>
+                        </div>
+                    `;
+            });
+            symptomListEl.innerHTML = html;
+
+            // 绑定删除事件
+            symptomListEl.querySelectorAll('.symptom-delete').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const idx = parseInt(this.dataset.index, 10);
+                    let list = loadSymptoms();
+                    if (idx >= 0 && idx < list.length) {
+                        const removed = list.splice(idx, 1);
+                        saveSymptoms(list);
+                        renderSymptoms();
+                        showToast(`已删除症状「${escapeHtml(removed[0].name)}」`);
+                    }
+                });
+            });
+        }
+
+        // 简单的转义，防止 XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        symptomForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('symptomName');
+            const severitySelect = document.getElementById('symptomSeverity');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            const severity = severitySelect.value;
+
+            const list = loadSymptoms();
+            list.push({
+                name: name,
+                severity: severity,
+                createdAt: new Date().toISOString()
+            });
+            saveSymptoms(list);
+            renderSymptoms();
+            showToast(`✅ 已记录症状「${escapeHtml(name)}」`);
+            nameInput.value = '';
+            nameInput.focus();
+        });
+
+        // ============================================================
+        //  用药模块
+        // ============================================================
+        const medForm = document.getElementById('medForm');
+        const medListEl = document.getElementById('medList');
+
+        function renderMeds() {
+            const list = loadMeds();
+            if (list.length === 0) {
+                medListEl.innerHTML = `<div class="empty-state">💊 还没有添加药物，添加一条用药提醒吧</div>`;
+                return;
+            }
+            // 按时间排序
+            list.sort((a, b) => a.time.localeCompare(b.time));
+            let html = '';
+            list.forEach((item, index) => {
+                const takenClass = item.taken ? 'taken' : '';
+                const btnClass = item.taken ? 'med-take-btn taken' : 'med-take-btn';
+                const btnText = item.taken ? '✓ 已服' : '○ 标记已服';
+                const doseDisplay = item.dose || '1 片';
+
+                html += `
+                        <div class="med-item ${takenClass}">
+                            <div class="med-info">
+                                <span class="med-name">${escapeHtml(item.name)}</span>
+                                <span class="med-time">🕐 ${item.time}</span>
+                                <span class="med-dose">📦 ${escapeHtml(doseDisplay)}</span>
+                            </div>
+                            <div class="med-actions">
+                                <button class="${btnClass}" data-index="${index}">${btnText}</button>
+                                <button class="med-delete" data-index="${index}" title="删除">✕</button>
+                            </div>
+                        </div>
+                    `;
+            });
+            medListEl.innerHTML = html;
+
+            // 标记已服
+            medListEl.querySelectorAll('.med-take-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const idx = parseInt(this.dataset.index, 10);
+                    let list = loadMeds();
+                    if (idx >= 0 && idx < list.length) {
+                        if (list[idx].taken) {
+                            // 如果已经服用，点击取消？
+                            // 但为了符合直觉，我们允许取消标记
+                            list[idx].taken = !list[idx].taken;
+                            saveMeds(list);
+                            renderMeds();
+                            showToast(list[idx].taken ? `💊 已标记服用「${escapeHtml(list[idx].name)}」` :
+                                `↩️ 取消标记「${escapeHtml(list[idx].name)}」`);
+                        } else {
+                            list[idx].taken = true;
+                            saveMeds(list);
+                            renderMeds();
+                            showToast(`💊 已标记服用「${escapeHtml(list[idx].name)}」`);
+                        }
+                    }
+                });
+            });
+
+            // 删除
+            medListEl.querySelectorAll('.med-delete').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const idx = parseInt(this.dataset.index, 10);
+                    let list = loadMeds();
+                    if (idx >= 0 && idx < list.length) {
+                        const removed = list.splice(idx, 1);
+                        saveMeds(list);
+                        renderMeds();
+                        showToast(`已删除药物「${escapeHtml(removed[0].name)}」`);
+                    }
+                });
+            });
+        }
+
+        medForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameInput = document.getElementById('medName');
+            const timeInput = document.getElementById('medTime');
+            const doseSelect = document.getElementById('medDose');
+            const name = nameInput.value.trim();
+            if (!name) return;
+            const time = timeInput.value || '08:00';
+            const dose = doseSelect.value;
+
+            const list = loadMeds();
+            // 检查是否已存在相同药物+时间（简单避免重复）
+            const exists = list.some(item => item.name === name && item.time === time);
+            if (exists) {
+                showToast(`⚠️ 药物「${escapeHtml(name)}」在 ${time} 已存在`);
+                return;
+            }
+            list.push({
+                name: name,
+                time: time,
+                dose: dose,
+                taken: false,
+                createdAt: new Date().toISOString()
+            });
+            saveMeds(list);
+            renderMeds();
+            showToast(`✅ 已添加药物「${escapeHtml(name)}」 ${time}`);
+            nameInput.value = '';
+            nameInput.focus();
+        });
+
+        // ============================================================
+        //  初始化渲染
+        // ============================================================
+        renderSymptoms();
+        renderMeds();
+
+        // ============================================================
+        //  额外小功能：当前时间提醒（用药时间检查）
+        // ============================================================
+        // 每个整分钟检查一次是否有药物到时间未服用（仅提醒一次，用简单的标记）
+        // 为避免骚扰，只在整点提醒一次，不重复弹
+        let notifiedToday = {};
+
+        function checkMedReminders() {
+            const now = new Date();
+            const currTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const todayStr = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}`;
+            const list = loadMeds();
+            list.forEach(item => {
+                if (!item.taken && item.time === currTime) {
+                    const key = `${todayStr}_${item.name}_${item.time}`;
+                    if (!notifiedToday[key]) {
+                        notifiedToday[key] = true;
+                        showToast(`⏰ 该服药了！「${escapeHtml(item.name)}」 ${item.time}`);
+                    }
+                }
+            });
+        }
+
+        // 每30秒检查一次，但只会在整分钟时触发提醒
+        setInterval(checkMedReminders, 30000);
+        // 启动后立即检查一次
+        setTimeout(checkMedReminders, 2000);
+    </script>
+
+</body>
+</html>

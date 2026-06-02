@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行行程规划</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            font-size: 16px; /* 基准字体大小 */
+        }
+
+        /* 移动端视口设置 */
+        html {
+            box-sizing: border-box;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* 头部 */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.8rem; /* 适合移动端的标题大小 */
+        }
+
+        /* 表单元素 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="time"],
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            -webkit-appearance: none; /* 移除 iOS 默认样式 */
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        input[type="text"]:focus,
+        input[type="time"]:focus,
+        textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        /* 按钮 */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            -webkit-tap-highlight-color: rgba(0,0,0,0); /* 移除点击高亮 */
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-secondary {
+            background-color: #007bff;
+            color: white;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #0056b3;
+        }
+         .btn-secondary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 0.5rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+         .btn-danger:active {
+            transform: translateY(1px);
+        }
+
+        .btn-inline-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap; /* 确保在小屏幕上换行 */
+        }
+        .btn-inline-group .btn {
+            flex-grow: 1; /* 确保按钮在小屏幕上尽可能撑开 */
+            min-width: fit-content; /* 防止过小 */
+        }
+
+
+        /* 日程规划器样式 */
+        .itinerary-section {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 1.5rem;
+        }
+
+        .itinerary-container {
+            margin-top: 1rem;
+        }
+
+        .day-planner {
+            background-color: #e8f5e9; /* 淡绿色背景 */
+            border: 1px solid #c8e6c9;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .day-planner h3 {
+            margin-top: 0;
+            color: #2e7d32;
+            font-size: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-planner .day-title-input {
+            width: calc(100% - 80px); /* 留出删除按钮的空间 */
+            margin-right: 10px;
+            border: none;
+            background-color: transparent;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2e7d32;
+            padding: 0.25rem;
+            border-bottom: 1px solid #a5d6a7;
+        }
+
+        .day-planner .day-title-input:focus {
+            outline: none;
+            border-bottom-color: #4CAF50;
+        }
+
+
+        .day-items {
+            margin-top: 1rem;
+        }
+
+        .itinerary-item {
+            background-color: #fbfcfb;
+            border: 1px solid #dcdcdc;
+            border-left: 5px solid #4CAF50; /* 左侧强调色 */
+            border-radius: 8px;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            flex-direction: column; /* 垂直排列 */
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .itinerary-item .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .itinerary-item .item-type {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 1rem;
+        }
+        .itinerary-item .item-details {
+            display: grid;
+            grid-template-columns: 1fr; /* 单列布局 */
+            gap: 0.5rem;
+        }
+        .itinerary-item .item-details label {
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+            color: #555;
+        }
+        .itinerary-item .item-details input,
+        .itinerary-item .item-details textarea {
+            padding: 0.5rem;
+            font-size: 0.9rem;
+            border-radius: 5px;
+        }
+        .itinerary-item .delete-item-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: transparent;
+            color: #999;
+            border: none;
+            font-size: 1.2rem;
+            padding: 0.2rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .itinerary-item .delete-item-btn:hover {
+            color: #dc3545;
+        }
+
+        /* 生成的旅行手册 */
+        #generatedManual {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+            min-height: 100px;
+            border: 1px dashed #4CAF50;
+            white-space: pre-wrap; /* 保持格式 */
+            word-wrap: break-word; /* 自动换行 */
+        }
+        #generatedManual.empty::before {
+            content: "点击“生成旅行手册”查看";
+            color: #999;
+            text-align: center;
+            display: block;
+            margin-top: 2rem;
+        }
+
+        .manual-day {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px dashed #eee;
+        }
+        .manual-day:last-child {
+            border-bottom: none;
+        }
+        .manual-day h3 {
+            color: #2e7d32;
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+        }
+        .manual-item {
+            background-color: #f8fcf8;
+            border-left: 4px solid #a5d6a7;
+            padding: 0.7rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+        }
+        .manual-item strong {
+            color: #4CAF50;
+        }
+        .manual-item span {
+            display: block;
+            margin-top: 0.2rem;
+            font-size: 0.9rem;
+            color: #555;
+        }
+        .manual-item .manual-notes {
+            font-style: italic;
+            color: #777;
+        }
+
+        /* 隐藏模板 */
+        .template {
+            display: none;
+        }
+
+        /* 提示信息 */
+        .message {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-color: #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>旅行行程规划</h1>
+    </header>
+
+    <div class="container">
+        <div class="itinerary-section">
+            <div class="form-group">
+                <label for="tripTitle">旅行名称</label>
+                <input type="text" id="tripTitle" placeholder="例如：日本关西十日游">
+            </div>
+
+            <div id="itineraryContainer" class="itinerary-container">
+                <!-- 每日行程将动态添加此处 -->
+            </div>
+
+            <button type="button" class="btn btn-primary" id="addDayBtn">添加新的一天</button>
+            <button type="button" class="btn btn-primary" id="saveProgressBtn">保存进度</button>
+            <button type="button" class="btn btn-primary" id="generateManualBtn">生成旅行手册</button>
+        </div>
+
+        <div class="itinerary-section">
+            <h2>旅行手册</h2>
+            <div id="generatedManual" class="empty">
+                <!-- 生成的旅行手册内容将显示在此处 -->
+            </div>
+        </div>
+
+        <!-- 模板元素 (隐藏) -->
+        <div class="template">
+            <!-- Day Planner Template -->
+            <div class="day-planner" data-day-id="TEMPLATE_DAY_ID">
+                <h3>
+                    <input type="text" class="day-title-input" value="新的一天" placeholder="例如：大阪城市探索" oninput="saveItinerary()">
+                    <button type="button" class="btn btn-danger delete-day-btn" onclick="deleteDay(this)">删除天</button>
+                </h3>
+                <div class="day-items">
+                    <!-- Itinerary items for this day will be added here -->
+                </div>
+                <div class="btn-inline-group">
+                    <button type="button" class="btn btn-secondary" onclick="addItem(this.closest('.day-planner'), '景点')">添加景点</button>
+                    <button type="button" class="btn btn-secondary" onclick="addItem(this.closest('.day-planner'), '交通')">添加交通</button>
+                    <button type="button" class="btn btn-secondary" onclick="addItem(this.closest('.day-planner'), '餐厅')">添加餐厅</button>
+                </div>
+            </div>
+
+            <!-- Itinerary Item Template -->
+            <div class="itinerary-item" data-item-type="TEMPLATE_ITEM_TYPE">
+                <div class="item-header">
+                    <span class="item-type">TEMPLATE_ITEM_TYPE</span>
+                    <button type="button" class="delete-item-btn" onclick="deleteItem(this)">&times;</button>
+                </div>
+                <div class="item-details">
+                    <div class="form-group">
+                        <label>名称</label>
+                        <input type="text" placeholder="名称" class="item-name-input" oninput="saveItinerary()">
+                    </div>
+                    <div class="form-group">
+                        <label>时间</label>
+                        <input type="time" class="item-time-input" oninput="saveItinerary()">
+                    </div>
+                    <div class="form-group">
+                        <label>备注</label>
+                        <textarea placeholder="例如：必去景点、注意事项等" class="item-notes-input" oninput="saveItinerary()"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const itineraryContainer = document.getElementById('itineraryContainer');
+        const addDayBtn = document.getElementById('addDayBtn');
+        const generateManualBtn = document.getElementById('generateManualBtn');
+        const saveProgressBtn = document.getElementById('saveProgressBtn');
+        const generatedManual = document.getElementById('generatedManual');
+        const tripTitleInput = document.getElementById('tripTitle');
+
+        let dayCounter = 0; // 用于生成唯一的ID和排序
+
+        // Helper function to get the correct item type display name
+        function getItemTypeDisplayName(type) {
+            const typeMap = {
+                '景点': '景点',
+                '交通': '交通',
+                '餐厅': '餐厅'
+            };
+            return typeMap[type] || type;
+        }
+
+        // Add a new day to the itinerary
+        function addDay(dayData = null) {
+            dayCounter++;
+            const dayId = `day-${Date.now()}`;
+            const dayPlannerTemplate = document.querySelector('.template .day-planner').cloneNode(true);
+            dayPlannerTemplate.setAttribute('data-day-id', dayId);
+            dayPlannerTemplate.querySelector('h3 input').value = dayData ? dayData.dayTitle : `第 ${dayCounter} 天`;
+            dayPlannerTemplate.querySelector('h3 input').setAttribute('placeholder', `例如：第 ${dayCounter} 天：探索城市`);
+            itineraryContainer.appendChild(dayPlannerTemplate);
+
+            // Re-numbering existing days visually
+            updateDayNumbers();
+
+            // Add existing items if dayData is provided
+            if (dayData && dayData.items) {
+                dayData.items.forEach(item => {
+                    addItem(dayPlannerTemplate, item.type, item);
+                });
+            }
+            saveItinerary();
+        }
+
+        // Update day numbers visually
+        function updateDayNumbers() {
+            const dayPlanners = document.querySelectorAll('.day-planner');
+            dayPlanners.forEach((dayPlanner, index) => {
+                const dayInput = dayPlanner.querySelector('.day-title-input');
+                // Only update if it's the default "新的一天" or "第 X 天"
+                if (!dayInput.value.startsWith('第 ')) {
+                     // If user has customized, try to keep it, but ensure numbering order
+                     if (dayInput.value.includes('天') && dayInput.value.match(/第\s*\d+\s*天/)) {
+                         dayInput.value = dayInput.value.replace(/第\s*\d+\s*天/, `第 ${index + 1} 天`);
+                     } else {
+                         // Prepend day number if not already present in a structured way
+                         dayInput.value = `第 ${index + 1} 天：${dayInput.value.split('：').pop()}`;
+                     }
+                } else {
+                    dayInput.value = `第 ${index + 1} 天`;
+                }
+            });
+            dayCounter = dayPlanners.length;
+        }
+
+        // Add an item (attraction, transportation, restaurant) to a specific day
+        function addItem(dayElement, type, itemData = null) {
+            const itemTemplate = document.querySelector('.template .itinerary-item').cloneNode(true);
+            itemTemplate.setAttribute('data-item-type', type);
+            itemTemplate.querySelector('.item-type').textContent = getItemTypeDisplayName(type);
+
+            itemTemplate.querySelector('.item-name-input').value = itemData ? itemData.name : '';
+            itemTemplate.querySelector('.item-time-input').value = itemData ? itemData.time : '';
+            itemTemplate.querySelector('.item-notes-input').value = itemData ? itemData.notes : '';
+
+            dayElement.querySelector('.day-items').appendChild(itemTemplate);
+            saveItinerary();
+        }
+
+        // Delete a day
+        function deleteDay(buttonElement) {
+            if (confirm('确定要删除这一天的行程吗？')) {
+                buttonElement.closest('.day-planner').remove();
+                updateDayNumbers(); // Re-number after deletion
+                saveItinerary();
+            }
+        }
+
+        // Delete an item
+        function deleteItem(buttonElement) {
+            if (confirm('确定要删除此项目吗？')) {
+                buttonElement.closest('.itinerary-item').remove();
+                saveItinerary();
+            }
+        }
+
+        // Collect all itinerary data from the DOM
+        function collectItineraryData() {
+            const tripData = {
+                tripTitle: tripTitleInput.value,
+                days: []
+            };
+
+            const dayPlanners = document.querySelectorAll('.day-planner');
+            dayPlanners.forEach((dayPlanner, index) => {
+                const dayTitle = dayPlanner.querySelector('.day-title-input').value || `第 ${index + 1} 天`;
+                const dayItems = [];
+
+                dayPlanner.querySelectorAll('.itinerary-item').forEach(itemElement => {
+                    dayItems.push({
+                        type: itemElement.getAttribute('data-item-type'),
+                        name: itemElement.querySelector('.item-name-input').value,
+                        time: itemElement.querySelector('.item-time-input').value,
+                        notes: itemElement.querySelector('.item-notes-input').value
+                    });
+                });
+
+                tripData.days.push({
+                    dayNumber: index + 1,
+                    dayTitle: dayTitle,
+                    items: dayItems
+                });
+            });
+            return tripData;
+        }
+
+        // Render itinerary from collected data
+        function renderItineraryFromData(data) {
+            itineraryContainer.innerHTML = ''; // Clear existing days
+            dayCounter = 0; // Reset counter for accurate numbering
+
+            tripTitleInput.value = data.tripTitle || '';
+
+            if (data.days && data.days.length > 0) {
+                data.days.forEach(day => {
+                    addDay(day); // addDay handles item rendering if dayData has items
+                });
+            } else {
+                addDay(); // Add a default first day if no data
+            }
+            updateDayNumbers(); // Ensure correct visual numbering
+        }
+
+        // Save itinerary to Local Storage
+        function saveItinerary() {
+            const data = collectItineraryData();
+            localStorage.setItem('travelItinerary', JSON.stringify(data));
+            console.log('行程已保存。');
+        }
+
+        // Load itinerary from Local Storage
+        function loadItinerary() {
+            const savedData = localStorage.getItem('travelItinerary');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    renderItineraryFromData(data);
+                    console.log('行程已加载。');
+                    // Regenerate manual immediately after loading to show latest state
+                    generateTravelManual();
+                } catch (e) {
+                    console.error('加载行程失败:', e);
+                    itineraryContainer.innerHTML = '<div class="message error">加载保存的行程失败，请尝试重新规划。</div>';
+                    addDay(); // Add a fresh day if loading fails
+                }
+            } else {
+                addDay(); // Add a default first day if no saved data
+            }
+        }
+
+        // Generate the final travel manual
+        function generateTravelManual() {
+            const tripData = collectItineraryData();
+            let manualHtml = '';
+
+            if (tripData.tripTitle) {
+                manualHtml += `<h2>${tripData.tripTitle}</h2>`;
+            } else {
+                manualHtml += `<h2>我的旅行手册</h2>`;
+            }
+
+            if (tripData.days.length === 0) {
+                manualHtml += '<p>您的行程为空，请添加每日行程并填写内容。</p>';
+            } else {
+                tripData.days.forEach(day => {
+                    manualHtml += `<div class="manual-day">`;
+                    manualHtml += `<h3>${day.dayTitle}</h3>`;
+                    if (day.items.length === 0) {
+                        manualHtml += `<p>暂无安排。</p>`;
+                    } else {
+                        day.items.forEach(item => {
+                            manualHtml += `<div class="manual-item">`;
+                            manualHtml += `<strong>${getItemTypeDisplayName(item.type)}:</strong> ${item.name || '未填写'}`;
+                            if (item.time) {
+                                manualHtml += `<span>时间: ${item.time}</span>`;
+                            }
+                            if (item.notes) {
+                                manualHtml += `<span class="manual-notes">备注: ${item.notes}</span>`;
+                            }
+                            manualHtml += `</div>`;
+                        });
+                    }
+                    manualHtml += `</div>`;
+                });
+            }
+
+            generatedManual.innerHTML = manualHtml;
+            generatedManual.classList.remove('empty');
+        }
+
+        // Event Listeners
+        addDayBtn.addEventListener('click', () => addDay());
+        generateManualBtn.addEventListener('click', generateTravelManual);
+        saveProgressBtn.addEventListener('click', saveItinerary);
+        tripTitleInput.addEventListener('input', saveItinerary); // Auto-save on trip title change
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadItinerary);
+
+        // Auto-save before the page unloads
+        window.addEventListener('beforeunload', saveItinerary);
+    </script>
+</body>
+</html>

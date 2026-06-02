@@ -1,0 +1,33 @@
+{
+  "index": 8,
+  "id": "E005",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个光的折射物理演示动画，可以拖动入射角，实时看到光线在水面发生折射的角度变化，旁边显示折射定律公式。",
+  "evaluation": {
+    "total_score": 73,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The page has a coherent, clean educational-tool style: a centered title, a single large demo area, and one control card below. The blue water panel and yellow ray create clear thematic focus, but the visual system is fairly generic and lacks stronger instructional emphasis or a more distinctive component language."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is readable, spacing is mostly even, and the slider, cards, and labels feel finished. However, the in-canvas angle labels crowd the ray intersection, the formula card’s blue accent feels disconnected from the rest of the UI, and the diagram details are a bit coarse for a physics demonstration."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Information priority is strong: users immediately see the simulation, then the angle control, then the formula. Density is controlled and the main task is visible without searching. The only limitation is that the key educational relationship in the diagram is not highlighted strongly enough beyond the crossing rays and labels."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The slider clearly suggests changing the incidence angle, and the labels update with incidence/refraction values. But the physics semantics are only partially intuitive: there is no obvious normal line, no angle arcs, and no legend for media/refractive indices, so users must infer how the shown angles relate to the formula."
+      }
+    },
+    "summary": "This is a solid, usable mobile physics demo with clear task focus and a straightforward control flow. Users can recognize the simulation and adjust the angle without confusion, which supports the core interaction well. The main caps are educational clarity and detail polish: the diagram does not fully explain the geometry of refraction, and the visual system is competent rather than refined or distinctive."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E005_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:16:21.436435"
+}

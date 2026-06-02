@@ -1,0 +1,11 @@
+{
+  "index": 7,
+  "id": "U006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做个今晚吃啥的抽签小工具，我可以自己加候选餐厅或菜品,点一下按钮随机抽一个,带个简单的转盘动画。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/U006_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:16:04.170373"
+}

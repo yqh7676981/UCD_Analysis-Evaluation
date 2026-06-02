@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>考研政治刷题 · 单选题</title>
+    <style>
+        /* 全局重置 & 字体 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f6f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 16px 12px 40px;
+            color: #1e2a3a;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 20px 18px 30px;
+            position: relative;
+            align-self: flex-start;
+        }
+
+        /* 标题区域 */
+        .app-header {
+            text-align: center;
+            padding: 6px 0 18px 0;
+            border-bottom: 2px solid #eef2f7;
+            margin-bottom: 22px;
+        }
+
+        .app-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2c3e50;
+            letter-spacing: 1px;
+        }
+
+        .app-header .sub {
+            font-size: 14px;
+            color: #7f8c9b;
+            margin-top: 4px;
+        }
+
+        /* 题目卡片 */
+        .question-card {
+            background: #fafcff;
+            border-radius: 18px;
+            padding: 18px 16px 14px;
+            margin-bottom: 20px;
+            border: 1px solid #e9edf4;
+            transition: border 0.15s;
+        }
+
+        .question-card:hover {
+            border-color: #d0d9e6;
+        }
+
+        .q-title {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 14px;
+            color: #1a2634;
+        }
+
+        .q-title .q-num {
+            display: inline-block;
+            background: #2c6df0;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            width: 26px;
+            height: 26px;
+            line-height: 26px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .q-title .q-text {
+            vertical-align: middle;
+        }
+
+        /* 选项列表 */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1.5px solid #dfe6ed;
+            border-radius: 14px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .option-item:hover {
+            border-color: #b0c4de;
+            background: #f8faff;
+        }
+
+        /* 隐藏原生 radio */
+        .option-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
+        .option-item .radio-indicator {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #bcc9db;
+            margin-right: 14px;
+            flex-shrink: 0;
+            transition: all 0.15s;
+            background: #fff;
+        }
+
+        .option-item .radio-indicator::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: transparent;
+            transition: background 0.15s;
+        }
+
+        .option-item input[type="radio"]:checked+.radio-indicator {
+            border-color: #2c6df0;
+            background: #eef4ff;
+        }
+
+        .option-item input[type="radio"]:checked+.radio-indicator::after {
+            background: #2c6df0;
+        }
+
+        .option-item .option-label {
+            font-size: 16px;
+            line-height: 1.4;
+            color: #1e2a3a;
+            flex: 1;
+            font-weight: 450;
+        }
+
+        /* 选中整条高亮 */
+        .option-item:has(input[type="radio"]:checked) {
+            background: #eef4ff;
+            border-color: #2c6df0;
+            box-shadow: 0 0 0 2px rgba(44, 109, 240, 0.15);
+        }
+
+        /* 底部按钮组 */
+        .action-bar {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px 10px;
+            border: none;
+            border-radius: 60px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            background: #2c6df0;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            text-align: center;
+            letter-spacing: 0.5px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: #2c6df0;
+        }
+
+        .btn-primary:hover {
+            background: #1a5adf;
+        }
+
+        .btn-primary:disabled {
+            background: #90a9d6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #6c7b8c;
+        }
+
+        .btn-secondary:hover {
+            background: #556473;
+        }
+
+        /* 结果区域 */
+        .result-area {
+            display: none;
+            /* 由 JS 控制 */
+            margin-top: 16px;
+        }
+
+        .result-area.show {
+            display: block;
+        }
+
+        .score-card {
+            background: linear-gradient(145deg, #f0f5ff, #e6edfd);
+            border-radius: 20px;
+            padding: 24px 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            border: 1px solid #d6e2f5;
+        }
+
+        .score-card .big-score {
+            font-size: 56px;
+            font-weight: 800;
+            color: #2c6df0;
+            line-height: 1.1;
+        }
+
+        .score-card .big-score span {
+            font-size: 22px;
+            font-weight: 500;
+            color: #4a5e7a;
+        }
+
+        .score-card .score-label {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-top: 6px;
+        }
+
+        .error-review {
+            margin-top: 6px;
+        }
+
+        .error-review h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #c0392b;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-item {
+            background: #fff5f5;
+            border-left: 5px solid #e74c3c;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+        }
+
+        .error-item .e-question {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+            color: #1a2634;
+        }
+
+        .error-item .e-answer {
+            font-size: 14px;
+            color: #2c3e50;
+            margin: 4px 0;
+        }
+
+        .error-item .e-answer .wrong {
+            color: #c0392b;
+            font-weight: 600;
+        }
+
+        .error-item .e-answer .correct {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .error-item .e-explain {
+            font-size: 14px;
+            color: #34495e;
+            background: #fefefe;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin-top: 8px;
+            border: 1px solid #f1e3e3;
+        }
+
+        .no-errors {
+            text-align: center;
+            font-size: 18px;
+            color: #27ae60;
+            font-weight: 500;
+            background: #e8f8e8;
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* 辅助 */
+        .text-muted {
+            color: #7f8c9b;
+            font-size: 14px;
+        }
+
+        .mt-10 {
+            margin-top: 10px;
+        }
+
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+
+        /* 小屏优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px 12px 24px;
+                border-radius: 18px;
+            }
+
+            .app-header h1 {
+                font-size: 22px;
+            }
+
+            .question-card {
+                padding: 14px 12px;
+                border-radius: 14px;
+            }
+
+            .q-title {
+                font-size: 16px;
+            }
+
+            .q-title .q-num {
+                width: 22px;
+                height: 22px;
+                font-size: 12px;
+                line-height: 22px;
+                margin-right: 8px;
+            }
+
+            .option-item {
+                padding: 10px 14px;
+                border-radius: 12px;
+            }
+
+            .option-item .option-label {
+                font-size: 15px;
+            }
+
+            .btn {
+                font-size: 16px;
+                padding: 15px 10px;
+            }
+
+            .score-card .big-score {
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .option-item .radio-indicator {
+                width: 20px;
+                height: 20px;
+                margin-right: 10px;
+            }
+            .option-item .option-label {
+                font-size: 14px;
+            }
+        }
+
+        /* 滚动加载更好 */
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 13px;
+            color: #b0bccb;
+            margin-top: 18px;
+            padding-top: 8px;
+            border-top: 1px solid #edf2f8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container smooth-scroll">
+        <!-- 头部 -->
+        <div class="app-header">
+            <h1>📚 政治刷题</h1>
+            <div class="sub">考研政治 · 单选题专项</div>
+        </div>
+
+        <!-- 题目将动态渲染到这里 -->
+        <div id="quizContainer"></div>
+
+        <!-- 底部操作栏 -->
+        <div class="action-bar" id="actionBar">
+            <button class="btn btn-primary" id="submitBtn">提交 · 查看成绩</button>
+        </div>
+
+        <!-- 结果区域（初始隐藏） -->
+        <div class="result-area" id="resultArea">
+            <div class="score-card" id="scoreCard">
+                <div class="big-score" id="scoreNumber">0 <span>/ 10</span></div>
+                <div class="score-label" id="scoreLabel">正确率 0%</div>
+            </div>
+            <div id="errorReview" class="error-review"></div>
+            <div class="action-bar" style="margin-top:16px;">
+                <button class="btn btn-secondary" id="restartBtn">🔄 再来一组</button>
+            </div>
+        </div>
+
+        <div class="footer-note">—— 点击选项，轻松刷题 ——</div>
+    </div>
+
+    <script>
+        (function() {
+            // --------------------------------------------------------------
+            // 题库：10 道考研政治单选题
+            // 每个题目包含：question, options (数组), answer (索引 0-3), explanation
+            // --------------------------------------------------------------
+            const questions = [{
+                id: 0,
+                question: '马克思主义哲学认为，物质的唯一特性是（  ）',
+                options: ['客观实在性', '可知性', '运动', '无限性'],
+                answer: 0,
+                explanation: '列宁指出：“物质是标志客观实在的哲学范畴，这种客观实在是人通过感觉感知的，它不依赖于我们的感觉而存在，为我们的感觉所复写、摄影、反映。” 客观实在性是物质的唯一特性。'
+            }, {
+                id: 1,
+                question: '中国共产党的根本宗旨是（  ）',
+                options: ['实现共产主义', '全心全意为人民服务', '解放思想，实事求是', '坚持党的领导'],
+                answer: 1,
+                explanation: '中国共产党的根本宗旨是全心全意为人民服务。这是由党的性质决定的，是党一切行动的出发点和落脚点。'
+            }, {
+                id: 2,
+                question: '新民主主义革命理论的核心是（  ）',
+                options: ['武装斗争', '统一战线', '无产阶级领导权', '土地革命'],
+                answer: 2,
+                explanation: '无产阶级的领导权是新民主主义革命理论的核心，也是区分新旧民主主义革命的根本标志。'
+            }, {
+                id: 3,
+                question: '马克思主义政治经济学认为，剩余价值产生的源泉是（  ）',
+                options: ['绝对剩余价值生产', '相对剩余价值生产', '雇佣工人的剩余劳动', '资本家节约的成本'],
+                answer: 2,
+                explanation: '剩余价值是由雇佣工人的剩余劳动创造的，它被资本家无偿占有。绝对剩余价值和相对剩余价值是剩余价值生产的两种具体形式，但源泉都是剩余劳动。'
+            }, {
+                id: 4,
+                question: '中国特色社会主义进入新时代，我国社会主要矛盾已经转化为（  ）',
+                options: [
+                    '人民日益增长的物质文化需要同落后的社会生产之间的矛盾',
+                    '人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾',
+                    '生产关系与生产力之间的矛盾',
+                    '上层建筑与经济基础之间的矛盾'
+                ],
+                answer: 1,
+                explanation: '党的十九大报告指出，我国社会主要矛盾已经转化为人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。'
+            }, {
+                id: 5,
+                question: '“实事求是”一词出自哪部经典？',
+                options: ['《论语》', '《孟子》', '《汉书》', '《大学》'],
+                answer: 2,
+                explanation: '“实事求是”最早出自班固《汉书·河间献王传》，原指治学态度。毛泽东同志对其进行马克思主义改造，成为党的思想路线的核心。'
+            }, {
+                id: 6,
+                question: '社会主义核心价值观中，属于个人层面的价值准则是（  ）',
+                options: ['富强、民主、文明、和谐', '自由、平等、公正、法治', '爱国、敬业、诚信、友善', '爱国、爱党、爱社会主义'],
+                answer: 2,
+                explanation: '社会主义核心价值观分别从国家、社会、个人三个层面提出：富强民主文明和谐（国家）、自由平等公正法治（社会）、爱国敬业诚信友善（个人）。'
+            }, {
+                id: 7,
+                question: '抗日战争胜利的决定性因素是（  ）',
+                options: ['国民党正面战场的作用', '世界反法西斯力量援助', '中国共产党领导的人民力量', '日本国内矛盾激化'],
+                answer: 2,
+                explanation: '抗日战争胜利的决定性因素是中国共产党领导的人民力量。中共倡导并维护抗日民族统一战线，领导敌后战场，成为抗战的中流砥柱。'
+            }, {
+                id: 8,
+                question: '马克思和恩格斯创立的理论体系不包括（  ）',
+                options: ['马克思主义哲学', '马克思主义政治经济学', '科学社会主义', '空想社会主义'],
+                answer: 3,
+                explanation: '马克思主义包括三个组成部分：马克思主义哲学、马克思主义政治经济学和科学社会主义。空想社会主义是马克思主义的理论来源之一，而非其组成部分。'
+            }, {
+                id: 9,
+                question: '“一国两制”构想首先成功运用于解决（  ）',
+                options: ['香港问题', '澳门问题', '台湾问题', '香港和澳门问题'],
+                answer: 0,
+                explanation: '“一国两制”构想最早是为解决台湾问题提出的，但首先成功运用于解决香港问题（1997年）和澳门问题（1999年）。其中香港是第一个。'
+            }];
+
+            // 状态
+            let submitted = false; // 是否已经提交过 (用于重置)
+
+            const quizContainer = document.getElementById('quizContainer');
+            const submitBtn = document.getElementById('submitBtn');
+            const resultArea = document.getElementById('resultArea');
+            const scoreNumber = document.getElementById('scoreNumber');
+            const scoreLabel = document.getElementById('scoreLabel');
+            const errorReview = document.getElementById('errorReview');
+            const restartBtn = document.getElementById('restartBtn');
+            const actionBar = document.getElementById('actionBar');
+
+            // ---------- 渲染题目 ----------
+            function renderQuestions() {
+                let html = '';
+                questions.forEach((q, index) => {
+                    const num = index + 1;
+                    const qId = `q${index}`;
+                    html += `
+                        <div class="question-card" data-qid="${index}">
+                            <div class="q-title">
+                                <span class="q-num">${num}</span>
+                                <span class="q-text">${q.question}</span>
+                            </div>
+                            <div class="options">
+                    `;
+                    q.options.forEach((opt, optIdx) => {
+                        const inputId = `${qId}_opt${optIdx}`;
+                        html += `
+                                <label class="option-item" for="${inputId}">
+                                    <input type="radio" name="${qId}" id="${inputId}" value="${optIdx}" />
+                                    <span class="radio-indicator"></span>
+                                    <span class="option-label">${opt}</span>
+                                </label>
+                        `;
+                    });
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                });
+                quizContainer.innerHTML = html;
+            }
+
+            // ---------- 获取所有题目的选择情况 ----------
+            function getAllSelections() {
+                const selections = [];
+                let allSelected = true;
+                for (let i = 0; i < questions.length; i++) {
+                    const name = `q${i}`;
+                    const selected = document.querySelector(`input[name="${name}"]:checked`);
+                    if (selected) {
+                        selections.push(parseInt(selected.value, 10));
+                    } else {
+                        selections.push(null);
+                        allSelected = false;
+                    }
+                }
+                return { selections, allSelected };
+            }
+
+            // ---------- 计算得分并生成错题解析 ----------
+            function computeResult(selections) {
+                let correctCount = 0;
+                const errors = [];
+
+                questions.forEach((q, idx) => {
+                    const userAns = selections[idx];
+                    const isCorrect = (userAns === q.answer);
+                    if (isCorrect) {
+                        correctCount++;
+                    } else {
+                        errors.push({
+                            index: idx,
+                            question: q.question,
+                            options: q.options,
+                            userAnswer: userAns,
+                            correctAnswer: q.answer,
+                            explanation: q.explanation
+                        });
+                    }
+                });
+
+                return { correctCount, total: questions.length, errors };
+            }
+
+            // ---------- 显示结果 ----------
+            function showResult(correctCount, total, errors) {
+                const percentage = total > 0 ? Math.round((correctCount / total) * 100) : 0;
+                scoreNumber.innerHTML = `${correctCount} <span>/ ${total}</span>`;
+                scoreLabel.textContent = `正确率 ${percentage}%`;
+
+                // 错题解析
+                let reviewHtml = '';
+                if (errors.length === 0) {
+                    reviewHtml = `<div class="no-errors">🎉 全部正确！非常棒！继续保持！</div>`;
+                } else {
+                    reviewHtml = `<h3>📖 错题解析（${errors.length} 题）</h3>`;
+                    errors.forEach(err => {
+                        const userIdx = err.userAnswer;
+                        const userText = (userIdx !== null && userIdx !== undefined) ? err.options[userIdx] :
+                        '（未选择）';
+                        const correctText = err.options[err.correctAnswer];
+                        const questionShort = err.question.length > 50 ? err.question.substring(0, 50) + '…' : err
+                            .question;
+                        reviewHtml += `
+                            <div class="error-item">
+                                <div class="e-question">❌ ${questionShort}</div>
+                                <div class="e-answer">
+                                    你的答案：<span class="wrong">${userText}</span>
+                                    ｜ 正确答案：<span class="correct">${correctText}</span>
+                                </div>
+                                <div class="e-explain">💡 ${err.explanation}</div>
+                            </div>
+                        `;
+                    });
+                }
+                errorReview.innerHTML = reviewHtml;
+
+                // 切换显示
+                resultArea.classList.add('show');
+                actionBar.classList.add('hidden');
+                // 滚动到结果区域
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // ---------- 重置（再来一组） ----------
+            function resetQuiz() {
+                // 清除所有 radio 选中
+                const radios = document.querySelectorAll('input[type="radio"]');
+                radios.forEach(radio => radio.checked = false);
+
+                // 隐藏结果，显示题目和提交按钮
+                resultArea.classList.remove('show');
+                actionBar.classList.remove('hidden');
+
+                // 如果有错误高亮等可以取消，目前没有额外状态
+                submitted = false;
+
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // ---------- 提交处理 ----------
+            function handleSubmit() {
+                if (submitted) return; // 防止重复提交
+
+                const { selections, allSelected } = getAllSelections();
+                if (!allSelected) {
+                    // 友善提示
+                    const firstUnselected = document.querySelector('.question-card input[type="radio"]:not(:checked)');
+                    if (firstUnselected) {
+                        const card = firstUnselected.closest('.question-card');
+                        if (card) {
+                            card.style.borderColor = '#e74c3c';
+                            card.style.background = '#fff8f8';
+                            setTimeout(() => {
+                                card.style.borderColor = '#e9edf4';
+                                card.style.background = '';
+                            }, 1500);
+                            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                    alert('📌 请完成所有题目后再提交！');
+                    return;
+                }
+
+                submitted = true;
+                const { correctCount, total, errors } = computeResult(selections);
+                showResult(correctCount, total, errors);
+            }
+
+            // ---------- 事件绑定 ----------
+            submitBtn.addEventListener('click', handleSubmit);
+            restartBtn.addEventListener('click', function() {
+                resetQuiz();
+            });
+
+            // ---------- 初始化 ----------
+            renderQuestions();
+
+            // 额外：点击卡片空白区域优化（但 label 已经覆盖）
+            // 如果用户点击 radio 本身没问题
+
+            // 键盘可访问性保留
+
+            // 对于选项，增加触控反馈：css 已经做了
+
+            // 小改进：当用户选完所有选项，自动提交？不需要，让用户手动提交。
+
+            // 如果点击提交后，再点再来一组，确保状态完全重置
+            console.log('📚 考研政治刷题已加载，祝你好运！');
+        })();
+    </script>
+</body>
+</html>

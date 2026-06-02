@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#6366f1">
+<title>倒计时 · Countdown</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:linear-gradient(160deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#fff;padding-bottom:100px;overflow-x:hidden}
+.container{max-width:520px;margin:0 auto;padding:20px 16px}
+.header{text-align:center;padding:10px 0 20px}
+.header h1{font-size:22px;font-weight:600;letter-spacing:1px}
+.header p{font-size:13px;opacity:.75;margin-top:4px}
+.hero{background:rgba(255,255,255,.15);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.2);border-radius:24px;padding:28px 22px;margin-bottom:24px;box-shadow:0 8px 32px rgba(0,0,0,.15);text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-50%;right:-30%;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%);border-radius:50%}
+.hero-label{font-size:13px;opacity:.85;margin-bottom:6px;letter-spacing:.5px;position:relative}
+.hero-title{font-size:22px;font-weight:600;margin-bottom:18px;position:relative;word-break:break-all}
+.hero-days{font-size:88px;font-weight:800;line-height:1;margin:6px 0;position:relative;text-shadow:0 4px 20px rgba(0,0,0,.2);background:linear-gradient(180deg,#fff 0%,#ffe9b3 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-unit{font-size:16px;opacity:.85;letter-spacing:2px;position:relative}
+.hero-date{font-size:13px;opacity:.7;margin-top:10px;position:relative}
+.hero.empty{padding:60px 22px}
+.hero.empty .hero-days{font-size:54px;background:none;-webkit-text-fill-color:#fff;color:#fff}
+.section-title{font-size:15px;font-weight:600;margin:18px 4px 12px;display:flex;align-items:center;justify-content:space-between;opacity:.95}
+.section-title span:last-child{font-size:12px;opacity:.6;font-weight:400}
+.event-list{display:flex;flex-direction:column;gap:12px}
+.event{background:rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:16px 18px;display:flex;align-items:center;gap:14px;transition:transform .15s;animation:slideIn .35s ease}
+.event:active{transform:scale(.98)}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.event-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:rgba(255,255,255,.2)}
+.event-info{flex:1;min-width:0}
+.event-name{font-size:15px;font-weight:600;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.event-date{font-size:12px;opacity:.7}
+.event-days{text-align:right;flex-shrink:0}
+.event-days-num{font-size:22px;font-weight:700;line-height:1}
+.event-days-label{font-size:11px;opacity:.7;margin-top:2px}
+.event-days.passed{opacity:.5}
+.event-days.passed .event-days-num{font-size:14px}
+.delete-btn{position:absolute;right:0;top:0;bottom:0;width:0;background:#ef4444;display:flex;align-items:center;justify-content:center;color:#fff;overflow:hidden;border:none;font-size:14px;cursor:pointer;border-radius:0 16px 16px 0;transition:width .2s}
+.event-wrap{position:relative;overflow:hidden}
+.event-wrap.show-delete .event{transform:translateX(-72px)}
+.event-wrap.show-delete .delete-btn{width:72px}
+.empty-state{text-align:center;padding:30px 20px;opacity:.7;font-size:14px}
+.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:auto;padding:0 28px;height:56px;background:#fff;color:#6366f1;border:none;border-radius:28px;font-size:16px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;align-items:center;gap:8px;cursor:pointer;z-index:50}
+.fab:active{transform:translateX(-50%) scale(.96)}
+.fab-icon{font-size:22px;line-height:1}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:100;animation:fadeIn .2s}
+.modal.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-content{background:#fff;color:#333;width:100%;border-radius:24px 24px 0 0;padding:24px 20px 32px;animation:slideUp .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 18px}
+.modal h2{font-size:18px;font-weight:600;margin-bottom:18px;text-align:center}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;color:#666;margin-bottom:6px;font-weight:500}
+.form-group input{width:100%;padding:14px 14px;border:1.5px solid #e5e7eb;border-radius:12px;font-size:15px;font-family:inherit;background:#f9fafb;color:#333;outline:none;transition:border-color .2s,background .2s}
+.form-group input:focus{border-color:#6366f1;background:#fff}
+.icon-picker{display:flex;flex-wrap:wrap;gap:8px}
+.icon-option{width:42px;height:42px;border-radius:12px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;border:2px solid transparent;transition:all .15s}
+.icon-option.active{background:#eef2ff;border-color:#6366f1}
+.icon-option:active{transform:scale(.92)}
+.btn-row{display:flex;gap:10px;margin-top:8px}
+.btn{flex:1;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn-cancel{background:#f3f4f6;color:#666}
+.btn-confirm{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+input[type="date"]::-webkit-date-and-time-value{text-align:left}
+@media (max-width:340px){.hero-days{font-size:72px}.hero-title{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⏳ 我的倒计时</h1>
+    <p>记录每一个值得期待的日子</p>
+  </div>
+
+  <div id="hero" class="hero empty">
+    <div class="hero-label">最近事件</div>
+    <div class="hero-title" id="heroTitle">还没有事件</div>
+    <div class="hero-days" id="heroDays">—</div>
+    <div class="hero-unit">点击下方按钮添加</div>
+  </div>
+
+  <div class="section-title">
+    <span>全部事件</span>
+    <span id="countLabel">0 个</span>
+  </div>
+
+  <div class="event-list" id="eventList"></div>
+</div>
+
+<button class="fab" onclick="openModal()">
+  <span class="fab-icon">+</span>
+  <span>添加事件</span>
+</button>
+
+<div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-content">
+    <div class="modal-handle"></div>
+    <h2>新建倒计时事件</h2>
+    <div class="form-group">
+      <label>事件名称</label>
+      <input type="text" id="eventName" placeholder="例如：高考、生日、旅行" maxlength="20">
+    </div>
+    <div class="form-group">
+      <label>目标日期</label>
+      <input type="date" id="eventDate">
+    </div>
+    <div class="form-group">
+      <label>选择图标</label>
+      <div class="icon-picker" id="iconPicker"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+      <button class="btn btn-confirm" onclick="saveEvent()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ICONS=['🎂','📚','✈️','💼','🎓','💍','🎉','❤️','🏆','🎯','🎄','🌸','⭐','🚀','🎬','🏖️'];
+let events=JSON.parse(localStorage.getItem('countdown_events')||'[]');
+let selectedIcon=ICONS[0];
+
+function renderIconPicker(){
+  const p=document.getElementById('iconPicker');
+  p.innerHTML=ICONS.map((ic,i)=>`<div class="icon-option${ic===selectedIcon?' active':''}" data-icon="${ic}" onclick="pickIcon('${ic}')">${ic}</div>`).join('');
+}
+function pickIcon(ic){
+  selectedIcon=ic;
+  document.querySelectorAll('.icon-option').forEach(el=>{
+    el.classList.toggle('active',el.dataset.icon===ic);
+  });
+}
+function daysBetween(target){
+  const t=new Date(target);t.setHours(0,0,0,0);
+  const n=new Date();n.setHours(0,0,0,0);
+  return Math.round((t-n)/86400000);
+}
+function formatDate(d){
+  const dt=new Date(d);
+  return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`;
+}
+function save(){localStorage.setItem('countdown_events',JSON.stringify(events));}
+function openModal(){
+  selectedIcon=ICONS[0];
+  document.getElementById('eventName').value='';
+  const today=new Date();today.setDate(today.getDate()+1);
+  document.getElementById('eventDate').value=today.toISOString().split('T')[0];
+  document.getElementById('eventDate').min=new Date().toISOString().split('T')[0];
+  renderIconPicker();
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+function saveEvent(){
+  const name=document.getElementById('eventName').value.trim();
+  const date=document.getElementById('eventDate').value;
+  if(!name){alert('请输入事件名称');return;}
+  if(!date){alert('请选择日期');return;}
+  events.push({id:Date.now(),name,date,icon:selectedIcon});
+  save();
+  render();
+  closeModal();
+}
+function deleteEvent(id){
+  if(confirm('确定删除这个事件吗？')){
+    events=events.filter(e=>e.id!==id);
+    save();render();
+  }
+}
+function toggleDelete(el,e){
+  e.stopPropagation();
+  document.querySelectorAll('.event-wrap').forEach(w=>{if(w!==el)w.classList.remove('show-delete');});
+  el.classList.toggle('show-delete');
+}
+function render(){
+  const sorted=[...events].sort((a,b)=>{
+    const da=daysBetween(a.date),db=daysBetween(b.date);
+    const af=da<0,bf=db<0;
+    if(af&&!bf)return 1;if(!af&&bf)return -1;
+    return da-db;
+  });
+  const hero=document.getElementById('hero');
+  const upcoming=sorted.find(e=>daysBetween(e.date)>=0);
+  if(upcoming){
+    const d=daysBetween(upcoming.date);
+    hero.classList.remove('empty');
+    document.getElementById('heroTitle').textContent=upcoming.icon+' '+upcoming.name;
+    document.getElementById('heroDays').textContent=d===0?'今天':d;
+    hero.querySelector('.hero-unit').textContent=d===0?'就是今天 🎊':'天 后';
+    let dateEl=hero.querySelector('.hero-date');
+    if(!dateEl){dateEl=document.createElement('div');dateEl.className='hero-date';hero.appendChild(dateEl);}
+    dateEl.textContent=formatDate(upcoming.date);
+  }else if(events.length>0){
+    hero.classList.remove('empty');
+    document.getElementById('heroTitle').textContent='所有事件已过去';
+    document.getElementById('heroDays').textContent='✓';
+    hero.querySelector('.hero-unit').textContent='添加新的期待吧';
+  }else{
+    hero.classList.add('empty');
+    document.getElementById('heroTitle').textContent='还没有事件';
+    document.getElementById('heroDays').textContent='—';
+    hero.querySelector('.hero-unit').textContent='点击下方按钮添加';
+  }
+  document.getElementById('countLabel').textContent=events.length+' 个';
+  const list=document.getElementById('eventList');
+  if(events.length===0){
+    list.innerHTML='<div class="empty-state">暂无事件，点击下方按钮添加吧～</div>';
+    return;
+  }
+  list.innerHTML=sorted.map(e=>{
+    const d=daysBetween(e.date);
+    const passed=d<0;
+    const display=passed?`已过 ${-d}`:(d===0?'今天':d);
+    const label=passed?'天':(d===0?'':'天');
+    return `<div class="event-wrap">
+      <button class="delete-btn" onclick="deleteEvent(${e.id})">删除</button>
+      <div class="event" onclick="toggleDelete(this.parentElement,event)">
+        <div class="event-icon">${e.icon}</div>
+        <div class="event-info">
+          <div class="event-name">${e.name}</div>
+          <div class="event-date">${formatDate(e.date)}</div>
+        </div>
+        <div class="event-days${passed?' passed':''}">
+          <div class="event-days-num">${display}</div>
+          <div class="event-days-label">${label}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.event-wrap')){
+    document.querySelectorAll('.event-wrap').forEach(w=>w.classList.remove('show-delete'));
+  }
+});
+if(events.length===0){
+  events=[
+    {id:1,name:'新年',date:new Date(new Date().getFullYear()+1,0,1).toISOString().split('T')[0],icon:'🎉'},
+    {id:2,name:'生日',date:new Date(Date.now()+86400000*30).toISOString().split('T')[0],icon:'🎂'}
+  ];
+  save();
+}
+render();
+setInterval(render,60000);
+</script>
+</body>
+</html>

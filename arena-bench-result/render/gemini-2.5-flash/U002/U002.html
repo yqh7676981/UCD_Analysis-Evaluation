@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AA 聚餐记账</title>
+    <style>
+        /* 通用样式和重置 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除 iOS 上的点击高亮 */
+        }
+
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        /* 容器样式 */
+        .container {
+            max-width: 600px; /* 限制最大宽度，适配平板和桌面 */
+            margin: 0 auto; /* 居中 */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        /* 表单元素样式 */
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem; /* 适合移动端的字体大小 */
+            box-sizing: border-box;
+            appearance: none; /* 移除 select 默认样式 */
+            background-color: #fdfdfd;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: #4CAF50; /* 聚焦时边框颜色 */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem; /* 适合触摸的按钮字体大小 */
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* 列表样式 */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #eee;
+            flex-wrap: wrap; /* 允许项目换行 */
+        }
+
+        li .item-name {
+            font-weight: bold;
+            color: #333;
+            flex-grow: 1;
+            min-width: 80px; /* 确保名称有最小宽度 */
+        }
+
+        li .item-amount {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-left: 10px;
+            white-space: nowrap; /* 防止金额换行 */
+        }
+
+        li .item-payer {
+            color: #2980b9;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        li button {
+            width: auto; /* 删除按钮宽度自适应 */
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            background-color: #e74c3c;
+            border-radius: 6px;
+        }
+
+        li button:hover {
+            background-color: #c0392b;
+            transform: none; /* 小按钮不进行 translateY 动画 */
+        }
+
+        /* 结果显示区 */
+        #results {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border: 1px dashed #bdc3c7;
+        }
+
+        #results p {
+            margin-bottom: 8px;
+            color: #34495e;
+            font-size: 1.05rem;
+        }
+
+        #results strong {
+            color: #27ae60;
+        }
+
+        /* 提示消息框 */
+        .alert-message {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ef9a9a;
+            display: none; /* 默认隐藏 */
+            font-size: 0.95rem;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+            h2 {
+                font-size: 1.4rem;
+            }
+            button {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+            li {
+                flex-direction: column; /* 小屏幕上列表项垂直堆叠 */
+                align-items: flex-start; /* 左对齐 */
+                padding: 10px;
+            }
+            li .item-name, li .item-amount, li .item-payer {
+                margin-bottom: 5px;
+                margin-left: 0;
+            }
+            li button {
+                margin-top: 5px; /* 删除按钮与内容分离 */
+                margin-left: 0;
+                align-self: flex-end; /* 删除按钮靠右 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AA 聚餐记账</h1>
+
+        <div class="alert-message" id="messageBox"></div>
+
+        <section id="participants-section">
+            <h2>参与人</h2>
+            <input type="text" id="participantNameInput" placeholder="输入参与人姓名">
+            <button id="addParticipantBtn">添加参与人</button>
+            <ul id="participantsList">
+                <!-- 参与人列表将在此处动态生成 -->
+            </ul>
+        </section>
+    </div>
+
+    <div class="container">
+        <section id="expenses-section">
+            <h2>消费记录</h2>
+            <input type="text" id="expenseDescInput" placeholder="消费描述 (例如: 晚餐)">
+            <input type="number" id="expenseAmountInput" placeholder="金额" min="0.01" step="0.01">
+            <select id="expensePayerSelect">
+                <option value="">请选择付款人</option>
+                <!-- 付款人选项将在此处动态生成 -->
+            </select>
+            <button id="addExpenseBtn">添加消费</button>
+            <ul id="expensesList">
+                <!-- 消费列表将在此处动态生成 -->
+            </ul>
+        </section>
+    </div>
+
+    <div class="container">
+        <section id="calculation-section">
+            <h2>结算</h2>
+            <button id="calculateBtn">计算谁给谁转账</button>
+            <div id="results">
+                <!-- 结算结果将在此处显示 -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // 数据存储
+        let participants = []; // 存储参与人: { id: 'p1', name: '张三' }
+        let expenses = [];     // 存储消费: { id: 'e1', desc: '晚餐', amount: 100, payerId: 'p1' }
+
+        // 获取 DOM 元素
+        const participantNameInput = document.getElementById('participantNameInput');
+        const addParticipantBtn = document.getElementById('addParticipantBtn');
+        const participantsList = document.getElementById('participantsList');
+
+        const expenseDescInput = document.getElementById('expenseDescInput');
+        const expenseAmountInput = document.getElementById('expenseAmountInput');
+        const expensePayerSelect = document.getElementById('expensePayerSelect');
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+        const expensesList = document.getElementById('expensesList');
+
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultsDiv = document.getElementById('results');
+        const messageBox = document.getElementById('messageBox');
+
+        // 辅助函数：显示消息
+        function showMessage(message, type = 'error') {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            if (type === 'error') {
+                messageBox.style.backgroundColor = '#ffebee';
+                messageBox.style.color = '#c62828';
+                messageBox.style.borderColor = '#ef9a9a';
+            } else if (type === 'success') {
+                messageBox.style.backgroundColor = '#e8f5e9';
+                messageBox.style.color = '#2e7d32';
+                messageBox.style.borderColor = '#a5d6a7';
+            }
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000); // 5秒后自动隐藏
+        }
+
+        // 更新参与人列表和付款人下拉菜单
+        function updateParticipantsList() {
+            participantsList.innerHTML = '';
+            expensePayerSelect.innerHTML = '<option value="">请选择付款人</option>'; // 重置付款人选项
+
+            participants.forEach(p => {
+                // 添加到参与人列表
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="item-name">${p.name}</span>
+                                <button data-id="${p.id}">删除</button>`;
+                li.querySelector('button').addEventListener('click', () => removeParticipant(p.id));
+                participantsList.appendChild(li);
+
+                // 添加到付款人下拉菜单
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.name;
+                expensePayerSelect.appendChild(option);
+            });
+        }
+
+        // 更新消费列表
+        function updateExpensesList() {
+            expensesList.innerHTML = '';
+            expenses.forEach(e => {
+                const payer = participants.find(p => p.id === e.payerId);
+                const payerName = payer ? payer.name : '未知'; // 如果付款人已被删除则显示“未知”
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="item-name">${e.desc}</span>
+                                <span class="item-amount">¥${e.amount.toFixed(2)}</span>
+                                <span class="item-payer">付款人: ${payerName}</span>
+                                <button data-id="${e.id}">删除</button>`;
+                li.querySelector('button').addEventListener('click', () => removeExpense(e.id));
+                expensesList.appendChild(li);
+            });
+        }
+
+        // 事件处理函数：添加参与人
+        addParticipantBtn.addEventListener('click', () => {
+            const name = participantNameInput.value.trim();
+            if (name && !participants.some(p => p.name === name)) { // 检查是否已存在同名参与人
+                const newParticipant = { id: `p${Date.now()}`, name: name }; // 使用时间戳作为唯一ID
+                participants.push(newParticipant);
+                participantNameInput.value = '';
+                updateParticipantsList();
+                showMessage('参与人添加成功！', 'success');
+            } else if (!name) {
+                showMessage('请输入参与人姓名！');
+            } else {
+                showMessage('该参与人已存在！');
+            }
+        });
+
+        // 事件处理函数：删除参与人
+        function removeParticipant(id) {
+            // 检查该参与人是否是任何一笔消费的付款人
+            if (expenses.some(e => e.payerId === id)) {
+                showMessage('无法删除该参与人，因为TA已在某笔消费中作为付款人。请先删除相关消费记录。');
+                return;
+            }
+            participants = participants.filter(p => p.id !== id);
+            updateParticipantsList();
+            updateExpensesList(); // 重新渲染消费列表以防万一
+            showMessage('参与人已删除！', 'success');
+        }
+
+        // 事件处理函数：添加消费
+        addExpenseBtn.addEventListener('click', () => {
+            const desc = expenseDescInput.value.trim();
+            const amount = parseFloat(expenseAmountInput.value);
+            const payerId = expensePayerSelect.value;
+
+            if (!desc) {
+                showMessage('请输入消费描述！');
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                showMessage('请输入有效的消费金额！');
+                return;
+            }
+            if (!payerId) {
+                showMessage('请选择付款人！');
+                return;
+            }
+
+            const newExpense = { id: `e${Date.now()}`, desc: desc, amount: amount, payerId: payerId };
+            expenses.push(newExpense);
+            expenseDescInput.value = '';
+            expenseAmountInput.value = '';
+            expensePayerSelect.value = ''; // 重置下拉菜单
+            updateExpensesList();
+            showMessage('消费记录添加成功！', 'success');
+        });
+
+        // 事件处理函数：删除消费
+        function removeExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            updateExpensesList();
+            showMessage('消费记录已删除！', 'success');
+        }
+
+        // 事件处理函数：计算结算
+        calculateBtn.addEventListener('click', () => {
+            resultsDiv.innerHTML = ''; // 清除之前的计算结果
+
+            if (participants.length === 0) {
+                showMessage('请至少添加一位参与人！');
+                return;
+            }
+            if (expenses.length === 0) {
+                showMessage('请至少添加一笔消费！');
+                return;
+            }
+
+            let totalAmount = expenses.reduce((sum, e) => sum + e.amount, 0);
+            let amountPerPerson = totalAmount / participants.length;
+
+            // 计算每个人的余额
+            // balances: { participantId: current_balance }
+            const balances = {};
+            participants.forEach(p => {
+                balances[p.id] = -amountPerPerson; // 每个人最初都欠自己的那份
+            });
+
+            expenses.forEach(e => {
+                balances[e.payerId] += e.amount; // 加上他们实际支付的金额
+            });
+
+            // 将参与人分为欠款人 (balance < 0) 和债权人 (balance > 0)
+            let debtors = []; // { id: 'p1', name: '张三', balance: -X }
+            let creditors = []; // { id: 'p2', name: '李四', balance: Y }
+
+            for (const id in balances) {
+                const balance = balances[id];
+                const participant = participants.find(p => p.id === id);
+                if (Math.abs(balance) < 0.01) continue; // 忽略微小余额（浮点数精度问题）
+
+                if (balance < 0) {
+                    debtors.push({ ...participant, balance: balance });
+                } else {
+                    creditors.push({ ...participant, balance: balance });
+                }
+            }
+
+            // 优化转账流程：欠款最多的人优先还给被欠最多的人
+            // 欠款人按欠款从多到少排序
+            debtors.sort((a, b) => a.balance - b.balance);
+            // 债权人按被欠款从多到少排序
+            creditors.sort((a, b) => b.balance - a.balance);
+
+            const settlements = [];
+
+            while (debtors.length > 0 && creditors.length > 0) {
+                let debtor = debtors[0];
+                let creditor = creditors[0];
+
+                // 计算转账金额：取欠款人欠的金额和债权人被欠金额的较小值
+                const amountToTransfer = Math.min(Math.abs(debtor.balance), creditor.balance);
+
+                settlements.push({
+                    from: debtor.name,
+                    to: creditor.name,
+                    amount: amountToTransfer
+                });
+
+                // 更新余额
+                debtor.balance += amountToTransfer;
+                creditor.balance -= amountToTransfer;
+
+                // 如果欠款人已还清，将其从列表中移除
+                if (Math.abs(debtor.balance) < 0.01) {
+                    debtors.shift();
+                }
+                // 如果债权人已收齐，将其从列表中移除
+                if (Math.abs(creditor.balance) < 0.01) {
+                    creditors.shift();
+                }
+            }
+
+            // 显示结果
+            if (settlements.length === 0) {
+                resultsDiv.innerHTML = '<p>大家金额刚好平衡，无需转账！</p>';
+                showMessage('计算完成：大家金额刚好平衡，无需转账！', 'success');
+            } else {
+                let summaryHTML = `<h3>总金额: ¥${totalAmount.toFixed(2)}</h3>
+                                   <p>每人应付: ¥${amountPerPerson.toFixed(2)}</p>
+                                   <h3>转账明细:</h3>`;
+                settlements.forEach(s => {
+                    summaryHTML += `<p><strong>${s.from}</strong> 应转账给 <strong>${s.to}</strong> ¥${s.amount.toFixed(2)}</p>`;
+                });
+                resultsDiv.innerHTML = summaryHTML;
+                showMessage('计算完成，请查看转账明细。', 'success');
+            }
+        });
+
+        // 页面加载时初始化列表 (如果从 localStorage 加载数据，这里会很有用)
+        updateParticipantsList();
+        updateExpensesList();
+
+    </script>
+</body>
+</html>

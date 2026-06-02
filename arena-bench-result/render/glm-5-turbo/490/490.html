@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASCOTAPPS - 宠物护理专家</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1419;
+            --bg-secondary: #1a2332;
+            --fg: #f8fafc;
+            --muted: #94a3b8;
+            --accent: #f59e0b;
+            --accent-warm: #ef4444;
+            --card: rgba(26, 35, 50, 0.8);
+            --border: rgba(148, 163, 184, 0.15);
+            --glow: rgba(245, 158, 11, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Animated Background */
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.15), transparent),
+                radial-gradient(ellipse 60% 40% at 80% 60%, rgba(239, 68, 68, 0.1), transparent),
+                radial-gradient(ellipse 50% 30% at 20% 80%, rgba(34, 197, 94, 0.08), transparent);
+            z-index: 0;
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: rgba(245, 158, 11, 0.12);
+            top: 10%;
+            left: -10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: rgba(239, 68, 68, 0.1);
+            top: 60%;
+            right: -5%;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 250px;
+            height: 250px;
+            background: rgba(34, 197, 94, 0.08);
+            bottom: 10%;
+            left: 30%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+
+        /* Grid Pattern */
+        .grid-pattern {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+        }
+
+        /* Particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 15s ease-in-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { 
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            50% { 
+                transform: translateY(-200px) translateX(50px);
+            }
+        }
+
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            color: var(--bg);
+            font-weight: 600;
+            padding: 1rem 2.5rem;
+            border-radius: 100px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #fbbf24, var(--accent));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--fg);
+            font-weight: 500;
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Card Styles */
+        .feature-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover .icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Section Reveal */
+        .reveal {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger Animation */
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+
+        /* Nav */
+        .nav-link {
+            position: relative;
+            color: var(--muted);
+            transition: color 0.3s;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--fg);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Testimonial Card */
+        .testimonial-card {
+            background: linear-gradient(135deg, var(--card), rgba(26, 35, 50, 0.6));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .testimonial-card:hover {
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        /* Stats */
+        .stat-number {
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 20, 25, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: all 0.4s;
+        }
+
+        .mobile-menu.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Hamburger */
+        .hamburger {
+            width: 28px;
+            height: 20px;
+            position: relative;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        .hamburger span {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--fg);
+            transition: all 0.3s;
+        }
+
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 50%; transform: translateY(-50%); }
+        .hamburger span:nth-child(3) { bottom: 0; }
+
+        .hamburger.active span:nth-child(1) {
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            bottom: 50%;
+            transform: translateY(50%) rotate(-45deg);
+        }
+
+        /* Pet Icon Animation */
+        @keyframes pawPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .paw-icon {
+            animation: pawPulse 2s ease-in-out infinite;
+        }
+
+        /* Focus States */
+        button:focus-visible, a:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.5);
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#features" class="text-2xl font-medium text-white hover:text-amber-400 transition-colors">功能特色</a>
+        <a href="#resources" class="text-2xl font-medium text-white hover:text-amber-400 transition-colors">资源中心</a>
+        <a href="#testimonials" class="text-2xl font-medium text-white hover:text-amber-400 transition-colors">用户评价</a>
+        <a href="#contact" class="text-2xl font-medium text-white hover:text-amber-400 transition-colors">联系我们</a>
+        <button class="btn-primary mt-4"><span>立即下载</span></button>
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[rgba(15,20,25,0.8)] border-b border-[rgba(148,163,184,0.1)]">
+        <nav class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center paw-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 6c-2.2 0-4 1.8-4 4h8c0-2.2-1.8-4-4-4z" fill="#0f1419"/>
+                    </svg>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight">MASCOTAPPS</span>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="nav-link">功能特色</a>
+                <a href="#resources" class="nav-link">资源中心</a>
+                <a href="#testimonials" class="nav-link">用户评价</a>
+                <a href="#contact" class="nav-link">联系我们</a>
+            </div>
+
+            <div class="hidden md:flex items-center gap-4">
+                <button class="btn-secondary">登录</button>
+                <button class="btn-primary"><span>免费下载</span></button>
+            </div>
+
+            <div class="hamburger md:hidden" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <div class="hero-bg"></div>
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+        <div class="grid-pattern"></div>
+        
+        <!-- Particles -->
+        <div id="particles"></div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-6 py-20 text-center">
+            <div class="reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.2)] mb-8">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="text-amber-400 text-sm font-medium">全新 2.0 版本现已上线</span>
+                </div>
+            </div>
+            
+            <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-8 reveal stagger-1">
+                让宠物护理<br>
+                <span class="bg-gradient-to-r from-amber-400 via-amber-500 to-orange-500 bg-clip-text text-transparent">简单又科学</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-12 reveal stagger-2">
+                MASCOTAPPS 为宠物主人提供专业提示、丰富资源和实用工具，让您的爱宠享受最佳护理体验
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 reveal stagger-3">
+                <button class="btn-primary text-lg"><span>立即免费下载</span></button>
+                <button class="btn-secondary text-lg flex items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polygon points="10,8 16,12 10,16" fill="currentColor"/>
+                    </svg>
+                    观看演示视频
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 reveal stagger-4">
+                <div class="text-center">
+                    <div class="stat-number font-display text-4xl md:text-5xl font-bold">50K+</div>
+                    <div class="text-slate-400 mt-2">活跃用户</div>
+                </div>
+                <div class="text-center">
+                    <div class="stat-number font-display text-4xl md:text-5xl font-bold">1.2M</div>
+                    <div class="text-slate-400 mt-2">护理记录</div>
+                </div>
+                <div class="text-center">
+                    <div class="stat-number font-display text-4xl md:text-5xl font-bold">98%</div>
+                    <div class="text-slate-400 mt-2">好评率</div>
+                </div>
+                <div class="text-center">
+                    <div class="stat-number font-display text-4xl md:text-5xl font-bold">24/7</div>
+                    <div class="text-slate-400 mt-2">专家支持</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+            <span class="text-slate-500 text-sm">向下滚动</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-400">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="relative py-32 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[rgba(245,158,11,0.02)] to-transparent"></div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="font-display text-4xl md:text-6xl font-bold mb-6 reveal">
+                    强大功能<span class="text-amber-400">，</span>全面呵护
+                </h2>
+                <p class="text-xl text-slate-400 max-w-2xl mx-auto reveal stagger-1">
+                    我们精心打造每一个功能，只为让宠物护理变得更轻松、更科学
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="feature-card reveal stagger-1">
+                    <div class="icon-wrapper bg-gradient-to-br from-amber-500/20 to-orange-500/20">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                            <path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-semibold mb-3">健康追踪</h3>
+                    <p class="text-slate-400 leading-relaxed">实时监测宠物健康数据，包括体重、饮食、运动量等，智能分析并生成健康报告</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card reveal stagger-2">
+                    <div class="icon-wrapper bg-gradient-to-br from-emerald-500/20 to-green-500/20">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-semibold mb-3">智能提醒</h3>
+                    <p class="text-slate-400 leading-relaxed">疫苗注射、驱虫用药、体检预约等重要事项自动提醒，再也不会错过任何护理时间</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card reveal stagger-3">
+                    <div class="icon-wrapper bg-gradient-to-br from-sky-500/20 to-blue-500/20">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-semibold mb-3">专家咨询</h3>
+                    <p class="text-slate-400 leading-relaxed">连接专业兽医和宠物专家，随时随地在线咨询，获得专业建议和护理方案</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card reveal stagger-1">
+                    <div class="icon-wrapper bg-gradient-to-br from-rose-500/20 to-pink-500/20">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="2">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-semibold mb-3">社区互动</h3>
+                    <p class="text-slate-400 leading-relaxed">与全球宠物爱好者交流分享，发布动态、参与话题、结识志同道合的朋友</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card reveal stagger-2">
+                    <div class="icon-wrapper bg-gradient-to-br from-violet-500/20 to-purple-500/20">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                            <line x1="16" y1="13" x2="8" y2="13"/>
+                            <line x1="16" y1="17" x2="8" y2="17"/>
+                            <polyline points="10,9 9,9 8,9"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-semibold mb-3">健康档案</h3>
+                    <p class="text-slate-400 leading-relaxed">完整的电子健康档案，记录疫苗史、病历、用药记录，就诊时一键分享给医生</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card reveal stagger-3">
+                    <div class="icon-wrapper bg-gradient-to-br from-teal-500/20 to-cyan-500/20">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-display text-2xl font-semibold mb-3">养护指南</h3>
+                    <p class="text-slate-400 leading-relaxed">海量专业护理知识库，涵盖喂养、训练、美容等全方位指南，科学养宠不求人</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section id="resources" class="relative py-32 overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-amber-500/5 to-transparent"></div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="font-display text-4xl md:text-6xl font-bold mb-6 reveal">
+                        丰富资源<br><span class="text-amber-400">触手可及</span>
+                    </h2>
+                    <p class="text-xl text-slate-400 mb-10 reveal stagger-1">
+                        从新手入门到专业护理，我们提供全方位的学习资源，让您成为最棒的宠物家长
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start gap-4 reveal stagger-2">
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">专业文章库</h3>
+                                <p class="text-slate-400">超过2000篇专业文章，由兽医和宠物专家撰写审核</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4 reveal stagger-3">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+                                    <polygon points="23 7 16 12 23 17 23 7"/>
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">视频教程</h3>
+                                <p class="text-slate-400">500+ 高清视频教程，涵盖训练、美容、健康护理等主题</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-4 reveal stagger-4">
+                            <div class="w-12 h-12 rounded-xl bg-sky-500/20 flex items-center justify-center flex-shrink-0">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2">在线课程</h3>
+                                <p class="text-slate-400">系统化在线课程，从入门到精通，获得专业认证</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative reveal stagger-2">
+                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-3xl blur-3xl"></div>
+                    <div class="relative bg-gradient-to-br from-[#1a2332] to-[#0f1419] border border-[rgba(148,163,184,0.1)] rounded-3xl p-8 backdrop-blur-xl">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-[rgba(245,158,11,0.1)] border border-[rgba(245,158,11,0.2)] rounded-2xl p-6 text-center">
+                                <div class="stat-number font-display text-3xl font-bold mb-1">2000+</div>
+                                <div class="text-slate-400 text-sm">专业文章</div>
+                            </div>
+                            <div class="bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.2)] rounded-2xl p-6 text-center">
+                                <div class="font-display text-3xl font-bold mb-1 text-emerald-400">500+</div>
+                                <div class="text-slate-400 text-sm">视频教程</div>
+                            </div>
+                            <div class="bg-[rgba(14,165,233,0.1)] border border-[rgba(14,165,233,0.2)] rounded-2xl p-6 text-center">
+                                <div class="font-display text-3xl font-bold mb-1 text-sky-400">50+</div>
+                                <div class="text-slate-400 text-sm">在线课程</div>
+                            </div>
+                            <div class="bg-[rgba(168,85,247,0.1)] border border-[rgba(168,85,247,0.2)] rounded-2xl p-6 text-center">
+                                <div class="font-display text-3xl font-bold mb-1 text-purple-400">100+</div>
+                                <div class="text-slate-400 text-sm">专家导师</div>
+                            </div>
+                        </div>
+                        <button class="w-full btn-primary"><span>探索全部资源</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="relative py-32 overflow-hidden">
+        <div class="relative z-10 max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="font-display text-4xl md:text-6xl font-bold mb-6 reveal">
+                    用户真实评价
+                </h2>
+                <p class="text-xl text-slate-400 max-w-2xl mx-auto reveal stagger-1">
+                    超过50,000位宠物主人信赖的选择
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-card reveal stagger-1">
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <p class="text-slate-300 mb-6 leading-relaxed">"这是我用过最棒的宠物护理App！健康追踪功能让我能及时发现问题，已经推荐给身边所有养宠物的朋友了。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-lg font-bold text-[#0f1419]">L</div>
+                        <div>
+                            <div class="font-semibold">李明华</div>
+                            <div class="text-slate-400 text-sm">金毛主人，使用8个月</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="testimonial-card reveal stagger-2">
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <p class="text-slate-300 mb-6 leading-relaxed">"智能提醒功能太实用了！以前总是忘记给猫咪驱虫，现在App会准时提醒，再也不用担心错过了。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-lg font-bold text-[#0f1419]">W</div>
+                        <div>
+                            <div class="font-semibold">王小雪</div>
+                            <div class="text-slate-400 text-sm">英短主人，使用6个月</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="testimonial-card reveal stagger-3">
+                    <div class="flex items-center gap-1 mb-4">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <p class="text-slate-300 mb-6 leading-relaxed">"专家咨询功能帮了我大忙！半夜狗狗不舒服，立刻就能连线兽医，太安心了。强烈推荐给所有宠物主人！"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-lg font-bold text-[#0f1419]">Z</div>
+                        <div>
+                            <div class="font-semibold">张伟强</div>
+                            <div class="text-slate-400 text-sm">柯基主人，使用1年</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="contact" class="relative py-32 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-t from-amber-500/10 via-transparent to-transparent"></div>
+        <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent"></div>
+        
+        <div class="relative z-10 max-w-4xl mx-auto px-6 text-center">
+            <h2 class="font-display text-4xl md:text-6xl font-bold mb-6 reveal">
+                开始您的<span class="text-amber-400">科学养宠</span>之旅
+            </h2>
+            <p class="text-xl text-slate-400 mb-12 reveal stagger-1">
+                加入50,000+宠物主人的大家庭，让爱宠享受最专业的护理
+            </p>
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 reveal stagger-2">
+                <input 
+                    type="email" 
+                    placeholder="输入您的邮箱地址" 
+                    class="w-full sm:w-auto px-6 py-4 bg-[rgba(255,255,255,0.05)] border border-[rgba(148,163,184,0.2)] rounded-full text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-500 transition-colors"
+                    aria-label="邮箱地址"
+                >
+                <button class="btn-primary whitespace-nowrap"><span>立即免费下载</span></button>
+            </div>
+            
+            <div class="flex items-center justify-center gap-8 text-slate-400 reveal stagger-3">
+                <div class="flex items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-400">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span>永久免费基础版</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-400">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span>无需绑定信用卡</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-[rgba(148,163,184,0.1)] py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 6c-2.2 0-4 1.8-4 4h8c0-2.2-1.8-4-4-4z" fill="#0f1419"/>
+                            </svg>
+                        </div>
+                        <span class="font-display font-bold text-xl">MASCOTAPPS</span>
+                    </div>
+                    <p class="text-slate-400 leading-relaxed">专业的宠物护理平台，让每一个毛孩子都能享受科学的呵护。</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">产品</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">功能介绍</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">定价方案</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">更新日志</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">下载App</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">资源</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">帮助中心</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">博客文章</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">社区论坛</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">开发者API</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">关于</h4>
+                    <ul class="space-y-3 text-slate-400">
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">关于我们</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">加入团队</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="hover:text-amber-400 transition-colors">服务条款</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-[rgba(148,163,184,0.1)] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-slate-500 text-sm">2025 MASCOTAPPS. All rights reserved.</p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] flex items-center justify-center hover:bg-amber-500/20 hover:text-amber-400 transition-all" aria-label="微信">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8.5 11a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5 0a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm5.5 4c0 2.5-2.5 4.5-5.5 4.5-.7 0-1.4-.1-2-.3l-2 1-.5-1.5c-1.5-1-2.5-2.5-2.5-4 0-2.5 2.5-4.5 5.5-4.5s5.5 2 5.5 4.3z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] flex items-center justify-center hover:bg-amber-500/20 hover:text-amber-400 transition-all" aria-label="微博">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10.5 18.5c-3.6 0-7-1.8-7-4.5s2.5-5 6-5c4 0 6.5 2.5 6.5 5s-2.5 4.5-5.5 4.5zm6.5-12c-.3-.1-.5-.4-.4-.7.2-.7.8-1.3 1.5-1.3.9 0 1.7.7 1.7 1.6 0 .3-.1.5-.2.7-.1.2-.1.5 0 .7.1.2.4.3.6.2.5-.3.8-.8.8-1.4 0-1.4-1.2-2.6-2.7-2.6-1.2 0-2.2.8-2.5 1.9-.1.3.1.6.4.7.3.1.6-.1.7-.4.1-.4.5-.7.9-.7.6 0 1 .5 1 1 0 .2-.1.4-.2.5-.2.3-.1.6.2.8h.4z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-[rgba(255,255,255,0.05)] flex items-center justify-center hover:bg-amber-500/20 hover:text-amber-400 transition-all" aria-label="抖音">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            if (!container) return;
+            
+            const particleCount = 20;
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.opacity = '0';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Mobile menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        if (hamburger && mobileMenu) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                mobileMenu.classList.toggle('active');
+            });
+
+            // Close menu when clicking links
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    mobileMenu.classList.remove('active');
+                });
+            });
+        }
+
+        // Scroll reveal with IntersectionObserver
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Header background on scroll
+        const header = document.querySelector('header');
+        
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.style.background = 'rgba(15, 20, 25, 0.95)';
+            } else {
+                header.style.background = 'rgba(15, 20, 25, 0.8)';
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Button hover effect
+        document.querySelectorAll('.btn-primary').forEach(btn => {
+            btn.addEventListener('mouseenter', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                this.style.setProperty('--x', x + 'px');
+                this.style.setProperty('--y', y + 'px');
+            });
+        });
+
+        // Parallax effect for orbs
+        let rafId = null;
+        window.addEventListener('mousemove', (e) => {
+            if (rafId) return;
+            
+            rafId = requestAnimationFrame(() => {
+                const orbs = document.querySelectorAll('.floating-orb');
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+                
+                orbs.forEach((orb, index) => {
+                    const factor = (index + 1) * 0.5;
+                    orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
+                });
+                rafId = null;
+            });
+        });
+
+        // Check for reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            document.querySelectorAll('.floating-orb, .particle').forEach(el => {
+                el.style.animation = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

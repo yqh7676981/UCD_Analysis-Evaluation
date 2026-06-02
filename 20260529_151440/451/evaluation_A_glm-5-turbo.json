@@ -1,0 +1,11 @@
+{
+  "index": 269,
+  "id": "451",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为美发沙龙网站创建一个界面，展示服务、造型师简介、预订选项和客户评论。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/451_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:18:32.700622"
+}

@@ -1,0 +1,33 @@
+{
+  "index": 261,
+  "id": "E004",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个错题本工具，支持录入错题、错误原因和正确解法，按学科和知识点分类，能筛选查看。",
+  "evaluation": {
+    "total_score": 74,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark theme, teal accent, rounded cards, and pill filters form a coherent product style suited to a study tool. Visual language is mostly consistent, but the floating add button overlaps content and the screen feels more utilitarian than strongly polished."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Card spacing, section labels, and subject badges are generally tidy and repeatable. However, several text areas are small and low-contrast on dark backgrounds, card interiors are dense, and the FAB covering a card is a visible finishing issue."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly see the title, subject filters, knowledge-point dropdown, summary stats, and the list of wrong questions. But each card gives similar visual weight to all sections, making scanning slower, and the main add action is not placed cleanly in the reading flow."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "Labels such as 学科, 知识点, 错误原因, 正确解法, 编辑, 删除 are explicit and match the scenario well. The subject chips and filter dropdown are intuitive, and the plus button reasonably suggests adding entries, though its overlap makes the action feel less deliberate."
+      }
+    },
+    "summary": "This is a solid, usable mobile错题本 interface with clear scenario fit: users can browse, filter, and understand each mistake record without much interpretation. The strongest qualities are consistency and explicit labeling. The main limits are visual density, small/low-contrast text, and the overlapping floating add button, which cap the experience below top-tier polish."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E004_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:17:01.572179"
+}

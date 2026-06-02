@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BookMates · 遇见你的书友</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #8B5A3C;
+    --primary-dark: #6B4226;
+    --accent: #E8A87C;
+    --bg: #FAF6F0;
+    --card: #FFFFFF;
+    --text: #2D2420;
+    --muted: #8A7A6D;
+    --border: #E8DDD1;
+    --success: #7BA05B;
+    --danger: #D96C6C;
+  }
+  body {
+    font-family: -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon { font-size: 28px; }
+  nav {
+    display: flex;
+    gap: 4px;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { background: var(--bg); color: var(--text); }
+  .nav-btn.active {
+    background: var(--primary);
+    color: white;
+  }
+  .user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Main layout */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.3s; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .page-title {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .page-sub {
+    color: var(--muted);
+    margin-bottom: 28px;
+  }
+
+  /* Discover (Tinder-like) */
+  .swipe-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .card-stack {
+    position: relative;
+    width: 380px;
+    height: 560px;
+    margin-bottom: 24px;
+  }
+  .book-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    overflow: hidden;
+    cursor: grab;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .book-cover {
+    height: 280px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    position: relative;
+  }
+  .book-cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0; height: 60px;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3));
+  }
+  .card-content {
+    padding: 20px 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .card-age {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .card-bio {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 14px;
+    flex: 1;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    background: var(--bg);
+    color: var(--primary);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+  }
+  .swipe-actions {
+    display: flex;
+    gap: 20px;
+  }
+  .action-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.15s;
+    background: white;
+  }
+  .action-btn:hover { transform: scale(1.1); }
+  .action-btn.nope { color: var(--danger); }
+  .action-btn.like { color: var(--success); }
+  .action-btn.info { color: var(--primary); font-size: 22px; }
+
+  .empty-stack {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty-stack h3 { color: var(--text); margin-bottom: 8px; }
+
+  /* Clubs */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .club-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+  }
+  .club-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .club-emoji {
+    font-size: 42px;
+    margin-bottom: 12px;
+  }
+  .club-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .club-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    min-height: 40px;
+  }
+  .club-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .join-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .join-btn:hover { background: var(--primary-dark); }
+  .join-btn.joined { background: var(--success); }
+
+  /* Forum (Slack-like) */
+  .forum-layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+    height: 640px;
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .channels {
+    background: #3D2E24;
+    color: white;
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+  .channel-group-title {
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 0 20px;
+    margin: 10px 0 6px;
+    letter-spacing: 0.5px;
+  }
+  .channel-item {
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+    color: rgba(255,255,255,0.8);
+  }
+  .channel-item:hover { background: rgba(255,255,255,0.08); }
+  .channel-item.active {
+    background: var(--primary);
+    color: white;
+  }
+  .chat-area {
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .messages {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+  }
+  .message {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .msg-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+  }
+  .msg-body { flex: 1; }
+  .msg-head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+  .msg-name { font-weight: 600; font-size: 14px; }
+  .msg-time { color: var(--muted); font-size: 12px; }
+  .msg-text { font-size: 14px; color: var(--text); }
+  .chat-input {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+  }
+  .chat-input input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .chat-input input:focus { border-color: var(--primary); }
+  .send-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .send-btn:hover { background: var(--primary-dark); }
+
+  /* Reading progress */
+  .progress-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .reading-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .reading-item {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  .book-thumb {
+    width: 60px;
+    height: 80px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+  }
+  .reading-info h4 {
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+  .reading-info p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    background: var(--bg);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 4px;
+    transition: width 0.3s;
+  }
+  .progress-text {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .update-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .update-btn:hover { background: var(--border); }
+
+  /* Match notification */
+  .match-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    padding: 32px 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    text-align: center;
+    z-index: 1000;
+    transition: transform 0.3s;
+  }
+  .match-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .match-popup h2 { color: var(--primary); font-size: 32px; margin-bottom: 8px; }
+  .match-popup p { color: var(--muted); }
+
+  @media (max-width: 768px) {
+    .forum-layout { grid-template-columns: 1fr; height: auto; }
+    .channels { display: none; }
+    nav { display: none; }
+    header { padding: 12px 16px; }
+    main { padding: 20px 12px; }
+    .card-stack { width: 100%; max-width: 380px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">📚</span>
+    <span>BookMates</span>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-view="discover">发现书友</button>
+    <button class="nav-btn" data-view="clubs">读书俱乐部</button>
+    <button class="nav-btn" data-view="forum">讨论论坛</button>
+    <button class="nav-btn" data-view="progress">阅读进度</button>
+  </nav>
+  <div class="user-avatar" title="我的账户">我</div>
+</header>
+
+<main>
+  <!-- Discover (Tinder-like) -->
+  <section class="view active" id="discover">
+    <h1 class="page-title">发现志同道合的书友 ✨</h1>
+    <p class="page-sub">基于共同的阅读偏好，左滑右滑找到你的灵魂书友</p>
+    <div class="swipe-container">
+      <div class="card-stack" id="cardStack"></div>
+      <div class="swipe-actions">
+        <button class="action-btn nope" onclick="swipe('left')" title="跳过">✕</button>
+        <button class="action-btn info" onclick="showInfo()" title="详情">i</button>
+        <button class="action-btn like" onclick="swipe('right')" title="喜欢">♥</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Clubs -->
+  <section class="view" id="clubs">
+    <h1 class="page-title">小型读书俱乐部 📖</h1>
+    <p class="page-sub">加入或创建 5-15 人的精品读书小组，深度交流</p>
+    <div class="grid" id="clubsGrid"></div>
+  </section>
+
+  <!-- Forum (Slack-like) -->
+  <section class="view" id="forum">
+    <h1 class="page-title">讨论论坛 💬</h1>
+    <p class="page-sub">实时交流你的读后感与思考</p>
+    <div class="forum-layout">
+      <aside class="channels">
+        <div class="channel-group-title">我的俱乐部</div>
+        <div class="channel-item active" data-channel="general" data-name="#综合讨论"># 综合讨论</div>
+        <div class="channel-item" data-channel="classics" data-name="#经典文学"># 经典文学</div>
+        <div class="channel-item" data-channel="scifi" data-name="#科幻宇宙"># 科幻宇宙</div>
+        <div class="channel-item" data-channel="philosophy" data-name="#哲学思辨"># 哲学思辨</div>
+        <div class="channel-group-title">私信</div>
+        <div class="channel-item" data-channel="dm-lisa" data-name="@ 李思"> @ 李思</div>
+        <div class="channel-item" data-channel="dm-tom" data-name="@ 汤姆"> @ 汤姆</div>
+      </aside>
+      <div class="chat-area">
+        <div class="chat-header" id="chatHeader"># 综合讨论</div>
+        <div class="messages" id="messages"></div>
+        <div class="chat-input">
+          <input type="text" id="msgInput" placeholder="输入消息..." onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="send-btn" onclick="sendMessage()">发送</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reading Progress -->
+  <section class="view" id="progress">
+    <h1 class="page-title">我的阅读进度 📊</h1>
+    <p class="page-sub">记录每一页的阅读旅程</p>
+    <div class="progress-stats">
+      <div class="stat-card">
+        <div class="stat-num" id="statReading">3</div>
+        <div class="stat-label">正在阅读</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statFinished">12</div>
+        <div class="stat-label">已读完</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statPages">2,847</div>
+        <div class="stat-label">本年度页数</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statStreak">28</div>
+        <div class="stat-label">连续阅读天数</div>
+      </div>
+    </div>
+    <div class="reading-list" id="readingList"></div>
+  </section>
+</main>
+
+<div class="match-popup" id="matchPopup">
+  <h2>🎉 配对成功！</h2>
+  <p id="matchText">你们都喜欢同样的书</p>
+</div>
+
+<script>
+  // ============ 数据 ============
+  const bookLovers = [
+    { name: '李思', age: 26, bio: '村上春树的狂热粉丝，喜欢在雨天读《挪威的森林》。寻找可以深夜讨论存在主义的书友。', tags: ['日本文学', '村上春树', '存在主义'], emoji: '🌧️' },
+    { name: '陈默', age: 31, bio: '科幻作家候选人，刚读完《三体》第四遍。我相信每一本好书都是一个平行宇宙。', tags: ['科幻', '刘慈欣', '阿西莫夫'], emoji: '🚀' },
+    { name: '林悦', age: 24, bio: '英文原版党，最近沉迷 Sally Rooney。也写诗，偶尔在咖啡馆朗读。', tags: ['英文原版', '现代文学', '诗歌'], emoji: '☕' },
+    { name: '王哲', age: 29, bio: '哲学系毕业，床头常备尼采和加缪。期待和你探讨"人为什么要读书"。', tags: ['哲学', '尼采', '加缪'], emoji: '🎭' },
+    { name: '苏晴', age: 27, bio: '每周读完一本书，严重书籍囤积癖。最爱推理小说，东野圭吾全集已齐。', tags: ['推理', '东野圭吾', '日式悬疑'], emoji: '🔍' },
+    { name: '张远', age: 33, bio: '历史爱好者，《史记》随身带。相信读史可以看清当下。', tags: ['历史', '非虚构', '传记'], emoji: '📜' }
+  ];
+
+  const clubs = [
+    { emoji: '🌌', name: '科幻宇宙探索者', desc: '一起探索阿西莫夫、刘慈欣、特德·姜的奇妙世界', members: 12, book: '正在读：《基地》' },
+    { emoji: '🎭', name: '经典文学品鉴', desc: '从托尔斯泰到卡夫卡，致敬不朽的文字', members: 8, book: '正在读：《安娜·卡列尼娜》' },
+    { emoji: '🧠', name: '哲学夜谈', desc: '每周三晚深度讨论一个哲学命题', members: 6, book: '正在读：《存在与虚无》' },
+    { emoji: '🔍', name: '推理小说侦探团', desc: '破解每一个巧妙的诡计，不剧透原则至上', members: 15, book: '正在读：《白夜行》' },
+    { emoji: '🌸', name: '东亚文学社', desc: '村上、三岛、余华、莫言，东方美学的共鸣', members: 10, book: '正在读：《1Q84》' },
+    { emoji: '💡', name: '非虚构读书会', desc: '历史、科学、传记，用阅读理解真实世界', members: 9, book: '正在读：《人类简史》' }
+  ];
+
+  const joinedClubs = new Set();
+
+  const messagesData = {
+    general: [
+      { name: '李思', color: '#E8A87C', time: '10:24', text: '昨晚读完了《百年孤独》的最后一章，有种时间停止的感觉 📖' },
+      { name: '陈默', color: '#7BA05B', time: '10:31', text: '马尔克斯真的是魔法师。你读的是范晔译本吗？' },
+      { name: '李思', color: '#E8A87C', time: '10:33', text: '是的！译笔真的绝了。有没有推荐的类似风格？' },
+      { name: '王哲', color: '#8B5A3C', time: '10:40', text: '可以试试《佩德罗·巴拉莫》，胡安·鲁尔福的，马尔克斯的启蒙之作。' },
+      { name: '苏晴', color: '#D96C6C', time: '11:02', text: '这个话题必须收藏！有人组读书会讨论吗？' }
+    ],
+    classics: [
+      { name: '张远', color: '#8B5A3C', time: '09:15', text: '最近在重读《战争与和平》，每次读都有新体会。' },
+      { name: '林悦', color: '#E8A87C', time: '09:22', text: '托尔斯泰笔下的娜塔莎是我最爱的女性角色之一 🌹' }
+    ],
+    scifi: [
+      { name: '陈默', color: '#7BA05B', time: '14:08', text: '《三体》电视剧拍得不错，但我还是觉得书里的宇宙感更震撼。' },
+      { name: '苏晴', color: '#D96C6C', time: '14:12', text: '"黑暗森林"这个设定真的是改变了我对宇宙的想象。' }
+    ],
+    philosophy: [
+      { name: '王哲', color: '#8B5A3C', time: '20:01', text: '今晚讨论：加缪的《西西弗神话》——推石头的意义到底是什么？' }
+    ],
+    'dm-lisa': [
+      { name: '李思', color: '#E8A87C', time: '12:00', text: '嗨！看到你也喜欢村上春树～' }
+    ],
+    'dm-tom': [
+      { name: '汤姆', color: '#7BA05B', time: '15:30', text: '周末有空吗？一起去先锋书店？' }
+    ]
+  };
+
+  let currentChannel = 'general';
+
+  const readingBooks = [
+    { emoji: '📕', title: '百年孤独', author: '加西亚·马尔克斯', current: 284, total: 360 },
+    { emoji: '📘', title: '人类简史', author: '尤瓦尔·赫拉利', current: 120, total: 440 },
+    { emoji: '📗', title: '1Q84 BOOK 1', author: '村上春树', current: 450, total: 592 }
+  ];
+
+  // ============ 导航 ============
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.view).classList.add('active');
+    });
+  });
+
+  // ============ Tinder 卡片 ============
+  let currentIdx = 0;
+  function renderCards() {
+    const stack = document.getElementById('cardStack');
+    stack.innerHTML = '';
+    if (currentIdx >= bookLovers.length) {
+      stack.innerHTML = `<div class="empty-stack"><h3>暂时没有更多书友了</h3><p>明天再来看看吧！</p></div>`;
+      return;
+    }
+    // 渲染当前和下一张
+    for (let i = Math.min(bookLovers.length - 1, currentIdx + 1); i >= currentIdx; i--) {
+      const p = bookLovers[i];
+      const card = document.createElement('div');
+      card.className = 'book-card';
+      card.style.zIndex = bookLovers.length - i;
+      if (i > currentIdx) card.style.transform = 'scale(0.96) translateY(8px)';
+      card.innerHTML = `
+        <div class="book-cover">${p.emoji}</div>
+        <div class="card-content">
+          <div class="card-name">${p.name}</div>
+          <div class="card-age">${p.age} 岁</div>
+          <div class="card-bio">${p.bio}</div>
+          <div class="card-tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        </div>
+      `;
+      stack.appendChild(card);
+    }
+  }
+
+  function swipe(dir) {
+    if (currentIdx >= bookLovers.length) return;
+    const cards = document.querySelectorAll('.book-card');
+    if (!cards.length) return;
+    const topCard = cards[cards.length - 1];
+    topCard.style.transform = dir === 'right'
+      ? 'translateX(600px) rotate(30deg)'
+      : 'translateX(-600px) rotate(-30deg)';
+    topCard.style.opacity = '0';
+
+    if (dir === 'right') {
+      const p = bookLovers[currentIdx];
+      if (Math.random() > 0.4) {
+        setTimeout(() => showMatch(p.name), 200);
+      }
+    }
+    setTimeout(() => {
+      currentIdx++;
+      renderCards();
+    }, 400);
+  }
+
+  function showInfo() {
+    if (currentIdx >= bookLovers.length) return;
+    const p = bookLovers[currentIdx];
+    alert(`${p.name}，${p.age} 岁\n\n${p.bio}\n\n阅读偏好：${p.tags.join(' · ')}`);
+  }
+
+  function showMatch(name) {
+    const popup = document.getElementById('matchPopup');
+    document.getElementById('matchText').textContent = `你和 ${name} 都喜欢对方，开始聊聊吧！`;
+    popup.classList.add('show');
+    setTimeout(() => popup.classList.remove('show'), 2400);
+  }
+
+  // ============ 读书俱乐部 ============
+  function renderClubs() {
+    const grid = document.getElementById('clubsGrid');
+    grid.innerHTML = clubs.map((c, i) => `
+      <div class="club-card">
+        <div class="club-emoji">${c.emoji}</div>
+        <div class="club-name">${c.name}</div>
+        <div class="club-desc">${c.desc}</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">${c.book}</div>
+        <div class="club-meta">
+          <span>👥 ${c.members + (joinedClubs.has(i) ? 1 : 0)} 位成员</span>
+          <button class="join-btn ${joinedClubs.has(i) ? 'joined' : ''}" onclick="toggleClub(${i}, event)">
+            ${joinedClubs.has(i) ? '已加入 ✓' : '加入'}
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+  function toggleClub(i, e) {
+    e.stopPropagation();
+    if (joinedClubs.has(i)) joinedClubs.delete(i);
+    else joinedClubs.add(i);
+    renderClubs();
+  }
+
+  // ============ 论坛 ============
+  function renderMessages() {
+    const list = messagesData[currentChannel] || [];
+    document.getElementById('messages').innerHTML = list.map(m => `
+      <div class="message">
+        <div class="msg-avatar" style="background:${m.color}">${m.name[0]}</div>
+        <div class="msg-body">
+          <div class="msg-head">
+            <span class="msg-name">${m.name}</span>
+            <span class="msg-time">${m.time}</span>
+          </div>
+          <div class="msg-text">${m.text}</div>
+        </div>
+      </div>
+    `).join('');
+    const box = document.getElementById('messages');
+    box.scrollTop = box.scrollHeight;
+  }
+
+  document.querySelectorAll('.channel-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.channel-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      currentChannel = item.dataset.channel;
+      document.getElementById('chatHeader').textContent = item.dataset.name;
+      if (!messagesData[currentChannel]) messagesData[currentChannel] = [];
+      renderMessages();
+    });
+  });
+
+  function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const text = input.value.trim();
+    if (!text) return;
+    if (!messagesData[currentChannel]) messagesData[currentChannel] = [];
+    const now = new Date();
+    const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    messagesData[currentChannel].push({
+      name: '我', color: 'var(--primary)', time, text
+    });
+    input.value = '';
+    renderMessages();
+  }
+
+  // ============ 阅读进度 ============
+  function renderReading() {
+    document.getElementById('readingList').innerHTML = readingBooks.map((b, i) => {
+      const pct = Math.round((b.current / b.total) * 100);
+      return `
+        <div class="reading-item">
+          <div class="book-thumb">${b.emoji}</div>
+          <div class="reading-info">
+            <h4>${b.title}</h4>
+            <p>${b.author}</p>
+            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+            <div class="progress-text">${b.current} / ${b.total} 页 · ${pct}%</div>
+          </div>
+          <button class="update-btn" onclick="updateProgress(${i})">更新</button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function updateProgress(i) {
+    const b = readingBooks[i];
+    const val = prompt(`${b.title}\n当前进度：${b.current}/${b.total} 页\n\n请输入新的页数：`, b.current);
+    if (val === null) return;
+    const n = parseInt(val);
+    if (!isNaN(n) && n >= 0 && n <= b.total) {
+      b.current = n;
+      renderReading();
+      if (n === b.total) {
+        setTimeout(() => alert(`🎉 恭喜读完《${b.title}》！`), 200);
+      }
+    }
+  }
+
+  // ============ 初始化 ============
+  renderCards();
+  renderClubs();
+  renderMessages();
+  renderReading();
+</script>
+</body>
+</html>

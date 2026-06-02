@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Banking Platform</title>
+    <style>
+        /* General Reset */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        header nav a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main Content */
+        main {
+            padding: 2rem;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 1.5rem;
+            width: calc(33.333% - 2rem);
+            min-width: 300px;
+            flex: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .card h2, .card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .card button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .card button:hover {
+            background-color: #45a049;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+        }
+
+        .modal-content button {
+            float: right;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>Digital Banking Platform</h1>
+        <nav>
+            <a href="#">Home</a>
+            <a href="#">Accounts</a>
+            <a href="#">Transactions</a>
+            <a href="#">Support</a>
+        </nav>
+    </header>
+
+    <!-- Main Section -->
+    <main>
+        <div class="flex-container">
+            <div class="card">
+                <h2>Account Overview</h2>
+                <h3>Balance: $5,230.45</h3>
+                <button onclick="showModal('ViewDetails')">View Details</button>
+            </div>
+            
+            <div class="card">
+                <h2>Recent Transactions</h2>
+                <ul>
+                    <li>Payment to ABC Store - $200</li>
+                    <li>Deposit from Employer - $3,000</li>
+                    <li>Utility Bill - $150</li>
+                </ul>
+                <button onclick="showModal('ViewTransactions')">View All</button>
+            </div>
+
+            <div class="card">
+                <h2>Transfer Funds</h2>
+                <button onclick="showModal('TransferFunds')">Make a Transfer</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2023 Digital Banking Platform. All rights reserved.</p>
+    </footer>
+
+    <!-- Modals -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span id="modal-close" onclick="closeModal()" style="cursor:pointer; float:right; font-size:1.5rem;">&times;</span>
+            <h2 id="modal-title"></h2>
+            <div id="modal-body">
+                <p>Content goes here...</p>
+            </div>
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function showModal(contentType) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+
+            // Update modal content based on the button clicked
+            if (contentType === 'ViewDetails') {
+                modalTitle.textContent = 'Account Details';
+                modalBody.innerHTML = '<p>Here you can view your account details.</p>';
+            } else if (contentType === 'ViewTransactions') {
+                modalTitle.textContent = 'Transaction History';
+                modalBody.innerHTML = '<p>Here you can review all your transactions.</p>';
+            } else if (contentType === 'TransferFunds') {
+                modalTitle.textContent = 'Transfer Funds';
+                modalBody.innerHTML = '<form>' +
+                    '<label for="recipient">Recipient:</label><br>' +
+                    '<input type="text" id="recipient" name="recipient" required><br>' +
+                    '<label for="amount">Amount:</label><br>' +
+                    '<input type="number" id="amount" name="amount" required><br><br>' +
+                    '<button type="submit">Submit</button>' +
+                    '</form>';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

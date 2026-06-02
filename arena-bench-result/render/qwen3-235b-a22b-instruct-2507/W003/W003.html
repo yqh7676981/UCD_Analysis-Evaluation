@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>番茄工作法计时器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            touch-action: manipulation;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #d73a49;
+        }
+
+        .timer {
+            font-size: 60px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .status {
+            font-size: 18px;
+            margin-bottom: 25px;
+            color: #666;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        button {
+            padding: 14px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 12px;
+            background-color: #d73a49;
+            color: white;
+            cursor: pointer;
+            flex: 1;
+            max-width: 100px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            opacity: 0.9;
+        }
+
+        #startPauseBtn {
+            background-color: #28a745;
+        }
+
+        #resetBtn {
+            background-color: #6c757d;
+        }
+
+        .pomodoros {
+            font-size: 18px;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 375px) {
+            .timer {
+                font-size: 50px;
+            }
+
+            button {
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>番茄工作法</h1>
+        <div class="status" id="status">工作时间</div>
+        <div class="timer" id="timer">25:00</div>
+        <div class="controls">
+            <button id="startPauseBtn">开始</button>
+            <button id="resetBtn">重置</button>
+        </div>
+        <div class="pomodoros">今日已完成 <span id="pomodoroCount">0</span> 个番茄钟</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerDisplay = document.getElementById('timer');
+            const statusDisplay = document.getElementById('status');
+            const startPauseBtn = document.getElementById('startPauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const pomodoroCountDisplay = document.getElementById('pomodoroCount');
+
+            const workDuration = 25 * 60; // 25分钟（秒）
+            const breakDuration = 5 * 60;  // 5分钟（秒）
+
+            let isWorking = true;
+            let isRunning = false;
+            let timeLeft = workDuration;
+            let intervalId = null;
+            let pomodoroCount = 0;
+
+            // 从 localStorage 恢复当天的番茄数
+            const today = new Date().toDateString();
+            const storedDate = localStorage.getItem('pomodoroDate');
+            if (storedDate === today) {
+                pomodoroCount = parseInt(localStorage.getItem('pomodoroCount') || '0', 10);
+                pomodoroCountDisplay.textContent = pomodoroCount;
+            } else {
+                // 新的一天，重置计数
+                pomodoroCount = 0;
+                localStorage.setItem('pomodoroDate', today);
+                localStorage.setItem('pomodoroCount', '0');
+                pomodoroCountDisplay.textContent = '0';
+            }
+
+            function updateDisplay() {
+                const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                const seconds = (timeLeft % 60).toString().padStart(2, '0');
+                timerDisplay.textContent = `${minutes}:${seconds}`;
+            }
+
+            function startTimer() {
+                if (isRunning) return;
+
+                isRunning = true;
+                startPauseBtn.textContent = '暂停';
+
+                intervalId = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+
+                    if (timeLeft <= 0) {
+                        // 时间到，播放提示音（如果支持）
+                        if ('vibrate' in navigator) {
+                            navigator.vibrate(200);
+                        }
+
+                        // 切换状态
+                        isWorking = !isWorking;
+                        timeLeft = isWorking ? workDuration : breakDuration;
+                        statusDisplay.textContent = isWorking ? '工作时间' : '休息时间';
+
+                        // 如果完成了一个完整的工作周期，则增加番茄数
+                        if (!isWorking) {
+                            pomodoroCount++;
+                            pomodoroCountDisplay.textContent = pomodoroCount;
+                            
+                            // 保存到 localStorage
+                            localStorage.setItem('pomodoroCount', pomodoroCount.toString());
+                        }
+
+                        // 自动开始下一个阶段
+                        // 不自动开始，等待用户点击“开始”
+                        clearInterval(intervalId);
+                        intervalId = null;
+                        isRunning = false;
+                        startPauseBtn.textContent = '开始';
+                    }
+                }, 1000);
+            }
+
+            function pauseTimer() {
+                clearInterval(intervalId);
+                intervalId = null;
+                isRunning = false;
+                startPauseBtn.textContent = '开始';
+            }
+
+            function resetTimer() {
+                clearInterval(intervalId);
+                intervalId = null;
+                isRunning = false;
+                isWorking = true;
+                timeLeft = workDuration;
+                statusDisplay.textContent = '工作时间';
+                startPauseBtn.textContent = '开始';
+                updateDisplay();
+            }
+
+            startPauseBtn.addEventListener('click', () => {
+                if (isRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+
+            resetBtn.addEventListener('click', resetTimer);
+
+            // 初始化显示
+            updateDisplay();
+
+            // 页面卸载前保存日期（确保每天重置）
+            window.addEventListener('beforeunload', () => {
+                if (new Date().toDateString() !== localStorage.getItem('pomodoroDate')) {
+                    localStorage.setItem('pomodoroDate', new Date().toDateString());
+                    localStorage.setItem('pomodoroCount', '0');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

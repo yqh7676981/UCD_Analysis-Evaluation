@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视觉辅助：揭示复合增长的力量</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #007bff; /* 蓝色 */
+            --secondary-color: #6c757d; /* 灰色 */
+            --accent-color: #28a745; /* 绿色 */
+            --background-light: #f8f9fa;
+            --text-dark: #343a40;
+            --text-light: #ffffff;
+            --border-color: #dee2e6;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-color);
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+        }
+
+        p {
+            margin-bottom: 1em;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* 布局容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 40px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px var(--shadow-light);
+        }
+
+        header h1 {
+            color: var(--text-light);
+            font-size: 2.8em;
+            margin-bottom: 0.2em;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 0;
+        }
+
+        /* 内容 सेक्शन */
+        section {
+            padding: 40px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        section:last-of-type {
+            border-bottom: none;
+        }
+
+        section h2 {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 1.5em;
+            color: var(--text-dark);
+        }
+
+        .text-block {
+            background-color: var(--text-light);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            margin-bottom: 30px;
+        }
+
+        .text-block p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: var(--secondary-color);
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            background-color: var(--text-light);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow-light);
+            margin-top: 30px;
+        }
+
+        /* 脚注 */
+        footer {
+            background-color: var(--text-dark);
+            color: var(--text-light);
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+            font-size: 0.9em;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            header p {
+                font-size: 1em;
+            }
+
+            section h2 {
+                font-size: 1.8em;
+            }
+
+            .text-block, .chart-container {
+                padding: 20px;
+                margin-bottom: 20px;
+                margin-top: 20px;
+            }
+        }
+    </style>
+    <!-- 引入 Chart.js 库 (通过 CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>视觉辅助：揭示复合增长的力量</h1>
+            <p>理解长期投资的指数级潜力</p>
+        </div>
+    </header>
+
+    <main>
+        <section id="introduction">
+            <div class="container">
+                <h2>什么是复合增长？</h2>
+                <div class="text-block">
+                    <p>复合增长，俗称“利滚利”，是一种强大的投资现象。它指的是你的投资不仅能从初始本金中赚取收益，还能从之前赚取的收益中再次赚取收益。随着时间的推移，这种效应会像雪球一样越滚越大，使得你的资金以指数级而非线性方式增长。</p>
+                    <p>当你的投资收益再投资时，你就为未来的更高收益创造了更大的基础。时间是复合增长最重要的盟友。开始得越早，复利效应发挥作用的时间就越长，你的财富增长就越显著。即使是小额定期投资，经过数十年的复利，也能积累成可观的财富。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="sp500-growth">
+            <div class="container">
+                <h2>标准普尔 500 指数：长期增长的典范</h2>
+                <div class="text-block">
+                    <p>标准普尔 500 指数（S&P 500）是美国股市最具代表性的指数之一，它追踪了美国 500 家大型上市公司的股票表现。由于其广泛的多元化和美国经济的长期增长趋势，S&P 500 指数在过去几十年中展现了显著的长期复合增长。</p>
+                    <p>下面的图表直观地展示了S&P 500指数的假设增长路径。请注意，这是一个模拟图表，旨在说明复利概念和长期趋势，不代表实际历史表现，也不构成投资建议。但它清晰地说明了，即使市场波动，长期来看，复合增长的力量如何将初始投资转化为巨大的财富。</p>
+                </div>
+
+                <div class="chart-container">
+                    <h3>S&P 500 模拟增长图表（1970 - 2023）</h3>
+                    <canvas id="sp500Chart"></canvas>
+                    <p style="font-size: 0.9em; text-align: center; color: var(--secondary-color); margin-top: 20px;">
+                        *此图表为模拟数据，旨在说明长期复利效应，并非历史精确数据。实际市场表现受多种因素影响，过往业绩不预示未来表现。
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 视觉辅助复合增长. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 生成模拟 S&P 500 数据
+            function generateSP500Data(startYear, endYear, initialValue, averageReturn) {
+                const years = [];
+                const values = [];
+                let currentValue = initialValue;
+
+                for (let year = startYear; year <= endYear; year++) {
+                    years.push(year);
+                    // 模拟年回报率，在平均回报率基础上增加随机波动
+                    // 波动范围大约是 -6% 到 +6%
+                    const annualReturn = averageReturn + (Math.random() - 0.5) * 0.12;
+                    currentValue *= (1 + annualReturn);
+                    values.push(parseFloat(currentValue.toFixed(2))); // 保留两位小数
+                }
+                return { years, values };
+            }
+
+            const startYear = 1970;
+            const endYear = 2023;
+            const initialInvestment = 100; // 假设起始投资单位
+            const avgAnnualReturn = 0.09; // 假设平均年回报率 9%
+
+            const { years, values } = generateSP500Data(startYear, endYear, initialInvestment, avgAnnualReturn);
+
+            const ctx = document.getElementById('sp500Chart').getContext('2d');
+
+            const sp500Chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years.map(year => new Date(year, 0, 1)), // 将年份转换为 Date 对象
+                    datasets: [{
+                        label: '模拟S&P 500 指数增长 ($)',
+                        data: values,
+                        borderColor: '#28a745', /* accent-color */
+                        backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                        fill: true,
+                        tension: 0.3, // 使曲线更平滑
+                        pointRadius: 0, // 隐藏数据点
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    family: 'Montserrat'
+                                },
+                                color: var(--text-dark)
+                            }
+                        },
+                        title: {
+                            display: false, // 标题已在 HTML 中
+                            text: 'S&P 500 指数模拟增长',
+                            font: {
+                                size: 18,
+                                family: 'Montserrat'
+                            },
+                            color: var(--text-dark)
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return '年份: ' + context[0].label.split(',')[0];
+                                },
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += '$' + context.parsed.y.toFixed(2);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'year',
+                                tooltipFormat: 'yyyy',
+                                displayFormats: {
+                                    year: 'yyyy'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: '年份',
+                                font: {
+                                    size: 14,
+                                    family: 'Montserrat'
+                                },
+                                color: var(--text-dark)
+                            },
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Open Sans'
+                                },
+                                color: var(--secondary-color)
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '指数值 ($)',
+                                font: {
+                                    size: 14,
+                                    family: 'Montserrat'
+                                },
+                                color: var(--text-dark)
+                            },
+                            ticks: {
+                                callback: function(value, index, ticks) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                font: {
+                                    family: 'Open Sans'
+                                },
+                                color: var(--secondary-color)
+                            },
+                            grid: {
+                                color: var(--border-color)
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

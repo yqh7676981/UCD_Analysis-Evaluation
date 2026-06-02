@@ -1,0 +1,33 @@
+{
+  "index": 127,
+  "id": "U002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做一个朋友聚餐 AA 记账小工具，可以添加参与人、记录每笔消费和付款人，最后自动算出谁该给谁转多少钱。",
+  "evaluation": {
+    "total_score": 72,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The interface has a coherent lightweight mobile tool style with rounded white cards, soft shadows, and clear sectioning that fits a casual bill-splitting scenario. However, the visual language is somewhat generic, the blue/orange/green action colors compete, and the decorative emoji-like icons reduce product-system polish."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Spacing, card padding, and alignment are mostly stable, and text is readable at mobile size. But several details feel unfinished: emoji/colored-symbol icons are inconsistent, the close/delete marks appear visually detached, secondary helper text is light and weak, and component interior styling is basic rather than refined."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "The page has a straightforward top-to-bottom flow: add participants, record expense, review records, then settle. Section titles are clear, major actions are visible, and content density is controlled. Minor issues remain because the settlement result area is not shown, participant chips and action buttons share similar prominence, and the key next step after adding records is only implied by the bottom button."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Core concepts are easy to understand for this scenario: participant input, amount, payer, shared people, record list, and final settlement. Still, some semantics are underexplained: selected share participants rely only on filled chip styling, deletion uses a bare red × without label, and there is no visible settlement output or confirmation behavior for critical actions."
+      }
+    },
+    "summary": "This is a solid, usable mobile AA bookkeeping tool with a clear linear flow and acceptable visual consistency. Users can likely add people, log expenses, and find the settlement action without confusion. The score is capped by generic styling, inconsistent icon treatment, limited state clarity, and the absence of visible final settlement results or stronger operation feedback in the presented screen."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U002_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:45:35.867575"
+}

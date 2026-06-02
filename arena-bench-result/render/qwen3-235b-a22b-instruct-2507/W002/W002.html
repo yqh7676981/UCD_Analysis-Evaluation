@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>事件倒计时工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .countdown-display {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            margin: 20px 0;
+            box-shadow: 0 8px 20px rgba(37, 117, 252, 0.3);
+        }
+
+        .countdown-title {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+        }
+
+        .countdown-days {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .countdown-message {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .events-list {
+            margin: 20px 0;
+        }
+
+        .event-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+
+        .event-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .event-date {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .add-form {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin: 20px 0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            background-color: white;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+
+        .add-btn:hover {
+            opacity: 0.9;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #7f8c8d;
+            padding: 40px 0;
+            font-size: 1.1rem;
+        }
+
+        .no-events {
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>倒计时工具</h1>
+
+    <div class="countdown-display">
+        <div class="countdown-title">最近的事件</div>
+        <div class="countdown-days" id="nextDays">--</div>
+        <div class="countdown-message" id="nextEventName">添加一个事件开始倒计时</div>
+    </div>
+
+    <div class="add-form">
+        <div class="form-group">
+            <label for="eventName">事件名称</label>
+            <input type="text" id="eventName" placeholder="例如：张三生日、项目截止" />
+        </div>
+        <div class="form-group">
+            <label for="eventDate">事件日期</label>
+            <input type="date" id="eventDate" />
+        </div>
+        <button class="add-btn" onclick="addEvent()">添加事件</button>
+    </div>
+
+    <div class="events-list" id="eventsList"></div>
+
+    <script>
+        // 初始化事件列表
+        let events = JSON.parse(localStorage.getItem('countdownEvents')) || [];
+
+        // 设置最小日期为今天
+        document.getElementById('eventDate').min = new Date().toISOString().split('T')[0];
+
+        // 添加事件
+        function addEvent() {
+            const nameInput = document.getElementById('eventName');
+            const dateInput = document.getElementById('eventDate');
+
+            const name = nameInput.value.trim();
+            const dateStr = dateInput.value;
+
+            if (!name) {
+                alert('请输入事件名称');
+                return;
+            }
+            if (!dateStr) {
+                alert('请选择事件日期');
+                return;
+            }
+
+            const date = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (date < today) {
+                alert('不能选择过去的日期');
+                return;
+            }
+
+            const event = {
+                id: Date.now(),
+                name,
+                date: dateStr
+            };
+
+            events.push(event);
+            saveEvents();
+            renderEvents();
+            updateNextEvent();
+
+            // 清空输入框
+            nameInput.value = '';
+            dateInput.value = '';
+        }
+
+        // 删除事件
+        function deleteEvent(id) {
+            events = events.filter(e => e.id !== id);
+            saveEvents();
+            renderEvents();
+            updateNextEvent();
+        }
+
+        // 保存到本地存储
+        function saveEvents() {
+            localStorage.setItem('countdownEvents', JSON.stringify(events));
+        }
+
+        // 渲染事件列表
+        function renderEvents() {
+            const listEl = document.getElementById('eventsList');
+            if (events.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div>还没有添加任何事件</div>
+                        <div class="no-events">在上方添加你的第一个倒计时吧！</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // 按日期排序（从近到远）
+            events.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            listEl.innerHTML = events.map(e => {
+                const eventDate = new Date(e.date);
+                const formattedDate = eventDate.toLocaleDateString('zh-CN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                const diffTime = eventDate - new Date();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                let timeDesc = '';
+                if (diffDays === 0) {
+                    timeDesc = '今天';
+                } else if (diffDays === 1) {
+                    timeDesc = '明天';
+                } else {
+                    timeDesc = `${diffDays} 天后`;
+                }
+
+                return `
+                    <div class="event-item">
+                        <div class="event-info">
+                            <div class="event-name">${e.name}</div>
+                            <div class="event-date">${formattedDate} (${timeDesc})</div>
+                        </div>
+                        <button class="delete-btn" onclick="deleteEvent(${e.id})">×</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 更新最近事件显示
+        function updateNextEvent() {
+            if (events.length === 0) {
+                document.getElementById('nextDays').textContent = '--';
+                document.getElementById('nextEventName').textContent = '添加一个事件开始倒计时';
+                return;
+            }
+
+            // 找到最近的事件
+            const sortedEvents = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+            const nextEvent = sortedEvents[0];
+            const nextDate = new Date(nextEvent.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const diffTime = nextDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            document.getElementById('nextDays').textContent = diffDays;
+            document.getElementById('nextEventName').textContent = `距离 "${nextEvent.name}" 还有 ${diffDays} 天`;
+        }
+
+        // 页面加载完成后初始化
+        window.onload = function () {
+            renderEvents();
+            updateNextEvent();
+        };
+    </script>
+</body>
+</html>

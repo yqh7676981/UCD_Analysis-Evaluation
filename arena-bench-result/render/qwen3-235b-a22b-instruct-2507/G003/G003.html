@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>16x16像素画板</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin: 10px 0;
+      text-align: center;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .color-palette {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .color-option {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid #ddd;
+      transition: transform 0.1s, border-color 0.2s;
+    }
+    .color-option.selected {
+      border-color: #333;
+      transform: scale(1.1);
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button {
+      padding: 12px 16px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #3a7bc8;
+    }
+    button#clear {
+      background-color: #ff6b6b;
+    }
+    button#clear:hover {
+      background-color: #ff5252;
+    }
+    button#preview {
+      background-color: #51cf66;
+    }
+    button#preview:hover {
+      background-color: #4bbf5c;
+    }
+    .pixel-board {
+      display: grid;
+      grid-template-columns: repeat(16, 20px);
+      grid-template-rows: repeat(16, 20px);
+      gap: 1px;
+      border: 2px solid #ccc;
+      background-color: #ccc;
+      margin: 10px auto;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .pixel {
+      width: 20px;
+      height: 20px;
+      background-color: white;
+      cursor: pointer;
+      transition: background-color 0.1s;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal.show {
+      display: flex;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 90%;
+      max-height: 90%;
+      overflow: auto;
+    }
+    .preview-board {
+      display: grid;
+      grid-template-columns: repeat(16, 15px);
+      grid-template-rows: repeat(16, 15px);
+      gap: 1px;
+      border: 2px solid #333;
+      background-color: #999;
+      margin: 15px auto;
+    }
+    .preview-pixel {
+      width: 15px;
+      height: 15px;
+    }
+    .close {
+      font-size: 1.5rem;
+      color: #fff;
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>16x16 像素画板</h1>
+
+  <div class="color-palette">
+    <div class="color-option selected" data-color="#000000"></div>
+    <div class="color-option" data-color="#ffffff"></div>
+    <div class="color-option" data-color="#ff0000"></div>
+    <div class="color-option" data-color="#00ff00"></div>
+    <div class="color-option" data-color="#0000ff"></div>
+    <div class="color-option" data-color="#ffff00"></div>
+    <div class="color-option" data-color="#00ffff"></div>
+    <div class="color-option" data-color="#ff00ff"></div>
+    <div class="color-option" data-color="#ffa500"></div>
+    <div class="color-option" data-color="#800080"></div>
+    <div class="color-option" data-color="#808080"></div>
+    <div class="color-option" data-color="#008000"></div>
+    <div class="color-option" data-color="#800000"></div>
+    <div class="color-option" data-color="#008080"></div>
+    <div class="color-option" data-color="#c0c0c0"></div>
+    <div class="color-option" data-color="#ffdead"></div>
+  </div>
+
+  <div class="toolbar">
+    <button id="eraser">橡皮擦</button>
+  </div>
+
+  <div class="pixel-board" id="board"></div>
+
+  <div class="controls">
+    <button id="clear">清空画板</button>
+    <button id="preview">预览作品</button>
+  </div>
+
+  <div class="modal" id="previewModal">
+    <span class="close" id="closePreview">&times;</span>
+    <div class="modal-content">
+      <h2>我的作品</h2>
+      <div class="preview-board" id="previewBoard"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const board = document.getElementById('board');
+      const previewBoard = document.getElementById('previewBoard');
+      const previewModal = document.getElementById('previewModal');
+      const closePreview = document.getElementById('closePreview');
+      const clearBtn = document.getElementById('clear');
+      const previewBtn = document.getElementById('preview');
+      const eraserBtn = document.getElementById('eraser');
+      const colorOptions = document.querySelectorAll('.color-option');
+
+      let selectedColor = '#000000';
+      let isEraserActive = false;
+
+      // 创建16x16像素画板
+      for (let i = 0; i < 16; i++) {
+        for (let j = 0; j < 16; j++) {
+          const pixel = document.createElement('div');
+          pixel.classList.add('pixel');
+          pixel.dataset.row = i;
+          pixel.dataset.col = j;
+          board.appendChild(pixel);
+        }
+      }
+
+      // 创建预览画板
+      for (let i = 0; i < 16; i++) {
+        for (let j = 0; j < 16; j++) {
+          const previewPixel = document.createElement('div');
+          previewPixel.classList.add('preview-pixel');
+          previewBoard.appendChild(previewPixel);
+        }
+      }
+
+      // 颜色选择
+      colorOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          colorOptions.forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+          selectedColor = option.dataset.color;
+          isEraserActive = false;
+        });
+      });
+
+      // 橡皮擦功能
+      eraserBtn.addEventListener('click', () => {
+        isEraserActive = true;
+        colorOptions.forEach(opt => opt.classList.remove('selected'));
+      });
+
+      // 清空画板
+      clearBtn.addEventListener('click', () => {
+        document.querySelectorAll('.pixel').forEach(px => {
+          px.style.backgroundColor = 'white';
+        });
+      });
+
+      // 预览作品
+      previewBtn.addEventListener('click', () => {
+        const pixels = document.querySelectorAll('.pixel');
+        const previewPixels = document.querySelectorAll('.preview-pixel');
+        
+        previewPixels.forEach((pp, index) => {
+          pp.style.backgroundColor = pixels[index].style.backgroundColor || 'white';
+        });
+        
+        previewModal.classList.add('show');
+      });
+
+      // 关闭预览
+      closePreview.addEventListener('click', () => {
+        previewModal.classList.remove('show');
+      });
+
+      // 点击外部关闭预览
+      previewModal.addEventListener('click', (e) => {
+        if (e.target === previewModal) {
+          previewModal.classList.remove('show');
+        }
+      });
+
+      // 给每个像素格添加点击事件
+      board.addEventListener('click', (e) => {
+        if (e.target.classList.contains('pixel')) {
+          const pixel = e.target;
+          if (isEraserActive) {
+            pixel.style.backgroundColor = 'white';
+          } else {
+            pixel.style.backgroundColor = selectedColor;
+          }
+        }
+      });
+
+      // 触摸支持（移动端）
+      board.addEventListener('touchstart', handleTouchStart, false);
+      board.addEventListener('touchmove', handleTouchMove, false);
+
+      let lastTouchedPixel = null;
+
+      function handleTouchStart(e) {
+        const touch = e.touches[0];
+        const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (pixel && pixel.classList.contains('pixel')) {
+          colorPixel(pixel);
+          lastTouchedPixel = pixel;
+        }
+      }
+
+      function handleTouchMove(e) {
+        const touch = e.touches[0];
+        const pixel = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (pixel && pixel.classList.contains('pixel') && pixel !== lastTouchedPixel) {
+          colorPixel(pixel);
+          lastTouchedPixel = pixel;
+        }
+      }
+
+      function colorPixel(pixel) {
+        if (isEraserActive) {
+          pixel.style.backgroundColor = 'white';
+        } else {
+          pixel.style.backgroundColor = selectedColor;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

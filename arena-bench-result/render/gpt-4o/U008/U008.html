@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情日记本</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #4caf50;
+            color: white;
+            text-align: center;
+            padding: 15px 10px;
+            font-size: 24px;
+        }
+
+        main {
+            padding: 15px;
+        }
+
+        .mood-selection {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+        }
+
+        .mood-btn {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .mood-btn[data-mood="开心"] { background-color: #ffeb3b; }
+        .mood-btn[data-mood="平静"] { background-color: #2196f3; color: white; }
+        .mood-btn[data-mood="焦虑"] { background-color: #ff5722; color: white; }
+        .mood-btn[data-mood="低落"] { background-color: #9e9e9e; color: white; }
+
+        .mood-btn:hover {
+            opacity: 0.8;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 15px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            padding: 10px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .mood-statistics {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .mood-bar {
+            height: 15px;
+            background-color: #ccc;
+            border-radius: 5px;
+            margin: 5px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mood-segment {
+            height: 100%;
+            position: absolute;
+        }
+
+        .mood-segment[data-mood="开心"] { background-color: #ffeb3b; }
+        .mood-segment[data-mood="平静"] { background-color: #2196f3; }
+        .mood-segment[data-mood="焦虑"] { background-color: #ff5722; }
+        .mood-segment[data-mood="低落"] { background-color: #9e9e9e; }
+    </style>
+</head>
+<body>
+
+    <header>
+        心情日记本
+    </header>
+
+    <main>
+        <div>
+            <h3>选择你的心情：</h3>
+            <div class="mood-selection">
+                <button class="mood-btn" data-mood="开心" onclick="selectMood('开心')">开心</button>
+                <button class="mood-btn" data-mood="平静" onclick="selectMood('平静')">平静</button>
+                <button class="mood-btn" data-mood="焦虑" onclick="selectMood('焦虑')">焦虑</button>
+                <button class="mood-btn" data-mood="低落" onclick="selectMood('低落')">低落</button>
+            </div>
+        </div>
+
+        <div>
+            <h3>写下你的日记：</h3>
+            <textarea id="diaryInput" placeholder="写下你的心情和事件..."></textarea>
+            <button onclick="saveEntry()">保存心情</button>
+        </div>
+
+        <div class="mood-statistics">
+            <h3>本月心情分布：</h3>
+            <div id="moodBar" class="mood-bar"></div>
+        </div>
+    </main>
+
+    <script>
+        let moodData = {};
+
+        function selectMood(mood) {
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.style.borderWidth = btn.getAttribute("data-mood") === mood ? "2px" : "1px";
+            });
+            document.querySelector('#diaryInput').dataset.mood = mood;
+        }
+
+    
+    </script>
+</body>
+</html>

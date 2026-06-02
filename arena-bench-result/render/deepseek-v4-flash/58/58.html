@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thai Orchid – Authentic Thai Cuisine</title>
+    <!-- Google Fonts for a warm, elegant feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Prompt:wght@300;400;600&display=swap"
+        rel="stylesheet"
+    />
+    <style>
+        /* ---------- Reset & Base ---------- */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Prompt', 'Segoe UI', Tahoma, sans-serif;
+            font-weight: 300;
+            color: #3e2c1b;
+            background-color: #fcf8f0;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+
+        /* ---------- Color palette ---------- */
+        :root {
+            --deep-red: #b13b2e;
+            --warm-gold: #d4a24e;
+            --cream: #fef9f0;
+            --dark-wood: #5a3e2b;
+            --soft-green: #5a7a5a;
+            --light-bg: #fcf8f0;
+            --card-shadow: 0 10px 25px rgba(90, 62, 43, 0.1);
+        }
+
+        /* ---------- Header & Navigation ---------- */
+        header {
+            background: var(--deep-red);
+            color: var(--cream);
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fbe9c3;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo span {
+            font-family: 'Prompt', sans-serif;
+            font-weight: 300;
+            font-size: 1rem;
+            color: #f5d6a8;
+            display: block;
+            margin-top: -0.2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--cream);
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fbe9c3;
+        }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            background: linear-gradient(135deg, #a83226 0%, #d45d3a 100%);
+            color: white;
+            text-align: center;
+            padding: 5rem 1.5rem;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.95;
+        }
+
+        .hero .btn {
+            display: inline-block;
+            background: var(--warm-gold);
+            color: #2c1e0f;
+            padding: 0.8rem 2.5rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, background 0.3s;
+        }
+
+        .hero .btn:hover {
+            background: #e8bc73;
+            transform: scale(1.03);
+        }
+
+        /* ---------- Section Headings ---------- */
+        section {
+            padding: 3rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.4rem;
+            color: var(--dark-wood);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '🍜';
+            display: block;
+            font-size: 1.6rem;
+            margin-top: 0.3rem;
+            opacity: 0.6;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-weight: 300;
+            color: #6a4e3a;
+            margin-top: -0.8rem;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* ---------- About ---------- */
+        .about-text {
+            max-width: 750px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #4d3624;
+        }
+
+        .about-text .decor {
+            font-size: 2rem;
+            display: block;
+            margin: 1rem 0 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* ---------- Menu ---------- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.8rem 1.2rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(90, 62, 43, 0.15);
+        }
+
+        .menu-card .icon {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-card h3 {
+            font-size: 1.5rem;
+            color: var(--deep-red);
+            margin-bottom: 0.3rem;
+        }
+
+        .menu-card .desc {
+            font-weight: 300;
+            font-size: 0.95rem;
+            color: #5c4635;
+            margin-bottom: 1rem;
+        }
+
+        .menu-card .price {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--dark-wood);
+        }
+
+        /* ---------- Hours ---------- */
+        .hours-wrapper {
+            max-width: 550px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem 2.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .hours-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hours-table td {
+            padding: 0.6rem 0.5rem;
+            border-bottom: 1px solid #f0e3d6;
+            font-size: 1rem;
+        }
+
+        .hours-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .hours-table .day {
+            font-weight: 500;
+            color: var(--deep-red);
+        }
+
+        .hours-table .time {
+            text-align: right;
+            font-weight: 300;
+        }
+
+        .hours-note {
+            text-align: center;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #6a4e3a;
+        }
+
+        /* ---------- Reservation ---------- */
+        .reservation-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            flex: 1 1 200px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 400;
+            color: var(--dark-wood);
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #ddd0c0;
+            border-radius: 30px;
+            font-family: 'Prompt', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            background: #fefcf8;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--warm-gold);
+            box-shadow: 0 0 0 3px rgba(212, 162, 78, 0.2);
+        }
+
+        .form-group textarea {
+            border-radius: 20px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-submit {
+            display: inline-block;
+            background: var(--deep-red);
+            color: white;
+            padding: 0.9rem 2.8rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: #942f22;
+            transform: scale(1.02);
+        }
+
+        .form-message {
+            margin-top: 1.2rem;
+            text-align: center;
+            font-weight: 300;
+            padding: 0.8rem;
+            border-radius: 30px;
+            display: none;
+        }
+
+        .form-message.success {
+            display: block;
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .form-message.error {
+            display: block;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* ---------- Footer ---------- */
+        footer {
+            background: var(--dark-wood);
+            color: #efe4d5;
+            padding: 2.5rem 1.5rem 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-col h4 {
+            color: var(--warm-gold);
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .footer-col p,
+        .footer-col a {
+            font-weight: 300;
+            color: #dbcebd;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .footer-col a:hover {
+            color: var(--warm-gold);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #b7a48e;
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+            }
+
+            nav ul {
+                justify-content: center;
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .hours-wrapper {
+                padding: 1.5rem;
+            }
+
+            .reservation-form {
+                padding: 1.5rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+        }
+
+        /* ---------- Utility ---------- */
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-inner">
+            <div class="logo">
+                Thai Orchid
+                <span>Authentic Thai Cuisine</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#menu">Menu</a></li>
+                    <li><a href="#hours">Hours</a></li>
+                    <li><a href="#reservation">Reservation</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Welcome to Thai Orchid</h1>
+            <p>
+                Experience the rich, aromatic flavours of Thailand in a warm and inviting setting.
+                Fresh ingredients, traditional recipes, and a smile that never fades.
+            </p>
+            <a href="#reservation" class="btn">Book a Table</a>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section>
+        <div class="container">
+            <h2 class="section-title">Our Story</h2>
+            <div class="about-text">
+                <p>
+                    At Thai Orchid, we believe that food is the heart of every gathering.
+                    Our chefs bring generations of family recipes from the streets of Bangkok
+                    to your plate. Every dish is carefully crafted with fresh herbs, authentic
+                    spices, and a dash of love. Whether you join us for a casual dinner or a
+                    festive celebration, we promise a journey of taste that will transport you
+                    straight to Thailand.
+                </p>
+                <span class="decor">&#127798; &#127836; &#127835;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- MENU -->
+    <section id="menu" style="background: #f5ede4;">
+        <div class="container">
+            <h2 class="section-title">Signature Dishes</h2>
+            <p class="section-subtitle">A taste of our most beloved creations</p>
+            <div class="menu-grid">
+                <div class="menu-card">
+                    <div class="icon">🍜</div>
+                    <h3>Pad Thai</h3>
+                    <p class="desc">Stir-fried rice noodles with prawns, bean sprouts, eggs, and tamarind sauce, topped with peanuts.</p>
+                    <span class="price">$14.90</span>
+                </div>
+                <div class="menu-card">
+                    <div class="icon">🍛</div>
+                    <h3>Green Curry</h3>
+                    <p class="desc">Aromatic coconut milk curry with chicken, Thai eggplant, and fresh basil. Served with jasmine rice.</p>
+                    <span class="price">$16.50</span>
+                </div>
+                <div class="menu-card">
+                    <div class="icon">🥟</div>
+                    <h3>Tom Yum Soup</h3>
+                    <p class="desc">Hot and sour soup with shrimp, mushrooms, lemongrass, and galangal. A true classic.</p>
+                    <span class="price">$12.00</span>
+                </div>
+                <div class="menu-card">
+                    <div class="icon">🧉</div>
+                    <h3>Mango Sticky Rice</h3>
+                    <p class="desc">Sweet glutinous rice with ripe mango slices, drizzled with warm coconut cream.</p>
+                    <span class="price">$8.50</span>
+                </div>
+            </div>
+            <div class="text-center mt-2" style="font-size: 0.95rem; color: #6a4e3a;">
+                <em>… and many more Thai delights waiting for you.</em>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOURS -->
+    <section id="hours">
+        <div class="container">
+            <h2 class="section-title">Opening Hours</h2>
+            <div class="hours-wrapper">
+                <table class="hours-table">
+                    <tr><td class="day">Monday – Thursday</td><td class="time">11:00 AM – 9:30 PM</td></tr>
+                    <tr><td class="day">Friday &amp; Saturday</td><td class="time">11:00 AM – 10:30 PM</td></tr>
+                    <tr><td class="day">Sunday</td><td class="time">12:00 PM – 9:00 PM</td></tr>
+                </table>
+                <p class="hours-note">&#9200; Last seating 30 minutes before closing.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESERVATION -->
+    <section id="reservation" style="background: #f5ede4;">
+        <div class="container">
+            <h2 class="section-title">Reserve a Table</h2>
+            <p class="section-subtitle">We look forward to welcoming you</p>
+            <form class="reservation-form" id="reservationForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" name="name" placeholder="e.g. Somchai" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone" placeholder="(123) 456-7890" />
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Number of Guests</label>
+                        <select id="guests" name="guests" required>
+                            <option value="">— select —</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8+</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="time">Time</label>
+                        <input type="time" id="time" name="time" required />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="message">Special Requests (optional)</label>
+                        <textarea id="message" name="message" placeholder="Allergies, celebrations…"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">&#127881; Confirm Reservation</button>
+                <div id="formMessage" class="form-message"></div>
+            </form>
+        </div>
+    </section>
+
+    <!-- CONTACT / FOOTER -->
+    <footer id="contact">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Thai Orchid</h4>
+                <p>123 Sukhumvit Lane<br />Bangkok, 10110</p>
+                <p>&#128222; (662) 123-4567</p>
+                <p>&#9993; hello@thaiorchid.com</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="#menu">Menu</a>
+                <a href="#hours">Hours</a>
+                <a href="#reservation">Reservation</a>
+            </div>
+            <div class="footer-col">
+                <h4>Follow Us</h4>
+                <p style="font-size: 1.8rem; letter-spacing: 0.5rem;">
+                    <span title="Facebook">&#120143;</span>
+                    <span title="Instagram">&#120158;</span>
+                    <span title="Twitter">&#120156;</span>
+                </p>
+                <p style="margin-top: 0.5rem; font-style: italic;">#TasteOfThai</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2025 Thai Orchid Restaurant. Crafted with &#10084; and Thai spices.
+        </div>
+    </footer>
+
+    <!-- JavaScript for reservation form -->
+    <script>
+        (function() {
+            const form = document.getElementById('reservationForm');
+            const messageDiv = document.getElementById('formMessage');
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Gather fields
+                const name = form.elements['name'].value.trim();
+                const email = form.elements['email'].value.trim();
+                const guests = form.elements['guests'].value;
+                const date = form.elements['date'].value;
+                const time = form.elements['time'].value;
+
+                // Simple validation
+                if (!name || !email || !guests || !date || !time) {
+                    messageDiv.textContent = '⚠️ Please fill out all required fields.';
+                    messageDiv.className = 'form-message error';
+                    return;
+                }
+
+                // Basic email check
+                if (!email.includes('@') || !email.includes('.')) {
+                    messageDiv.textContent = '⚠️ Please enter a valid email address.';
+                    messageDiv.className = 'form-message error';
+                    return;
+                }
+
+                // If everything is ok – show success
+                messageDiv.textContent =
+                    '🙏 Thank you, ' + name + '! Your reservation for ' + guests +
+                    ' guest(s) on ' + date + ' at ' + time + ' has been received. We’ll confirm shortly.';
+                messageDiv.className = 'form-message success';
+
+                // Optional: clear form after a few seconds (not mandatory)
+                // setTimeout(() => { form.reset(); messageDiv.style.display = 'none'; }, 6000);
+            });
+        })();
+    </script>
+</body>
+</html>

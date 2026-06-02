@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASCOTAPPS - 您的宠物护理专家</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #5cb85c; /* 鲜绿色 */
+            --secondary-color: #f0ad4e; /* 橙色 */
+            --accent-color: #5bc0de; /* 蓝色 */
+            --text-color: #333;
+            --light-text-color: #f8f8f8;
+            --background-color: #f4f7f6;
+            --card-background: #ffffff;
+            --border-color: #ddd;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 头部导航 */
+        header {
+            background-color: var(--card-background);
+            box-shadow: 0 2px 4px var(--shadow-light);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        /* 汉堡菜单 (移动端) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 25px;
+            background-color: var(--text-color);
+            margin-bottom: 5px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        /* 主英雄区 */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://via.placeholder.com/1920x800/87CEEB/FFFFFF?text=Happy+Pets') no-repeat center center/cover;
+            color: var(--light-text-color);
+            text-align: center;
+            padding: 100px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .hero::before { /* 用于叠加更柔和的渐变 */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(92,184,92,0.6), rgba(91,192,222,0.6));
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: darken(var(--primary-color), 10%); /* 替代深色 */
+            background-color: #4CAF50; /* 绿色深一点 */
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--accent-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: darken(var(--accent-color), 10%);
+            background-color: #4CB0CD; /* 蓝色深一点 */
+        }
+
+        /* 通用区块样式 */
+        section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        section h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary-color);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+
+        section p {
+            font-size: 1.1em;
+            max-width: 700px;
+            margin: 0 auto 50px;
+            color: #666;
+        }
+
+        /* 功能区块 */
+        .features {
+            background-color: var(--card-background);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-item {
+            background-color: var(--card-background);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px var(--shadow-light);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px var(--shadow-light);
+        }
+
+        .feature-item .icon {
+            font-size: 3em;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .feature-item p {
+            font-size: 1em;
+            color: #777;
+            margin-bottom: 0;
+        }
+
+        /* 提示与资源 */
+        .tips-resources {
+            background-color: var(--background-color);
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .tip-card {
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px var(--shadow-light);
+            text-align: left;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tip-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px var(--shadow-light);
+        }
+
+        .tip-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .tip-card-content {
+            padding: 25px;
+        }
+
+        .tip-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .tip-card p {
+            font-size: 0.95em;
+            color: #777;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .tip-card a {
+            display: inline-block;
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .tip-card a:hover {
+            text-decoration: underline;
+        }
+
+        /* 下载应用 */
+        .download-app {
+            background-color: var(--primary-color);
+            color: var(--light-text-color);
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .download-app h2 {
+            color: var(--light-text-color);
+        }
+        
+        .download-app h2::after {
+            background-color: var(--light-text-color);
+        }
+
+        .download-app p {
+            color: var(--light-text-color);
+            margin-bottom: 40px;
+        }
+
+        .app-store-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .app-store-buttons .btn {
+            background-color: var(--secondary-color);
+            padding: 12px 25px;
+        }
+
+        .app-store-buttons .btn:hover {
+            background-color: darken(var(--secondary-color), 10%);
+            background-color: #E29B35; /* 橙色深一点 */
+        }
+
+        /* 页脚 */
+        footer {
+            background-color: #333;
+            color: var(--light-text-color);
+            padding: 40px 0;
+            text-align: center;
+            margin-top: auto; /* Push footer to the bottom */
+        }
+
+        footer .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        footer p {
+            margin-bottom: 15px;
+            font-size: 0.9em;
+            color: #bbb;
+        }
+
+        .footer-links {
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9em;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header .container {
+                flex-wrap: wrap;
+            }
+
+            nav {
+                width: 100%;
+                order: 2; /* 导航在小屏幕下放到logo下面 */
+                display: none; /* 默认隐藏导航 */
+            }
+
+            nav.open {
+                display: block; /* 当菜单打开时显示 */
+            }
+
+            nav ul {
+                flex-direction: column;
+                margin-top: 20px;
+                background-color: var(--card-background);
+                padding: 20px;
+                border-top: 1px solid var(--border-color);
+            }
+
+            nav ul li {
+                margin: 10px 0;
+                text-align: center;
+            }
+
+            .menu-toggle {
+                display: flex;
+                order: 1; /* 汉堡菜单在小屏幕下放在logo旁边 */
+            }
+
+            .hero h1 {
+                font-size: 2.5em;
+            }
+
+            .hero p {
+                font-size: 1em;
+            }
+
+            section {
+                padding: 60px 0;
+            }
+
+            section h2 {
+                font-size: 2em;
+            }
+
+            section p {
+                font-size: 1em;
+                margin-bottom: 30px;
+            }
+
+            .features-grid, .tips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app-store-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">MASCOTAPPS</a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#features">功能</a></li>
+                    <li><a href="#tips-resources">提示与资源</a></li>
+                    <li><a href="#download-app">下载应用</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1>MASCOTAPPS: 您的宠物护理专家</h1>
+                <p>为宠物主人提供专业的提示、丰富的资源和实用的工具，让您的爱宠生活更健康、更快乐。</p>
+                <a href="#download-app" class="btn">立即下载</a>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <div class="container">
+                <h2>核心功能</h2>
+                <p>MASCOTAPPS 旨在简化您的宠物护理日常，提供您所需的一切。</p>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="icon">🐾</div>
+                        <h3>个性化宠物档案</h3>
+                        <p>记录每只宠物的详细信息、疫苗接种和健康史。</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">🔔</div>
+                        <h3>智能提醒与计划</h3>
+                        <p>不错过喂食、散步、药物和兽医预约的任何时间。</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">💡</div>
+                        <h3>专业护理技巧</h3>
+                        <p>获取由专家编写的喂养、训练、美容和健康小贴士。</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">🗺️</div>
+                        <h3>附近服务查找</h3>
+                        <p>轻松找到附近的兽医、宠物美容店和宠物友好场所。</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">🩺</div>
+                        <h3>健康症状追踪</h3>
+                        <p>记录宠物的行为变化和健康状况，及时发现潜在问题。</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="icon">🛒</div>
+                        <h3>产品推荐与评论</h3>
+                        <p>发现最适合您爱宠的食品、玩具和护理产品。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tips-resources" class="tips-resources">
+            <div class="container">
+                <h2>宠物护理提示与资源</h2>
+                <p>浏览我们精选的文章和指南，成为更称职的宠物主人。</p>
+                <div class="tips-grid">
+                    <div class="tip-card">
+                        <img src="https://via.placeholder.com/400x200/FFD700/FFFFFF?text=Dog+Nutrition" alt="狗狗营养">
+                        <div class="tip-card-content">
+                            <h3>狗狗营养：选择合适的狗粮</h3>
+                            <p>了解如何根据狗狗的年龄、品种和活动水平选择最佳狗粮，确保它们获得均衡营养。</p>
+                            <a href="#">阅读更多</a>
+                        </div>
+                    </div>
+                    <div class="tip-card">
+                        <img src="https://via.placeholder.com/400x200/90EE90/FFFFFF?text=Cat+Training" alt="猫咪训练">
+                        <div class="tip-card-content">
+                            <h3>猫咪行为：训练您的猫咪使用猫抓板</h3>
+                            <p>告别家具抓痕！学习简单有效的策略，引导您的猫咪爱上猫抓板。</p>
+                            <a href="#">阅读更多</a>
+                        </div>
+                    </div>
+                    <div class="tip-card">
+                        <img src="https://via.placeholder.com/400x200/ADD8E6/FFFFFF?text=Pet+Health" alt="宠物健康">
+                        <div class="tip-card-content">
+                            <h3>宠物健康：预防常见寄生虫</h3>
+                            <p>室内外宠物都需要预防寄生虫。我们为您提供预防跳蚤、蜱虫和心丝虫的全面指南。</p>
+                            <a href="#">阅读更多</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="download-app" class="download-app">
+            <div class="container">
+                <h2>立即下载 MASCOTAPPS</h2>
+                <p>将您的宠物护理提升到一个新的水平。立即在您喜欢的应用商店下载！</p>
+                <div class="app-store-buttons">
+                    <button class="btn" onclick="downloadApp('Apple App Store')">在 App Store 下载</button>
+                    <button class="btn" onclick="downloadApp('Google Play Store')">在 Google Play 下载</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="container">
+            <p>&copy; 2023 MASCOTAPPS. 保留所有权利。</p>
+            <div class="footer-links">
+                <a href="#">隐私政策</a>
+                <a href="#">使用条款</a>
+                <a href="#">联系我们</a>
+            </div>
+            <p style="margin-top: 10px;">地址: 虚拟宠物街88号, 宠物之城</p>
+            <p>邮箱: info@mascotapps.com</p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript 交互
+        function downloadApp(storeName) {
+            alert("感谢您对 MASCOTAPPS 的兴趣！\n" + storeName + " 下载即将推出，敬请期待！");
+        }
+
+        // 移动端导航菜单切换
+        document.addEventListener('DOMContentLoaded', function () {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mainNav = document.getElementById('main-nav');
+            const navLinks = mainNav.querySelectorAll('a');
+
+            mobileMenu.addEventListener('click', function () {
+                mainNav.classList.toggle('open');
+                mobileMenu.classList.toggle('active'); // 可选，用于汉堡菜单动画
+            });
+
+            // 点击导航链接后关闭菜单
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mainNav.classList.remove('open');
+                    mobileMenu.classList.remove('active');
+                });
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

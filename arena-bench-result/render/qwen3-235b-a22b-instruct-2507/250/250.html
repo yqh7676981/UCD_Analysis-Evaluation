@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>票务通 - 门票购买与管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 导航栏 */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: white;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #ee5253;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid white;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* 主要内容区域 */
+        main {
+            padding: 3rem 0;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .search-bar {
+            display: flex;
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 1rem 1.5rem;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .search-bar button:hover {
+            background-color: #5a6fd8;
+        }
+
+        /* 活动列表 */
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .event-image {
+            height: 180px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .event-info {
+            padding: 1.5rem;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .event-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .event-price {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .event-actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* 我的门票部分 */
+        .my-tickets {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 3rem;
+        }
+
+        .ticket-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .ticket-card {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ticket-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .ticket-event {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .ticket-details {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-code {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        /* 页脚 */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: #667eea;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid #34495e;
+            color: #bdc3c7;
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .events-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+
+        /* 购买模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+            background: none;
+            border: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* 购物车图标 */
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>票务通</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#events">热门活动</a></li>
+                    <li><a href="#my-tickets">我的门票</a></li>
+                    <li><a href="#about">关于我们</a></li>
+                </ul>
+                <div class="user-actions">
+                    <button class="btn btn-outline"><i class="fas fa-user"></i> 登录</button>
+                    <button class="btn btn-primary"><i class="fas fa-user-plus"></i> 注册</button>
+                    <div class="cart-icon" id="cartIcon">
+                        <i class="fas fa-shopping-cart" style="color: white; font-size: 1.5rem;"></i>
+                        <span class="cart-count">0</span>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section id="home" class="hero">
+            <h1>发现精彩活动，轻松购票</h1>
+            <p>从音乐会到体育赛事，从戏剧表演到展览，我们为您提供最便捷的门票购买和管理体验。</p>
+            <div class="search-bar">
+                <input type="text" placeholder="搜索您感兴趣的活动..." id="searchInput">
+                <button onclick="searchEvents()"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+        </section>
+
+        <section id="events">
+            <h2 class="section-title">热门活动</h2>
+            <div class="events-grid" id="eventsGrid">
+                <!-- 活动卡片将通过JavaScript动态生成 -->
+            </div>
+        </section>
+
+        <section id="my-tickets">
+            <h2 class="section-title">我的门票</h2>
+            <div class="my-tickets">
+                <div class="ticket-list" id="ticketList">
+                    <!-- 门票将通过JavaScript动态生成 -->
+                    <p id="noTicketsMessage" style="grid-column: 1/-1; text-align: center; color: #7f8c8d;">您还没有购买任何门票</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>票务通</h3>
+                    <ul>
+                        <li><a href="#">关于我们</a></li>
+                        <li><a href="#">联系我们</a></li>
+                        <li><a href="#">加入我们</a></li>
+                        <li><a href="#">企业合作</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>帮助中心</h3>
+                    <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">购票指南</a></li>
+                        <li><a href="#">退换票政策</a></li>
+                        <li><a href="#">安全提示</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>服务支持</h3>
+                    <ul>
+                        <li><a href="#">在线客服</a></li>
+                        <li><a href="#">电话咨询</a></li>
+                        <li><a href="#">邮箱支持</a></li>
+                        <li><a href="#">服务时间</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>关注我们</h3>
+                    <ul>
+                        <li><a href="#"><i class="fab fa-weixin"></i> 微信公众号</a></li>
+                        <li><a href="#"><i class="fab fa-weibo"></i> 新浪微博</a></li>
+                        <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2024 票务通. 保留所有权利。 | <a href="#" style="color: #bdc3c7;">隐私政策</a> | <a href="#" style="color: #bdc3c7;">用户协议</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 购买门票模态框 -->
+    <div class="modal" id="purchaseModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('purchaseModal')">&times;</button>
+            <h2 style="margin-bottom: 1.5rem; color: #2c3e50;">购买门票</h2>
+            <form id="purchaseForm">
+                <input type="hidden" id="eventId">
+                <div class="form-group">
+                    <label for="eventName">活动名称</label>
+                    <input type="text" id="eventName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="ticketType">门票类型</label>
+                    <select id="ticketType" required>
+                        <option value="">请选择门票类型</option>
+                        <option value="普通票">普通票</option>
+                        <option value="VIP票">VIP票</option>
+                        <option value="VVIP票">VVIP票</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity">数量</label>
+                    <input type="number" id="quantity" min="1" max="10" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">姓名</label>
+                    <input type="text" id="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">手机号</label>
+                    <input type="tel" id="phone" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('purchaseModal')">取消</button>
+                    <button type="submit" class="btn btn-primary">立即购买</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 成功购买模态框 -->
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('successModal')">&times;</button>
+            <div style="text-align: center; padding: 2rem 0;">
+                <i class="fas fa-check-circle" style="font-size: 5rem; color: #667eea; margin-bottom: 1rem;"></i>
+                <h2 style="color: #2c3e50; margin-bottom: 1rem;">购票成功！</h2>
+                <p id="successMessage" style="color: #7f8c8d; margin-bottom: 2rem;">您的门票已成功购买，详细信息已发送至您的邮箱。</p>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button type="button" class="btn btn-primary" onclick="closeModal('successModal'); location.href='#my-tickets';">查看我的门票</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟活动数据
+        const events = [
+            {
+                id: 1,
+                title: "周杰伦嘉年华世界巡回演唱会",
+                date: "2024-06-15",
+                time: "19:30",
+                location: "北京国家体育场",
+                price: 880,
+                image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 2,
+                title: "NBA季前赛：湖人 vs 勇士",
+                date: "2024-07-20",
+                time: "20:00",
+                location: "上海体育馆",
+                price: 680,
+                image: "https://images.unsplash.com/photo-1548648295-1ad655d58448?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 3,
+                title: "梵高艺术展",
+                date: "2024-05-10",
+                time: "09:00-18:00",
+                location: "广州美术馆",
+                price: 120,
+                image: "https://images.unsplash.com/photo-1519823551278-359a29819731?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 4,
+                title: "德云社相声专场",
+                date: "2024-08-05",
+                time: "19:00",
+                location: "天津大剧院",
+                price: 280,
+                image: "https://images.unsplash.com/photo-1513611202414-e5212ba6db0d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 5,
+                title: "草莓音乐节",
+                date: "2024-09-12",
+                time: "全天",
+                location: "杭州西湖景区",
+                price: 380,
+                image: "https://images.unsplash.com/photo-1484876065684-b68efbf5f5c7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                id: 6,
+                title: "百老汇音乐剧《歌剧魅影》",
+                date: "2024-07-01",
+                time: "19:30",
+                location: "深圳保利剧院",
+                price: 580,
+                image: "https://images.unsplash.com/photo-1565338952713-f86485068649?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            }
+        ];
+
+        // 我的门票数据（初始为空）
+        let myTickets = [];
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderEvents();
+            updateCartCount();
+        });
+
+        // 渲染活动列表
+        function renderEvents() {
+            const eventsGrid = document.getElementById('eventsGrid');
+            eventsGrid.innerHTML = '';
+
+            events.forEach(event => {
+                const eventCard = document.createElement('div');
+                eventCard.className = 'event-card';
+                eventCard.innerHTML = `
+                    <img src="${event.image}" alt="${event.title}" class="event-image">
+                    <div class="event-info">
+                        <h3 class="event-title">${event.title}</h3>
+                        <div class="event-meta">
+                            <span><i class="far fa-calendar"></i> ${formatDate(event.date)}</span>
+                            <span><i class="far fa-clock"></i> ${event.time}</span>
+                        </div>
+                        <div class="event-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>
+                        </div>
+                        <div class="event-price">¥${event.price.toLocaleString()}</div>
+                        <div class="event-actions">
+                            <button class="btn btn-outline" onclick="showPurchaseModal(${event.id})">
+                                <i class="fas fa-ticket-alt"></i> 购买
+                            </button>
+                            <button class="btn btn-primary" onclick="addToCart(${event.id})">
+                                <i class="fas fa-shopping-cart"></i> 加入购物车
+                            </button>
+                        </div>
+                    </div>
+                `;
+                eventsGrid.appendChild(eventCard);
+            });
+        }
+
+        // 显示购买模态框
+        function showPurchaseModal(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (!event) return;
+
+            document.getElementById('eventId').value = event.id;
+            document.getElementById('eventName').value = event.title;
+            
+            // 显示模态框
+            document.getElementById('purchaseModal').style.display = 'flex';
+            
+            // 防止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // 如果关闭的是购买模态框，重置表单
+            if (modalId === 'purchaseModal') {
+                document.getElementById('purchaseForm').reset();
+            }
+        }
+
+        // 添加到购物车
+        function addToCart(eventId) {
+            const cartCount = document.querySelector('.cart-count');
+            let count = parseInt(cartCount.textContent);
+            cartCount.textContent = count + 1;
+            
+            // 显示添加成功的提示
+            alert('已成功添加到购物车！');
+        }
+
+        // 更新购物车数量显示
+        function updateCartCount() {
+            const cartCount = document.querySelector('.cart-count');
+            cartCount.textContent = myTickets.length;
+        }
+
+        // 处理购买表单提交
+        document.getElementById('purchaseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const eventId = document.getElementById('eventId').value;
+            const eventName = document.getElementById('eventName').value;
+            const ticketType = document.getElementById('ticketType').value;
+            const quantity = document.getElementById('quantity').value;
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            
+            // 创建新的门票
+            const newTicket = {
+                id: Date.now(),
+                eventId: eventId,
+                eventName: eventName,
+                ticketType: ticketType,
+                quantity: quantity,
+                fullName: fullName,
+                email: email,
+                phone: phone,
+                purchaseDate: new Date().toISOString().split('T')[0],
+                ticketCode: generateTicketCode()
+            };
+            
+            // 添加到我的门票列表
+            myTickets.push(newTicket);
+            
+            // 更新界面
+            renderMyTickets();
+            updateCartCount();
+            
+            // 关闭购买模态框
+            closeModal('purchaseModal');
+            
+            // 显示成功模态框
+            document.getElementById('successMessage').textContent = 
+                `恭喜 ${fullName}，您已成功购买 ${quantity} 张${ticketType}，门票代码为 ${newTicket.ticketCode}。`;
+            document.getElementById('successModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        });
+
+        // 渲染我的门票
+        function renderMyTickets() {
+            const ticketList = document.getElementById('ticketList');
+            const noTicketsMessage = document.getElementById('noTicketsMessage');
+            
+            if (myTickets.length === 0) {
+                noTicketsMessage.style.display = 'block';
+                ticketList.innerHTML = '';
+                ticketList.appendChild(noTicketsMessage);
+                return;
+            }
+            
+            noTicketsMessage.style.display = 'none';
+            ticketList.innerHTML = '';
+            
+            myTickets.forEach(ticket => {
+                const ticketCard = document.createElement('div');
+                ticketCard.className = 'ticket-card';
+                ticketCard.innerHTML = `
+                    <div class="ticket-event">${ticket.eventName}</div>
+                    <div class="ticket-details">
+                        <div><i class="fas fa-user"></i> 持有人: ${ticket.fullName}</div>
+                        <div><i class="fas fa-ticket-alt"></i> 类型: ${ticket.ticketType}</div>
+                        <div><i class="fas fa-users"></i> 数量: ${ticket.quantity}张</div>
+                        <div><i class="far fa-calendar"></i> 购买日期: ${formatDate(ticket.purchaseDate)}</div>
+                    </div>
+                    <div class="ticket-code">${ticket.ticketCode}</div>
+                `;
+                ticketList.appendChild(ticketCard);
+            });
+        }
+
+        // 搜索活动
+        function searchEvents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredEvents = events.filter(event => 
+                event.title.toLowerCase().includes(searchTerm) || 
+                event.location.toLowerCase().includes(searchTerm)
+            );
+            
+            const eventsGrid = document.getElementById('eventsGrid');
+            eventsGrid.innerHTML = '';
+            
+            if (filteredEvents.length === 0) {
+                eventsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #7f8c8d;">未找到相关活动</p>';
+                return;
+            }
+            
+            filteredEvents.forEach(event => {
+                const eventCard = document.createElement('div');
+                eventCard.className = 'event-card';
+                eventCard.innerHTML = `
+                    <img src="${event.image}" alt="${event.title}" class="event-image">
+                    <div class="event-info">
+                        <h3 class="event-title">${event.title}</h3>
+                        <div class="event-meta">
+                            <span><i class="far fa-calendar"></i> ${formatDate(event.date)}</span>
+                            <span><i class="far fa-clock"></i> ${event.time}</span>
+                        </div>
+                        <div class="event-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>
+                        </div>
+                        <div class="event-price">¥${event.price.toLocaleString()}</div>
+                        <div class="event-actions">
+                            <button class="btn btn-outline" onclick="showPurchaseModal(${event.id})">
+                                <i class="fas fa-ticket-alt"></i> 购买
+                            </button>
+                            <button class="btn btn-primary" onclick="addToCart(${event.id})">
+                                <i class="fas fa-shopping-cart"></i> 加入购物车
+                            </button>
+                        </div>
+                    </div>
+                `;
+                eventsGrid.appendChild(eventCard);
+            });
+        }
+
+        // 格式化日期显示
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('zh-CN', options);
+        }
+
+        // 生成随机门票代码
+        function generateTicketCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 12; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const purchaseModal = document.getElementById('purchaseModal');
+            const successModal = document.getElementById('successModal');
+            if (event.target === purchaseModal) {
+                closeModal('purchaseModal');
+            }
+            if (event.target === successModal) {
+                closeModal('successModal');
+            }
+        };
+
+        // 监听回车键搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchEvents();
+            }
+        });
+    </script>
+</body>
+</html>

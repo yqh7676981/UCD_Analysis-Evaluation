@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniTwitter - 分享你的想法</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f7f9fa;
+            color: #14171a;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e1e8ed;
+            background-color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1da1f2;
+        }
+        
+        .post-form {
+            background-color: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .post-input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background-color: #f5f8fa;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            margin-bottom: 10px;
+        }
+        
+        .post-input::placeholder {
+            color: #657786;
+        }
+        
+        .post-btn {
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            float: right;
+            transition: background-color 0.2s;
+        }
+        
+        .post-btn:hover {
+            background-color: #1a91da;
+        }
+        
+        .tweets-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .tweet {
+            background-color: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .tweet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #1da1f2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        
+        .user-info {
+            font-weight: bold;
+        }
+        
+        .username {
+            color: #657786;
+            font-size: 14px;
+        }
+        
+        .tweet-content {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 16px;
+        }
+        
+        .tweet-actions {
+            display: flex;
+            justify-content: space-between;
+            max-width: 300px;
+            border-top: 1px solid #e1e8ed;
+            padding-top: 10px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #657786;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .action-btn:hover {
+            color: #1da1f2;
+        }
+        
+        .action-btn.liked:hover {
+            color: #e0245e;
+        }
+        
+        .action-btn.retweet:hover {
+            color: #17bf63;
+        }
+        
+        .action-btn.reply:hover {
+            color: #1da1f2;
+        }
+        
+        .liked {
+            color: #e0245e !important;
+        }
+        
+        .retweet {
+            color: #17bf63;
+        }
+        
+        .comment-count {
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        
+        .comments-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #e1e8ed;
+            display: none;
+        }
+        
+        .comment {
+            display: flex;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f5f8fa;
+            border-radius: 8px;
+        }
+        
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1da1f2;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        .comment-content {
+            flex: 1;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .comment-input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+        
+        .comment-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e1e8ed;
+            border-radius: 20px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .comment-submit {
+            background-color: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .comment-submit:hover {
+            background-color: #1a91da;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">MiniTwitter</div>
+    </header>
+    
+    <div class="container">
+        <div class="post-form">
+            <textarea class="post-input" id="postContent" placeholder="分享你的想法..."></textarea>
+            <button class="post-btn" id="postBtn">发布</button>
+        </div>
+        
+        <div class="tweets-container" id="tweetsContainer">
+            <!-- 推文将通过 JavaScript 动态添加到这里 -->
+        </div>
+    </div>
+
+    <script>
+        // 用户数据
+        const users = [
+            { name: "张三", username: "zhangsan", avatarColor: "#1da1f2" },
+            { name: "李四", username: "lisi", avatarColor: "#e0245e" },
+            { name: "王五", username: "wangwu", avatarColor: "#17bf63" },
+            { name: "赵六", username: "zhaoliu", avatarColor: "#f45d22" },
+            { name: "钱七", username: "qianqi", avatarColor: "#8b58c8" }
+        ];
+        
+        // 获取随机用户
+        function getRandomUser() {
+            return users[Math.floor(Math.random() * users.length)];
+        }
+        
+        // 格式化时间
+        function formatTime(date) {
+            return new Date(date).toLocaleString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                month: 'numeric',
+                day: 'numeric'
+            });
+        }
+        
+        // 初始化推文数据
+        let tweets = [
+            {
+                id: 1,
+                content: "今天天气真好，适合出去散步！",
+                author: users[0],
+                timestamp: new Date().getTime() - 3600000, // 1小时前
+                likes: 5,
+                liked: false,
+                retweets: 2,
+                comments: [
+                    { author: users[1], content: "是啊，我也正准备出门呢！", timestamp: new Date().getTime() - 3000000 }, // 50分钟前
+                    { author: users[2], content: "记得做好防晒哦~", timestamp: new Date().getTime() - 2700000 } // 45分钟前
+                ]
+            },
+            {
+                id: 2,
+                content: "刚刚读完了一本好书，强烈推荐给大家！",
+                author: users[3],
+                timestamp: new Date().getTime() - 7200000, // 2小时前
+                likes: 12,
+                liked: false,
+                retweets: 3,
+                comments: [
+                    { author: users[0], content: "是什么书呀？我也想看", timestamp: new Date().getTime() - 6600000 }, // 55分钟前
+                    { author: users[4], content: "求书名+1", timestamp: new Date().getTime() - 6000000 } // 100分钟前
+                ]
+            }
+        ];
+        
+        // 渲染所有推文
+        function renderTweets() {
+            const container = document.getElementById('tweetsContainer');
+            container.innerHTML = '';
+            
+            // 按时间倒序排列
+            [...tweets].sort((a, b) => b.timestamp - a.timestamp).forEach(tweet => {
+                const tweetElement = document.createElement('div');
+                tweetElement.className = 'tweet';
+                tweetElement.dataset.id = tweet.id;
+                
+                tweetElement.innerHTML = `
+                    <div class="tweet-header">
+                        <div class="avatar" style="background-color: ${tweet.author.avatarColor}">
+                            ${tweet.author.name.charAt(0)}
+                        </div>
+                        <div>
+                            <div class="user-info">${tweet.author.name}</div>
+                            <div class="username">@${tweet.author.username} · ${formatTime(tweet.timestamp)}</div>
+                        </div>
+                    </div>
+                    <div class="tweet-content">${tweet.content}</div>
+                    <div class="tweet-actions">
+                        <button class="action-btn reply" data-action="reply">
+                            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M14.046 2.242l-4.148-.01h-.002c-4.374 0-7.8 3.427-7.8 7.802 0 4.375 3.427 7.802 7.802 7.802h3.908c1.082 0 2.105-.42 2.858-1.172l3.287-3.288c.28-.28.28-.737 0-1.017l-2.575-2.575c-.28-.28-.737-.28-1.017 0l-.93.93c-.257-.086-.527-.138-.81-.138-.896 0-1.75.355-2.394.998-.65.644-.998 1.5-.998 2.395 0 .323.086.63.242.908l-1.548 1.548c-.175-.1-.358-.19-.55-.27-.657-.27-1.39-.41-2.16-.41-2.884 0-5.225 2.34-5.225 5.225 0 2.884 2.34 5.225 5.225 5.225 2.884 0 5.225-2.34 5.225-5.225 0-.85-.23-1.65-.63-2.35l1.55-1.55c.7-.38 1.51-.58 2.36-.58.22 0 .44.02.65.07l2.98 2.98c.52.52 1.36.19 1.36-.63v-3.47c0-.82-.84-1.25-1.36-.63l-3.47 3.47c-.19.19-.46.29-.73.29-.28 0-.55-.11-.73-.29z" fill="currentColor"></path></svg>
+                            回复
+                        </button>
+                        <button class="action-btn retweet" data-action="retweet">
+                            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M23.77 15.67c-.292-.293-.767-.293-1.06 0l-2.22 2.22V7.65c0-2.066-1.682-3.75-3.75-3.75h-5.85c-.414 0-.75.336-.75.75s.336.75.75.75h5.85c1.24 0 2.25 1.01 2.25 2.25v10.24l-2.22-2.22c-.293-.293-.768-.293-1.06 0s-.294.768 0 1.06l3.5 3.5c.145.147.337.22.53.22s.383-.072.53-.22l3.5-3.5c.294-.292.294-.767 0-1.06zm-10.66 7.11c-1.24 0-2.25-1.01-2.25-2.25V10.29l2.22 2.22c.148.147.34.22.532.22s.384-.073.53-.22c.293-.293.293-.768 0-1.06l-3.5-3.5c-.293-.294-.768-.294-1.06 0l-3.5 3.5c-.294.292-.294.767 0 1.06s.767.293 1.06 0l2.22-2.22V20.53c0 2.066 1.682 3.75 3.75 3.75h5.85c.414 0 .75-.336.75-.75s-.336-.75-.75-.75h-5.85z" fill="currentColor"></path></svg>
+                            转发
+                            <span class="retweet-count">${tweet.retweets}</span>
+                        </button>
+                        <button class="action-btn like ${tweet.liked ? 'liked' : ''}" data-action="like">
+                            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12zM7.354 4.225c-2.08 0-3.903 1.988-3.903 4.255 0 5.74 7.034 11.596 8.55 11.658 1.518-.062 8.55-5.917 8.55-11.658 0-2.267-1.823-4.255-3.903-4.255-2.528 0-3.944 2.936-3.952 2.965-.23.719-1.173 2.258-3.954 2.258-2.778 0-3.722-1.54-3.953-2.26-.008-.028-1.424-2.965-3.953-2.965z" fill="${tweet.liked ? '#e0245e' : 'currentColor'}"></path></svg>
+                            喜欢
+                            <span class="like-count">${tweet.likes}</span>
+                        </button>
+                        <button class="action-btn comment" data-action="comment">
+                            <svg viewBox="0 0 24 24" width="18" height="18"><path d="M14.046 2.242l-4.148-.01h-.002c-4.374 0-7.8 3.427-7.8 7.802 0 4.375 3.427 7.802 7.802 7.802h3.908c1.082 0 2.105-.42 2.858-1.172l3.287-3.288c.28-.28.28-.737 0-1.017l-2.575-2.575c-.28-.28-.737-.28-1.017 0l-.93.93c-.257-.086-.527-.138-.81-.138-.896 0-1.75.355-2.394.998-.65.644-.998 1.5-.998 2.395 0 .323.086.63.242.908l-1.548 1.548c-.175-.1-.358-.19-.55-.27-.657-.27-1.39-.41-2.16-.41-2.884 0-5.225 2.34-5.225 5.225 0 2.884 2.34 5.225 5.225 5.225 2.884 0 5.225-2.34 5.225-5.225 0-.85-.23-1.65-.63-2.35l1.55-1.55c.7-.38 1.51-.58 2.36-.58.22 0 .44.02.65.07l2.98 2.98c.52.52 1.36.19 1.36-.63v-3.47c0-.82-.84-1.25-1.36-.63l-3.47 3.47c-.19.19-.46.29-.73.29-.28 0-.55-.11-.73-.29z" fill="currentColor"></path></svg>
+                            评论
+                            <span class="comment-count">${tweet.comments.length}</span>
+                        </button>
+                    </div>
+                    <div class="comments-section">
+                        <div class="comments-list">
+                            <!-- 评论将在这里动态生成 -->
+                        </div>
+                        <div class="comment-input-container">
+                            <input type="text" class="comment-input" placeholder="写一条评论...">
+                            <button class="comment-submit">回复</button>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(tweetElement);
+            });
+            
+            // 添加事件监听器
+            addEventListeners();
+        }
+        
+        // 添加事件监听器
+        function addEventListeners() {
+            // 点赞按钮
+            document.querySelectorAll('.action-btn.like').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tweetId = parseInt(this.closest('.tweet').dataset.id);
+                    const tweet = tweets.find(t => t.id === tweetId);
+                    
+                    if (tweet) {
+                        tweet.liked = !tweet.liked;
+                        tweet.likes += tweet.liked ? 1 : -1;
+                        
+                        // 更新UI
+                        const countSpan = this.querySelector('.like-count');
+                        const svgPath = this.querySelector('svg path');
+                        countSpan.textContent = tweet.likes;
+                        
+                        if (tweet.liked) {
+                            this.classList.add('liked');
+                            svgPath.setAttribute('fill', '#e0245e');
+                        } else {
+                            this.classList.remove('liked');
+                            svgPath.setAttribute('fill', 'currentColor');
+                        }
+                    }
+                });
+            });
+            
+            // 转发按钮
+            document.querySelectorAll('.action-btn.retweet').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tweetId = parseInt(this.closest('.tweet').dataset.id);
+                    const tweet = tweets.find(t => t.id === tweetId);
+                    
+                    if (tweet) {
+                        tweet.retweets += 1;
+                        const countSpan = this.querySelector('.retweet-count');
+                        countSpan.textContent = tweet.retweets;
+                        
+                        // 视觉反馈
+                        this.style.color = '#17bf63';
+                        setTimeout(() => {
+                            this.style.color = '#657786';
+                        }, 500);
+                    }
+                });
+            });
+            
+            // 评论/回复按钮切换
+            document.querySelectorAll('.action-btn.comment').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const commentsSection = this.closest('.tweet').querySelector('.comments-section');
+                    commentsSection.style.display = commentsSection.style.display === 'block' ? 'none' : 'block';
+                    
+                    // 如果是展开评论，则滚动到该推文
+                    if (commentsSection.style.display === 'block') {
+                        this.closest('.tweet').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    
+                    // 更新评论列表
+                    updateCommentsList(this.closest('.tweet'));
+                });
+            });
+            
+            // 回复按钮（在评论输入框旁边）
+            document.querySelectorAll('.comment-submit').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    submitComment(this);
+                });
+            });
+            
+            // 支持按回车键提交评论
+            document.querySelectorAll('.comment-input').forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && this.value.trim()) {
+                        submitComment(this.nextElementSibling);
+                    }
+                });
+            });
+            
+            // 回复操作
+            document.querySelectorAll('.action-btn.reply').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tweetId = parseInt(this.closest('.tweet').dataset.id);
+                    const tweet = tweets.find(t => t.id === tweetId);
+                    
+                    if (tweet) {
+                        // 找到对应的评论区域并显示
+                        const tweetElement = document.querySelector(`.tweet[data-id="${tweetId}"]`);
+                        const commentsSection = tweetElement.querySelector('.comments-section');
+                        commentsSection.style.display = 'block';
+                        
+                        // 滚动到该推文
+                        tweetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        
+                        // 聚焦到输入框
+                        const commentInput = commentsSection.querySelector('.comment-input');
+                        commentInput.focus();
+                        
+                        // 更新评论列表
+                        updateCommentsList(tweetElement);
+                    }
+                });
+            });
+        }
+        
+        // 提交评论
+        function submitComment(button) {
+            const input = button.previousElementSibling;
+            const inputValue = input.value.trim();
+            
+            if (!inputValue) return;
+            
+            const tweetElement = button.closest('.tweet');
+            const tweetId = parseInt(tweetElement.dataset.id);
+            const tweet = tweets.find(t => t.id === tweetId);
+            
+            if (tweet) {
+                const newComment = {
+                    author: users[0], // 当前用户（假设为第一个用户）
+                    content: inputValue,
+                    timestamp: new Date().getTime()
+                };
+                
+                tweet.comments.push(newComment);
+                input.value = '';
+                
+                // 更新评论列表
+                updateCommentsList(tweetElement);
+                
+                // 更新评论计数
+                const commentBtn = tweetElement.querySelector('.action-btn.comment');
+                const commentCount = commentBtn.querySelector('.comment-count');
+                commentCount.textContent = tweet.comments.length;
+            }
+        }
+        
+        // 更新评论列表
+        function updateCommentsList(tweetElement) {
+            const commentsList = tweetElement.querySelector('.comments-list');
+            const tweetId = parseInt(tweetElement.dataset.id);
+            const tweet = tweets.find(t => t.id === tweetId);
+            
+            if (tweet && commentsList) {
+                commentsList.innerHTML = '';
+                
+                // 按时间顺序显示评论
+                tweet.comments.sort((a, b) => a.timestamp - b.timestamp).forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <div class="comment-avatar" style="background-color: ${comment.author.avatarColor}">
+                            ${comment.author.name.charAt(0)}
+                        </div>
+                        <div class="comment-content">
+                            <strong>${comment.author.name}</strong> @${comment.author.username}
+                            <div>${comment.content}</div>
+                            <small>${formatTime(comment.timestamp)}</small>
+                        </div>
+                    `;
+                    commentsList.appendChild(commentElement);
+                });
+            }
+        }
+        
+        // 发布新推文
+        document.getElementById('postBtn').addEventListener('click', function() {
+            const postInput = document.getElementById('postContent');
+            const content = postInput.value.trim();
+            
+            if (content) {
+                const newTweet = {
+                    id: tweets.length > 0 ? Math.max(...tweets.map(t => t.id)) + 1 : 1,
+                    content: content,
+                    author: users[0], // 当前用户
+                    timestamp: new Date().getTime(),
+                    likes: 0,
+                    liked: false,
+                    retweets: 0,
+                    comments: []
+                };
+                
+                tweets.unshift(newTweet); // 添加到开头
+                postInput.value = '';
+                renderTweets(); // 重新渲染
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+        
+        // 支持按回车键发布（需配合Shift键防止过早提交）
+        document.getElementById('postContent').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.getElementById('postBtn').click();
+            }
+        });
+        
+        // 初始渲染
+        renderTweets();
+    </script>
+</body>
+</html>

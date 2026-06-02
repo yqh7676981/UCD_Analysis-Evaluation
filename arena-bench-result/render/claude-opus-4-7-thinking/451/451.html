@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luxe Hair Studio - 优雅美发沙龙</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --primary: #c9a87c;
+        --primary-dark: #a8855a;
+        --dark: #1a1a1a;
+        --light: #f8f5f0;
+        --accent: #d4a574;
+        --text: #333;
+        --gray: #6b6b6b;
+    }
+
+    body {
+        font-family: 'Georgia', 'Times New Roman', serif;
+        background: var(--light);
+        color: var(--text);
+        line-height: 1.6;
+    }
+
+    /* Navigation */
+    nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background: rgba(26, 26, 26, 0.95);
+        padding: 1rem 5%;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(10px);
+    }
+
+    .logo {
+        color: var(--primary);
+        font-size: 1.8rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        font-style: italic;
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2.5rem;
+        list-style: none;
+    }
+
+    .nav-links a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.95rem;
+        letter-spacing: 1px;
+        transition: color 0.3s;
+        position: relative;
+    }
+
+    .nav-links a:hover {
+        color: var(--primary);
+    }
+
+    .nav-links a::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--primary);
+        transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+        width: 100%;
+    }
+
+    .book-btn {
+        background: var(--primary);
+        color: #fff !important;
+        padding: 0.7rem 1.8rem;
+        border-radius: 30px;
+        transition: background 0.3s, transform 0.3s;
+    }
+
+    .book-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero {
+        height: 100vh;
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                    url('https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1600') center/cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: #fff;
+        position: relative;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        padding: 0 2rem;
+        animation: fadeUp 1.2s ease;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero h1 {
+        font-size: 4.5rem;
+        font-weight: 300;
+        letter-spacing: 3px;
+        margin-bottom: 1rem;
+        font-style: italic;
+    }
+
+    .hero h1 span {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .hero p {
+        font-size: 1.3rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+        letter-spacing: 1px;
+    }
+
+    .hero-btn {
+        display: inline-block;
+        padding: 1rem 3rem;
+        background: var(--primary);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 30px;
+        letter-spacing: 2px;
+        font-size: 1rem;
+        transition: all 0.3s;
+        border: 2px solid var(--primary);
+    }
+
+    .hero-btn:hover {
+        background: transparent;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(201, 168, 124, 0.3);
+    }
+
+    /* Section Styles */
+    section {
+        padding: 6rem 5%;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .section-title h6 {
+        color: var(--primary);
+        letter-spacing: 4px;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+    }
+
+    .section-title h2 {
+        font-size: 3rem;
+        color: var(--dark);
+        font-weight: 300;
+        font-style: italic;
+    }
+
+    .section-title h2 span {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    /* Services */
+    .services {
+        background: #fff;
+    }
+
+    .services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .service-card {
+        background: var(--light);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        border-radius: 10px;
+        transition: all 0.4s;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+    }
+
+    .service-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border-bottom-color: var(--primary);
+        background: #fff;
+    }
+
+    .service-icon {
+        font-size: 3rem;
+        margin-bottom: 1.2rem;
+        display: block;
+    }
+
+    .service-card h3 {
+        color: var(--dark);
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+    }
+
+    .service-card p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .service-price {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: bold;
+        font-style: italic;
+    }
+
+    /* Stylists */
+    .stylists {
+        background: var(--light);
+    }
+
+    .stylists-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 2rem;
+        max-width: 1300px;
+        margin: 0 auto;
+    }
+
+    .stylist-card {
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: transform 0.4s;
+    }
+
+    .stylist-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .stylist-img {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+    }
+
+    .stylist-info {
+        padding: 1.8rem;
+        text-align: center;
+    }
+
+    .stylist-info h3 {
+        font-size: 1.5rem;
+        color: var(--dark);
+        margin-bottom: 0.3rem;
+    }
+
+    .stylist-role {
+        color: var(--primary);
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 1rem;
+    }
+
+    .stylist-info p {
+        color: var(--gray);
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .social-links a {
+        width: 36px;
+        height: 36px;
+        background: var(--light);
+        color: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .social-links a:hover {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    /* Booking */
+    .booking {
+        background: linear-gradient(rgba(26,26,26,0.85), rgba(26,26,26,0.85)),
+                    url('https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1600') center/cover fixed;
+        color: #fff;
+    }
+
+    .booking .section-title h2 {
+        color: #fff;
+    }
+
+    .booking-form {
+        max-width: 700px;
+        margin: 0 auto;
+        background: rgba(255,255,255,0.05);
+        padding: 3rem;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.2rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--primary);
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 6px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+
+    .form-group select option {
+        background: var(--dark);
+        color: #fff;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 30px;
+        font-size: 1rem;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-family: inherit;
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(201, 168, 124, 0.3);
+    }
+
+    /* Testimonials */
+    .testimonials {
+        background: #fff;
+    }
+
+    .testimonials-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .testimonials-wrapper {
+        overflow: hidden;
+    }
+
+    .testimonials-track {
+        display: flex;
+        transition: transform 0.6s ease;
+    }
+
+    .testimonial {
+        min-width: 100%;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .testimonial-content {
+        max-width: 700px;
+        margin: 0 auto;
+        background: var(--light);
+        padding: 3rem 2.5rem;
+        border-radius: 15px;
+        position: relative;
+    }
+
+    .testimonial-content::before {
+        content: '"';
+        position: absolute;
+        top: -20px;
+        left: 30px;
+        font-size: 6rem;
+        color: var(--primary);
+        font-family: Georgia;
+        line-height: 1;
+    }
+
+    .testimonial-text {
+        font-style: italic;
+        font-size: 1.1rem;
+        color: var(--text);
+        margin-bottom: 1.5rem;
+        line-height: 1.8;
+    }
+
+    .stars {
+        color: var(--primary);
+        font-size: 1.2rem;
+        margin-bottom: 1.2rem;
+        letter-spacing: 3px;
+    }
+
+    .client-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .client-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .client-details h4 {
+        color: var(--dark);
+        margin-bottom: 0.2rem;
+    }
+
+    .client-details p {
+        color: var(--gray);
+        font-size: 0.85rem;
+    }
+
+    .testimonial-controls {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .control-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 2px solid var(--primary);
+        background: transparent;
+        color: var(--primary);
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+    }
+
+    .control-btn:hover {
+        background: var(--primary);
+        color: #fff;
+    }
+
+    .testimonial-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.6rem;
+        margin-top: 1.5rem;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #ddd;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .dot.active {
+        background: var(--primary);
+        width: 30px;
+        border-radius: 5px;
+    }
+
+    /* Footer */
+    footer {
+        background: var(--dark);
+        color: #ccc;
+        padding: 3rem 5% 1.5rem;
+        text-align: center;
+    }
+
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .footer-col h4 {
+        color: var(--primary);
+        margin-bottom: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .footer-col p, .footer-col a {
+        color: #aaa;
+        font-size: 0.9rem;
+        line-height: 1.8;
+        text-decoration: none;
+        display: block;
+    }
+
+    .footer-col a:hover {
+        color: var(--primary);
+    }
+
+    .copyright {
+        padding-top: 1.5rem;
+        border-top: 1px solid #333;
+        font-size: 0.85rem;
+        color: #777;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .nav-links {
+            display: none;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+        }
+        .section-title h2 {
+            font-size: 2rem;
+        }
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        .booking-form {
+            padding: 2rem 1.5rem;
+        }
+    }
+
+    /* Toast notification */
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: var(--primary);
+        color: #fff;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transform: translateX(400px);
+        transition: transform 0.4s;
+        z-index: 2000;
+    }
+
+    .toast.show {
+        transform: translateX(0);
+    }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav>
+    <div class="logo">Luxe Hair</div>
+    <ul class="nav-links">
+        <li><a href="#home">首页</a></li>
+        <li><a href="#services">服务</a></li>
+        <li><a href="#stylists">造型师</a></li>
+        <li><a href="#testimonials">评价</a></li>
+        <li><a href="#booking" class="book-btn">立即预约</a></li>
+    </ul>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero" id="home">
+    <div class="hero-content">
+        <h1>释放你的 <span>魅力</span></h1>
+        <p>专业造型师 · 顶级产品 · 奢华体验</p>
+        <a href="#booking" class="hero-btn">预约体验</a>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="services" id="services">
+    <div class="section-title">
+        <h6>—— 我们的服务 ——</h6>
+        <h2>专业 <span>美发</span> 体验</h2>
+    </div>
+    <div class="services-grid">
+        <div class="service-card">
+            <span class="service-icon">✂️</span>
+            <h3>精致剪发</h3>
+            <p>根据脸型和气质量身定制的专属发型设计</p>
+            <div class="service-price">¥ 298</div>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">🎨</span>
+            <h3>时尚染发</h3>
+            <p>使用进口植物染剂，呈现自然持久的色泽</p>
+            <div class="service-price">¥ 688</div>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">💫</span>
+            <h3>烫发造型</h3>
+            <p>精准卷度设计，展现优雅迷人的波浪曲线</p>
+            <div class="service-price">¥ 888</div>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">💆</span>
+            <h3>深层护理</h3>
+            <p>奢华护发疗程，让头发重现丝滑光泽</p>
+            <div class="service-price">¥ 388</div>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">👰</span>
+            <h3>新娘造型</h3>
+            <p>专属婚礼造型设计，见证最美的那一刻</p>
+            <div class="service-price">¥ 1688</div>
+        </div>
+        <div class="service-card">
+            <span class="service-icon">✨</span>
+            <h3>头皮护理</h3>
+            <p>专业头皮深层清洁与滋养，从根源呵护</p>
+            <div class="service-price">¥ 488</div>
+        </div>
+    </div>
+</section>
+
+<!-- Stylists Section -->
+<section class="stylists" id="stylists">
+    <div class="section-title">
+        <h6>—— 顶级团队 ——</h6>
+        <h2>认识我们的 <span>造型师</span></h2>
+    </div>
+    <div class="stylists-grid">
+        <div class="stylist-card">
+            <img class="stylist-img" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=500" alt="首席造型师">
+            <div class="stylist-info">
+                <h3>Sophia Chen</h3>
+                <div class="stylist-role">首席造型总监</div>
+                <p>15 年经验，曾服务多位明星艺人</p>
+                <div class="social-links">
+                    <a href="#">IG</a>
+                    <a href="#">FB</a>
+                    <a href="#">WB</a>
+                </div>
+            </div>
+        </div>
+        <div class="stylist-card">
+            <img class="stylist-img" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500" alt="高级造型师">
+            <div class="stylist-info">
+                <h3>James Liu</h3>
+                <div class="stylist-role">高级造型师</div>
+                <p>色彩专家，专注时尚染发技艺</p>
+                <div class="social-links">
+                    <a href="#">IG</a>
+                    <a href="#">FB</a>
+                    <a href="#">WB</a>
+                </div>
+            </div>
+        </div>
+        <div class="stylist-card">
+            <img class="stylist-img" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500" alt="造型师">
+            <div class="stylist-info">
+                <h3>Emma Wang</h3>
+                <div class="stylist-role">烫发造型师</div>
+                <p>日式烫发认证，精通各类卷度设计</p>
+                <div class="social-links">
+                    <a href="#">IG</a>
+                    <a href="#">FB</a>
+                    <a href="#">WB</a>
+                </div>
+            </div>
+        </div>
+        <div class="stylist-card">
+            <img class="stylist-img" src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=500" alt="造型师">
+            <div class="stylist-info">
+                <h3>David Zhang</h3>
+                <div class="stylist-role">男士造型师</div>
+                <p>专注现代男士发型与造型设计</p>
+                <div class="social-links">
+                    <a href="#">IG</a>
+                    <a href="#">FB</a>
+                    <a href="#">WB</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Booking Section -->
+<section class="booking" id="booking">
+    <div class="section-title">
+        <h6>—— 预约服务 ——</h6>
+        <h2>立即 <span>预约</span></h2>
+    </div>
+    <form class="booking-form" id="bookingForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" id="name" required placeholder="请输入您的姓名">
+            </div>
+            <div class="form-group">
+                <label for="phone">电话</label>
+                <input type="tel" id="phone" required placeholder="请输入联系电话">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="service">服务项目</label>
+                <select id="service" required>
+                    <option value="">请选择服务</option>
+                    <option>精致剪发</option>
+                    <option>时尚染发</option>
+                    <option>烫发造型</option>
+                    <option>深层护理</option>
+                    <option>新娘造型</option>
+                    <option>头皮护理</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="stylist">指定造型师</label>
+                <select id="stylist">
+                    <option value="">无指定</option>
+                    <option>Sophia Chen</option>
+                    <option>James Liu</option>
+                    <option>Emma Wang</option>
+                    <option>David Zhang</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="date">预约日期</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label for="time">预约时间</label>
+                <input type="time" id="time" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="notes">备注</label>
+            <textarea id="notes" placeholder="如有特殊需求请告诉我们..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">确认预约</button>
+    </form>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials" id="testimonials">
+    <div class="section-title">
+        <h6>—— 客户评价 ——</h6>
+        <h2>他们 <span>这样说</span></h2>
+    </div>
+    <div class="testimonials-container">
+        <div class="testimonials-wrapper">
+            <div class="testimonials-track" id="testimonialsTrack">
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="stars">★ ★ ★ ★ ★</div>
+                        <p class="testimonial-text">在这里做了一次染烫，效果超乎预期！Sophia 的手艺真的太棒了，从进门到离开的整个体验都非常舒适。现在每次来都有回家的感觉。</p>
+                        <div class="client-info">
+                            <div class="client-avatar">李</div>
+                            <div class="client-details">
+                                <h4>李小姐</h4>
+                                <p>忠实顾客 · 3 年</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="stars">★ ★ ★ ★ ★</div>
+                        <p class="testimonial-text">婚礼造型做得非常完美，Emma 非常专业并且耐心地理解了我的需求。那天我感觉自己像个公主，收到了许多赞美。强烈推荐给准新娘们！</p>
+                        <div class="client-info">
+                            <div class="client-avatar">王</div>
+                            <div class="client-details">
+                                <h4>王女士</h4>
+                                <p>新娘造型</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="stars">★ ★ ★ ★ ★</div>
+                        <p class="testimonial-text">环境优雅，服务细致，造型师非常懂搭配。每次离开都能感受到发质的明显提升，护理产品品质上乘。这是我体验过最好的美发沙龙。</p>
+                        <div class="client-info">
+                            <div class="client-avatar">张</div>
+                            <div class="client-details">
+                                <h4>张先生</h4>
+                                <p>常客</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-content">
+                        <div class="stars">★ ★ ★ ★ ★</div>
+                        <p class="testimonial-text">James 为我设计的染发颜色简直完美，完全符合我的气质。朋友们都问我在哪里做的，现在已经介绍了好几个朋友过来。服务品质始终如一！</p>
+                        <div class="client-info">
+                            <div class="client-avatar">陈</div>
+                            <div class="client-details">
+                                <h4>陈小姐</h4>
+                                <p>染发专属</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="testimonial-controls">
+            <button class="control-btn" id="prevBtn">‹</button>
+            <button class="control-btn" id="nextBtn">›</button>
+        </div>
+        <div class="testimonial-dots" id="dots"></div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-col">
+            <h4>Luxe Hair Studio</h4>
+            <p>让每一位客人都找到属于自己的独特风格，享受奢华的美发体验。</p>
+        </div>
+        <div class="footer-col">
+            <h4>联系我们</h4>
+            <p>📍 上海市静安区南京西路 888 号</p>
+            <p>📞 400-888-8888</p>
+            <p>✉️ contact@luxehair.com</p>
+        </div>
+        <div class="footer-col">
+            <h4>营业时间</h4>
+            <p>周一至周五: 10:00 - 21:00</p>
+            <p>周六至周日: 09:00 - 22:00</p>
+            <p>法定假日: 10:00 - 20:00</p>
+        </div>
+        <div class="footer-col">
+            <h4>关注我们</h4>
+            <a href="#">Instagram</a>
+            <a href="#">微博</a>
+            <a href="#">微信公众号</a>
+            <a href="#">小红书</a>
+        </div>
+    </div>
+    <div class="copyright">
+        © 2024 Luxe Hair Studio. 保留所有权利.
+    </div>
+</footer>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">预约提交成功！我们会尽快与您联系</div>
+
+<script>
+    // Smooth scrolling
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Testimonials Carousel
+    const track = document.getElementById('testimonialsTrack');
+    const testimonials = track.children;
+    const dotsContainer = document.getElementById('dots');
+    let currentIndex = 0;
+
+    // Create dots
+    for (let i = 0; i < testimonials.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+    }
+
+    function updateCarousel() {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        document.querySelectorAll('.dot').forEach((dot, idx) => {
+            dot.classList.toggle('active', idx === currentIndex);
+        });
+    }
+
+    function goToSlide(index) {
+        currentIndex = index;
+        updateCarousel();
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + testimonials.length) % testimonials.length;
+        updateCarousel();
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % testimonials.length;
+        updateCarousel();
+    });
+
+    // Auto-rotate
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % testimonials.length;
+        updateCarousel();
+    }, 6000);
+
+    // Booking form
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3500);
+        this.reset();
+    });
+
+    // Set minimum date to today
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+
+    // Navigation background change on scroll
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('nav');
+        if (window.scrollY > 50) {
+            nav.style.background = 'rgba(26, 26, 26, 0.98)';
+            nav.style.boxShadow = '0 2px 20px rgba(0,0,0,0.1)';
+        } else {
+            nav.style.background = 'rgba(26, 26, 26, 0.95)';
+            nav.style.boxShadow = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>

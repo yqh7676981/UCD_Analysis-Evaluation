@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>会议纪要整理工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+      padding: 16px;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #fff;
+      transition: border 0.2s ease;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button#copyBtn {
+      background-color: #2ecc71;
+      margin-top: 20px;
+    }
+
+    button#copyBtn:hover {
+      background-color: #27ae60;
+    }
+
+    .output {
+      margin-top: 24px;
+      padding: 16px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      white-space: pre-wrap;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      border: 1px solid #eee;
+      display: none;
+    }
+
+    .note-visible {
+      display: block !important;
+    }
+
+    .hint {
+      font-size: 0.85rem;
+      color: #777;
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>会议纪要整理工具</h1>
+
+  <div class="form-group">
+    <label for="topic">会议主题</label>
+    <input type="text" id="topic" placeholder="请输入会议主题" />
+  </div>
+
+  <div class="form-group">
+    <label for="attendees">参会人</label>
+    <input type="text" id="attendees" placeholder="用逗号分隔，如：张三, 李四, 王五" />
+  </div>
+
+  <div class="form-group">
+    <label for="points">讨论要点</label>
+    <textarea id="points" placeholder="每行一个要点，例如：&#10;- 讨论了项目进度&#10;- 确定了下一阶段目标"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="todos">待办事项</label>
+    <textarea id="todos" placeholder="每行一个待办，例如：&#10;- 张三：完成需求文档（截止日期：6月20日）&#10;- 李四：调研技术方案"></textarea>
+  </div>
+
+  <button id="generateBtn">生成纪要</button>
+
+  <pre id="output" class="output"></pre>
+
+  <button id="copyBtn">一键复制</button>
+  <p class="hint">生成后可点击“一键复制”保存到剪贴板</p>
+
+  <script>
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const output = document.getElementById('output');
+
+    generateBtn.addEventListener('click', () => {
+      const topic = document.getElementById('topic').value.trim() || '未命名会议';
+      const attendees = document.getElementById('attendees').value.trim() || '暂无';
+      const points = document.getElementById('points').value.trim() || '无';
+      const todos = document.getElementById('todos').value.trim() || '无';
+
+      const formattedAttendees = attendees.split(',').map(a => a.trim()).join('、');
+      
+      const summary = `会议纪要
+
+【会议主题】
+${topic}
+
+【参会人员】
+${formattedAttendees}
+
+【讨论要点】
+${points}
+
+【待办事项】
+${todos}
+`;
+
+      output.textContent = summary;
+      output.classList.add('note-visible');
+    });
+
+    copyBtn.addEventListener('click', () => {
+      if (output.classList.contains('note-visible') && output.textContent) {
+        navigator.clipboard.writeText(output.textContent)
+          .then(() => {
+            alert('已复制到剪贴板！');
+          })
+          .catch(err => {
+            console.error('复制失败:', err);
+            alert('复制失败，请手动选择复制。');
+          });
+      } else {
+        alert('请先生成会议纪要！');
+      }
+    });
+  </script>
+</body>
+</html>

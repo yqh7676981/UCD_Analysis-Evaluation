@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FF6B6B">
+<title>每日热量记录</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(180deg, #FFF5F5 0%, #FFEBE0 100%);
+  color: #333;
+  min-height: 100vh;
+  padding-bottom: 30px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.app { max-width: 480px; margin: 0 auto; padding: 16px; }
+
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 4px 16px;
+}
+.header h1 { font-size: 20px; font-weight: 700; color: #FF5252; }
+.header .date { font-size: 13px; color: #888; }
+
+.card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(255, 107, 107, 0.08);
+  margin-bottom: 16px;
+}
+
+.summary { text-align: center; }
+.ring-wrap { position: relative; width: 180px; height: 180px; margin: 8px auto 12px; }
+.ring-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: #FFE5E0; stroke-width: 14; }
+.ring-fg {
+  fill: none; stroke: url(#grad); stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+.ring-text {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.ring-text .num { font-size: 32px; font-weight: 800; color: #FF5252; }
+.ring-text .unit { font-size: 12px; color: #999; margin-top: 2px; }
+.ring-text .pct { font-size: 13px; color: #FF8A65; margin-top: 4px; font-weight: 600; }
+
+.stats {
+  display: flex; justify-content: space-around;
+  padding-top: 12px;
+  border-top: 1px dashed #FFD9D0;
+}
+.stat { text-align: center; flex: 1; }
+.stat .v { font-size: 17px; font-weight: 700; color: #333; }
+.stat .l { font-size: 11px; color: #888; margin-top: 3px; }
+.stat.over .v { color: #FF5252; }
+
+.goal-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 14px;
+  background: #FFF5F0;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.goal-row label { font-size: 13px; color: #666; }
+.goal-row input {
+  width: 80px;
+  border: none;
+  background: transparent;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 700;
+  color: #FF5252;
+  outline: none;
+}
+
+.section-title {
+  font-size: 15px; font-weight: 700; color: #444;
+  margin: 4px 4px 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-title::before {
+  content: ''; width: 4px; height: 14px;
+  background: #FF6B6B; border-radius: 2px;
+}
+
+.cats {
+  display: flex; gap: 8px; overflow-x: auto;
+  padding-bottom: 6px; margin-bottom: 12px;
+  scrollbar-width: none;
+}
+.cats::-webkit-scrollbar { display: none; }
+.cat {
+  flex: 0 0 auto;
+  padding: 7px 14px;
+  background: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #666;
+  border: 1px solid #FFD9D0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cat.active {
+  background: linear-gradient(135deg, #FF8A65, #FF5252);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(255, 82, 82, 0.3);
+}
+
+.foods {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.food {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  border: 1px solid transparent;
+}
+.food:active {
+  transform: scale(0.95);
+  border-color: #FF8A65;
+  box-shadow: 0 2px 12px rgba(255, 107, 107, 0.2);
+}
+.food .emoji { font-size: 30px; line-height: 1; }
+.food .name { font-size: 12px; color: #333; margin-top: 6px; font-weight: 600; }
+.food .cal { font-size: 10px; color: #FF6B6B; margin-top: 2px; }
+
+.records-empty {
+  text-align: center; padding: 30px 0; color: #BBB;
+  font-size: 13px;
+}
+.records-empty .e { font-size: 40px; }
+.record {
+  display: flex; align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #FFEFE8;
+}
+.record:last-child { border-bottom: none; }
+.record .icon {
+  font-size: 26px; width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: #FFF5F0; border-radius: 12px; margin-right: 12px;
+}
+.record .info { flex: 1; min-width: 0; }
+.record .info .n { font-size: 14px; font-weight: 600; color: #333; }
+.record .info .t { font-size: 11px; color: #999; margin-top: 3px; }
+.record .cal-tag {
+  font-size: 14px; font-weight: 700; color: #FF5252;
+  margin-right: 10px;
+}
+.record .del {
+  width: 30px; height: 30px;
+  border: none; background: #FFE5E0;
+  color: #FF5252; border-radius: 50%;
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.record .del:active { background: #FF5252; color: #fff; }
+
+/* Modal */
+.modal-mask {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.2s;
+}
+.modal-mask.show { display: flex; }
+.modal {
+  width: 100%; max-width: 480px;
+  background: #fff;
+  border-radius: 22px 22px 0 0;
+  padding: 22px 20px 28px;
+  animation: slideUp 0.25s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal h3 { text-align: center; font-size: 17px; margin-bottom: 6px; }
+.modal .sub { text-align: center; font-size: 12px; color: #999; margin-bottom: 18px; }
+.qty {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px; margin: 16px 0;
+}
+.qty button {
+  width: 44px; height: 44px;
+  border: none; border-radius: 50%;
+  background: #FFE5E0; color: #FF5252;
+  font-size: 22px; font-weight: 700;
+  cursor: pointer;
+}
+.qty button:active { background: #FF5252; color: #fff; }
+.qty .val {
+  font-size: 26px; font-weight: 800; color: #333;
+  min-width: 60px; text-align: center;
+}
+.qty .unit { font-size: 13px; color: #999; }
+.preview {
+  background: #FFF5F0; border-radius: 12px;
+  padding: 12px; text-align: center;
+  font-size: 14px; color: #666; margin-bottom: 18px;
+}
+.preview b { color: #FF5252; font-size: 18px; }
+.modal-btns { display: flex; gap: 10px; }
+.btn {
+  flex: 1; height: 46px; border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+}
+.btn-cancel { background: #F5F5F5; color: #666; }
+.btn-ok {
+  background: linear-gradient(135deg, #FF8A65, #FF5252);
+  color: #fff; box-shadow: 0 4px 12px rgba(255, 82, 82, 0.3);
+}
+
+.toast {
+  position: fixed; top: 30%; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.75); color: #fff;
+  padding: 10px 20px; border-radius: 20px;
+  font-size: 13px; z-index: 200;
+  opacity: 1; /* fixed: was 0 */ pointer-events: none;
+  transition: opacity 0.2s;
+}
+.toast.show { opacity: 1; }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>🔥 今日热量</h1>
+    <div class="date" id="date"></div>
+  </div>
+
+  <div class="card summary">
+    <div class="ring-wrap">
+      <svg viewBox="0 0 180 180">
+        <defs>
+          <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FFB199"/>
+            <stop offset="100%" stop-color="#FF5252"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg" cx="90" cy="90" r="76"/>
+        <circle class="ring-fg" id="ring" cx="90" cy="90" r="76"
+          stroke-dasharray="477.5" stroke-dashoffset="477.5"/>
+      </svg>
+      <div class="ring-text">
+        <div class="num" id="curCal">0</div>
+        <div class="unit">已摄入 / kcal</div>
+        <div class="pct" id="curPct">0%</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="goalShow">2000</div><div class="l">目标</div></div>
+      <div class="stat" id="leftStat"><div class="v" id="leftCal">2000</div><div class="l">剩余</div></div>
+      <div class="stat"><div class="v" id="cntShow">0</div><div class="l">食物数</div></div>
+    </div>
+    <div class="goal-row">
+      <label>每日目标 (kcal)</label>
+      <input type="number" id="goalInput" value="2000" min="500" max="5000">
+    </div>
+  </div>
+
+  <div class="section-title">选择食物</div>
+  <div class="card" style="padding: 14px;">
+    <div class="cats" id="cats"></div>
+    <div class="foods" id="foods"></div>
+  </div>
+
+  <div class="section-title">今日记录</div>
+  <div class="card" id="recordsCard">
+    <div class="records-empty" id="empty">
+      <div class="e">🍽️</div>
+      <div>还没有记录，快添加食物吧</div>
+    </div>
+    <div id="records"></div>
+  </div>
+</div>
+
+<div class="modal-mask" id="modal">
+  <div class="modal">
+    <h3 id="mTitle">添加食物</h3>
+    <div class="sub" id="mSub"></div>
+    <div class="qty">
+      <button id="qMinus">−</button>
+      <div><span class="val" id="qVal">1</span><span class="unit" id="qUnit"> 份</span></div>
+      <button id="qPlus">+</button>
+    </div>
+    <div class="preview">本次摄入约 <b id="mCal">0</b> kcal</div>
+    <div class="modal-btns">
+      <button class="btn btn-cancel" id="btnCancel">取消</button>
+      <button class="btn btn-ok" id="btnOk">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const FOODS = {
+  '主食': [
+    {n:'米饭',e:'🍚',c:230,u:'碗'},
+    {n:'面条',e:'🍜',c:280,u:'碗'},
+    {n:'馒头',e:'🥟',c:220,u:'个'},
+    {n:'包子',e:'🥟',c:250,u:'个'},
+    {n:'面包',e:'🍞',c:280,u:'片'},
+    {n:'饺子',e:'🥟',c:40,u:'个'},
+    {n:'粥',e:'🥣',c:90,u:'碗'},
+    {n:'披萨',e:'🍕',c:270,u:'块'},
+    {n:'汉堡',e:'🍔',c:550,u:'个'},
+  ],
+  '蛋白': [
+    {n:'鸡蛋',e:'🥚',c:75,u:'个'},
+    {n:'牛奶',e:'🥛',c:150,u:'杯'},
+    {n:'酸奶',e:'🥛',c:120,u:'杯'},
+    {n:'鸡胸肉',e:'🍗',c:165,u:'份'},
+    {n:'牛肉',e:'🥩',c:250,u:'份'},
+    {n:'鱼肉',e:'🐟',c:140,u:'份'},
+    {n:'豆腐',e:'🥡',c:80,u:'块'},
+    {n:'虾',e:'🦐',c:90,u:'份'},
+  ],
+  '蔬果': [
+    {n:'苹果',e:'🍎',c:95,u:'个'},
+    {n:'香蕉',e:'🍌',c:105,u:'根'},
+    {n:'橙子',e:'🍊',c:60,u:'个'},
+    {n:'葡萄',e:'🍇',c:70,u:'串'},
+    {n:'西瓜',e:'🍉',c:85,u:'块'},
+    {n:'草莓',e:'🍓',c:50,u:'份'},
+    {n:'青菜',e:'🥬',c:25,u:'份'},
+    {n:'番茄',e:'🍅',c:22,u:'个'},
+    {n:'黄瓜',e:'🥒',c:16,u:'根'},
+  ],
+  '零食': [
+    {n:'薯片',e:'🍟',c:540,u:'包'},
+    {n:'巧克力',e:'🍫',c:230,u:'块'},
+    {n:'冰淇淋',e:'🍦',c:200,u:'个'},
+    {n:'蛋糕',e:'🍰',c:350,u:'块'},
+    {n:'饼干',e:'🍪',c:50,u:'块'},
+    {n:'甜甜圈',e:'🍩',c:280,u:'个'},
+  ],
+  '饮品': [
+    {n:'可乐',e:'🥤',c:140,u:'罐'},
+    {n:'果汁',e:'🧃',c:120,u:'杯'},
+    {n:'咖啡',e:'☕',c:5,u:'杯'},
+    {n:'奶茶',e:'🧋',c:350,u:'杯'},
+    {n:'啤酒',e:'🍺',c:150,u:'瓶'},
+    {n:'红酒',e:'🍷',c:125,u:'杯'},
+  ],
+};
+
+const today = new Date().toISOString().slice(0,10);
+const KEY = 'cal_' + today;
+const GOAL_KEY = 'cal_goal';
+
+let state = {
+  goal: parseInt(localStorage.getItem(GOAL_KEY)) || 2000,
+  records: JSON.parse(localStorage.getItem(KEY) || '[]'),
+  curCat: '主食',
+  picking: null,
+  qty: 1,
+};
+
+const $ = id => document.getElementById(id);
+
+function showDate() {
+  const d = new Date();
+  const w = ['日','一','二','三','四','五','六'][d.getDay()];
+  $('date').textContent = `${d.getMonth()+1}月${d.getDate()}日 周${w}`;
+}
+
+function renderCats() {
+  $('cats').innerHTML = Object.keys(FOODS).map(c =>
+    `<div class="cat ${c===state.curCat?'active':''}" data-c="${c}">${c}</div>`
+  ).join('');
+  document.querySelectorAll('.cat').forEach(el => {
+    el.onclick = () => { state.curCat = el.dataset.c; renderCats(); renderFoods(); };
+  });
+}
+
+function renderFoods() {
+  $('foods').innerHTML = FOODS[state.curCat].map((f,i) =>
+    `<div class="food" data-i="${i}">
+      <div class="emoji">${f.e}</div>
+      <div class="name">${f.n}</div>
+      <div class="cal">${f.c} kcal/${f.u}</div>
+    </div>`
+  ).join('');
+  document.querySelectorAll('.food').forEach(el => {
+    el.onclick = () => openModal(FOODS[state.curCat][el.dataset.i]);
+  });
+}
+
+function openModal(food) {
+  state.picking = food;
+  state.qty = 1;
+  $('mTitle').textContent = `${food.e} ${food.n}`;
+  $('mSub').textContent = `约 ${food.c} kcal / ${food.u}`;
+  $('qUnit').textContent = ' ' + food.u;
+  updateModal();
+  $('modal').classList.add('show');
+}
+function closeModal() { $('modal').classList.remove('show'); }
+function updateModal() {
+  $('qVal').textContent = state.qty;
+  $('mCal').textContent = Math.round(state.picking.c * state.qty);
+}
+
+function addRecord() {
+  const f = state.picking;
+  state.records.unshift({
+    id: Date.now(),
+    n: f.n, e: f.e, u: f.u,
+    qty: state.qty,
+    cal: Math.round(f.c * state.qty),
+    time: new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}),
+  });
+  save();
+  renderAll();
+  closeModal();
+  toast('已添加 ✓');
+}
+
+function delRecord(id) {
+  state.records = state.records.filter(r => r.id !== id);
+  save();
+  renderAll();
+}
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(state.records));
+  localStorage.setItem(GOAL_KEY, state.goal);
+}
+
+function renderRecords() {
+  if (state.records.length === 0) {
+    $('empty').style.display = 'block';
+    $('records').innerHTML = '';
+    return;
+  }
+  $('empty').style.display = 'none';
+  $('records').innerHTML = state.records.map(r =>
+    `<div class="record">
+      <div class="icon">${r.e}</div>
+      <div class="info">
+        <div class="n">${r.n} × ${r.qty} ${r.u}</div>
+        <div class="t">${r.time}</div>
+      </div>
+      <div class="cal-tag">${r.cal} kcal</div>
+      <button class="del" data-id="${r.id}">×</button>
+    </div>`
+  ).join('');
+  document.querySelectorAll('.del').forEach(el => {
+    el.onclick = () => delRecord(parseInt(el.dataset.id));
+  });
+}
+
+function renderSummary() {
+  const total = state.records.reduce((s,r) => s+r.cal, 0);
+  const pct = Math.min(100, (total/state.goal)*100);
+  const C = 2 * Math.PI * 76;
+  $('ring').setAttribute('stroke-dasharray', C);
+  $('ring').setAttribute('stroke-dashoffset', C * (1 - pct/100));
+  $('curCal').textContent = total;
+  $('curPct').textContent = Math.round(pct) + '%';
+  $('goalShow').textContent = state.goal;
+  const left = state.goal - total;
+  $('leftCal').textContent = left >= 0 ? left : Math.abs(left);
+  $('leftStat').classList.toggle('over', left < 0);
+  $('leftStat').querySelector('.l').textContent = left >= 0 ? '剩余' : '超出';
+  $('cntShow').textContent = state.records.length;
+}
+
+function renderAll() { renderSummary(); renderRecords(); }
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+// Init
+showDate();
+$('goalInput').value = state.goal;
+renderCats();
+renderFoods();
+renderAll();
+
+$('goalInput').addEventListener('input', e => {
+  const v = parseInt(e.target.value) || 2000;
+  state.goal = Math.max(500, Math.min(5000, v));
+  save();
+  renderSummary();
+});
+$('qMinus').onclick = () => { if(state.qty>0.5){state.qty=Math.round((state.qty-0.5)*10)/10;updateModal();} };
+$('qPlus').onclick = () => { state.qty=Math.round((state.qty+0.5)*10)/10; updateModal(); };
+$('btnCancel').onclick = closeModal;
+$('btnOk').onclick = addRecord;
+$('modal').onclick = e => { if(e.target.id==='modal') closeModal(); };
+</script>
+</body>
+</html>

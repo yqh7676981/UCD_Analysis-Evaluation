@@ -1,0 +1,33 @@
+{
+  "index": 211,
+  "id": "E004",
+  "group": "A",
+  "class": "Mobile",
+  "model": "claude-opus-4-7-thinking",
+  "question": "做一个错题本工具，支持录入错题、错误原因和正确解法，按学科和知识点分类，能筛选查看。",
+  "evaluation": {
+    "total_score": 81,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent mobile product style: purple gradient header, soft rounded cards, and consistent pill filters create a recognizable system. The tone fits a lightweight study tool, though the top-heavy gradient and large empty lower area reduce balance and make the page feel less fully resolved."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography is clean and readable, tag styles are mostly consistent, and spacing inside cards is controlled. Buttons and chips align well overall. Minor issues: metric cards have limited contrast variation, the action buttons inside cards feel slightly cramped, and there is some visual softness from repeated similar radii/shadows rather than sharper component differentiation."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the main structure: summary at top, subject filters, knowledge-point filters, question cards, and a prominent add button. Primary actions are visible without searching. However, filters consume substantial vertical space on mobile, and the large blank area before the sticky CTA weakens information density and continuity."
+      },
+      "easy_to_understand": {
+        "score": 9,
+        "reason": "Labels match the scenario well: wrong questions, error categories, subjects, knowledge points, dates, and add/delete operations are immediately understandable. Filtering logic is familiar and the CTA is explicit. The only mild semantic gap is that cards visibly show subject and knowledge point but do not surface '错误原因' or '正确解法' in the collapsed state, which are core to the requested tool."
+      }
+    },
+    "summary": "This is a strong, near launch-ready mobile wrong-question notebook UI with clear structure, good readability, and intuitive operations. Its biggest strengths are coherent visual language and immediately understandable filtering and entry actions. The hard cap comes from incomplete task expression in the visible card content—key requested fields like error reason and correct solution are not evident in the main view—and from some layout inefficiency on mobile, especially the oversized empty lower area."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E004_A_claude-opus-4-7-thinking/screenshot_mobile.png",
+  "time": "2026-05-29T16:06:27.577840"
+}

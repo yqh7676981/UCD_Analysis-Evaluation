@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来资本 | Future Capital</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* 全局重置与变量 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0a1a3a;
+            --primary-light: #1a2e5a;
+            --primary-dark: #050e22;
+            --accent: #00b4d8;
+            --accent-hover: #0096c7;
+            --text-light: #ffffff;
+            --text-dark: #1a1a2e;
+            --bg-light: #f8f9fa;
+            --bg-card: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+            --border-radius: 16px;
+            --max-width: 1200px;
+            --font-family: 'Inter', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            color: var(--text-dark);
+            line-height: 1.6;
+            background-color: var(--bg-light);
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+            z-index: 1000;
+        }
+
+        .navbar.scrolled {
+            background: var(--primary);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-light);
+            letter-spacing: 1px;
+        }
+
+        .navbar .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* 汉堡按钮 */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 5px;
+        }
+
+        .hamburger div {
+            width: 30px;
+            height: 3px;
+            background: var(--text-light);
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--primary);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.5s ease;
+                gap: 2.5rem;
+                box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-links.active {
+                right: 0;
+            }
+
+            .hamburger {
+                display: flex;
+                z-index: 1001;
+            }
+
+            .hamburger.active div:nth-child(1) {
+                transform: rotate(45deg) translate(5px, 5px);
+            }
+            .hamburger.active div:nth-child(2) {
+                opacity: 0;
+            }
+            .hamburger.active div:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
+            }
+        }
+
+        /* 通用 section 样式 */
+        section {
+            padding: 5rem 2rem;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 顶部偏移（防止固定导航遮挡） */
+        .section-offset {
+            padding-top: 7rem;
+        }
+
+        /* 英雄区 */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, #162e5a 100%);
+            color: var(--text-light);
+            padding: 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 180, 216, 0.1) 0%, transparent 70%);
+            animation: pulse 6s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.2) rotate(10deg);
+                opacity: 1;
+            }
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-content h1 span {
+            color: var(--accent);
+        }
+
+        .hero-content p {
+            font-size: clamp(1rem, 2.5vw, 1.4rem);
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--accent);
+            color: var(--text-light);
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: transform 0.3s, background 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            background: var(--accent-hover);
+            box-shadow: 0 10px 25px rgba(0, 180, 216, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--text-light);
+            margin-left: 1rem;
+        }
+
+        .btn-outline:hover {
+            background: var(--text-light);
+            color: var(--primary);
+        }
+
+        @media (max-width: 768px) {
+            .hero-content .btn {
+                display: block;
+                margin: 1rem auto;
+                max-width: 250px;
+            }
+            .btn-outline {
+                margin-left: 0;
+            }
+        }
+
+        /* 使命区 */
+        #mission {
+            background: var(--bg-light);
+        }
+
+        .mission-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            font-size: 1.15rem;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .mission-content strong {
+            color: var(--primary);
+        }
+
+        /* 投资领域 */
+        #focus {
+            background: var(--text-light);
+        }
+
+        .focus-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .focus-card {
+            background: var(--bg-light);
+            padding: 2rem 1.5rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            border-bottom: 4px solid var(--accent);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .focus-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .focus-card i {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .focus-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+        }
+
+        .focus-card p {
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 992px) {
+            .focus-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .focus-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 团队 */
+        #team {
+            background: var(--bg-light);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .team-card {
+            background: var(--bg-card);
+            border-radius: var(--border-radius);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .team-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0 auto 1.5rem;
+            color: var(--text-light);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .team-card:hover .team-avatar {
+            transform: scale(1.05);
+        }
+
+        .team-card:nth-child(1) .team-avatar {
+            background: #2a5a8f;
+        }
+        .team-card:nth-child(2) .team-avatar {
+            background: #1e7a5e;
+        }
+        .team-card:nth-child(3) .team-avatar {
+            background: #8f2a4a;
+        }
+
+        .team-card h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .team-card .position {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .team-card p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 992px) {
+            .team-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 联系区域 */
+        #contact {
+            background: var(--text-light);
+        }
+
+        .contact-info {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .contact-info p {
+            margin: 0.5rem 0;
+            font-size: 1.05rem;
+            color: #444;
+        }
+
+        .contact-info i {
+            color: var(--accent);
+            width: 1.5rem;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: var(--primary);
+            color: var(--text-light);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* 滚动渐入效果 */
+        .fade-in {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(0); /* fixed */
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 回到顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--text-light);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s, transform 0.3s, opacity 0.3s;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .back-to-top:hover {
+            background: var(--accent-hover);
+            transform: translateY(-5px);
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">Future<span>Capital</span></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#mission">关于我们</a></li>
+            <li><a href="#focus">投资领域</a></li>
+            <li><a href="#team">核心团队</a></li>
+            <li><a href="#contact">联系</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger">
+            <div></div><div></div><div></div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>投资 <span>未来</span>，成就创新</h1>
+            <p>未来资本是一家专注于早期科技企业的风险投资公司。我们寻找那些敢于挑战、用技术重塑世界的创业者。</p>
+            <div>
+                <a href="#mission" class="btn">了解更多</a>
+                <a href="#focus" class="btn btn-outline">投资领域</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 使命 / 关于 -->
+    <section id="mission" class="section-offset">
+        <div class="container fade-in">
+            <h2 class="section-title">我们的使命</h2>
+            <p class="section-subtitle">以资本和资源加速技术创新，推动社会进步。</p>
+            <div class="mission-content">
+                <p>在未来资本，我们相信技术是解决复杂世界问题的关键。我们的使命是<strong>发现并支持最优秀的企业家</strong>，为他们提供资金、战略指导和全球资源网络，帮助他们将大胆的想法变成可持续的商业模式。自 2015 年成立以来，我们已投资超过 60 家公司，覆盖人工智能、企业服务、医疗科技和深科技等领域。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 投资重点 -->
+    <section id="focus" class="section-offset">
+        <div class="container">
+            <h2 class="section-title">投资领域</h2>
+            <p class="section-subtitle">我们聚焦于四大前沿技术方向，寻找颠覆性创新。</p>
+            <div class="focus-grid">
+                <div class="focus-card fade-in">
+                    <i class="fas fa-robot"></i>
+                    <h3>人工智能 & 数据智能</h3>
+                    <p>投资于机器学习、自然语言处理、计算机视觉等领域的早期项目，推动行业智能化升级。</p>
+                </div>
+                <div class="focus-card fade-in">
+                    <i class="fas fa-building"></i>
+                    <h3>企业服务 & SaaS</h3>
+                    <p>支持面向企业的云计算、垂直SaaS、协作工具等，帮助企业数字化变革。</p>
+                </div>
+                <div class="focus-card fade-in">
+                    <i class="fas fa-heartbeat"></i>
+                    <h3>医疗科技 & 生命科学</h3>
+                    <p>关注生物医药、医疗器械、数字健康等创新，提升人类健康福祉。</p>
+                </div>
+                <div class="focus-card fade-in">
+                    <i class="fas fa-rocket"></i>
+                    <h3>深科技 & 前沿科技</h3>
+                    <p>涵盖新能源、量子计算、先进制造、航空航天等硬科技领域的早期投资。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心团队 -->
+    <section id="team" class="section-offset">
+        <div class="container">
+            <h2 class="section-title">核心团队</h2>
+            <p class="section-subtitle">我们是一群由创业者、工程师和投资人组成的团队，致力于支持下一代创新者。</p>
+            <div class="team-grid">
+                <div class="team-card fade-in">
+                    <div class="team-avatar">张</div>
+                    <h3>张明</h3>
+                    <p class="position">创始合伙人</p>
+                    <p>前腾讯副总裁，拥有 20 年科技行业经验。主导投资了多个独角兽项目，致力于推动人工智能和企业服务领域创新。</p>
+                </div>
+                <div class="team-card fade-in">
+                    <div class="team-avatar">李</div>
+                    <h3>李华</h3>
+                    <p class="position">管理合伙人</p>
+                    <p>生物工程博士，曾任职于顶级医疗基金。专注于医疗科技投资，主导了多家生物医药和数字健康企业投资。</p>
+                </div>
+                <div class="team-card fade-in">
+                    <div class="team-avatar">王</div>
+                    <h3>王磊</h3>
+                    <p class="position">合伙人</p>
+                    <p>麻省理工博士，连续创业者。专注于深科技和新能源投资，为硬科技创业者提供技术商业化的指导。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系我们 -->
+    <section id="contact" class="section-offset">
+        <div class="container fade-in">
+            <h2 class="section-title">联系我们</h2>
+            <p class="section-subtitle">如果你有一个改变世界的想法，我们期待与你交流。</p>
+            <div class="contact-info">
+                <p><i class="fas fa-envelope"></i> contact@futurecapital.com</p>
+                <p><i class="fas fa-map-marker-alt"></i> 北京市朝阳区CBD国际大厦18层</p>
+                <div style="margin-top: 2rem;">
+                    <a href="#" class="btn">发送 BP</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 未来资本 Future Capital. All rights reserved. | <a href="#">隐私政策</a></p>
+        </div>
+    </footer>
+
+    <!-- 回到顶部按钮 -->
+    <button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        // 1. 导航栏滚动效果 / 回到顶部显示
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+
+            const backToTop = document.getElementById('backToTop');
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // 2. 汉堡菜单
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', function() {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+
+        // 点击导航链接后关闭菜单（移动端）
+        const navItems = document.querySelectorAll('.nav-links a');
+        navItems.forEach(function(item) {
+            item.addEventListener('click', function() {
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+        // 3. 滚动渐入效果 (Intersection Observer)
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        fadeElements.forEach(function(el) {
+            observer.observe(el);
+        });
+
+        // 4. 回到顶部功能
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 5. 处理锚点平滑滚动（带导航偏移）
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === "#") return;
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    const offsetTop = target.offsetTop - 70;
+                    window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

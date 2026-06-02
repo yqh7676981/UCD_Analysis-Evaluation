@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>光的折射演示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    color: #fff;
+    overflow-x: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .container {
+    padding: 12px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 8px 0 12px;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(100,200,255,0.4);
+  }
+  .title span { color: #ffd166; }
+  
+  .canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #0a0e1f;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.06);
+    touch-action: none;
+  }
+  canvas { display: block; width: 100%; height: 100%; }
+  
+  .hint {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.3);
+    padding: 4px 10px;
+    border-radius: 12px;
+    pointer-events: none;
+    transition: opacity 0.5s;
+  }
+  .label-air {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    font-size: 12px;
+    color: #aee9ff;
+    background: rgba(174,233,255,0.1);
+    padding: 3px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(174,233,255,0.3);
+    pointer-events: none;
+  }
+  .label-water {
+    position: absolute;
+    bottom: 14px;
+    left: 14px;
+    font-size: 12px;
+    color: #7ec8ff;
+    background: rgba(126,200,255,0.15);
+    padding: 3px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(126,200,255,0.3);
+    pointer-events: none;
+  }
+  
+  .info-panel {
+    margin-top: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 14px;
+    backdrop-filter: blur(8px);
+  }
+  .angles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .angle-box {
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .angle-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+  }
+  .angle-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffd166;
+    font-variant-numeric: tabular-nums;
+  }
+  .angle-value.refr { color: #6ee7ff; }
+  .angle-value .deg { font-size: 14px; opacity: 0.7; margin-left: 2px; }
+  
+  .formula {
+    background: linear-gradient(135deg, rgba(255,209,102,0.12), rgba(110,231,255,0.1));
+    border: 1px solid rgba(255,209,102,0.25);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .formula-title {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .formula-main {
+    font-size: 17px;
+    font-family: 'Times New Roman', serif;
+    font-style: italic;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .formula-main b { color: #ffd166; font-style: normal; }
+  .formula-calc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.75);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.6;
+  }
+  .formula-calc span { color: #6ee7ff; font-weight: 600; }
+  
+  .controls {
+    margin-top: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .ctrl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .ctrl-label { font-size: 13px; color: rgba(255,255,255,0.85); }
+  .ctrl-value { font-size: 13px; color: #ffd166; font-weight: 600; font-variant-numeric: tabular-nums; }
+  
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #ffd166, #6ee7ff);
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #ffd166;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #ffd166;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    cursor: pointer;
+  }
+  
+  .medium-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .medium-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.75);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .medium-btn.active {
+    background: rgba(255,209,102,0.2);
+    border-color: #ffd166;
+    color: #ffd166;
+  }
+  
+  .tir-warn {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(255,80,80,0.15);
+    border: 1px solid rgba(255,80,80,0.4);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 12px;
+    color: #ff9999;
+    display: none;
+  }
+  .tir-warn.show { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title">光的折射演示 · <span>Snell's Law</span></div>
+  
+  <div class="canvas-wrap" id="wrap">
+    <canvas id="cv"></canvas>
+    <div class="label-air">空气 n₁</div>
+    <div class="label-water">水 n₂</div>
+    <div class="hint" id="hint">拖动光线调整入射角</div>
+  </div>
+  
+  <div class="info-panel">
+    <div class="angles">
+      <div class="angle-box">
+        <div class="angle-label">入射角 θ₁</div>
+        <div class="angle-value" id="a1">30<span class="deg">°</span></div>
+      </div>
+      <div class="angle-box">
+        <div class="angle-label">折射角 θ₂</div>
+        <div class="angle-value refr" id="a2">22.1<span class="deg">°</span></div>
+      </div>
+    </div>
+    <div class="formula">
+      <div class="formula-title">折射定律（斯涅尔定律）</div>
+      <div class="formula-main">n₁ · sin θ₁ = n₂ · sin θ₂</div>
+      <div class="formula-calc" id="calc">1.00 × sin30° = 1.33 × sin<span>22.1°</span></div>
+    </div>
+    <div class="tir-warn" id="tir">⚠ 发生全反射，光无法折射进入空气</div>
+  </div>
+  
+  <div class="controls">
+    <div class="ctrl-row">
+      <span class="ctrl-label">入射角</span>
+      <span class="ctrl-value" id="sv">30°</span>
+    </div>
+    <input type="range" id="sl" min="0" max="89" value="30" step="1">
+    <div class="medium-row">
+      <button class="medium-btn active" data-n="1.33">空气→水 (1.33)</button>
+      <button class="medium-btn" data-n="1.50">空气→玻璃 (1.50)</button>
+      <button class="medium-btn" data-n="2.42">空气→钻石 (2.42)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d');
+  const wrap = document.getElementById('wrap');
+  const sl = document.getElementById('sl');
+  const sv = document.getElementById('sv');
+  const a1El = document.getElementById('a1');
+  const a2El = document.getElementById('a2');
+  const calcEl = document.getElementById('calc');
+  const tirEl = document.getElementById('tir');
+  const hint = document.getElementById('hint');
+  
+  let dpr = window.devicePixelRatio || 1;
+  let W = 0, H = 0;
+  let theta1 = 30; // degrees
+  let n1 = 1.00;
+  let n2 = 1.33;
+  let reverse = false; // false: from n1 to n2 (top to bottom)
+  let animTime = 0;
+  
+  function resize(){
+    const r = wrap.getBoundingClientRect();
+    W = r.width; H = r.height;
+    cv.width = W * dpr;
+    cv.height = H * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const cx = W/2, cy = H/2;
+    
+    // background gradients - air (top) and water (bottom)
+    const gAir = ctx.createLinearGradient(0,0,0,cy);
+    gAir.addColorStop(0,'rgba(20,30,60,0.6)');
+    gAir.addColorStop(1,'rgba(40,60,100,0.3)');
+    ctx.fillStyle = gAir;
+    ctx.fillRect(0,0,W,cy);
+    
+    const gWater = ctx.createLinearGradient(0,cy,0,H);
+    gWater.addColorStop(0,'rgba(30,90,160,0.55)');
+    gWater.addColorStop(1,'rgba(10,40,90,0.85)');
+    ctx.fillStyle = gWater;
+    ctx.fillRect(0,cy,W,H-cy);
+    
+    // water surface ripple line
+    ctx.strokeStyle = 'rgba(150,220,255,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for(let x=0; x<=W; x+=4){
+      const y = cy + Math.sin(x*0.05 + animTime*0.04)*1.2;
+      if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+    
+    // normal line (dashed)
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.beginPath();
+    ctx.moveTo(cx, 10);
+    ctx.lineTo(cx, H-10);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // labels for normal
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('法线', cx+4, 18);
+    
+    // calculate refraction
+    const t1Rad = theta1 * Math.PI/180;
+    const sinT2 = (n1/n2) * Math.sin(t1Rad);
+    let tir = false;
+    let t2Rad = 0;
+    if(Math.abs(sinT2) > 1){
+      tir = true;
+    } else {
+      t2Rad = Math.asin(sinT2);
+    }
+    
+    const rayLen = Math.min(W,H) * 0.42;
+    
+    // incident ray (top side, coming down to surface)
+    const ix = cx - Math.sin(t1Rad)*rayLen;
+    const iy = cy - Math.cos(t1Rad)*rayLen;
+    
+    // draw incident ray with glow
+    drawRay(ix, iy, cx, cy, '#ffd166', true);
+    
+    // arrow on incident ray (pointing toward surface)
+    drawArrow(ix + (cx-ix)*0.55, iy + (cy-iy)*0.55, Math.atan2(cy-iy, cx-ix), '#ffd166');
+    
+    // reflected ray (always exists)
+    const rfx = cx + Math.sin(t1Rad)*rayLen*0.7;
+    const rfy = cy - Math.cos(t1Rad)*rayLen*0.7;
+    ctx.strokeStyle = 'rgba(255,209,102,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(rfx,rfy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,209,102,0.5)';
+    ctx.font = '9px sans-serif';
+    ctx.fillText('反射', rfx+3, rfy);
+    
+    // refracted or TIR ray
+    if(!tir){
+      const tx = cx + Math.sin(t2Rad)*rayLen;
+      const ty = cy + Math.cos(t2Rad)*rayLen;
+      drawRay(cx, cy, tx, ty, '#6ee7ff', true);
+      drawArrow(cx + (tx-cx)*0.55, cy + (ty-cy)*0.55, Math.atan2(ty-cy, tx-cx), '#6ee7ff');
+    } else {
+      // total internal reflection - draw a stronger reflected ray
+      const tirX = cx + Math.sin(t1Rad)*rayLen;
+      const tirY = cy - Math.cos(t1Rad)*rayLen;
+      drawRay(cx, cy, tirX, tirY, '#ff6b6b', true);
+    }
+    
+    // arc for incident angle
+    drawAngleArc(cx, cy, 32, -Math.PI/2, -Math.PI/2 - t1Rad, '#ffd166', 'θ₁');
+    
+    // arc for refraction angle
+    if(!tir){
+      drawAngleArc(cx, cy, 32, Math.PI/2, Math.PI/2 - t2Rad, '#6ee7ff', 'θ₂');
+    }
+    
+    // draw drag handle on incident ray
+    ctx.beginPath();
+    ctx.arc(ix, iy, 9, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,209,102,0.25)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(ix, iy, 6, 0, Math.PI*2);
+    ctx.fillStyle = '#ffd166';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // update info
+    a1El.innerHTML = theta1.toFixed(0) + '<span class="deg">°</span>';
+    if(!tir){
+      const t2Deg = t2Rad * 180/Math.PI;
+      a2El.innerHTML = t2Deg.toFixed(1) + '<span class="deg">°</span>';
+      calcEl.innerHTML = n1.toFixed(2)+' × sin'+theta1.toFixed(0)+'° = '+n2.toFixed(2)+' × sin<span>'+t2Deg.toFixed(1)+'°</span>';
+      tirEl.classList.remove('show');
+    } else {
+      a2El.innerHTML = '—';
+      calcEl.innerHTML = 'sin θ₂ = '+sinT2.toFixed(2)+' > 1';
+      tirEl.classList.add('show');
+    }
+  }
+  
+  function drawRay(x1,y1,x2,y2,color,glow){
+    if(glow){
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 6;
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.stroke();
+  }
+  
+  function drawArrow(x,y,angle,color){
+    const sz = 7;
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(angle);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(sz,0);
+    ctx.lineTo(-sz*0.6, sz*0.6);
+    ctx.lineTo(-sz*0.6, -sz*0.6);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+  
+  function drawAngleArc(cx,cy,r,a0,a1,color,label){
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    const ccw = a1 < a0;
+    ctx.arc(cx,cy,r,a0,a1, ccw);
+    ctx.stroke();
+    // label position
+    const mid = (a0+a1)/2;
+    const lx = cx + Math.cos(mid)*(r+12);
+    const ly = cy + Math.sin(mid)*(r+12);
+    ctx.fillStyle = color;
+    ctx.font = 'bold 11px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, lx, ly);
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'alphabetic';
+  }
+  
+  function update(){
+    sv.textContent = theta1.toFixed(0)+'°';
+    sl.value = theta1;
+    draw();
+  }
+  
+  // slider control
+  sl.addEventListener('input', e=>{
+    theta1 = parseFloat(e.target.value);
+    update();
+  });
+  
+  // medium buttons
+  document.querySelectorAll('.medium-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.medium-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      n2 = parseFloat(b.dataset.n);
+      update();
+    });
+  });
+  
+  // canvas drag
+  let dragging = false;
+  function getPos(e){
+    const r = cv.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX - r.left, y: t.clientY - r.top };
+  }
+  function handleStart(e){
+    e.preventDefault();
+    dragging = true;
+    if(hint) hint.style.opacity = '0';
+    handleMove(e);
+  }
+  function handleMove(e){
+    if(!dragging) return;
+    e.preventDefault();
+    const p = getPos(e);
+    const cx = W/2, cy = H/2;
+    const dx = p.x - cx;
+    const dy = p.y - cy;
+    // only respond when in upper half (incident region) or anywhere - we use angle from normal
+    if(dy >= 0) return; // must be above surface
+    let ang = Math.atan2(-dx, -dy) * 180/Math.PI; // angle from upward normal
+    // ang positive means ray comes from upper-left (incident from left side)
+    if(ang < 0) ang = -ang; // mirror to keep on left side visually... actually let's allow both?
+    // clamp
+    if(ang < 0) ang = 0;
+    if(ang > 89) ang = 89;
+    theta1 = ang;
+    update();
+  }
+  function handleEnd(){ dragging = false; }
+  
+  cv.addEventListener('touchstart', handleStart, {passive:false});
+  cv.addEventListener('touchmove', handleMove, {passive:false});
+  cv.addEventListener('touchend', handleEnd);
+  cv.addEventListener('mousedown', handleStart);
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleEnd);
+  
+  window.addEventListener('resize', ()=>{ resize(); draw(); });
+  
+  function loop(){
+    animTime += 1;
+    draw();
+    requestAnimationFrame(loop);
+  }
+  
+  resize();
+  update();
+  loop();
+  
+  // hide hint after a few seconds
+  setTimeout(()=>{ if(hint) hint.style.opacity='0.4'; }, 3500);
+})();
+</script>
+</body>
+</html>

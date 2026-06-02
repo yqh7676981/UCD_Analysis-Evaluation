@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>家庭账单记录工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background-color: #f9f9fb;
+            color: #333;
+            line-height: 1.6;
+            padding: 16px;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4a4a4a;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #fafafa;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .bill-list {
+            margin-top: 20px;
+        }
+
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.95rem;
+        }
+
+        .bill-item:last-child {
+            border-bottom: none;
+        }
+
+        .bill-category {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .bill-amount {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .summary {
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        .total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .chart {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chart-bar {
+            height: 40px;
+            border-radius: 8px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            min-width: 60px;
+        }
+
+        .pie-chart {
+            display: flex;
+            justify-content: center;
+            margin: 16px 0;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>家庭月度账单记录</h1>
+
+    <div class="container">
+        <div class="form-group">
+            <label for="category">账单类别</label>
+            <select id="category">
+                <option value="水电">水电</option>
+                <option value="燃气">燃气</option>
+                <option value="网费">网费</option>
+                <option value="物业">物业</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="amount">金额（元）</label>
+            <input type="number" id="amount" placeholder="请输入金额" step="0.01" min="0" />
+        </div>
+        <button id="addBill">添加账单</button>
+    </div>
+
+    <div class="container">
+        <h2 style="font-size: 1.2rem; margin-bottom: 12px;">本月账单</h2>
+        <div id="billList" class="bill-list">
+            <!-- 账单列表将动态插入 -->
+        </div>
+
+        <div class="summary">
+            <div class="total">本月总支出：<span id="totalAmount">0.00</span> 元</div>
+        </div>
+
+        <div class="pie-chart">
+            <canvas id="chartCanvas" width="300" height="300"></canvas>
+        </div>
+
+        <div class="legend" id="legend"></div>
+    </div>
+
+    <script>
+        // 存储账单数据
+        let bills = [];
+
+        // 颜色映射
+        const colorMap = {
+            '水电': '#4CAF50',
+            '燃气': '#FF9800',
+            '网费': '#2196F3',
+            '物业': '#9C27B0',
+            '其他': '#607D8B'
+        };
+
+        // 添加账单
+        document.getElementById('addBill').addEventListener('click', function () {
+            const category = document.getElementById('category').value;
+            const amountInput = document.getElementById('amount').value;
+            const amount = parseFloat(amountInput);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('请输入有效的金额');
+                return;
+            }
+
+            bills.push({ category, amount });
+            document.getElementById('amount').value = '';
+            renderBillList();
+            renderChart();
+        });
+
+        // 渲染账单列表
+        function renderBillList() {
+            const billListEl = document.getElementById('billList');
+            billListEl.innerHTML = '';
+
+            if (bills.length === 0) {
+                billListEl.innerHTML = '<p style="text-align:center;color:#999;">暂无账单记录</p>';
+                document.getElementById('totalAmount').textContent = '0.00';
+                return;
+            }
+
+            let total = 0;
+            bills.forEach((bill, index) => {
+                total += bill.amount;
+
+                const item = document.createElement('div');
+                item.className = 'bill-item';
+                item.innerHTML = `
+                    <span class="bill-category">${bill.category}</span>
+                    <span class="bill-amount">¥${bill.amount.toFixed(2)}</span>
+                    <button onclick="deleteBill(${index})" style="background-color:#f44336;padding:6px 10px;font-size:0.8rem;border-radius:4px;margin-left:10px;">删除</button>
+                `;
+                billListEl.appendChild(item);
+            });
+
+            document.getElementById('totalAmount').textContent = total.toFixed(2);
+        }
+
+        // 删除账单
+        function deleteBill(index) {
+            bills.splice(index, 1);
+            renderBillList();
+            renderChart();
+        }
+
+        // 渲染饼图
+        function renderChart() {
+            const canvas = document.getElementById('chartCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (bills.length === 0) return;
+
+            // 计算各类别总金额
+            const categoryTotals = {};
+            bills.forEach(bill => {
+                categoryTotals[bill.category] = (categoryTotals[bill.category] || 0) + bill.amount;
+            });
+
+            // 总金额
+            const total = bills.reduce((sum, bill) => sum + bill.amount, 0);
+
+            // 绘制饼图
+            let startAngle = 0;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = Math.min(centerX, centerY) - 20;
+
+            // 清空图例
+            const legendEl = document.getElementById('legend');
+            legendEl.innerHTML = '';
+
+            Object.keys(categoryTotals).forEach(category => {
+                const amount = categoryTotals[category];
+                const sliceAngle = (amount / total) * 2 * Math.PI;
+
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                ctx.closePath();
+
+                const color = colorMap[category];
+                ctx.fillStyle = color;
+                ctx.fill();
+
+                // 添加图例
+                const legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = `
+                    <span class="legend-color" style="background-color:${color};"></span>
+                    ${category} ${(amount / total * 100).toFixed(1)}%
+                `;
+                document.getElementById('legend').appendChild(legendItem);
+
+                startAngle += sliceAngle;
+            });
+        }
+
+        // 初始化
+        renderBillList();
+    </script>
+</body>
+</html>

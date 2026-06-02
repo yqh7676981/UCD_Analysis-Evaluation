@@ -1,0 +1,33 @@
+{
+  "index": 176,
+  "id": "E001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gemini-2.5-flash",
+  "question": "做一个雅思核心词汇打卡工具，每天展示 20 个单词卡片，可以翻转查看释义和例句，记录已掌握的进度。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The interface has a coherent minimalist study-tool look with consistent white cards, soft shadows, and a restrained green accent in the header. However, the style is generic and weakly branded, with oversized empty cards dominating the screen and bottom buttons introducing unrelated blue/red emphasis that breaks visual unity."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Typography is legible and card spacing is mostly consistent. But the cards feel under-finished: large blank interiors, limited text hierarchy, no visible affordance for flipping, and the footer buttons are cramped against the bottom with heavy saturated fills that feel less refined than the rest of the UI."
+      },
+      "easy_to_perceive": {
+        "score": 5,
+        "reason": "Users can quickly see this is a vocabulary list and scan the 20 words, but the main learning flow is visually flat. All cards have identical weight, there is no progress summary visible, no indication of mastered state, and the primary task sequence (review, flip, mark mastered) is not surfaced in the screenshot."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "Labels like '下一批20词' and '重置所有进度' are understandable, but the requested core operations are not clearly communicated. The cards look tappable but there is no visible hint that they flip to show meaning/examples, no mastered control or state marker, and the destructive reset action is prominent without any visible safeguard."
+      }
+    },
+    "summary": "This is a usable but basic mobile vocabulary page: clean, readable, and aligned with the word-card scenario at a surface level. The hard cap comes from missing experiential clarity around the actual task—flipping cards, viewing释义/例句, and recording mastery progress are not evident in the shown UI. Visually it is tidy but generic, with weak hierarchy and limited state communication, so the experience feels more like a static word grid than a complete daily check-in tool."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E001_A_gemini-2.5-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:56:33.699820"
+}

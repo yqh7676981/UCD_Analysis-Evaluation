@@ -1,0 +1,33 @@
+{
+  "index": 278,
+  "id": "490",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "开发\"MASCOTAPPS\"网站，这是一款专门用于宠物护理的应用程序，为宠物主人提供提示、资源和工具。",
+  "evaluation": {
+    "total_score": 78,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark premium landing-page style is coherent across hero, cards, CTA, and footer. Orange accent creates clear brand priority and fits pet-care warmth better than generic blue AI styling, though the visual direction is still fairly conventional and somewhat repetitive section to section."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, card radius, shadows, and spacing are mostly consistent, and the screenshot looks polished overall. However, several body texts are small and low-contrast on dark backgrounds, some card interiors feel sparse, and a few decorative glows/grid effects add atmosphere without improving legibility."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "The page has a strong top-down reading path: brand/nav, hero statement, primary CTA, feature grid, resources, testimonials, final CTA. Key actions are visible and repeated. The main weakness is that secondary descriptive text is faint, and some sections rely on large empty dark areas that reduce information efficiency."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "Labels such as 健康追踪, 智能提醒, 专家咨询, and 立即免费下载 are semantically clear and match common user expectations. Navigation and CTA behavior are predictable for a marketing site. Hard cap comes from limited task depth in the visible design: no obvious product preview, platform details, or clearer explanation of what happens after download."
+      }
+    },
+    "summary": "This is a solid, launch-near desktop marketing page with coherent branding, clear CTA emphasis, and understandable content structure for a pet-care app. Its strongest qualities are visual consistency and a straightforward landing-page flow. The main limitations are small low-contrast supporting text, somewhat generic premium-dark aesthetics, and limited evidence of deeper product explanation or task support beyond promotion, which prevents a higher score."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/490_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:20:22.863574"
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastFood Frenzy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #ff5722;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 1.2rem;
+        }
+
+        nav {
+            background-color: #333;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 0;
+        }
+
+        nav ul li a {
+            display: block;
+            color: #fff;
+            padding: 15px 20px;
+            text-decoration: none;
+        }
+
+        nav ul li a:hover {
+            background-color: #444;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .menu, .special-offers {
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            border-bottom: 2px solid #ff5722;
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .menu-items, .offers-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .menu-item, .offer-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .menu-item img, .offer-item img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .order-section {
+            text-align: center;
+            background-color: #ffeb3b;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .order-section button {
+            font-size: 1rem;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff5722;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .order-section button:hover {
+            background-color: #e64a19;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FastFood Frenzy</h1>
+        <p>Your #1 Destination for Delicious Fast Food!</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#special-offers">Special Offers</a></li>
+            <li><a href="#order">Order Now</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <section class="menu" id="menu">
+            <h2>Our Menu</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <img src="https://via.placeholder.com/150" alt="Burger">
+                    <h3>Classic Burger</h3>
+                    <p>$5.99</p>
+                </div>
+                <div class="menu-item">
+                    <img src="https://via.placeholder.com/150" alt="Fries">
+                    <h3>Golden Fries</h3>
+                    <p>$2.99</p>
+                </div>
+                <div class="menu-item">
+                    <img src="https://via.placeholder.com/150" alt="Pizza">
+                    <h3>Cheesy Pizza</h3>
+                    <p>$7.99</p>
+                </div>
+                <div class="menu-item">
+                    <img src="https://via.placeholder.com/150" alt="Salad">
+                    <h3>Fresh Salad</h3>
+                    <p>$4.99</p>
+                </div>
+            </div>
+        </section>
+        <section class="special-offers" id="special-offers">
+            <h2>Special Offers</h2>
+            <div class="offers-list">
+                <div class="offer-item">
+                    <img src="https://via.placeholder.com/150" alt="Combo Meal">
+                    <h3>Combo Meal</h3>
+                    <p>Burger, Fries & Drink</p>
+                    <p><strong>$9.99</strong></p>
+                </div>
+                <div class="offer-item">
+                    <img src="https://via.placeholder.com/150" alt="Family Pack">
+                    <h3>Family Pack</h3>
+                    <p>Pizza, Salad, & 4 Drinks</p>
+                    <p><strong>$19.99</strong></p>
+                </div>
+            </div>
+        </section>
+        <section class="order-section" id="order">
+            <h2>Order Online</h2>
+            <p>Ready to satisfy your cravings? Place your order now!</p>
+            <button onclick="alert('Thank you for your order!')">Order Now</button>
+        </section>
+    </div>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>16x16 Pixel Artboard</title>
+  <style>
+    /* General Reset */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: flex-start;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin: 20px 0;
+      color: #333;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .controls button,
+    .controls input[type="color"] {
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      min-width: 100px;
+    }
+
+    .controls button {
+      background-color: #007BFF;
+      color: white;
+    }
+
+    .controls button:hover {
+      background-color: #0056b3;
+    }
+
+    #board {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      grid-gap: 2px;
+      max-width: 340px;
+      width: 100%;
+      background-color: #ccc;
+      border: 2px solid #444;
+    }
+
+    .cell {
+      width: 100%;
+      padding-bottom: 100%; /* Maintain square aspect ratio */
+      background-color: white;
+      border: 1px solid #ddd;
+    }
+
+    .cell:hover {
+      opacity: 0.8;
+    }
+
+    .preview {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .preview h2 {
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
+    .preview-img {
+      display: block;
+      max-width: 100%;
+      background-color: white;
+      border: 1px solid #ccc;
+      margin: 10px auto;
+      width: 300px;
+      height: 300px;
+      object-fit: contain;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pixel Artboard</h1>
+  <div class="controls">
+    <input type="color" id="colorPicker" value="#000000">
+    <button id="eraser">Eraser</button>
+    <button id="clear">Clear</button>
+    <button id="preview">Preview</button>
+  </div>
+  <div id="board"></div>
+  <div class="preview" id="previewSection" style="display: none;">
+    <h2>Your Artwork:</h2>
+    <canvas id="previewCanvas" class="preview-img"></canvas>
+  </div>
+
+  <script>
+    const board = document.getElementById("board");
+    const colorPicker = document.getElementById("colorPicker");
+    const eraser = document.getElementById("eraser");
+    const clearButton = document.getElementById("clear");
+    const previewButton = document.getElementById("preview");
+    const previewCanvas = document.getElementById("previewCanvas");
+    const previewSection = document.getElementById("previewSection");
+
+    let currentColor = colorPicker.value;
+    let isEraserMode = false;
+
+    // Generate 16x16 grid
+    for (let i = 0; i < 16 * 16; i++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
+      cell.addEventListener("click", () => {
+        if (isEraserMode) {
+          cell.style.backgroundColor = "white";
+        } else {
+          cell.style.backgroundColor = currentColor;
+        }
+      });
+      board.appendChild(cell);
+    }
+
+    // Update the current color
+    colorPicker.addEventListener("input", () => {
+      currentColor = colorPicker.value;
+      isEraserMode = false;
+    });
+
+    // Eraser mode
+    eraser.addEventListener("click", () => {
+      isEraserMode = true;
+    });
+
+    // Clear the board
+    clearButton.addEventListener("click", () => {
+      document.querySelectorAll(".cell").forEach(cell => {
+        cell.style.backgroundColor = "white";
+      });
+    });
+
+    // Preview artwork
+    previewButton.addEventListener("click", () => {
+      const canvas = previewCanvas;
+      const ctx = canvas.getContext("2d");
+      const cells = board.querySelectorAll(".cell");
+      const cellSize = canvas.width / 16;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      cells.forEach((cell, index) => {
+        const x = (index % 16) * cellSize;
+        const y = Math.floor(index / 16) * cellSize;
+        ctx.fillStyle = cell.style.backgroundColor || "white";
+        ctx.fillRect(x, y, cellSize, cellSize);
+      });
+
+      previewSection.style.display = "block";
+    });
+  </script>
+</body>
+</html>

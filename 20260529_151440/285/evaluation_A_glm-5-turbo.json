@@ -1,0 +1,33 @@
+{
+  "index": 260,
+  "id": "285",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "创建一个类似于 Twitter 的社交媒体平台，允许用户通过点赞、评论和转发来分享短消息并与他人互动。",
+  "evaluation": {
+    "total_score": 82,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark theme with orange accent is coherent and distinctive, and the three-column desktop layout matches the social feed scenario well. Visual language is mostly consistent across cards, tabs, and buttons, though it leans heavily on Twitter imitation and the background texture adds little functional value."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography, spacing, card dividers, rounded search/input fields, and action rows are generally polished and aligned. Minor issues remain: some gray text is low-contrast on black, icon strokes are slightly faint, and a broken/missing inline image preview in the first post reduces finish quality."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Primary areas are immediately clear: left navigation, central feed/composer, and right discovery sidebar. The active tab and publish CTA stand out well, and posts are easy to scan. Density is slightly high in the center column, and the right sidebar modules compete somewhat with the feed for attention."
+      },
+      "easy_to_understand": {
+        "score": 9,
+        "reason": "Labels and interaction patterns closely follow familiar social media mental models: home, explore, notifications, messages, profile, compose, like/comment/repost, trends, and follow suggestions. The operations are predictable and understandable without explanation, with only minor ambiguity from unlabeled action icons under posts."
+      }
+    },
+    "summary": "This is a strong, usable Twitter-like desktop social interface with clear task support for browsing, posting, liking, commenting, and reposting. Its biggest strengths are familiar structure, consistent dark styling, and clear action pathways. The score is capped below top-tier by some low-contrast details, a visible content rendering flaw, and limited originality or refinement beyond a competent template-like execution."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/285_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:16:48.642580"
+}

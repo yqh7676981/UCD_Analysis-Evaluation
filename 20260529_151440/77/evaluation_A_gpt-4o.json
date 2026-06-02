@@ -1,0 +1,33 @@
+{
+  "index": 100,
+  "id": "77",
+  "group": "A",
+  "class": "Desktop",
+  "model": "gpt-4o",
+  "question": "为一家快餐公司设计一个主页，突出显示他们的菜单项、特别优惠和简单的订购选项。",
+  "evaluation": {
+    "total_score": 46,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The page has a basic fast-food color direction with orange, dark gray, and yellow, and the layout is stable, but it feels generic and system-like rather than branded. The large yellow order section competes with the header, and the overall page lacks a strong visual focal product image or distinctive menu presentation."
+      },
+      "local_details": {
+        "score": 3,
+        "reason": "Element-level polish is weak. Multiple food images are broken in the screenshot, leaving alt text visible inside cards. Card interiors feel sparse, spacing is serviceable but not refined, typography hierarchy is shallow, and components look like default boxes with minimal finishing."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly identify the three main sections: menu, offers, and ordering. The reading path is straightforward, and the order CTA is visible. However, the menu cards all have nearly equal emphasis, there is little prioritization among products or offers, and the oversized order banner consumes space without adding supporting information."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "Navigation labels and section names are conventional and easy to understand, and the main ordering action is obvious. But the page does not show how ordering works, whether items are clickable, or what happens after pressing Order Now. The menu lacks stronger affordances for selection or purchase, which limits task clarity."
+      }
+    },
+    "summary": "This homepage communicates the basic fast-food scenario and exposes menu items, special offers, and an order CTA clearly enough for a simple demo. However, broken images, generic cards, limited hierarchy, and weak action affordances make it feel unfinished. The core task is directionally supported, but the experience lacks the visual polish and operational clarity expected from a strong desktop homepage."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/77_A_gpt-4o/screenshot_desktop.png",
+  "time": "2026-05-29T15:37:22.906984"
+}

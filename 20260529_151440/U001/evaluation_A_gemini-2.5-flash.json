@@ -1,0 +1,33 @@
+{
+  "index": 173,
+  "id": "U001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gemini-2.5-flash",
+  "question": "做一个家庭账单记录工具，可以分类记录水电、燃气、网费等月度账单，能看到每月总支出和分类占比。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The interface has a coherent green-and-white visual direction and consistent card layout, fitting a simple household utility tool. However, the style is generic, lacks a strong focal structure beyond colored headers, and does not visually differentiate input, record, and summary areas enough to feel like a polished product system."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Spacing, rounded cards, and button styling are mostly consistent, and text is readable on mobile. But typography hierarchy is limited, the month selector arrows feel plain and underdesigned, form labels and fields are somewhat loosely spaced, and the summary area appears visually unfinished with large empty regions."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly identify the three main sections: add bill, current month list, and monthly overview. Still, important task feedback is weak: the empty states are sparse, the page has too much blank space relative to content, and category share data has no visible chart or visual proportion cue despite being a core scenario requirement."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels and controls follow common mental models: category selection, amount input, add button, month switching, and total expense are all semantically clear. The main limitation is that the '分类占比' section does not meaningfully explain or visualize how proportions will appear, and navigation between months relies only on arrows without stronger affordance or contextual hint."
+      }
+    },
+    "summary": "This is a usable, straightforward mobile bill tracker with clear core sections and low learning cost. The main strengths are semantic clarity and basic visual consistency. The hard cap comes from its minimal and unfinished execution: weak hierarchy, oversized empty states, little analytical visualization, and limited polish for a scenario that specifically calls for monthly totals and category proportions. Functional direction is correct, but the experience feels basic rather than complete."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U001_A_gemini-2.5-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:55:55.849710"
+}

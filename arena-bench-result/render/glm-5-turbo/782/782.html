@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForgeRig — 高性能预组装电脑</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .bg-grid {
+            background-image: linear-gradient(to right, #f1f5f9 1px, transparent 1px),
+                              linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+        }
+        .float-anim { animation: float 4s ease-in-out infinite; }
+        .float-anim-delay { animation: float 4s ease-in-out 1s infinite; }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(234,88,12,0.2); }
+            50% { box-shadow: 0 0 40px rgba(234,88,12,0.4); }
+        }
+        .glow-pulse { animation: pulse-glow 3s ease-in-out infinite; }
+        .toast-enter { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-white text-slate-900">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+                    <i data-lucide="cpu" class="w-4 h-4 text-white"></i>
+                </div>
+                <span class="font-semibold text-lg tracking-tight">ForgeRig</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#products" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">产品</a>
+                <a href="#features" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">特性</a>
+                <a href="#reviews" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">评价</a>
+                <a href="#faq" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">FAQ</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <button id="cart-btn" class="relative p-2 rounded-lg hover:bg-slate-100 transition-colors duration-150">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 text-slate-600"></i>
+                    <span id="cart-count" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-orange-600 text-white text-[10px] font-medium rounded-full flex items-center justify-center">0</span>
+                </button>
+                <button class="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-150" onclick="toggleMobileMenu()">
+                    <i data-lucide="menu" class="w-5 h-5 text-slate-600"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200/60 bg-white/95 backdrop-blur-md">
+            <div class="px-6 py-4 flex flex-col gap-3">
+                <a href="#products" class="text-sm text-slate-600 py-2" onclick="toggleMobileMenu()">产品</a>
+                <a href="#features" class="text-sm text-slate-600 py-2" onclick="toggleMobileMenu()">特性</a>
+                <a href="#reviews" class="text-sm text-slate-600 py-2" onclick="toggleMobileMenu()">评价</a>
+                <a href="#faq" class="text-sm text-slate-600 py-2" onclick="toggleMobileMenu()">FAQ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 lg:pt-40 pb-20 lg:pb-32 overflow-hidden">
+        <div class="absolute inset-0 bg-grid opacity-50"></div>
+        <!-- Decorative elements -->
+        <div class="absolute top-20 right-0 w-96 h-96 bg-orange-100/40 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-slate-100/60 rounded-full blur-3xl"></div>
+        
+        <div class="relative max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-full mb-6">
+                        <span class="w-2 h-2 bg-orange-500 rounded-full relative">
+                            <span class="absolute inset-0 bg-orange-500 rounded-full animate-ping"></span>
+                        </span>
+                        <span class="text-[11px] font-medium uppercase tracking-wider text-orange-700">2024 全新系列上线</span>
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.1] mb-6">
+                        开箱即用<br>
+                        <span class="text-slate-400">高性能电脑</span>
+                    </h1>
+                    <p class="text-lg text-slate-500 leading-relaxed mb-8 max-w-md">
+                        每台 ForgeRig 均经过专业组装与72小时压力测试，无需折腾，到手即享极致性能。
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#products" class="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                            浏览产品
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#features" class="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-900 text-sm font-medium rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors duration-150">
+                            了解更多
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-6 mt-10 pt-8 border-t border-slate-200/60">
+                        <div>
+                            <div class="text-2xl font-semibold tracking-tight">10,000+</div>
+                            <div class="text-xs text-slate-400 mt-0.5">满意客户</div>
+                        </div>
+                        <div class="w-px h-10 bg-slate-200"></div>
+                        <div>
+                            <div class="text-2xl font-semibold tracking-tight">4.9/5</div>
+                            <div class="text-xs text-slate-400 mt-0.5">平均评分</div>
+                        </div>
+                        <div class="w-px h-10 bg-slate-200"></div>
+                        <div>
+                            <div class="text-2xl font-semibold tracking-tight">3年</div>
+                            <div class="text-xs text-slate-400 mt-0.5">质保服务</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-slate-100 float-anim">
+                        <img src="https://picsum.photos/seed/forgerig-hero/800/600.jpg" alt="高性能电脑" class="w-full h-full object-cover hover:scale-105 transition-transform duration-700">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/40 to-transparent"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                                <span class="text-xs font-medium text-white">72小时压力测试认证</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Floating card -->
+                    <div class="absolute -bottom-4 -left-4 bg-white/95 backdrop-blur-sm p-4 rounded-xl shadow-lg float-anim-delay">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+                                <i data-lucide="truck" class="w-5 h-5 text-emerald-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium">免费配送</div>
+                                <div class="text-xs text-slate-400">全国范围 · 3-5天到达</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Logos -->
+    <section class="border-y border-slate-200/60 py-10">
+        <div class="max-w-7xl mx-auto px-6">
+            <p class="text-xs text-slate-400 uppercase tracking-wider text-center mb-8">合作品牌</p>
+            <div class="flex items-center justify-center gap-12 flex-wrap opacity-40 grayscale">
+                <div class="flex items-center gap-2 text-slate-600"><i data-lucide="monitor" class="w-6 h-6"></i><span class="font-medium text-sm">NVIDIA</span></div>
+                <div class="flex items-center gap-2 text-slate-600"><i data-lucide="cpu" class="w-6 h-6"></i><span class="font-medium text-sm">AMD</span></div>
+                <div class="flex items-center gap-2 text-slate-600"><i data-lucide="memory-stick" class="w-6 h-6"></i><span class="font-medium text-sm">Corsair</span></div>
+                <div class="flex items-center gap-2 text-slate-600"><i data-lucide="hard-drive" class="w-6 h-6"></i><span class="font-medium text-sm">Samsung</span></div>
+                <div class="flex items-center gap-2 text-slate-600"><i data-lucide="fan" class="w-6 h-6"></i><span class="font-medium text-sm">NZXT</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-[11px] font-medium uppercase tracking-wider text-orange-600 mb-3 block">产品系列</span>
+                <h2 class="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">选择你的性能利器</h2>
+                <p class="text-lg text-slate-500 max-w-xl mx-auto">从入门到旗舰，每款都经过精心调校，满足不同场景需求</p>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex items-center justify-center gap-2 mb-12">
+                <button class="tab-btn active px-4 py-2 text-sm font-medium rounded-lg bg-slate-900 text-white transition-all duration-150" data-category="all">全部</button>
+                <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all duration-150" data-category="gaming">游戏</button>
+                <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all duration-150" data-category="workstation">工作站</button>
+                <button class="tab-btn px-4 py-2 text-sm font-medium rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all duration-150" data-category="entry">入门</button>
+            </div>
+
+            <!-- Product Grid -->
+            <div id="product-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Product 1 -->
+                <div class="product-card group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300" data-category="gaming" data-price="8999" data-name="ForgeRig Phantom X">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                        <img src="https://picsum.photos/seed/pc-phantom/600/450.jpg" alt="Phantom X" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 left-3 px-2.5 py-1 bg-orange-600 text-white text-[10px] font-medium uppercase tracking-wider rounded-md">热销</div>
+                        <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-medium rounded-md border border-white/20">游戏</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-1">Phantom X</h3>
+                        <p class="text-sm text-slate-500 mb-4">RTX 4070 Super · i7-14700K · 32GB DDR5</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">2K 游戏</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">光追</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">WiFi 6E</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-2xl font-semibold tracking-tight">¥8,999</span>
+                                <span class="text-xs text-slate-400 ml-1.5">起</span>
+                            </div>
+                            <button onclick="addToCart('ForgeRig Phantom X', 8999)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300" data-category="gaming" data-price="14999" data-name="ForgeRig Titan Pro">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                        <img src="https://picsum.photos/seed/pc-titan/600/450.jpg" alt="Titan Pro" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 left-3 px-2.5 py-1 bg-slate-900 text-white text-[10px] font-medium uppercase tracking-wider rounded-md">旗舰</div>
+                        <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-medium rounded-md border border-white/20">游戏</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-1">Titan Pro</h3>
+                        <p class="text-sm text-slate-500 mb-4">RTX 4090 · i9-14900K · 64GB DDR5</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">4K 游戏</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">AI 推理</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">水冷</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-2xl font-semibold tracking-tight">¥14,999</span>
+                                <span class="text-xs text-slate-400 ml-1.5">起</span>
+                            </div>
+                            <button onclick="addToCart('ForgeRig Titan Pro', 14999)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300" data-category="workstation" data-price="12999" data-name="ForgeRig Studio W">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                        <img src="https://picsum.photos/seed/pc-studio/600/450.jpg" alt="Studio W" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-medium rounded-md border border-white/20">工作站</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-1">Studio W</h3>
+                        <p class="text-sm text-slate-500 mb-4">RTX 4080 Super · Ryzen 9 7950X · 64GB</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">3D 渲染</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">视频剪辑</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">静音</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-2xl font-semibold tracking-tight">¥12,999</span>
+                                <span class="text-xs text-slate-400 ml-1.5">起</span>
+                            </div>
+                            <button onclick="addToCart('ForgeRig Studio W', 12999)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300" data-category="entry" data-price="4999" data-name="ForgeRig Spark">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                        <img src="https://picsum.photos/seed/pc-spark/600/450.jpg" alt="Spark" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 left-3 px-2.5 py-1 bg-emerald-600 text-white text-[10px] font-medium uppercase tracking-wider rounded-md">性价比</div>
+                        <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-medium rounded-md border border-white/20">入门</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-1">Spark</h3>
+                        <p class="text-sm text-slate-500 mb-4">RTX 4060 · i5-14400F · 16GB DDR5</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">1080P</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">电竞</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">紧凑</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-2xl font-semibold tracking-tight">¥4,999</span>
+                                <span class="text-xs text-slate-400 ml-1.5">起</span>
+                            </div>
+                            <button onclick="addToCart('ForgeRig Spark', 4999)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 5 -->
+                <div class="product-card group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300" data-category="workstation" data-price="18999" data-name="ForgeRig Creator X">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                        <img src="https://picsum.photos/seed/pc-creator/600/450.jpg" alt="Creator X" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-medium rounded-md border border-white/20">工作站</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-1">Creator X</h3>
+                        <p class="text-sm text-slate-500 mb-4">RTX 4090 · Threadripper 7980X · 128GB</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">8K 编辑</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">深度学习</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">4TB SSD</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-2xl font-semibold tracking-tight">¥18,999</span>
+                                <span class="text-xs text-slate-400 ml-1.5">起</span>
+                            </div>
+                            <button onclick="addToCart('ForgeRig Creator X', 18999)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 6 -->
+                <div class="product-card group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300" data-category="entry" data-price="3499" data-name="ForgeRig Lite">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-slate-50">
+                        <img src="https://picsum.photos/seed/pc-lite/600/450.jpg" alt="Lite" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                        <div class="absolute top-3 right-3 px-2.5 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-medium rounded-md border border-white/20">入门</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-lg font-medium mb-1">Lite</h3>
+                        <p class="text-sm text-slate-500 mb-4">GTX 1660 Super · i3-14100 · 8GB DDR4</p>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">办公</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">网课</span>
+                            <span class="px-2 py-1 bg-slate-50 text-[11px] text-slate-600 rounded-md">轻游戏</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                            <div>
+                                <span class="text-2xl font-semibold tracking-tight">¥3,499</span>
+                                <span class="text-xs text-slate-400 ml-1.5">起</span>
+                            </div>
+                            <button onclick="addToCart('ForgeRig Lite', 3499)" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-[11px] font-medium uppercase tracking-wider text-orange-600 mb-3 block">为什么选择我们</span>
+                <h2 class="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">不只是组装，更是承诺</h2>
+                <p class="text-lg text-slate-500 max-w-xl mx-auto">从选件到交付，每个环节都精益求精</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+                    <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="shield-check" class="w-6 h-6 text-orange-600"></i>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">72小时压力测试</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">每台机器出厂前均经过72小时全负载压力测试，确保稳定可靠，零故障交付。</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+                    <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="wrench" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">专业走线与组装</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">资深工程师手工组装，理线整洁美观，风道优化设计，兼顾性能与散热。</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+                    <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="clock" class="w-6 h-6 text-emerald-600"></i>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">3年全面质保</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">整机3年质保，含上门维修服务。第一年免费上门，让您无后顾之忧。</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+                    <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="truck" class="w-6 h-6 text-purple-600"></i>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">顺丰免费配送</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">定制防震包装，顺丰包邮到家。开箱即用，无需任何额外设置。</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+                    <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="headphones" class="w-6 h-6 text-amber-600"></i>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">终身技术支持</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">专属技术顾问一对一服务，系统安装、驱动更新、性能调优，全程协助。</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
+                    <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center mb-5">
+                        <i data-lucide="repeat" class="w-6 h-6 text-rose-600"></i>
+                    </div>
+                    <h3 class="text-lg font-medium mb-2">30天无忧退换</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">不满意？30天内无理由退换货，我们承担来回运费，购物零风险。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Specs Comparison -->
+    <section class="py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-[11px] font-medium uppercase tracking-wider text-orange-600 mb-3 block">性能对比</span>
+                <h2 class="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">用数据说话</h2>
+                <p class="text-lg text-slate-500 max-w-xl mx-auto">主流游戏与应用场景下的实际性能表现</p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                <div class="overflow-x-auto no-scrollbar">
+                    <table class="w-full min-w-[640px]">
+                        <thead>
+                            <tr class="border-b border-slate-200 bg-slate-50/50">
+                                <th class="text-left py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">测试项目</th>
+                                <th class="text-center py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Spark</th>
+                                <th class="text-center py-4 px-6 text-xs font-medium text-orange-600 uppercase tracking-wider">Phantom X</th>
+                                <th class="text-center py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">Titan Pro</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-4 px-6 text-sm font-medium">赛博朋克2077 (2K Ultra)</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">68 FPS</td>
+                                <td class="text-center py-4 px-6 text-sm font-semibold text-orange-600">112 FPS</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">156 FPS</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-4 px-6 text-sm font-medium">Cinebench R23 多核</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">12,450</td>
+                                <td class="text-center py-4 px-6 text-sm font-semibold text-orange-600">24,800</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">38,500</td>
+                            </tr>
+                            <tr class="border-b border-slate-100">
+                                <td class="py-4 px-6 text-sm font-medium">Blender BMW 渲染</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">4分32秒</td>
+                                <td class="text-center py-4 px-6 text-sm font-semibold text-orange-600">2分18秒</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">1分25秒</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-6 text-sm font-medium">3DMark Time Spy</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">10,200</td>
+                                <td class="text-center py-4 px-6 text-sm font-semibold text-orange-600">18,600</td>
+                                <td class="text-center py-4 px-6 text-sm text-slate-500">28,400</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-[11px] font-medium uppercase tracking-wider text-orange-600 mb-3 block">用户评价</span>
+                <h2 class="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">来自真实用户的声音</h2>
+                <p class="text-lg text-slate-500 max-w-xl mx-auto">超过10,000位用户的真实反馈</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Review 1 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">"Phantom X 简直是游戏利器！开箱即用，2K全特效流畅运行，走线非常漂亮，散热也很安静。之前自己组装折腾了两天，这次直接买预装的真香。"</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center text-white text-sm font-medium">张</div>
+                        <div>
+                            <div class="text-sm font-medium">张伟</div>
+                            <div class="text-xs text-slate-400">游戏玩家 · Phantom X</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">"作为视频剪辑师，Studio W 完全满足我的需求。Premiere 4K时间线丝滑，DaVinci 调色也不卡。静音设计特别好，长时间工作耳朵不累。"</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-orange-600 flex items-center justify-center text-white text-sm font-medium">李</div>
+                        <div>
+                            <div class="text-sm font-medium">李梦琪</div>
+                            <div class="text-xs text-slate-400">视频创作者 · Studio W</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-slate-200 text-slate-200"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">"给学生买的 Spark，性价比很高。平时上网课、做作业完全够用，偶尔打打LOL也很流畅。包装很用心，防震做得很好，配送也快。"</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center text-white text-sm font-medium">王</div>
+                        <div>
+                            <div class="text-sm font-medium">王建国</div>
+                            <div class="text-xs text-slate-400">学生家长 · Spark</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 4 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">"Titan Pro 是我用过最强的机器。4K游戏全开无压力，AI模型训练速度飞快。水冷散热效果一流，满载才60度。三年质保让人很安心。"</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">陈</div>
+                        <div>
+                            <div class="text-sm font-medium">陈浩然</div>
+                            <div class="text-xs text-slate-400">AI工程师 · Titan Pro</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 5 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">"Creator X 跑 Blender 场景渲染速度比我之前的机器快了5倍。128GB内存开多少场景都不怕。技术支持也很专业，有问必答。"</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white text-sm font-medium">刘</div>
+                        <div>
+                            <div class="text-sm font-medium">刘思远</div>
+                            <div class="text-xs text-slate-400">3D艺术家 · Creator X</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 6 -->
+                <div class="bg-white p-8 rounded-2xl border border-slate-200 hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-amber-400 text-amber-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-slate-200 text-slate-200"></i>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed mb-6">"Lite 适合日常办公，开机秒开，运行安静。价格实惠，比品牌机划算多了。唯一小遗憾是8GB内存稍显不足，建议升级到16GB。"</p>
+                    <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                        <div class="w-10 h-10 rounded-full bg-amber-600 flex items-center justify-center text-white text-sm font-medium">赵</div>
+                        <div>
+                            <div class="text-sm font-medium">赵雅文</div>
+                            <div class="text-xs text-slate-400">办公室职员 · Lite</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-24">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-[11px] font-medium uppercase tracking-wider text-orange-600 mb-3 block">常见问题</span>
+                <h2 class="text-3xl lg:text-4xl font-semibold tracking-tight mb-4">你可能想知道</h2>
+            </div>
+
+            <div class="space-y-3">
+                <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors duration-150" onclick="toggleFaq(this)">
+                        <span class="text-sm font-medium pr-4">预组装电脑和自己组装有什么区别？</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden px-5 pb-5">
+                        <p class="text-sm text-slate-500 leading-relaxed">预组装电脑由专业工程师组装，经过严格的压力测试和品质检验。您无需担心兼容性问题、走线美观度或BIOS设置，开箱即可使用。同时享受整机质保，而非单独配件各自保修的麻烦。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors duration-150" onclick="toggleFaq(this)">
+                        <span class="text-sm font-medium pr-4">可以自定义配置吗？</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden px-5 pb-5">
+                        <p class="text-sm text-slate-500 leading-relaxed">当然可以！我们的每款机型都支持灵活定制。您可以在基础配置上升级内存、硬盘、显卡等组件。联系我们的技术顾问，我们会根据您的需求推荐最优配置方案。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors duration-150" onclick="toggleFaq(this)">
+                        <span class="text-sm font-medium pr-4">质保政策是怎样的？</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden px-5 pb-5">
+                        <p class="text-sm text-slate-500 leading-relaxed">整机提供3年质保服务，第一年免费上门维修。质保期内非人为损坏的硬件故障免费更换。此外，我们提供终身电话/在线技术支持，即使过了质保期也能获得帮助。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors duration-150" onclick="toggleFaq(this)">
+                        <span class="text-sm font-medium pr-4">下单后多久能收到？</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden px-5 pb-5">
+                        <p class="text-sm text-slate-500 leading-relaxed">标准配置机型通常1-2个工作日发货，定制配置需要3-5个工作日组装测试。发货后顺丰配送，大部分地区2-3天到达。您可以在订单页面实时追踪物流状态。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors duration-150" onclick="toggleFaq(this)">
+                        <span class="text-sm font-medium pr-4">支持哪些付款方式？</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 flex-shrink-0 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden px-5 pb-5">
+                        <p class="text-sm text-slate-500 leading-relaxed">支持支付宝、微信支付、银联卡支付，也支持花呗、信用卡分期（3/6/12期免息）。企业客户可申请对公转账，享受批量采购优惠。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-slate-900 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"></div>
+        <div class="absolute top-1/2 right-0 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+        <div class="absolute bottom-0 left-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3"></div>
+        
+        <div class="relative max-w-3xl mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-6">
+                <i data-lucide="zap" class="w-3.5 h-3.5 text-orange-400"></i>
+                <span class="text-[11px] font-medium uppercase tracking-wider text-white/80">限时优惠</span>
+            </div>
+            <h2 class="text-3xl lg:text-5xl font-semibold tracking-tight text-white mb-6">准备好升级了吗？</h2>
+            <p class="text-lg text-slate-400 mb-8 max-w-lg mx-auto">新用户首单立减 ¥300，使用优惠码 <span class="text-orange-400 font-medium">FORGE300</span></p>
+            <div class="flex flex-wrap items-center justify-center gap-4">
+                <a href="#products" class="inline-flex items-center gap-2 px-8 py-3.5 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-colors duration-150 glow-pulse">
+                    立即选购
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+                <a href="#" class="inline-flex items-center gap-2 px-8 py-3.5 bg-white/10 text-white text-sm font-medium rounded-lg border border-white/20 hover:bg-white/20 transition-colors duration-150 backdrop-blur-sm">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    咨询顾问
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200/60 py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+                            <i data-lucide="cpu" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="font-semibold text-lg tracking-tight">ForgeRig</span>
+                    </div>
+                    <p class="text-sm text-slate-500 leading-relaxed mb-4">专业预组装电脑品牌，让每个人都能轻松拥有高性能电脑。</p>
+                    <div class="flex items-center gap-3">
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors duration-150">
+                            <i data-lucide="twitter" class="w-4 h-4 text-slate-500"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors duration-150">
+                            <i data-lucide="youtube" class="w-4 h-4 text-slate-500"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors duration-150">
+                            <i data-lucide="instagram" class="w-4 h-4 text-slate-500"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium mb-4">产品</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">游戏系列</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">工作站系列</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">入门系列</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">定制配置</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium mb-4">支持</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">帮助中心</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">质保政策</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">退换货流程</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-slate-900 transition-colors duration-150">驱动下载</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium mb-4">联系我们</h4>
+                    <ul class="space-y-2.5">
+                        <li class="flex items-center gap-2 text-sm text-slate-500">
+                            <i data-lucide="phone" class="w-4 h-4"></i>
+                            400-888-9999
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-slate-500">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            support@forgerig.com
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-slate-500">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                            周一至周日 9:00-21:00
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-slate-200/60 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-slate-400">© 2024 ForgeRig. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-xs text-slate-400 hover:text-slate-600 transition-colors duration-150">隐私政策</a>
+                    <a href="#" class="text-xs text-slate-400 hover:text-slate-600 transition-colors duration-150">服务条款</a>
+                    <a href="#" class="text-xs text-slate-400 hover:text-slate-600 transition-colors duration-150">Cookie设置</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-overlay" class="hidden fixed inset-0 bg-black/40 z-[60]" onclick="closeCart()"></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-[70] shadow-2xl transform translate-x-full transition-transform duration-300">
+        <div class="flex flex-col h-full">
+            <div class="flex items-center justify-between p-6 border-b border-slate-200">
+                <h3 class="text-lg font-medium">购物车</h3>
+                <button onclick="closeCart()" class="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-150">
+                    <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+                </button>
+            </div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6">
+                <div id="cart-empty" class="flex flex-col items-center justify-center h-full text-center">
+                    <i data-lucide="shopping-bag" class="w-12 h-12 text-slate-300 mb-4"></i>
+                    <p class="text-sm text-slate-400">购物车为空</p>
+                    <p class="text-xs text-slate-300 mt-1">浏览产品并添加到购物车</p>
+                </div>
+                <div id="cart-list" class="hidden space-y-4"></div>
+            </div>
+            <div id="cart-footer" class="hidden border-t border-slate-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm text-slate-500">合计</span>
+                    <span id="cart-total" class="text-xl font-semibold tracking-tight">¥0</span>
+                </div>
+                <button onclick="checkout()" class="w-full py-3 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors duration-150">
+                    结算
+                </button>
+                <p class="text-[11px] text-slate-400 text-center mt-3">免费配送 · 30天无忧退换</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Cart state
+        let cart = [];
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Category tabs
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('bg-slate-900', 'text-white');
+                    b.classList.add('bg-slate-100', 'text-slate-600');
+                });
+                btn.classList.remove('bg-slate-100', 'text-slate-600');
+                btn.classList.add('bg-slate-900', 'text-white');
+
+                const category = btn.dataset.category;
+                document.querySelectorAll('.product-card').forEach(card => {
+                    if (category === 'all' || card.dataset.category === category) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // FAQ toggle
+        function toggleFaq(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('[data-lucide]');
+            const isOpen = !content.classList.contains('hidden');
+
+            // Close all
+            document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.faq-toggle [data-lucide]').forEach(i => i.style.transform = 'rotate(0deg)');
+
+            if (!isOpen) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Cart functions
+        function addToCart(name, price) {
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+            showToast(`已添加 ${name} 到购物车`);
+        }
+
+        function removeFromCart(name) {
+            cart = cart.filter(item => item.name !== name);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const countEl = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            
+            if (totalItems > 0) {
+                countEl.classList.remove('hidden');
+                countEl.classList.add('flex');
+                countEl.textContent = totalItems;
+            } else {
+                countEl.classList.add('hidden');
+                countEl.classList.remove('flex');
+            }
+
+            const cartList = document.getElementById('cart-list');
+            const cartEmpty = document.getElementById('cart-empty');
+            const cartFooter = document.getElementById('cart-footer');
+
+            if (cart.length === 0) {
+                cartList.classList.add('hidden');
+                cartEmpty.classList.remove('hidden');
+                cartFooter.classList.add('hidden');
+            } else {
+                cartList.classList.remove('hidden');
+                cartEmpty.classList.add('hidden');
+                cartFooter.classList.remove('hidden');
+
+                cartList.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+                        <div class="w-16 h-16 bg-slate-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="monitor" class="w-6 h-6 text-slate-400"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-sm font-medium truncate">${item.name}</h4>
+                            <p class="text-sm text-orange-600 font-medium mt-0.5">¥${item.price.toLocaleString()}</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="changeQty('${item.name}', -1)" class="w-6 h-6 rounded bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors text-xs">−</button>
+                                <span class="text-xs font-medium w-4 text-center">${item.qty}</span>
+                                <button onclick="changeQty('${item.name}', 1)" class="w-6 h-6 rounded bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors text-xs">+</button>
+                            </div>
+                        </div>
+                        <button onclick="removeFromCart('${item.name}')" class="p-1.5 rounded-lg hover:bg-slate-200 transition-colors">
+                            <i data-lucide="trash-2" class="w-4 h-4 text-slate-400"></i>
+                        </button>
+                    </div>
+                `).join('');
+
+                const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+                document.getElementById('cart-total').textContent = `¥${total.toLocaleString()}`;
+
+                lucide.createIcons();
+            }
+        }
+
+        function changeQty(name, delta) {
+            const item = cart.find(i => i.name === name);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    removeFromCart(name);
+                } else {
+                    updateCartUI();
+                }
+            }
+        }
+
+        // Cart sidebar
+        document.getElementById('cart-btn').addEventListener('click', () => {
+            document.getElementById('cart-overlay').classList.remove('hidden');
+            document.getElementById('cart-sidebar').style.transform = 'translateX(0)';
+        });
+
+        function closeCart() {
+            document.getElementById('cart-overlay').classList.add('hidden');
+            document.getElementById('cart-sidebar').style.transform = 'translateX(100%)';
+        }
+
+        function checkout() {
+            if (cart.length === 0) return;
+            const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            showToast(`订单已提交！合计 ¥${total.toLocaleString()}，感谢您的购买！`, 'success');
+            cart = [];
+            updateCartUI();
+            closeCart();
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-emerald-600' : 'bg-slate-900';
+            const icon = type === 'success' ? 'check-circle' : 'shopping-cart';
+            
+            toast.className = `toast-enter flex items-center gap-3 px-5 py-3.5 ${bgColor} text-white text-sm font-medium rounded-xl shadow-2xl max-w-sm`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 flex-shrink-0"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease-in';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

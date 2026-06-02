@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>解压泡泡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #1a1612;
+            --bg-mid: #2d251e;
+            --accent-warm: #e8a946;
+            --accent-glow: #f5c66e;
+            --text-light: #f5efe6;
+            --text-muted: #a89b8c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(ellipse at 20% 80%, rgba(232, 169, 70, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(245, 198, 110, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, var(--bg-mid) 0%, var(--bg-dark) 100%);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(26, 22, 18, 0.9) 0%, transparent 100%);
+        }
+
+        .score-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .score-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--accent-warm);
+            text-shadow: 0 0 20px rgba(232, 169, 70, 0.5);
+            min-width: 60px;
+        }
+
+        .reset-btn {
+            background: transparent;
+            border: 2px solid var(--accent-warm);
+            color: var(--accent-warm);
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:active {
+            transform: scale(0.95);
+            background: var(--accent-warm);
+            color: var(--bg-dark);
+        }
+
+        .game-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #bubbleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-muted);
+            font-size: 13px;
+            opacity: 0.7;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .hint.hidden {
+            opacity: 1; /* fixed: was 0 */
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: 600;
+            color: var(--accent-glow);
+            text-shadow: 0 0 40px rgba(245, 198, 110, 0.8);
+            pointer-events: none;
+            opacity: 1; /* fixed: was 0 */
+            transition: opacity 0.3s ease;
+        }
+
+        .combo-display.show {
+            animation: comboPopup 0.6s ease-out forwards;
+        }
+
+        @keyframes comboPopup {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -60%) scale(1);
+            }
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            will-change: transform;
+        }
+
+        .bubble:active {
+            transform: scale(0.95);
+        }
+
+        .bubble::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 30%;
+            height: 30%;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .bubble::after {
+            content: '';
+            position: absolute;
+            bottom: 15%;
+            right: 15%;
+            width: 15%;
+            height: 15%;
+            background: radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bubble {
+                transition: none;
+            }
+            .combo-display.show {
+                animation: none;
+                opacity: 1;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .header {
+                padding: 10px 16px;
+            }
+            .score-value {
+                font-size: 24px;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <header class="header">
+        <div class="score-panel">
+            <span class="score-label">已戳破</span>
+            <span class="score-value" id="scoreDisplay">0</span>
+        </div>
+        <button class="reset-btn" id="resetBtn">重新开始</button>
+    </header>
+
+    <div class="game-container" id="gameContainer">
+        <canvas id="bubbleCanvas"></canvas>
+        <div class="hint" id="hint">点击气泡，释放压力</div>
+        <div class="combo-display" id="comboDisplay"></div>
+    </div>
+
+    <script>
+        const COLORS = [
+            { bg: 'linear-gradient(135deg, #e8a946 0%, #d4823a 100%)', glow: 'rgba(232, 169, 70, 0.4)' },
+            { bg: 'linear-gradient(135deg, #f5c66e 0%, #e8a946 100%)', glow: 'rgba(245, 198, 110, 0.4)' },
+            { bg: 'linear-gradient(135deg, #d4823a 0%, #b86b2a 100%)', glow: 'rgba(212, 130, 58, 0.4)' },
+            { bg: 'linear-gradient(135deg, #8bc9a0 0%, #5da87a 100%)', glow: 'rgba(139, 201, 160, 0.4)' },
+            { bg: 'linear-gradient(135deg, #7ab8c9 0%, #4a9ab0 100%)', glow: 'rgba(122, 184, 201, 0.4)' },
+            { bg: 'linear-gradient(135deg, #c97a8b 0%, #a85568 100%)', glow: 'rgba(201, 122, 139, 0.4)' },
+        ];
+
+        let score = 0;
+        let bubbles = [];
+        let particles = [];
+        let audioCtx = null;
+        let comboCount = 0;
+        let comboTimer = null;
+        let hintHidden = false;
+
+        const gameContainer = document.getElementById('gameContainer');
+        const canvas = document.getElementById('bubbleCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const comboDisplay = document.getElementById('comboDisplay');
+        const hint = document.getElementById('hint');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playPopSound(pitch = 1) {
+            if (!audioCtx) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(400 * pitch, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(150 * pitch, audioCtx.currentTime + 0.15);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(2000, audioCtx.currentTime);
+
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.15);
+        }
+
+        function playComboSound() {
+            if (!audioCtx) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.type = 'triangle';
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(900, audioCtx.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.2);
+        }
+
+        function resizeCanvas() {
+            canvas.width = gameContainer.offsetWidth;
+            canvas.height = gameContainer.offsetHeight;
+        }
+
+        function createBubble() {
+            const minSize = Math.min(window.innerWidth, window.innerHeight) * 0.08;
+            const maxSize = Math.min(window.innerWidth, window.innerHeight) * 0.18;
+            const size = Math.max(40, Math.random() * (maxSize - minSize) + minSize);
+            
+            const containerWidth = gameContainer.offsetWidth;
+            const containerHeight = gameContainer.offsetHeight;
+            
+            const x = Math.random() * (containerWidth - size);
+            const y = Math.random() * (containerHeight - size);
+            
+            const colorData = COLORS[Math.floor(Math.random() * COLORS.length)];
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = x + 'px';
+            bubble.style.top = y + 'px';
+            bubble.style.background = colorData.bg;
+            bubble.style.boxShadow = `0 8px 32px ${colorData.glow}, inset 0 -4px 12px rgba(0,0,0,0.2)`;
+            
+            const wobbleX = (Math.random() - 0.5) * 20;
+            const wobbleY = (Math.random() - 0.5) * 10;
+            bubble.style.animation = `wobble ${2 + Math.random()}s ease-in-out infinite`;
+            bubble.style.setProperty('--wobble-x', wobbleX + 'px');
+            bubble.style.setProperty('--wobble-y', wobbleY + 'px');
+
+            const bubbleData = {
+                element: bubble,
+                x: x,
+                y: y,
+                size: size,
+                colorData: colorData,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5 - 0.3
+            };
+
+            bubble.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                popBubble(bubbleData, e.touches[0].clientX, e.touches[0].clientY);
+            }, { passive: false });
+
+            bubble.addEventListener('click', (e) => {
+                popBubble(bubbleData, e.clientX, e.clientY);
+            });
+
+            gameContainer.appendChild(bubble);
+            bubbles.push(bubbleData);
+
+            animateBubbleEntrance(bubble);
+        }
+
+        function animateBubbleEntrance(bubble) {
+            bubble.style.transform = 'scale(0)';
+            bubble.style.opacity = '0';
+            
+            requestAnimationFrame(() => {
+                bubble.style.transition = 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+                bubble.style.transform = 'scale(1)';
+                bubble.style.opacity = '1';
+            });
+        }
+
+        function popBubble(bubbleData, clickX, clickY) {
+            initAudio();
+            
+            if (!hintHidden) {
+                hint.classList.add('hidden');
+                hintHidden = true;
+            }
+
+            const rect = bubbleData.element.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            createParticles(centerX, centerY, bubbleData.colorData, bubbleData.size);
+
+            bubbleData.element.style.transition = 'transform 0.15s ease-out, opacity 0.15s ease-out';
+            bubbleData.element.style.transform = 'scale(1.3)';
+            bubbleData.element.style.opacity = '0';
+
+            setTimeout(() => {
+                if (bubbleData.element.parentNode) {
+                    bubbleData.element.remove();
+                }
+                const index = bubbles.indexOf(bubbleData);
+                if (index > -1) {
+                    bubbles.splice(index, 1);
+                }
+            }, 150);
+
+            score++;
+            scoreDisplay.textContent = score;
+            scoreDisplay.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                scoreDisplay.style.transform = 'scale(1)';
+            }, 100);
+
+            comboCount++;
+            clearTimeout(comboTimer);
+            comboTimer = setTimeout(() => {
+                comboCount = 0;
+            }, 800);
+
+            if (comboCount >= 3) {
+                showCombo(comboCount);
+                playComboSound();
+            } else {
+                const pitch = 0.8 + Math.random() * 0.4;
+                playPopSound(pitch);
+            }
+
+            if (bubbles.length < 8) {
+                setTimeout(createBubble, 200 + Math.random() * 300);
+            }
+        }
+
+        function showCombo(count) {
+            comboDisplay.textContent = count + ' 连击!';
+            comboDisplay.classList.remove('show');
+            void comboDisplay.offsetWidth;
+            comboDisplay.classList.add('show');
+        }
+
+        function createParticles(x, y, colorData, size) {
+            const particleCount = Math.floor(size / 5) + 8;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
+                const speed = 3 + Math.random() * 6;
+                const particleSize = Math.max(3, 3 + Math.random() * 8);
+                
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 2,
+                    size: particleSize,
+                    color: colorData.bg.includes('e8a946') ? '#e8a946' :
+                           colorData.bg.includes('f5c66e') ? '#f5c66e' :
+                           colorData.bg.includes('d4823a') ? '#d4823a' :
+                           colorData.bg.includes('8bc9a0') ? '#8bc9a0' :
+                           colorData.bg.includes('7ab8c9') ? '#7ab8c9' : '#c97a8b',
+                    alpha: 1,
+                    gravity: 0.15,
+                    friction: 0.98
+                });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                
+                p.vx *= p.friction;
+                p.vy += p.gravity;
+                p.vy *= p.friction;
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                p.alpha -= 0.025;
+                p.size *= 0.97;
+                
+                if (p.alpha <= 0 || p.size < 0.5) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (const p of particles) {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 10;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function animate() {
+            updateParticles();
+            drawParticles();
+            requestAnimationFrame(animate);
+        }
+
+        function updateBubblePositions() {
+            const containerWidth = gameContainer.offsetWidth;
+            const containerHeight = gameContainer.offsetHeight;
+            
+            for (const bubble of bubbles) {
+                bubble.x += bubble.vx;
+                bubble.y += bubble.vy;
+                
+                if (bubble.x <= 0 || bubble.x + bubble.size >= containerWidth) {
+                    bubble.vx *= -1;
+                    bubble.x = Math.max(0, Math.min(bubble.x, containerWidth - bubble.size));
+                }
+                if (bubble.y <= 0 || bubble.y + bubble.size >= containerHeight) {
+                    bubble.vy *= -1;
+                    bubble.y = Math.max(0, Math.min(bubble.y, containerHeight - bubble.size));
+                }
+                
+                bubble.element.style.left = bubble.x + 'px';
+                bubble.element.style.top = bubble.y + 'px';
+            }
+        }
+
+        function bubbleAnimationLoop() {
+            updateBubblePositions();
+            requestAnimationFrame(bubbleAnimationLoop);
+        }
+
+        function initGame() {
+            score = 0;
+            scoreDisplay.textContent = '0';
+            comboCount = 0;
+            hintHidden = false;
+            hint.classList.remove('hidden');
+            
+            bubbles.forEach(b => b.element.remove());
+            bubbles = [];
+            particles = [];
+
+            setTimeout(() => {
+                const initialCount = Math.min(10, Math.floor(window.innerHeight / 80));
+                for (let i = 0; i < initialCount; i++) {
+                    setTimeout(createBubble, i * 100);
+                }
+            }, 100);
+        }
+
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            @keyframes wobble {
+                0%, 100% { transform: translate(0, 0); }
+                25% { transform: translate(var(--wobble-x, 5px), var(--wobble-y, 3px)); }
+                50% { transform: translate(calc(var(--wobble-x, 5px) * -0.5), calc(var(--wobble-y, 3px) * -1)); }
+                75% { transform: translate(calc(var(--wobble-x, 5px) * 0.3), calc(var(--wobble-y, 3px) * 0.5)); }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        resetBtn.addEventListener('click', () => {
+            initAudio();
+            initGame();
+        });
+
+        resetBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            initAudio();
+            initGame();
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        resizeCanvas();
+        initGame();
+        animate();
+        bubbleAnimationLoop();
+
+        setInterval(() => {
+            if (bubbles.length < 12) {
+                createBubble();
+            }
+        }, 1500);
+    </script>
+</body>
+</html>

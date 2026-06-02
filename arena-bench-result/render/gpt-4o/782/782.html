@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prebuilt Computers for Sale</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #002147;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        header p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        section {
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 1200px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .products {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: space-between;
+        }
+
+        .product-card {
+            flex: 1 1 calc(33% - 1.5rem);
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: scale(1.05);
+        }
+
+        .product-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .product-name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .product-features,
+        .customer-reviews {
+            font-size: 0.9rem;
+            margin: 0.5rem 0;
+        }
+
+        .buy-now {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .buy-now button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .buy-now button:hover {
+            background-color: #218838;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #002147;
+            color: white;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>High-Quality Prebuilt Computers</h1>
+        <p>Unlock the power of technology with our premium computers.</p>
+    </header>
+
+    <section>
+        <h2>Our Products</h2>
+        <div class="products">
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x200" alt="Gaming PC">
+                </div>
+                <div class="product-name">Gaming Beast PC</div>
+                <div class="product-features">
+                    <ul>
+                        <li>Processor: Intel Core i9</li>
+                        <li>Graphics: NVIDIA RTX 4090</li>
+                        <li>RAM: 32GB DDR5</li>
+                        <li>Storage: 1TB NVMe SSD</li>
+                    </ul>
+                </div>
+                <div class="customer-reviews">
+                    <p>"An amazing build for serious gamers!" - John D.</p>
+                </div>
+                <div class="buy-now">
+                    <button onclick="alert('Thank you for your purchase!')">Buy Now - $2,499</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x200" alt="Workstation PC">
+                </div>
+                <div class="product-name">Workstation Pro</div>
+                <div class="product-features">
+                    <ul>
+                        <li>Processor: AMD Ryzen 9</li>
+                        <li>Graphics: NVIDIA Quadro RTX A5000</li>
+                        <li>RAM: 64GB DDR5</li>
+                        <li>Storage: 2TB SSD + 4TB HDD</li>
+                    </ul>
+                </div>
+                <div class="customer-reviews">
+                    <p>"Perfect for productivity and 3D rendering!" - Sarah K.</p>
+                </div>
+                <div class="buy-now">
+                    <button onclick="alert('Thank you for your purchase!')">Buy Now - $3,499</button>
+                </div>
+            </div>
+
+            <div class="product-card">
+                <div class="product-image">
+                    <img src="https://via.placeholder.com/300x200" alt="Budget PC">
+                </div>
+                <div class="product-name">Budget-Friendly PC</div>
+                <div class="product-features">
+                    <ul>
+                        <li>Processor: Intel Core i5</li>
+                        <li>Graphics: NVIDIA GTX 1660</li>
+                        <li>RAM: 16GB DDR4</li>
+                        <li>Storage: 512GB SSD</li>
+                    </ul>
+                </div>
+                <div class="customer-reviews">
+                    <p>"Affordable and reliable for everyday use!" - Mike T.</p>
+                </div>
+                <div class="buy-now">
+                    <button onclick="alert('Thank you for your purchase!')">Buy Now - $799</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Prebuilt Computers Store. All Rights Reserved.</p>
+    </footer>
+</body>
+
+</html>

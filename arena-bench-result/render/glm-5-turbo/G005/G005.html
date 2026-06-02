@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>电子木鱼</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1612;
+            --bg-secondary: #2d2620;
+            --wood-dark: #3d2b1f;
+            --wood-light: #6b4423;
+            --gold: #c9a227;
+            --gold-light: #e8d48b;
+            --text-light: #f5f0e8;
+            --text-muted: #a89a8a;
+            --glow: rgba(201, 162, 39, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: var(--bg-primary);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景装饰 */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+            animation: pulse-bg 4s ease-in-out infinite;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: 10%;
+            left: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse-bg {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        /* 烟雾效果 */
+        .smoke-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .smoke {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 30% 80%, rgba(201, 162, 39, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 70%, rgba(107, 68, 35, 0.05) 0%, transparent 40%);
+            animation: smoke-float 8s ease-in-out infinite;
+        }
+
+        @keyframes smoke-float {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-20px) scale(1.05); opacity: 0.8; }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* 标题 */
+        .title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2.5rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            text-shadow: 0 2px 20px var(--glow);
+            letter-spacing: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            letter-spacing: 4px;
+        }
+
+        /* 木鱼容器 */
+        .muyu-container {
+            position: relative;
+            margin: 20px 0;
+        }
+
+        /* 木鱼主体 */
+        .muyu {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+        }
+
+        .muyu:active {
+            transform: scale(0.92);
+        }
+
+        .muyu-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(ellipse at 30% 20%, var(--wood-light) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 80%, #2a1a0f 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, var(--wood-dark) 0%, #1f130a 100%);
+            box-shadow: 
+                inset 0 -20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 10px 30px rgba(255, 255, 255, 0.05),
+                0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 木鱼纹理 */
+        .muyu-texture {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='100' cy='100' r='80' fill='none' stroke='%23c9a227' stroke-width='0.5' opacity='0.3'/%3E%3Ccircle cx='100' cy='100' r='60' fill='none' stroke='%23c9a227' stroke-width='0.3' opacity='0.2'/%3E%3Ccircle cx='100' cy='100' r='40' fill='none' stroke='%23c9a227' stroke-width='0.3' opacity='0.15'/%3E%3C/svg%3E");
+            background-size: cover;
+        }
+
+        /* 木鱼开孔 */
+        .muyu-hole {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 40% 40%, #0a0705 0%, #000 100%);
+            box-shadow: 
+                inset 0 5px 15px rgba(0, 0, 0, 0.8),
+                0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .muyu-hole::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: var(--gold);
+            opacity: 0.1;
+            animation: hole-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes hole-glow {
+            0%, 100% { opacity: 0.1; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* 敲击波纹 */
+        .ripple {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+
+        .ripple.active {
+            animation: ripple-expand 0.6s ease-out forwards;
+        }
+
+        @keyframes ripple-expand {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* 功德文字飘出 */
+        .merit-float {
+            position: absolute;
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 1.8rem;
+            color: var(--gold-light);
+            text-shadow: 0 0 20px var(--gold);
+            pointer-events: none;
+            white-space: nowrap;
+            animation: merit-rise 1.5s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes merit-rise {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0) scale(0.5);
+            }
+            20% {
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-100px) scale(0.8);
+            }
+        }
+
+        /* 统计面板 */
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 40px;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(61, 43, 31, 0.6) 0%, rgba(26, 22, 18, 0.8) 100%);
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            border-radius: 16px;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        .stat-value {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 2rem;
+            color: var(--gold);
+            text-shadow: 0 0 15px var(--glow);
+            transition: transform 0.2s ease-out;
+        }
+
+        .stat-value.bump {
+            animation: value-bump 0.3s ease-out;
+        }
+
+        @keyframes value-bump {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* 底部提示 */
+        .hint {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            opacity: 0.6;
+            letter-spacing: 2px;
+        }
+
+        /* 减少动画 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+    
+    <div class="smoke-container">
+        <div class="smoke"></div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">功德无量</h1>
+        <p class="subtitle">静心 净念 积德</p>
+        
+        <div class="muyu-container">
+            <div class="muyu" id="muyu" role="button" aria-label="点击敲击木鱼" tabindex="0">
+                <div class="muyu-body"></div>
+                <div class="muyu-texture"></div>
+                <div class="muyu-hole"></div>
+                <div class="ripple" id="ripple"></div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-item">
+                <span class="stat-label">今日敲击</span>
+                <span class="stat-value" id="count">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">今日功德</span>
+                <span class="stat-value" id="merit">0</span>
+            </div>
+        </div>
+
+        <p class="hint">轻触木鱼 · 广积功德</p>
+    </div>
+
+    <script>
+        // 初始化数据
+        let count = parseInt(localStorage.getItem('muyu_count') || '0');
+        let lastDate = localStorage.getItem('muyu_date') || '';
+        const today = new Date().toDateString();
+        
+        // 如果是新的一天，重置计数
+        if (lastDate !== today) {
+            count = 0;
+            localStorage.setItem('muyu_date', today);
+        }
+
+        // DOM 元素
+        const muyu = document.getElementById('muyu');
+        const ripple = document.getElementById('ripple');
+        const countEl = document.getElementById('count');
+        const meritEl = document.getElementById('merit');
+
+        // 功德语句
+        const meritTexts = [
+            '功德+1', '善哉', '阿弥陀佛', 
+            '福报+1', '心安', '静心',
+            '福气+1', '善缘', '自在'
+        ];
+
+        // 初始化显示
+        countEl.textContent = count;
+        meritEl.textContent = count;
+
+        // 创建音频上下文
+        let audioContext = null;
+
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // 播放木鱼音效
+        function playSound() {
+            if (!audioContext) return;
+            
+            const now = audioContext.currentTime;
+            
+            // 主音
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, now);
+            osc.frequency.exponentialRampToValueAtTime(200, now + 0.15);
+            
+            gain.gain.setValueAtTime(0.5, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start(now);
+            osc.stop(now + 0.3);
+
+            // 木质敲击音
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(150, now);
+            
+            gain2.gain.setValueAtTime(0.3, now);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+            
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            
+            osc2.start(now);
+            osc2.stop(now + 0.1);
+        }
+
+        // 创建飘字
+        function createMeritFloat() {
+            const float = document.createElement('div');
+            float.className = 'merit-float';
+            float.textContent = meritTexts[Math.floor(Math.random() * meritTexts.length)];
+            
+            // 随机位置
+            const randomX = (Math.random() - 0.5) * 100;
+            float.style.left = `calc(50% + ${randomX}px)`;
+            float.style.top = '20%';
+            
+            muyu.parentElement.appendChild(float);
+            
+            setTimeout(() => {
+                float.remove();
+            }, 1500);
+        }
+
+        // 敲击木鱼
+        function knock() {
+            initAudio();
+            
+            // 播放音效
+            playSound();
+            
+            // 波纹动画
+            ripple.classList.remove('active');
+            void ripple.offsetWidth; // 触发重绘
+            ripple.classList.add('active');
+            
+            // 飘字
+            createMeritFloat();
+            
+            // 更新计数
+            count++;
+            localStorage.setItem('muyu_count', count.toString());
+            localStorage.setItem('muyu_date', today);
+            
+            // 更新显示
+            countEl.textContent = count;
+            meritEl.textContent = count;
+            
+            // 数字弹跳动画
+            countEl.classList.remove('bump');
+            meritEl.classList.remove('bump');
+            void countEl.offsetWidth;
+            countEl.classList.add('bump');
+            meritEl.classList.add('bump');
+        }
+
+        // 事件监听
+        muyu.addEventListener('click', knock);
+        muyu.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            knock();
+        }, { passive: false });
+
+        // 键盘支持
+        muyu.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                knock();
+            }
+        });
+
+        // 检查是否需要重置（页面可见时）
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                const currentDate = new Date().toDateString();
+                if (localStorage.getItem('muyu_date') !== currentDate) {
+                    count = 0;
+                    localStorage.setItem('muyu_count', '0');
+                    localStorage.setItem('muyu_date', currentDate);
+                    countEl.textContent = '0';
+                    meritEl.textContent = '0';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

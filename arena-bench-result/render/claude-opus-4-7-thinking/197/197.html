@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API 管理仪表板</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  body{background:#f5f7fb;color:#1f2937;min-height:100vh;display:flex}
+  .sidebar{width:240px;background:#111827;color:#cbd5e1;padding:24px 16px;min-height:100vh;position:sticky;top:0}
+  .logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;color:#fff;margin-bottom:32px}
+  .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:grid;place-items:center;color:#fff;font-size:16px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:4px;cursor:pointer;transition:.2s;font-size:14px}
+  .nav-item:hover{background:#1f2937;color:#fff}
+  .nav-item.active{background:#4f46e5;color:#fff}
+  .main{flex:1;padding:28px 36px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+  .topbar h1{font-size:24px;font-weight:700;color:#0f172a}
+  .topbar p{color:#64748b;font-size:13px;margin-top:4px}
+  .user{display:flex;align-items:center;gap:12px}
+  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:grid;place-items:center;color:#fff;font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:28px}
+  .card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);transition:.2s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.08)}
+  .stat-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  .stat-label{font-size:13px;color:#64748b;font-weight:500}
+  .stat-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+  .i-blue{background:#dbeafe;color:#2563eb}.i-green{background:#dcfce7;color:#16a34a}
+  .i-orange{background:#ffedd5;color:#ea580c}.i-purple{background:#ede9fe;color:#7c3aed}
+  .stat-value{font-size:26px;font-weight:700;color:#0f172a;margin-bottom:6px}
+  .trend{font-size:12px;font-weight:500;display:flex;align-items:center;gap:4px}
+  .up{color:#16a34a}.down{color:#dc2626}
+  .grid{display:grid;grid-template-columns:1.6fr 1fr;gap:22px;margin-bottom:24px}
+  @media(max-width:960px){.grid{grid-template-columns:1fr}.sidebar{display:none}}
+  .panel{background:#fff;border-radius:14px;padding:22px;box-shadow:0 1px 3px rgba(15,23,42,.06)}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .panel-head h2{font-size:16px;font-weight:600;color:#0f172a}
+  .btn{background:#4f46e5;color:#fff;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+  .btn:hover{background:#4338ca}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .btn-ghost{background:#f1f5f9;color:#475569}
+  .btn-ghost:hover{background:#e2e8f0}
+  .btn-danger{background:#fee2e2;color:#dc2626}
+  .btn-danger:hover{background:#fecaca}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;border-bottom:1px solid #e5e7eb}
+  td{padding:14px 12px;border-bottom:1px solid #f1f5f9;font-size:14px;color:#334155}
+  tr:last-child td{border-bottom:none}
+  .key-val{font-family:"SF Mono",Monaco,Consolas,monospace;font-size:12px;background:#f1f5f9;padding:4px 8px;border-radius:6px;color:#475569}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600}
+  .b-active{background:#dcfce7;color:#15803d}
+  .b-revoked{background:#fee2e2;color:#b91c1c}
+  .b-paused{background:#fef3c7;color:#b45309}
+  .actions{display:flex;gap:6px}
+  .activity li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9;list-style:none}
+  .activity li:last-child{border-bottom:none}
+  .dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0}
+  .d-green{background:#22c55e}.d-blue{background:#3b82f6}.d-orange{background:#f97316}.d-red{background:#ef4444}
+  .act-text{font-size:13px;color:#334155;line-height:1.5}
+  .act-time{font-size:11px;color:#94a3b8;margin-top:2px}
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;z-index:100}
+  .modal.show{display:flex}
+  .modal-box{background:#fff;border-radius:14px;padding:26px;width:90%;max-width:460px;box-shadow:0 20px 40px rgba(0,0,0,.2)}
+  .modal-box h3{font-size:18px;margin-bottom:16px;color:#0f172a}
+  .form-group{margin-bottom:14px}
+  .form-group label{display:block;font-size:13px;font-weight:500;color:#475569;margin-bottom:6px}
+  .form-group input,.form-group select{width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;outline:none;transition:.2s}
+  .form-group input:focus,.form-group select:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+  .toast{position:fixed;bottom:24px;right:24px;background:#0f172a;color:#fff;padding:12px 18px;border-radius:10px;font-size:13px;opacity: 1; /* fixed: was 0 */transform:translateY(20px);transition:.3s;z-index:200}
+  .toast.show{opacity:1;transform:translateY(0)}
+  .chart{display:flex;align-items:flex-end;gap:10px;height:150px;padding:10px 0 0;margin-top:10px}
+  .bar{flex:1;background:linear-gradient(180deg,#6366f1,#a78bfa);border-radius:6px 6px 0 0;position:relative;transition:.3s;min-height:8px}
+  .bar:hover{opacity:.85}
+  .bar span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:11px;color:#64748b}
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<aside class="sidebar">
+  <div class="logo"><div class="logo-icon">⚡</div>ApiHub</div>
+  <div class="nav-item active">📊 仪表板</div>
+  <div class="nav-item">🔑 API 密钥</div>
+  <div class="nav-item">📈 分析</div>
+  <div class="nav-item">📝 日志</div>
+  <div class="nav-item">👥 团队</div>
+  <div class="nav-item">⚙️ 设置</div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <h1>仪表板</h1>
+      <p>欢迎回来，这是您的 API 活动概览</p>
+    </div>
+    <div class="user">
+      <div style="text-align:right"><div style="font-size:13px;font-weight:600">Alex Chen</div><div style="font-size:12px;color:#64748b">管理员</div></div>
+      <div class="avatar">AC</div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card">
+      <div class="stat-top"><span class="stat-label">总请求量</span><div class="stat-icon i-blue">📡</div></div>
+      <div class="stat-value" id="s1">1,248,392</div>
+      <div class="trend up">▲ 12.5% 较上周</div>
+    </div>
+    <div class="card">
+      <div class="stat-top"><span class="stat-label">活跃密钥</span><div class="stat-icon i-green">🔑</div></div>
+      <div class="stat-value" id="s2">24</div>
+      <div class="trend up">▲ 3 个新增</div>
+    </div>
+    <div class="card">
+      <div class="stat-top"><span class="stat-label">错误率</span><div class="stat-icon i-orange">⚠️</div></div>
+      <div class="stat-value">0.42%</div>
+      <div class="trend down">▼ 0.08% 较上周</div>
+    </div>
+    <div class="card">
+      <div class="stat-top"><span class="stat-label">平均响应</span><div class="stat-icon i-purple">⚡</div></div>
+      <div class="stat-value">128<span style="font-size:16px;color:#64748b">ms</span></div>
+      <div class="trend up">▲ 稳定运行</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head">
+        <h2>API 密钥管理</h2>
+        <button class="btn" onclick="openModal()">+ 创建密钥</button>
+      </div>
+      <table id="keyTable">
+        <thead><tr><th>名称</th><th>密钥</th><th>状态</th><th>创建时间</th><th>操作</th></tr></thead>
+        <tbody id="keyBody"></tbody>
+      </table>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>最近活动</h2><span style="font-size:12px;color:#64748b">实时</span></div>
+      <ul class="activity" id="activityList"></ul>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h2>过去 7 天请求量</h2><span style="font-size:12px;color:#64748b">单位：千次</span></div>
+    <div class="chart" id="chart"></div>
+    <div style="height:24px"></div>
+  </div>
+</main>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>创建新的 API 密钥</h3>
+    <div class="form-group"><label>密钥名称</label><input type="text" id="keyName" placeholder="例如：生产环境服务"></div>
+    <div class="form-group"><label>权限范围</label>
+      <select id="keyScope"><option>完全访问</option><option>只读</option><option>只写</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn" onclick="createKey()">创建密钥</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const keys = [
+    {name:"生产环境",key:"sk_live_4f8a...9c2e",status:"active",date:"2024-09-12"},
+    {name:"开发测试",key:"sk_test_7b3d...1a0f",status:"active",date:"2024-10-03"},
+    {name:"移动端 App",key:"sk_live_2e9c...8b4a",status:"active",date:"2024-10-18"},
+    {name:"旧版本集成",key:"sk_live_9d1f...3c7b",status:"revoked",date:"2024-06-22"},
+    {name:"分析服务",key:"sk_live_6a2b...5e8d",status:"paused",date:"2024-11-01"}
+  ];
+  const activities = [
+    {type:"green",text:"API 密钥 <b>生产环境</b> 发出了 2,341 次请求",time:"2 分钟前"},
+    {type:"blue",text:"新密钥 <b>分析服务</b> 已创建",time:"1 小时前"},
+    {type:"orange",text:"<b>开发测试</b> 达到速率限制 80%",time:"3 小时前"},
+    {type:"red",text:"<b>旧版本集成</b> 密钥已被撤销",time:"昨天"},
+    {type:"green",text:"Webhook 端点配置更新成功",time:"昨天"},
+    {type:"blue",text:"用户 <b>Lisa Wang</b> 加入团队",time:"2 天前"}
+  ];
+  const chartData = [{d:"周一",v:145},{d:"周二",v:189},{d:"周三",v:167},{d:"周四",v:212},{d:"周五",v:245},{d:"周六",v:178},{d:"周日",v:198}];
+
+  function renderKeys(){
+    const body=document.getElementById("keyBody");
+    const map={active:["b-active","活跃"],revoked:["b-revoked","已撤销"],paused:["b-paused","已暂停"]};
+    body.innerHTML=keys.map((k,i)=>`<tr>
+      <td><b>${k.name}</b></td>
+      <td><span class="key-val">${k.key}</span></td>
+      <td><span class="badge ${map[k.status][0]}">${map[k.status][1]}</span></td>
+      <td style="color:#64748b">${k.date}</td>
+      <td><div class="actions">
+        <button class="btn btn-ghost btn-sm" onclick="copyKey('${k.key}')">复制</button>
+        <button class="btn btn-danger btn-sm" onclick="revokeKey(${i})">撤销</button>
+      </div></td></tr>`).join("");
+  }
+  function renderActivity(){
+    document.getElementById("activityList").innerHTML=activities.map(a=>
+      `<li><div class="dot d-${a.type}"></div><div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div></div></li>`).join("");
+  }
+  function renderChart(){
+    const max=Math.max(...chartData.map(c=>c.v));
+    document.getElementById("chart").innerHTML=chartData.map(c=>
+      `<div class="bar" style="height:${(c.v/max)*100}%" title="${c.v}k 次请求"><span>${c.d}</span></div>`).join("");
+  }
+  function openModal(){document.getElementById("modal").classList.add("show")}
+  function closeModal(){document.getElementById("modal").classList.remove("show");document.getElementById("keyName").value=""}
+  function createKey(){
+    const n=document.getElementById("keyName").value.trim();
+    if(!n){toast("请输入密钥名称");return}
+    const rand=Math.random().toString(36).slice(2,6)+"..."+Math.random().toString(36).slice(2,6);
+    keys.unshift({name:n,key:"sk_live_"+rand,status:"active",date:new Date().toISOString().slice(0,10)});
+    renderKeys();closeModal();toast("密钥创建成功 ✓");
+    document.getElementById("s2").textContent=parseInt(document.getElementById("s2").textContent)+1;
+  }
+  function revokeKey(i){if(confirm("确定要撤销此密钥吗？")){keys[i].status="revoked";renderKeys();toast("密钥已撤销")}}
+  function copyKey(k){navigator.clipboard&&navigator.clipboard.writeText(k);toast("已复制到剪贴板")}
+  function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+  document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+
+  renderKeys();renderActivity();renderChart();
+
+  // 模拟实时数据更新
+  setInterval(()=>{
+    const el=document.getElementById("s1");
+    const n=parseInt(el.textContent.replace(/,/g,""))+Math.floor(Math.random()*30);
+    el.textContent=n.toLocaleString();
+  },3000);
+</script>
+</body>
+</html>

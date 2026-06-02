@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EventHub - 活动门票平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-secondary: #12121a;
+      --fg: #f5f5f7;
+      --muted: #71717a;
+      --accent: #f59e0b;
+      --accent-light: #fbbf24;
+      --card: #18181f;
+      --border: #27272a;
+      --success: #22c55e;
+    }
+    
+    * { box-sizing: border-box; }
+    
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    
+    /* Animated background */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    
+    .gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 20s ease-in-out infinite;
+    }
+    
+    .orb-1 {
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, #f59e0b 0%, #dc2626 100%);
+      top: -200px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+    
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #8b5cf6 0%, #f59e0b 100%);
+      bottom: -150px;
+      left: -100px;
+      animation-delay: -7s;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.05); }
+      66% { transform: translate(-20px, 20px) scale(0.95); }
+    }
+    
+    /* Scroll reveal */
+    .reveal {
+      opacity: 1; /* fixed: was 0 */
+      transform: translateY(40px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Card hover effects */
+    .event-card {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+    }
+    
+    .event-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(245, 158, 11, 0.15);
+    }
+    
+    .event-card:hover .card-image {
+      transform: scale(1.05);
+    }
+    
+    .card-image {
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    /* Button styles */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px -10px rgba(245, 158, 11, 0.5);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    /* Tab styles */
+    .tab-btn {
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    
+    .tab-btn.active {
+      color: var(--accent);
+    }
+    
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+    
+    /* Ticket card */
+    .ticket-card {
+      background: linear-gradient(135deg, var(--card) 0%, #1f1f28 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      background: var(--bg);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .ticket-card::after {
+      content: '';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      background: var(--bg);
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    
+    /* Modal */
+    .modal-overlay {
+      opacity: 1; /* fixed: was 0 */
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .modal-content {
+      transform: scale(0.9) translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+    
+    /* Navigation */
+    .nav-link {
+      position: relative;
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    
+    /* Stagger animation */
+    .stagger-item {
+      opacity: 1; /* fixed: was 0 */
+      transform: translateY(30px);
+    }
+    
+    .stagger-item.visible {
+      animation: staggerIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    @keyframes staggerIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Focus states */
+    button:focus-visible, a:focus-visible, input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--muted);
+    }
+    
+    /* Quantity selector */
+    .qty-btn {
+      transition: all 0.2s ease;
+    }
+    
+    .qty-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    .qty-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[var(--bg)]/80 border-b border-[var(--border)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent)] to-orange-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+            </svg>
+          </div>
+          <span class="text-xl font-bold tracking-tight">EventHub</span>
+        </div>
+        
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#events" class="nav-link text-[var(--fg)] hover:text-[var(--accent)] transition-colors">活动</a>
+          <a href="#my-tickets" class="nav-link text-[var(--fg)] hover:text-[var(--accent)] transition-colors">我的门票</a>
+          <a href="#" class="nav-link text-[var(--fg)] hover:text-[var(--accent)] transition-colors">关于我们</a>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <button id="cartBtn" class="relative p-2 rounded-lg hover:bg-[var(--card)] transition-colors" aria-label="购物车">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span id="cartCount" class="absolute -top-1 -right-1 w-5 h-5 bg-[var(--accent)] text-[var(--bg)] text-xs font-bold rounded-full flex items-center justify-center hidden">0</span>
+          </button>
+          <button class="btn-primary px-4 py-2 rounded-lg text-[var(--bg)] font-semibold relative z-10">
+            <span class="relative z-10">登录</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
+    <div class="hero-bg">
+      <div class="gradient-orb orb-1"></div>
+      <div class="gradient-orb orb-2"></div>
+    </div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="text-center max-w-4xl mx-auto">
+        <div class="reveal">
+          <span class="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-sm font-medium mb-6 border border-[var(--accent)]/20">
+            2024年度最热门活动平台
+          </span>
+        </div>
+        <h1 class="reveal text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6" style="animation-delay: 0.1s">
+          发现精彩活动<br/>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-orange-400">一键购票入场</span>
+        </h1>
+        <p class="reveal text-lg sm:text-xl text-[var(--muted)] mb-10 max-w-2xl mx-auto" style="animation-delay: 0.2s">
+          音乐节、演唱会、体育赛事、艺术展览...海量精彩活动等你探索。便捷购票，轻松管理，畅享每一刻。
+        </p>
+        <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4" style="animation-delay: 0.3s">
+          <a href="#events" class="btn-primary px-8 py-4 rounded-xl text-[var(--bg)] font-semibold text-lg relative z-10">
+            <span class="relative z-10">浏览活动</span>
+          </a>
+          <button class="px-8 py-4 rounded-xl border border-[var(--border)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all font-semibold">
+            了解更多
+          </button>
+        </div>
+        
+        <!-- Stats -->
+        <div class="reveal mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto" style="animation-delay: 0.4s">
+          <div>
+            <div class="text-3xl sm:text-4xl font-bold text-[var(--accent)]">500+</div>
+            <div class="text-sm text-[var(--muted)]">精选活动</div>
+          </div>
+          <div>
+            <div class="text-3xl sm:text-4xl font-bold text-[var(--accent)]">50万+</div>
+            <div class="text-sm text-[var(--muted)]">活跃用户</div>
+          </div>
+          <div>
+            <div class="text-3xl sm:text-4xl font-bold text-[var(--accent)]">98%</div>
+            <div class="text-sm text-[var(--muted)]">满意度</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+      <svg class="w-6 h-6 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Events Section -->
+  <section id="events" class="py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="reveal flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+        <div>
+          <h2 class="text-3xl sm:text-4xl font-bold mb-2">热门活动</h2>
+          <p class="text-[var(--muted)]">精选优质活动，等你来体验</p>
+        </div>
+        
+        <!-- Category Tabs -->
+        <div class="flex gap-2 overflow-x-auto pb-2">
+          <button class="tab-btn active px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap" data-category="all">全部</button>
+          <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-[var(--muted)] hover:text-[var(--fg)]" data-category="concert">演唱会</button>
+          <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-[var(--muted)] hover:text-[var(--fg)]" data-category="festival">音乐节</button>
+          <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-[var(--muted)] hover:text-[var(--fg)]" data-category="sports">体育赛事</button>
+          <button class="tab-btn px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap text-[var(--muted)] hover:text-[var(--fg)]" data-category="exhibition">展览</button>
+        </div>
+      </div>
+      
+      <!-- Events Grid -->
+      <div id="eventsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Events will be rendered here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- My Tickets Section -->
+  <section id="my-tickets" class="py-20 px-4 sm:px-6 lg:px-8 bg-[var(--bg-secondary)]">
+    <div class="max-w-7xl mx-auto">
+      <div class="reveal text-center mb-12">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-2">我的门票</h2>
+        <p class="text-[var(--muted)]">轻松管理已购买的门票</p>
+      </div>
+      
+      <div id="myTickets" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <!-- Tickets will be rendered here -->
+      </div>
+      
+      <div id="emptyTickets" class="reveal text-center py-16 hidden">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-[var(--card)] flex items-center justify-center">
+          <svg class="w-10 h-10 text-[var(--muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+          </svg>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">暂无门票</h3>
+        <p class="text-[var(--muted)] mb-6">快去发现精彩活动并购买门票吧</p>
+        <a href="#events" class="btn-primary inline-block px-6 py-3 rounded-xl text-[var(--bg)] font-semibold relative z-10">
+          <span class="relative z-10">浏览活动</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Purchase Modal -->
+  <div id="purchaseModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div class="modal-content bg-[var(--card)] rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto border border-[var(--border)]">
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-6">
+          <h3 id="modalTitle" class="text-2xl font-bold">活动名称</h3>
+          <button id="closeModal" class="p-1 rounded-lg hover:bg-[var(--border)] transition-colors" aria-label="关闭">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div id="modalImage" class="h-48 rounded-xl bg-cover bg-center mb-6"></div>
+        
+        <div class="space-y-4 mb-6">
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <span id="modalDate" class="text-[var(--muted)]">日期</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span id="modalLocation" class="text-[var(--muted)]">地点</span>
+          </div>
+        </div>
+        
+        <!-- Ticket Types -->
+        <div class="mb-6">
+          <h4 class="text-sm font-semibold mb-3 text-[var(--muted)] uppercase tracking-wider">选择票种</h4>
+          <div id="ticketTypes" class="space-y-2">
+            <!-- Ticket types will be rendered here -->
+          </div>
+        </div>
+        
+        <!-- Quantity -->
+        <div class="mb-6">
+          <h4 class="text-sm font-semibold mb-3 text-[var(--muted)] uppercase tracking-wider">购买数量</h4>
+          <div class="flex items-center gap-4">
+            <button id="decreaseQty" class="qty-btn w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+              </svg>
+            </button>
+            <span id="quantity" class="text-2xl font-bold w-12 text-center">1</span>
+            <button id="increaseQty" class="qty-btn w-10 h-10 rounded-lg border border-[var(--border)] flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Total -->
+        <div class="flex items-center justify-between mb-6 p-4 rounded-xl bg-[var(--bg)]">
+          <span class="text-[var(--muted)]">总计</span>
+          <span id="totalPrice" class="text-2xl font-bold text-[var(--accent)]">¥0</span>
+        </div>
+        
+        <button id="confirmPurchase" class="btn-primary w-full py-4 rounded-xl text-[var(--bg)] font-bold text-lg relative z-10">
+          <span class="relative z-10">确认购买</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <div id="cartSidebar" class="fixed top-0 right-0 bottom-0 w-full max-w-md bg-[var(--card)] border-l border-[var(--border)] z-50 transform translate-x-full transition-transform duration-300 ease-out">
+    <div class="h-full flex flex-col">
+      <div class="flex items-center justify-between p-6 border-b border-[var(--border)]">
+        <h3 class="text-xl font-bold">购物车</h3>
+        <button id="closeCart" class="p-2 rounded-lg hover:bg-[var(--border)] transition-colors" aria-label="关闭购物车">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div id="cartItems" class="flex-1 overflow-auto p-6">
+        <!-- Cart items will be rendered here -->
+      </div>
+      
+      <div id="cartEmpty" class="flex-1 flex flex-col items-center justify-center p-6 text-center hidden">
+        <svg class="w-16 h-16 text-[var(--muted)] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="text-[var(--muted)]">购物车是空的</p>
+      </div>
+      
+      <div id="cartFooter" class="p-6 border-t border-[var(--border)]">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-[var(--muted)]">总计</span>
+          <span id="cartTotal" class="text-2xl font-bold text-[var(--accent)]">¥0</span>
+        </div>
+        <button id="checkoutBtn" class="btn-primary w-full py-4 rounded-xl text-[var(--bg)] font-bold relative z-10">
+          <span class="relative z-10">结算</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Cart Overlay -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 opacity-0 invisible transition-all duration-300"></div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-[var(--success)] text-white px-6 py-3 rounded-xl font-medium shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <span id="toastMessage">操作成功</span>
+  </div>
+
+  <script>
+    // Event Data
+    const events = [
+      {
+        id: 1,
+        title: "2024 星光音乐节",
+        category: "festival",
+        date: "2024年6月15日",
+        time: "14:00 - 22:00",
+        location: "上海世博公园",
+        image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600&h=400&fit=crop",
+        tickets: [
+          { type: "普通票", price: 388 },
+          { type: "VIP票", price: 888 },
+          { type: "SVIP票", price: 1688 }
+        ]
+      },
+      {
+        id: 2,
+        title: "周杰伦嘉年华世界巡回演唱会",
+        category: "concert",
+        date: "2024年7月20日",
+        time: "19:30",
+        location: "北京国家体育场",
+        image: "https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=600&h=400&fit=crop",
+        tickets: [
+          { type: "看台票", price: 680 },
+          { type: "内场票", price: 1280 },
+          { type: "VIP内场", price: 2280 }
+        ]
+      },
+      {
+        id: 3,
+        title: "CBA总决赛 G7",
+        category: "sports",
+        date: "2024年5月28日",
+        time: "19:35",
+        location: "广东体育馆",
+        image: "https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&h=400&fit=crop",
+        tickets: [
+          { type: "普通席", price: 280 },
+          { type: "嘉宾席", price: 580 },
+          { type: "VIP席", price: 980 }
+        ]
+      },
+      {
+        id: 4,
+        title: "莫奈印象派艺术展",
+        category: "exhibition",
+        date: "2024年4月1日 - 8月31日",
+        time: "09:00 - 18:00",
+        location: "上海艺术博物馆",
+        image: "https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=600&h=400&fit=crop",
+        tickets: [
+          { type: "成人票", price: 120 },
+          { type: "学生票", price: 60 },
+          { type: "家庭套票", price: 280 }
+        ]
+      },
+      {
+        id: 5,
+        title: "草莓音乐节 2024",
+        category: "festival",
+        date: "2024年5月1-3日",
+        time: "12:00 - 22:00",
+        location: "北京长阳公园",
+        image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=600&h=400&fit=crop",
+        tickets: [
+          { type: "单日票", price: 320 },
+          { type: "三日通票", price: 780 },
+          { type: "PRO票", price: 1580 }
+        ]
+      },
+      {
+        id: 6,
+        title: "林俊杰JJ20世界巡回演唱会",
+        category: "concert",
+        date: "2024年8月10日",
+        time: "19:30",
+        location: "深圳大运中心",
+        image: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=600&h=400&fit=crop",
+        tickets: [
+          { type: "看台票", price: 520 },
+          { type: "内场票", price: 1080 },
+          { type: "VIP票", price: 1880 }
+        ]
+      }
+    ];
+
+    // State
+    let cart = [];
+    let myTickets = [];
+    let currentEvent = null;
+    let selectedTicketType = 0;
+    let quantity = 1;
+
+    // DOM Elements
+    const eventsGrid = document.getElementById('eventsGrid');
+    const myTicketsContainer = document.getElementById('myTickets');
+    const emptyTickets = document.getElementById('emptyTickets');
+    const purchaseModal = document.getElementById('purchaseModal');
+    const cartSidebar = document.getElementById('cartSidebar');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartCount = document.getElementById('cartCount');
+    const toast = document.getElementById('toast');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEvents('all');
+      setupEventListeners();
+      setupScrollReveal();
+    });
+
+    // Render Events
+    function renderEvents(category) {
+      const filtered = category === 'all' ? events : events.filter(e => e.category === category);
+      
+      eventsGrid.innerHTML = filtered.map((event, index) => `
+        <div class="event-card stagger-item bg-[var(--card)] rounded-2xl overflow-hidden border border-[var(--border)] cursor-pointer" 
+             data-id="${event.id}" style="animation-delay: ${index * 0.1}s">
+          <div class="relative h-48 overflow-hidden">
+            <div class="card-image absolute inset-0 bg-cover bg-center" style="background-image: url('${event.image}')"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[var(--card)] via-transparent to-transparent"></div>
+            <div class="absolute top-3 left-3">
+              <span class="px-3 py-1 rounded-full text-xs font-medium bg-[var(--accent)]/90 text-[var(--bg)]">${getCategoryLabel(event.category)}</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="text-lg font-bold mb-3 line-clamp-1">${event.title}</h3>
+            <div class="space-y-2 mb-4">
+              <div class="flex items-center gap-2 text-sm text-[var(--muted)]">
+                <svg class="w-4 h-4 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span>${event.date}</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-[var(--muted)]">
+                <svg class="w-4 h-4 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                <span class="truncate">${event.location}</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-xs text-[var(--muted)]">起</span>
+                <span class="text-xl font-bold text-[var(--accent)]">¥${event.tickets[0].price}</span>
+              </div>
+              <button class="buy-btn btn-primary px-4 py-2 rounded-lg text-sm font-semibold text-[var(--bg)] relative z-10" data-id="${event.id}">
+                <span class="relative z-10">立即购买</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Animate cards
+      setTimeout(() => {
+        document.querySelectorAll('.stagger-item').forEach(item => {
+          item.classList.add('visible');
+        });
+      }, 100);
+    }
+
+    // Get category label
+    function getCategoryLabel(category) {
+      const labels = {
+        concert: '演唱会',
+        festival: '音乐节',
+        sports: '体育赛事',
+        exhibition: '展览'
+      };
+      return labels[category] || category;
+    }
+
+    // Setup Event Listeners
+    function setupEventListeners() {
+      // Tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderEvents(btn.dataset.category);
+        });
+      });
+
+      // Event cards
+      eventsGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.event-card');
+        const buyBtn = e.target.closest('.buy-btn');
+        
+        if (card) {
+          const eventId = parseInt(buyBtn ? buyBtn.dataset.id : card.dataset.id);
+          openPurchaseModal(eventId);
+        }
+      });
+
+      // Modal close
+      document.getElementById('closeModal').addEventListener('click', closePurchaseModal);
+      purchaseModal.addEventListener('click', (e) => {
+        if (e.target === purchaseModal) closePurchaseModal();
+      });
+
+      // Quantity controls
+      document.getElementById('decreaseQty').addEventListener('click', () => {
+        if (quantity > 1) {
+          quantity--;
+          updateQuantity();
+        }
+      });
+
+      document.getElementById('increaseQty').addEventListener('click', () => {
+        if (quantity < 10) {
+          quantity++;
+          updateQuantity();
+        }
+      });
+
+      // Confirm purchase
+      document.getElementById('confirmPurchase').addEventListener('click', confirmPurchase);
+
+      // Cart
+      document.getElementById('cartBtn').addEventListener('click', openCart);
+      document.getElementById('closeCart').addEventListener('click', closeCart);
+      cartOverlay.addEventListener('click', closeCart);
+
+      // Checkout
+      document.getElementById('checkoutBtn').addEventListener('click', checkout);
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closePurchaseModal();
+          closeCart();
+        }
+      });
+    }
+
+    // Open Purchase Modal
+    function openPurchaseModal(eventId) {
+      currentEvent = events.find(e => e.id === eventId);
+      if (!currentEvent) return;
+
+      selectedTicketType = 0;
+      quantity = 1;
+
+      document.getElementById('modalTitle').textContent = currentEvent.title;
+      document.getElementById('modalImage').style.backgroundImage = `url('${currentEvent.image}')`;
+      document.getElementById('modalDate').textContent = `${currentEvent.date} ${currentEvent.time}`;
+      document.getElementById('modalLocation').textContent = currentEvent.location;
+
+      renderTicketTypes();
+      updateQuantity();
+
+      purchaseModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Render ticket types
+    function renderTicketTypes() {
+      document.getElementById('ticketTypes').innerHTML = currentEvent.tickets.map((ticket, index) => `
+        <label class="flex items-center justify-between p-3 rounded-xl border ${index === selectedTicketType ? 'border-[var(--accent)] bg-[var(--accent)]/10' : 'border-[var(--border)] hover:border-[var(--accent)]/50'} cursor-pointer transition-all">
+          <div class="flex items-center gap-3">
+            <input type="radio" name="ticketType" value="${index}" ${index === selectedTicketType ? 'checked' : ''} class="sr-only">
+            <span class="font-medium">${ticket.type}</span>
+          </div>
+          <span class="font-bold ${index === selectedTicketType ? 'text-[var(--accent)]' : ''}">¥${ticket.price}</span>
+        </label>
+      `).join('');
+
+      // Add click listeners
+      document.querySelectorAll('#ticketTypes label').forEach((label, index) => {
+        label.addEventListener('click', () => {
+          selectedTicketType = index;
+          renderTicketTypes();
+          updateQuantity();
+        });
+      });
+    }
+
+    // Update quantity display
+    function updateQuantity() {
+      document.getElementById('quantity').textContent = quantity;
+      const price = currentEvent.tickets[selectedTicketType].price * quantity;
+      document.getElementById('totalPrice').textContent = `¥${price.toLocaleString()}`;
+    }
+
+    // Close Purchase Modal
+    function closePurchaseModal() {
+      purchaseModal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Confirm purchase
+    function confirmPurchase() {
+      const ticket = {
+        id: Date.now(),
+        eventId: currentEvent.id,
+        title: currentEvent.title,
+        type: currentEvent.tickets[selectedTicketType].type,
+        price: currentEvent.tickets[selectedTicketType].price,
+        quantity: quantity,
+        date: currentEvent.date,
+        time: currentEvent.time,
+        location: currentEvent.location,
+        image: currentEvent.image
+      };
+
+      myTickets.push(ticket);
+      closePurchaseModal();
+      renderMyTickets();
+      showToast('购买成功！门票已添加到您的账户');
+    }
+
+    // Render My Tickets
+    function renderMyTickets() {
+      if (myTickets.length === 0) {
+        myTicketsContainer.classList.add('hidden');
+        emptyTickets.classList.remove('hidden');
+        return;
+      }
+
+      myTicketsContainer.classList.remove('hidden');
+      emptyTickets.classList.add('hidden');
+
+      myTicketsContainer.innerHTML = myTickets.map((ticket, index) => `
+        <div class="reveal ticket-card rounded-2xl p-6 border border-[var(--border)]" style="animation-delay: ${index * 0.1}s">
+          <div class="flex gap-4">
+            <div class="w-24 h-24 rounded-xl bg-cover bg-center flex-shrink-0" style="background-image: url('${ticket.image}')"></div>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold mb-1 truncate">${ticket.title}</h4>
+              <p class="text-sm text-[var(--accent)] mb-2">${ticket.type} x ${ticket.quantity}</p>
+              <div class="text-xs text-[var(--muted)] space-y-1">
+                <div>${ticket.date} ${ticket.time}</div>
+                <div class="truncate">${ticket.location}</div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 pt-4 border-t border-dashed border-[var(--border)] flex items-center justify-between">
+            <div class="text-sm">
+              <span class="text-[var(--muted)]">总计</span>
+              <span class="font-bold text-[var(--accent)] ml-2">¥${(ticket.price * ticket.quantity).toLocaleString()}</span>
+            </div>
+            <button class="view-qr-btn px-4 py-2 rounded-lg bg-[var(--bg)] hover:bg-[var(--border)] transition-colors text-sm font-medium" data-id="${ticket.id}">
+              查看门票
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Cart functions
+    function openCart() {
+      cartSidebar.classList.remove('translate-x-full');
+      cartOverlay.classList.remove('opacity-0', 'invisible');
+      document.body.style.overflow = 'hidden';
+      renderCart();
+    }
+
+    function closeCart() {
+      cartSidebar.classList.add('translate-x-full');
+      cartOverlay.classList.add('opacity-0', 'invisible');
+      document.body.style.overflow = '';
+    }
+
+    function renderCart() {
+      const cartItems = document.getElementById('cartItems');
+      const cartEmpty = document.getElementById('cartEmpty');
+      const cartFooter = document.getElementById('cartFooter');
+
+      if (cart.length === 0) {
+        cartItems.classList.add('hidden');
+        cartEmpty.classList.remove('hidden');
+        cartFooter.classList.add('hidden');
+        return;
+      }
+
+      cartItems.classList.remove('hidden');
+      cartEmpty.classList.add('hidden');
+      cartFooter.classList.remove('hidden');
+
+      cartItems.innerHTML = cart.map((item, index) => `
+        <div class="flex gap-4 mb-4 pb-4 border-b border-[var(--border)]">
+          <div class="w-16 h-16 rounded-lg bg-cover bg-center flex-shrink-0" style="background-image: url('${item.image}')"></div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-medium text-sm mb-1 truncate">${item.title}</h4>
+            <p class="text-xs text-[var(--muted)]">${item.type}</p>
+            <div class="flex items-center justify-between mt-2">
+              <span class="text-sm font-bold text-[var(--accent)]">¥${item.price}</span>
+              <button class="remove-cart-item text-[var(--muted)] hover:text-red-500 transition-colors" data-index="${index}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Add remove listeners
+      document.querySelectorAll('.remove-cart-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const index = parseInt(btn.dataset.index);
+          cart.splice(index, 1);
+          updateCartCount();
+          renderCart();
+        });
+      });
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      document.getElementById('cartTotal').textContent = `¥${total.toLocaleString()}`;
+    }
+
+    function updateCartCount() {
+      if (cart.length > 0) {
+        cartCount.classList.remove('hidden');
+        cartCount.textContent = cart.length;
+      } else {
+        cartCount.classList.add('hidden');
+      }
+    }
+
+    function checkout() {
+      if (cart.length === 0) return;
+      
+      cart.forEach(item => {
+        myTickets.push({
+          id: Date.now() + Math.random(),
+          ...item,
+          quantity: 1
+        });
+      });
+      
+      cart = [];
+      updateCartCount();
+      closeCart();
+      renderMyTickets();
+      showToast('购买成功！门票已添加到您的账户');
+    }
+
+    // Toast
+    function showToast(message) {
+      const toastEl = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toastEl.classList.remove('translate-y-20', 'opacity-0');
+      
+      setTimeout(() => {
+        toastEl.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    // Scroll Reveal
+    function setupScrollReveal() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    // Initialize myTickets render
+    renderMyTickets();
+  </script>
+</body>
+</html>

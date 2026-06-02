@@ -1,0 +1,33 @@
+{
+  "index": 47,
+  "id": "395",
+  "group": "A",
+  "class": "Desktop",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "为一家风险投资公司创建一个主页，突出显示他们的使命、投资重点和关键团队成员。",
+  "evaluation": {
+    "total_score": 62,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The page has a coherent corporate structure with consistent section cards, navy headers, and a clear top hero, but the visual direction is generic and somewhat mismatched for venture capital: the orange-red gradient hero feels promotional while the rest is plain institutional. The overall system lacks a distinctive premium or high-trust VC character."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Spacing and card interiors are mostly orderly, but there are visible polish issues: investment area uses emoji-like icons instead of a professional icon set, typography hierarchy is basic, team bios are dense and small, and the stock-style headshots reduce perceived quality. The page feels serviceable rather than finished."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Primary sections are easy to locate through large titled bands and generous whitespace, and the reading flow from mission to focus areas to team is straightforward. However, within sections the hierarchy is flat: all investment cards receive similar emphasis, the hero provides little actionable orientation, and contact is pushed to the footer without strong visibility."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels and navigation are conventional and semantically clear for the scenario, so users can predict what each section contains. Still, the navigation appears anchor-based without visible state or feedback, there is little operational affordance beyond reading, and the page does not strongly support the likely next action of contacting or pitching the firm."
+      }
+    },
+    "summary": "This is a usable, structurally correct VC homepage with clear mission, investment focus, and team sections, so the core request is met. The main limits are generic visual treatment, low-premium iconography and imagery, dense body copy, and weak emphasis on the firm's primary conversion path. It feels competent but not notably polished or trust-elevating, which caps it in the qualified middle range."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/395_A_qwen3-235b-a22b-instruct-2507/screenshot_desktop.png",
+  "time": "2026-05-29T15:25:09.230796"
+}

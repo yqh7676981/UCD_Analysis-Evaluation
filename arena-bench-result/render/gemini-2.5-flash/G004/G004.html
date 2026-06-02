@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>解压气泡</title>
+    <style>
+        /* 全局样式和响应式布局 */
+        body {
+            margin: 0;
+            overflow: hidden; /* 防止滚动 */
+            background-color: #2c3e50; /* 深蓝色背景，营造放松氛围 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            user-select: none; /* 防止文本选择 */
+            -webkit-user-select: none; /* Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE/Edge */
+            touch-action: manipulation; /* 优化触摸响应 */
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; /* 防止气泡超出容器 */
+        }
+
+        /* 气泡样式 */
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 1;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4), inset 0 0 8px rgba(255, 255, 255, 0.5); /* 阴影和高光 */
+            touch-action: manipulation; /* 提高触摸响应性 */
+            transform: scale(1);
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* 爆裂动画过渡 */
+            will-change: transform, opacity; /* 性能优化 */
+            z-index: 1; /* 确保气泡在粒子之下被创建，但点击后粒子在气泡之上 */
+        }
+
+        /* 气泡爆裂时的状态 */
+        .bubble.pop {
+            transform: scale(0);
+            opacity: 1; /* fixed: was 0 */
+        }
+
+        /* 粒子样式 */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 1; /* fixed: was 0 */ /* 初始不可见 */
+            transform: scale(0); /* 初始微小 */
+            transition: transform 0.6s ease-out, opacity 0.6s ease-out; /* 粒子飞散和消失的过渡 */
+            will-change: transform, opacity; /* 性能优化 */
+            z-index: 10; /* 确保粒子在气泡之上 */
+            /* 动态设置 transform 的偏移量，使用 CSS 变量 */
+            transform: translate(var(--p-x, 0), var(--p-y, 0)) scale(0);
+        }
+
+        /* 粒子动画状态 */
+        .particle.animate {
+            opacity: 1; /* fixed: was 0 */ /* 最终消失 */
+            transform: translate(var(--p-x, 0), var(--p-y, 0)) scale(0); /* 飞散到指定位置并消失 */
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div id="gameContainer">
+        <!-- 气泡和粒子将在这里通过 JavaScript 动态添加 -->
+    </div>
+
+    <!-- 爆裂音效元素 -->
+    <audio id="popSound" src="https://assets.mixkit.co/sfx/preview/mixkit-pop-sound-2559.mp3" preload="auto"></audio>
+
+    <script>
+        const gameContainer = document.getElementById('gameContainer');
+        const popSound = document.getElementById('popSound');
+
+        // 配置常量
+        const MAX_BUBBLES = 15; // 屏幕上最多显示的气泡数量
+        const MIN_BUBBLE_SIZE = 40; // 气泡最小尺寸 (px)
+        const MAX_BUBBLE_SIZE = 100; // 气泡最大尺寸 (px)
+        const BUBBLE_SPAWN_INTERVAL = 800; // 生成新气泡的时间间隔 (ms)
+        const MIN_BUBBLE_LIFESPAN = 4000; // 气泡最短存活时间 (ms)
+        const MAX_BUBBLE_LIFESPAN = 8000; // 气泡最长存活时间 (ms)
+        const PARTICLE_COUNT = 8; // 每个气泡爆裂时生成的粒子数量
+        const PARTICLE_MIN_SIZE = 4; // 粒子最小尺寸 (px)
+        const PARTICLE_MAX_SIZE = 10; // 粒子最大尺寸 (px)
+
+        let bubbleIdCounter = 0;
+        const activeBubbles = new Set(); // 追踪活动气泡，用于管理数量
+
+        /**
+         * 生成随机 HSL 颜色，用于气泡和粒子。
+         * HSL 颜色更易于控制亮度饱和度，保持美观。
+         */
+        function getRandomColor() {
+            const hue = Math.floor(Math.random() * 360); // 0-359 度的色相
+            const saturation = Math.floor(Math.random() * 30) + 70; // 70-100% 饱和度
+            const lightness = Math.floor(Math.random() * 15) + 65; // 65-80% 亮度
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        /**
+         * 创建并添加一个新气泡到游戏容器。
+         */
+        function createBubble() {
+            if (activeBubbles.size >= MAX_BUBBLES) {
+                return; // 达到最大气泡数量，不再生成
+            }
+
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            bubble.id = `bubble-${bubbleIdCounter++}`;
+
+            const size = Math.random() * (MAX_BUBBLE_SIZE - MIN_BUBBLE_SIZE) + MIN_BUBBLE_SIZE;
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.dataset.size = size; // 存储尺寸，用于粒子效果
+
+            // 随机位置，确保气泡完全在屏幕内
+            const x = Math.random() * (window.innerWidth - size);
+            const y = Math.random() * (window.innerHeight - size);
+
+            bubble.style.left = `${x}px`;
+            bubble.style.top = `${y}px`;
+            bubble.style.backgroundColor = getRandomColor();
+
+            // 为触摸和点击事件添加监听器
+            // passive: false 允许 preventDefault() 阻止默认滚动行为
+            bubble.addEventListener('touchstart', handleBubblePop, { passive: false });
+            bubble.addEventListener('click', handleBubblePop); // 兼容非触摸设备或作为备用
+
+            gameContainer.appendChild(bubble);
+            activeBubbles.add(bubble.id);
+
+            // 设置气泡的自动移除计时器，如果气泡未被点击
+            const lifespan = Math.random() * (MAX_BUBBLE_LIFESPAN - MIN_BUBBLE_LIFESPAN) + MIN_BUBBLE_LIFESPAN;
+            bubble.timeout = setTimeout(() => {
+                if (bubble.parentNode) { // 确保气泡仍然存在于 DOM 中
+                    bubble.classList.add('pop'); // 触发爆裂动画
+                    activeBubbles.delete(bubble.id); // 从活动列表中移除
+                    setTimeout(() => {
+                        bubble.remove(); // 动画结束后从 DOM 移除
+                    }, 300); // 匹配 CSS .bubble.pop 的过渡时间
+                }
+            }, lifespan);
+        }
+
+        /**
+         * 处理气泡点击（或触摸）事件。
+         * @param {Event} event - 触摸或点击事件对象
+         */
+        function handleBubblePop(event) {
+            event.preventDefault(); // 阻止默认触摸行为（如滚动）
+
+            const bubble = this; // 'this' 指向被点击的气泡元素
+
+            // 防止重复爆裂
+            if (bubble.classList.contains('pop')) return;
+
+            // 移除监听器，防止气泡再次被点击
+            bubble.removeEventListener('touchstart', handleBubblePop);
+            bubble.removeEventListener('click', handleBubblePop);
+
+            bubble.classList.add('pop'); // 添加 'pop' 类触发爆裂动画
+            activeBubbles.delete(bubble.id); // 从活动列表中移除
+
+            // 播放音效
+            popSound.currentTime = 0; // 从头开始播放
+            popSound.play().catch(e => console.error("Error playing sound:", e)); // 捕获播放错误
+
+            // 获取气泡中心坐标和尺寸，用于粒子生成
+            const rect = bubble.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const bubbleSize = parseFloat(bubble.dataset.size); // 获取存储的气泡尺寸
+
+            // 生成粒子效果
+            createParticles(centerX, centerY, bubble.style.backgroundColor, bubbleSize);
+
+            // 动画结束后移除气泡元素
+            clearTimeout(bubble.timeout); // 清除自动移除计时器
+            setTimeout(() => {
+                bubble.remove();
+            }, 300); // 匹配 CSS .bubble.pop 的过渡时间
+        }
+
+        /**
+         * 在指定位置生成粒子效果。
+         * @param {number} x - 粒子生成中心的 X 坐标
+         * @param {number} y - 粒子生成中心的 Y 坐标
+         * @param {string} color - 粒子的颜色
+         * @param {number} baseSize - 爆炸气泡的尺寸，用于计算粒子飞散距离
+         */
+        function createParticles(x, y, color, baseSize) {
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.backgroundColor = color;
+
+                const pSize = Math.random() * (PARTICLE_MAX_SIZE - PARTICLE_MIN_SIZE) + PARTICLE_MIN_SIZE;
+                particle.style.width = `${pSize}px`;
+                particle.style.height = `${pSize}px`;
+                // 初始位置设置在气泡中心
+                particle.style.left = `${x - pSize / 2}px`;
+                particle.style.top = `${y - pSize / 2}px`;
+
+                gameContainer.appendChild(particle);
+
+                // 强制浏览器重绘，确保初始样式应用，以便过渡动画能正确触发
+                particle.offsetWidth;
+
+                // 随机计算粒子飞散的方向和距离
+                const angle = Math.random() * Math.PI * 2; // 0 到 2π 的随机角度
+                const distance = Math.random() * (baseSize * 0.7) + (baseSize * 0.3); // 飞散距离与气泡尺寸相关
+                const targetX = Math.cos(angle) * distance;
+                const targetY = Math.sin(angle) * distance;
+
+                // 设置 CSS 变量，用于粒子的 translate 动画
+                particle.style.setProperty('--p-x', `${targetX}px`);
+                particle.style.setProperty('--p-y', `${targetY}px`);
+
+                // 触发粒子动画
+                particle.classList.add('animate');
+
+                // 粒子动画结束后从 DOM 移除
+                setTimeout(() => {
+                    particle.remove();
+                }, 600); // 匹配 CSS .particle.animate 的过渡时间
+            }
+        }
+
+        // 页面加载完成后开始游戏
+        document.addEventListener('DOMContentLoaded', () => {
+            // 首次立即生成一些气泡
+            for (let i = 0; i < 3; i++) {
+                createBubble();
+            }
+            // 定时生成新气泡
+            setInterval(createBubble, BUBBLE_SPAWN_INTERVAL);
+
+            // 预加载音效，避免首次点击延迟
+            popSound.load();
+        });
+
+        // 窗口尺寸变化时调整气泡位置（可选，简单起见未实现复杂的自适应）
+        window.addEventListener('resize', () => {
+            // 当窗口大小改变时，可以重新定位现有气泡或清除并重新生成
+            // 为简单起见，这里不做复杂处理，气泡会保持其原有定位
+            // 如果需要严格定位，需要遍历 activeBubbles 重新计算 left/top
+        });
+    </script>
+</body>
+</html>

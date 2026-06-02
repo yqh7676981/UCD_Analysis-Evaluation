@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>光的折射演示动画</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      touch-action: manipulation;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex-grow: 1;
+    }
+
+    .diagram {
+      position: relative;
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(to bottom, #a0d8ef 50%, #7ab9e6 50%);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .water-line {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      height: 2px;
+      background-color: #000;
+      z-index: 2;
+    }
+
+    .light-ray {
+      position: absolute;
+      height: 2px;
+      background-color: #ffcc00;
+      transform-origin: bottom;
+      z-index: 3;
+      box-shadow: 0 0 6px rgba(255, 204, 0, 0.6);
+    }
+
+    .refracted-ray {
+      position: absolute;
+      height: 2px;
+      background-color: #66ccff;
+      transform-origin: top;
+      z-index: 3;
+      box-shadow: 0 0 6px rgba(102, 204, 255, 0.6);
+    }
+
+    .angle-label {
+      position: absolute;
+      font-size: 0.8rem;
+      color: #333;
+      z-index: 4;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 36px;
+      -webkit-appearance: none;
+      background: transparent;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 4px;
+      background: #ccc;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 28px;
+      width: 28px;
+      border-radius: 50%;
+      background: #ffcc00;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      margin-top: -10px;
+    }
+
+    .formula {
+      margin-top: 8px;
+      font-size: 1.1rem;
+      text-align: center;
+      padding: 12px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #007BFF;
+    }
+
+    .value-display {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>光的折射演示</h1>
+  <div class="container">
+    <div class="diagram" id="diagram">
+      <div class="water-line"></div>
+      <div class="light-ray" id="incidentRay"></div>
+      <div class="refracted-ray" id="refractedRay"></div>
+      <div class="angle-label" id="angleLabelIncident">入射角: 0°</div>
+      <div class="angle-label" id="angleLabelRefracted">折射角: 0°</div>
+    </div>
+
+    <div class="control">
+      <label for="angleControl">调整入射角 (0° - 90°)</label>
+      <input type="range" id="angleControl" min="0" max="90" value="30" step="1" />
+      <div class="value-display">
+        <span>0°</span>
+        <span>90°</span>
+      </div>
+      <div class="formula">
+        <strong>折射定律:</strong><br>
+        n₁·sin(θ₁) = n₂·sin(θ₂)
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 页面元素
+    const diagram = document.getElementById('diagram');
+    const incidentRay = document.getElementById('incidentRay');
+    const refractedRay = document.getElementById('refractedRay');
+    const angleControl = document.getElementById('angleControl');
+    const angleLabelIncident = document.getElementById('angleLabelIncident');
+    const angleLabelRefracted = document.getElementById('angleLabelRefracted');
+
+    // 常量：空气和水的折射率
+    const n1 = 1.00; // 空气
+    const n2 = 1.33; // 水
+
+    // 图形参数
+    const centerX = diagram.offsetWidth / 2;
+    const waterLevel = diagram.offsetHeight / 2;
+
+    // 初始化光线起点（在水面交点）
+    const originX = centerX;
+    const originY = waterLevel;
+
+    function updateRefraction() {
+      const theta1Deg = parseFloat(angleControl.value);
+      const theta1Rad = (theta1Deg * Math.PI) / 180;
+
+      // 使用斯涅尔定律计算折射角
+      const sinTheta2 = (n1 * Math.sin(theta1Rad)) / n2;
+      let theta2Rad = Math.asin(Math.min(sinTheta2, 1)); // 防止全反射导致 NaN
+      if (sinTheta2 > 1) {
+        // 全反射情况，只显示入射光
+        theta2Rad = 0;
+      }
+      const theta2Deg = (theta2Rad * Math.PI * 180) / Math.PI / Math.PI;
+
+      // 设置入射光线
+      incidentRay.style.width = '200px';
+      incidentRay.style.left = `${originX}px`;
+      incidentRay.style.top = `${originY}px`;
+      incidentRay.style.transform = `rotate(${-theta1Deg}deg)`;
+
+      // 设置折射光线
+      refractedRay.style.width = '200px';
+      refractedRay.style.left = `${originX}px`;
+      refractedRay.style.top = `${originY}px`;
+      refractedRay.style.transform = `rotate(${theta2Deg}deg)`;
+
+      // 更新角度标签
+      angleLabelIncident.textContent = `入射角: ${theta1Deg.toFixed(1)}°`;
+      angleLabelIncident.style.left = `${originX + 40 * Math.cos((theta1Deg * Math.PI) / 180)}px`;
+      angleLabelIncident.style.top = `${originY - 40 * Math.sin((theta1Deg * Math.PI) / 180)}px`;
+
+      angleLabelRefracted.textContent = `折射角: ${theta2Deg.toFixed(1)}°`;
+      angleLabelRefracted.style.left = `${originX + 40 * Math.cos((theta2Deg * Math.PI) / 180)}px`;
+      angleLabelRefracted.style.top = `${originY + 40 * Math.sin((theta2Deg * Math.PI) / 180)}px`;
+    }
+
+    // 监听滑块变化
+    angleControl.addEventListener('input', updateRefraction);
+
+    // 初始化
+    window.addEventListener('load', updateRefraction);
+    window.addEventListener('resize', () => {
+      // 如果窗口大小改变，重新计算中心点
+      const newCenterX = diagram.offsetWidth / 2;
+      const newWaterLevel = diagram.offsetHeight / 2;
+      // 保持 originX 和 originY 更新（但这里简单处理）
+      updateRefraction();
+    });
+  </script>
+</body>
+</html>

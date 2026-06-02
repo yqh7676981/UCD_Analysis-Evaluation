@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MASCOTAPPS - 宠物护理专家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f7fd;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        section:hover {
+            transform: translateY(-5px);
+        }
+        
+        h2 {
+            color: #6a11cb;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #f0e6ff;
+            padding-bottom: 0.5rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .feature-card {
+            background: #f8f5ff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #6a11cb;
+        }
+        
+        .feature-card h3 {
+            color: #2575fc;
+            margin-bottom: 0.8rem;
+            font-size: 1.3rem;
+        }
+        
+        .resources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .resource-item {
+            flex: 1;
+            min-width: 250px;
+            background: #eef2ff;
+            padding: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .resource-item:hover {
+            background: #dbe4ff;
+            transform: scale(1.02);
+        }
+        
+        .tips-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .tip {
+            background: #f0f8ff;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #2575fc;
+        }
+        
+        .tip strong {
+            color: #6a11cb;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(106, 17, 203, 0.3);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: #333;
+            color: #fff;
+            margin-top: 2rem;
+        }
+        
+        .app-download {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .download-btn {
+            display: flex;
+            align-items: center;
+            background: white;
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .download-btn i {
+            font-size: 1.5rem;
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2.2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+            
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">MASCOTAPPS</div>
+        <div class="tagline">您值得信赖的宠物护理伙伴</div>
+    </header>
+    
+    <div class="container">
+        <section id="features">
+            <h2>应用功能</h2>
+            <p>我们为宠物主人提供全面的护理工具和资源，让您的爱宠健康快乐成长。</p>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h3><i class="fas fa-calendar-check"></i> 健康提醒</h3>
+                    <p>设置疫苗接种、驱虫、美容等重要事项的提醒，再也不用担心错过关键护理时间。</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-book-medical"></i> 护理知识库</h3>
+                    <p>访问专业的宠物护理指南，涵盖营养、训练、行为问题解决等各个方面。</p>
+                </div>
+                <div class="feature-card">
+                    <h3><i class="fas fa-heartbeat"></i> 健康追踪</h3>
+                    <p>记录宠物的体重、饮食、活动量等数据，生成健康报告，便于兽医咨询。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="tips">
+            <h2>今日护理小贴士</h2>
+            <div class="tips-container">
+                <div class="tip">
+                    <strong>狗狗牙齿护理:</strong> 每周至少为您的狗狗刷牙2-3次，使用专用的宠物牙膏，可有效预防牙结石和口臭。
+                </div>
+                <div class="tip">
+                    <strong>猫咪环境丰富化:</strong> 为猫咪提供猫抓板、玩具和高处栖息点，满足其自然行为需求，减少压力。
+                </div>
+                <div class="tip">
+                    <strong>宠物夏季防暑:</strong> 确保宠物随时有充足的新鲜饮水，避免在高温时段外出散步，注意中暑迹象。
+                </div>
+            </div>
+            <button class="cta-button" id="new-tip">获取更多小贴士</button>
+        </section>
+        
+        <section id="resources">
+            <h2>实用资源</h2>
+            <p>探索我们的专业资源，提升您的宠物护理技能。</p>
+            
+            <div class="resources">
+                <div class="resource-item">
+                    <h3>紧急情况处理指南</h3>
+                    <p>学习如何应对宠物受伤、中毒等紧急医疗状况。</p>
+                </div>
+                <div class="resource-item">
+                    <h3>营养饮食计算器</h3>
+                    <p>根据宠物的品种、年龄和体重，计算理想的食物摄入量。</p>
+                </div>
+                <div class="resource-item">
+                    <h3>行为训练视频库</h3>
+                    <p>观看专业训犬师的指导视频，解决常见的行为问题。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="community">
+            <h2>加入我们的社区</h2>
+            <p>与其他宠物主人交流经验，分享爱宠的精彩瞬间。</p>
+            <p>我们的活跃社区拥有超过50,000名成员，每天都有新的讨论和建议。</p>
+            <button class="cta-button">立即加入社区</button>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="logo" style="color: white; font-size: 2rem; margin-bottom: 1rem;">MASCOTAPPS</div>
+        <p>© 2023 MASCOTAPPS. 专为宠物护理设计的应用程序</p>
+        <p style="margin: 1rem 0; opacity: 0.8;">下载我们的应用程序，开始您的专业宠物护理之旅</p>
+        
+        <div class="app-download">
+            <a href="#" class="download-btn">
+                <i class="fab fa-apple"></i> App Store
+            </a>
+            <a href="#" class="download-btn">
+                <i class="fab fa-google-play"></i> Google Play
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // 今日护理小贴士数组
+        const tips = [
+            "<strong>狗狗社交化:</strong> 在幼犬时期（8-16周）让狗狗接触不同的人、动物和环境，有助于培养自信的性格。",
+            "<strong>猫咪砂盆护理:</strong> 每天清理猫砂盆，每周彻底更换并清洗，保持良好的卫生习惯。",
+            "<strong>宠物识别标签:</strong> 确保您的宠物佩戴带有联系信息的身份标签，增加走失后回家的机会。",
+            "<strong>安全出行:</strong> 带宠物乘车时使用专用的安全带或航空箱，确保旅途安全。",
+            "<strong>新宠物适应:</strong> 为新到家的宠物提供安静的空间，逐步介绍家庭成员和其他宠物。",
+            "<strong>老年宠物护理:</strong> 老年宠物需要更频繁的兽医检查，关注关节健康和认知功能变化。"
+        ];
+        
+        // 获取新小贴士按钮
+        document.getElementById('new-tip').addEventListener('click', function() {
+            // 随机选择一个小贴士
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            
+            // 创建新的tip元素
+            const newTipElement = document.createElement('div');
+            newTipElement.className = 'tip';
+            newTipElement.innerHTML = randomTip;
+            
+            // 添加到tips容器的开头
+            const tipsContainer = document.querySelector('.tips-container');
+            tipsContainer.insertBefore(newTipElement, tipsContainer.firstChild);
+            
+            // 动画效果
+            newTipElement.style.opacity = '0';
+            newTipElement.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                newTipElement.style.transition = 'all 0.5s ease';
+                newTipElement.style.opacity = '1';
+                newTipElement.style.transform = 'translateY(0)';
+            }, 10);
+            
+            // 限制显示的小贴士数量（最多显示5条）
+            const allTips = document.querySelectorAll('.tip');
+            if (allTips.length > 5) {
+                tipsContainer.removeChild(allTips[allTips.length - 1]);
+            }
+        });
+        
+        // 为所有CTA按钮添加点击效果
+        const buttons = document.querySelectorAll('.cta-button, .download-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+                
+                // 简单的反馈提示
+                if (this.textContent.includes('加入') || this.textContent.includes('下载')) {
+                    alert('感谢您的兴趣！MASCOTAPPS应用程序即将上线，敬请期待！');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

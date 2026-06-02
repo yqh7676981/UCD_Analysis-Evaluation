@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="专注篮球新闻、比分和球员统计数据的网站">
+    <title>篮球世界</title>
+    <style>
+        /* 通用样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        nav {
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        nav h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .hero {
+            background: url('https://via.placeholder.com/1500x600') center/cover no-repeat;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+        }
+
+        .hero h2 {
+            font-size: 48px;
+            margin: 0;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin: 20px 0;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+
+        .news-section, .scores-section, .players-section {
+            margin-bottom: 30px;
+        }
+
+        .news-section article, .scores-section div, .players-section div {
+            margin-bottom: 20px;
+        }
+
+        .news-section article {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .news-section article h3 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .news-section article p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 10px 0 0;
+        }
+
+        .scores-section div, .players-section div {
+            background: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .scores-section, .players-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .scores-section, .players-section th, .scores-section, .players-section td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #2c3e50;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero h2 {
+                font-size: 36px;
+            }
+
+            nav ul li {
+                margin-right: 10px;
+            }
+
+            nav ul li a {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1>篮球世界</h1>
+        <ul>
+            <li><a href="#news">篮球新闻</a></li>
+            <li><a href="#scores">比分</a></li>
+            <li><a href="#players">球员统计</a></li>
+        </ul>
+    </nav>
+
+    <div class="hero">
+        <h2>欢迎来到篮球世界</h2>
+    </div>
+
+    <div class="container">
+        <section id="news" class="news-section">
+            <h2>篮球新闻</h2>
+            <article>
+                <h3>最新比赛动态</h3>
+                <p>湖人队昨晚逆转勇士队，詹姆斯贡献30分，成为比赛关键。</p>
+            </article>
+            <article>
+                <h3>球员伤病报告</h3>
+                <p>杜兰特因脚踝受伤将缺席本周比赛，预计下周复出。</p>
+            </article>
+        </section>
+
+        <section id="scores" class="scores-section">
+            <h2>今日比分</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>比赛</th>
+                        <th>比分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>湖人 vs 勇士</td>
+                        <td>102 - 98</td>
+                    </tr>
+                    <tr>
+                        <td>篮网 vs 公牛</td>
+                        <td>108 - 101</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="players" class="players-section">
+            <h2>球员统计数据</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>球员</th>
+                        <th>得分</th>
+                        <th>篮板</th>
+                        <th>助攻</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>詹姆斯</td>
+                        <td>30</td>
+                        <td>10</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>库里</td>
+                        <td>25</td>
+                        <td>5</td>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <footer>
+        <p>© 2023 篮球世界. 保留所有权利.</p>
+    </footer>
+</body>
+</html>

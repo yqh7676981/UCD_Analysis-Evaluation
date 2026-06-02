@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>吃药提醒工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+      font-size: 16px;
+      line-height: 1.6;
+      padding: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin: 20px 0 10px;
+      color: #2c3e50;
+    }
+
+    .description {
+      text-align: center;
+      font-size: 14px;
+      color: #7f8c8d;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #34495e;
+      font-size: 16px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #bdc3c7;
+      border-radius: 8px;
+      background-color: #f9fafa;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #3498db;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button.add {
+      background-color: #2ecc71;
+    }
+
+    button.delete {
+      background-color: #e74c3c;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button.alarm {
+      background-color: #e67e22;
+      font-size: 20px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    ul {
+      list-style: none;
+      margin-top: 20px;
+    }
+
+    li {
+      background-color: #fff;
+      padding: 16px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .med-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    .med-time {
+      font-size: 16px;
+      color: #7f8c8d;
+      margin: 6px 0;
+    }
+
+    .med-dose {
+      font-size: 16px;
+      color: #3498db;
+      font-weight: 500;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal h2 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .modal p {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .close-btn {
+      margin-top: 20px;
+      background-color: #e74c3c;
+      font-size: 18px;
+      padding: 12px 30px;
+    }
+
+    .no-meds {
+      text-align: center;
+      color: #7f8c8d;
+      font-size: 16px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>💊 吃药提醒工具</h1>
+  <p class="description">专为爸妈设计，大字醒目提醒</p>
+
+  <div class="form-group">
+    <label for="medName">药品名称</label>
+    <input type="text" id="medName" placeholder="例如：降压药" />
+
+    <label for="medTime">服用时间</label>
+    <input type="time" id="medTime" />
+
+    <label for="medDose">剂量</label>
+    <input type="text" id="medDose" placeholder="例如：1粒" />
+
+    <button class="add" onclick="addMedication()">➕ 添加药品</button>
+  </div>
+
+  <h2 style="margin: 20px 0 10px; color: #2c3e50;">⏰ 已设置的提醒</h2>
+  <ul id="medList"></ul>
+
+  <div id="alarmModal" class="modal">
+    <h2>🔔 到吃药时间了！</h2>
+    <p id="alarmName" style="font-size: 36px; font-weight: bold;"></p>
+    <p id="alarmDose" style="font-size: 28px;"></p>
+    <p id="alarmTime" style="font-size: 24px;"></p>
+    <button class="close-btn" onclick="closeAlarm()">我知道了</button>
+  </div>
+
+  <script>
+    // 存储药品信息
+    let medications = JSON.parse(localStorage.getItem('medications')) || [];
+    let alarmInterval;
+
+    // 页面加载时渲染已有的药品
+    window.onload = function() {
+      renderMedList();
+      startAlarmCheck();
+    };
+
+    // 添加药品
+    function addMedication() {
+      const nameInput = document.getElementById('medName');
+      const timeInput = document.getElementById('medTime');
+      const doseInput = document.getElementById('medDose');
+
+      const name = nameInput.value.trim();
+      const time = timeInput.value;
+      const dose = doseInput.value.trim();
+
+      if (!name || !time || !dose) {
+        alert('请填写完整的药品信息！');
+        return;
+      }
+
+      const med = { name, time, dose };
+      medications.push(med);
+
+      // 保存到本地存储
+      localStorage.setItem('medications', JSON.stringify(medications));
+
+      // 清空输入框
+      nameInput.value = '';
+      timeInput.value = '';
+      doseInput.value = '';
+
+      // 重新渲染列表
+      renderMedList();
+    }
+
+    // 渲染药品列表
+    function renderMedList() {
+      const listEl = document.getElementById('medList');
+      
+      if (medications.length === 0) {
+        listEl.innerHTML = '<p class="no-meds">还没有添加任何药品哦，请先添加~</p>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+
+      medications.forEach((med, index) => {
+        const li = document.createElement('li');
+
+        const timeFormatted = formatTimeDisplay(med.time);
+
+        li.innerHTML = `
+          <div class="med-name">${med.name}</div>
+          <div class="med-time">⏰ ${timeFormatted}</div>
+          <div class="med-dose">💊 ${med.dose}</div>
+          <button class="delete" onclick="deleteMed(${index})">🗑 删除此提醒</button>
+        `;
+
+        listEl.appendChild(li);
+      });
+    }
+
+    // 删除药品
+    function deleteMed(index) {
+      if (confirm('确定要删除这个药品提醒吗？')) {
+        medications.splice(index, 1);
+        localStorage.setItem('medications', JSON.stringify(medications));
+        renderMedList();
+      }
+    }
+
+    // 格式化时间显示（24小时转12小时或中文）
+    function formatTimeDisplay(timeStr) {
+      const [hour, minute] = timeStr.split(':');
+      const h = parseInt(hour, 10);
+      if (h < 6) return `${h}:${minute} 凌晨`;
+      else if (h < 12) return `${h}:${minute} 上午`;
+      else if (h < 13) return `${h}:${minute} 中午`;
+      else if (h < 18) return `${h}:${minute} 下午`;
+      else return `${h}:${minute} 晚上`;
+    }
+
+    // 检查是否到吃药时间
+    function checkAlarms() {
+      const now = new Date();
+      const currentHour = now.getHours().toString().padStart(2, '0');
+      const currentMinute = now.getMinutes().toString().padStart(2, '0');
+      const currentTime = `${currentHour}:${currentMinute}`;
+
+      const triggeredMeds = medications.filter(med => med.time === currentTime);
+
+      if (triggeredMeds.length > 0) {
+        showAlarm(triggeredMeds[0]);
+      }
+    }
+
+    // 显示吃药提醒弹窗
+    function showAlarm(med) {
+      const modal = document.getElementById('alarmModal');
+      document.getElementById('alarmName').textContent = med.name;
+      document.getElementById('alarmDose').textContent = `剂量：${med.dose}`;
+      document.getElementById('alarmTime').textContent = `时间：${formatTimeDisplay(med.time)}`;
+      modal.classList.add('show');
+
+      // 播放提示音（可选，这里用简单的 beep）
+      playAlertSound();
+    }
+
+    // 模拟播放提示音
+    function playAlertSound() {
+      // 在移动端浏览器中自动播放音频受限，所以不实际播放，仅做示意
+      // 可以考虑使用 Web Audio API 或点击后触发音频
+      console.log("🔔 提醒音应在此播放");
+    }
+
+    // 关闭提醒弹窗
+    function closeAlarm() {
+      document.getElementById('alarmModal').classList.remove('show');
+    }
+
+    // 开始定时检查提醒
+    function startAlarmCheck() {
+      checkAlarms(); // 立即检查一次
+      alarmInterval = setInterval(checkAlarms, 30000); // 每30秒检查一次
+    }
+  </script>
+
+</body>
+</html>

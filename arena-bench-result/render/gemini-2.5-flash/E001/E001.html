@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IELTS 核心词汇打卡</title>
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #4CAF50; /* 绿色 */
+            --secondary-color: #2196F3; /* 蓝色 */
+            --background-color: #f0f2f5;
+            --card-front-bg: #ffffff;
+            --card-back-bg: #e3f2fd; /* 淡蓝色 */
+            --text-color: #333;
+            --light-text-color: #555;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --mastered-color: #a5d6a7; /* 浅绿色 */
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 1.8rem;
+            width: 100%;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* 词汇卡片容器 */
+        #word-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 移动端每行1-2个卡片 */
+            gap: 16px;
+            width: 100%;
+            max-width: 900px; /* 限制最大宽度 */
+            margin-bottom: 24px;
+        }
+
+        /* 单个词汇卡片 */
+        .word-card {
+            background: transparent;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            perspective: 1000px; /* 为3D翻转效果设置景深 */
+            cursor: pointer;
+            height: 180px; /* 固定卡片高度，方便布局 */
+            position: relative;
+            transform-style: preserve-3d; /* 保持子元素3D变换 */
+            transition: transform 0.6s;
+            touch-action: manipulation; /* 优化移动端点击响应 */
+        }
+
+        .word-card.mastered {
+            opacity: 0.7;
+            background: var(--mastered-color);
+            pointer-events: none; /* 掌握的卡片不再翻转 */
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+        }
+
+        .word-card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden; /* 隐藏背面 */
+            backface-visibility: hidden;
+            border-radius: var(--border-radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 12px;
+            box-sizing: border-box;
+            word-break: break-word; /* 避免长单词溢出 */
+            text-align: center;
+        }
+
+        .card-front {
+            background-color: var(--card-front-bg);
+            color: var(--text-color);
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .card-back {
+            background-color: var(--card-back-bg);
+            color: var(--light-text-color);
+            transform: rotateY(180deg);
+            font-size: 0.95rem;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .card-back .definition {
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 4px;
+            font-size: 1.0rem;
+        }
+
+        .card-back .example {
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        /* 掌握按钮 */
+        .mastered-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        .mastered-btn:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        /* 控制按钮 */
+        .controls {
+            display: flex;
+            flex-wrap: wrap; /* 确保在小屏幕上换行 */
+            justify-content: center;
+            gap: 16px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 24px;
+            padding: 16px 0;
+            border-top: 1px solid #ccc;
+        }
+
+        .control-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            min-width: 150px; /* 确保按钮足够大方便点击 */
+        }
+
+        .control-btn:hover {
+            background-color: #1976D2; /* 更深的蓝色 */
+        }
+
+        .control-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .reset-btn {
+            background-color: #F44336; /* 红色 */
+        }
+        .reset-btn:hover {
+            background-color: #D32F2F;
+        }
+
+        /* 响应式调整 */
+        @media (min-width: 600px) {
+            #word-container {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* 桌面端每行3-4个卡片 */
+            }
+            .word-card {
+                height: 200px;
+            }
+            .card-front {
+                font-size: 1.6rem;
+            }
+            .card-back {
+                font-size: 1.0rem;
+            }
+            .card-back .definition {
+                font-size: 1.1rem;
+            }
+            .card-back .example {
+                font-size: 0.9rem;
+            }
+            .mastered-btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+            .control-btn {
+                font-size: 1.1rem;
+                padding: 14px 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>雅思核心词汇挑战</h1>
+
+    <div id="word-container">
+        <!-- 词汇卡片将通过JavaScript动态生成 -->
+    </div>
+
+    <div class="controls">
+        <button id="next-words-btn" class="control-btn">下一批20词</button>
+        <button id="reset-progress-btn" class="control-btn reset-btn">重置所有进度</button>
+    </div>
+
+    <script>
+        const vocabularyWords = [
+            { id: 1, word: "acquire", definition: "v. 获得，取得", example: "She acquired a good knowledge of English." },
+            { id: 2, word: "adapt", definition: "v. 适应，改编", example: "It's important to adapt to new environments." },
+            { id: 3, word: "analyze", definition: "v. 分析", example: "Scientists analyze data to draw conclusions." },
+            { id: 4, word: "approach", definition: "n. 方法，途径；v. 接近", example: "We need a new approach to solve this problem." },
+            { id: 5, word: "assume", definition: "v. 假定，假设", example: "Don't assume anything; check the facts." },
+            { id: 6, word: "authority", definition: "n. 权力，权威", example: "She has the authority to make decisions." },
+            { id: 7, word: "benefit", definition: "n. 利益，好处；v. 有益于", example: "Regular exercise has many health benefits." },
+            { id: 8, word: "concept", definition: "n. 概念，观念", example: "The concept of time travel is fascinating." },
+            { id: 9, word: "consistent", definition: "adj. 一致的，始终如一的", example: "His actions are consistent with his beliefs." },
+            { id: 10, word: "constitute", definition: "v. 组成，构成", example: "Women constitute 70% of the workforce." },
+            { id: 11, word: "context", definition: "n. 背景，语境", example: "You need to understand the historical context." },
+            { id: 12, word: "create", definition: "v. 创造，创建", example: "Artists create beautiful works of art." },
+            { id: 13, word: "data", definition: "n. 数据，资料", example: "The report is based on recent data." },
+            { id: 14, word: "derive", definition: "v. 获得，起源于", example: "Many English words derive from Latin." },
+            { id: 15, word: "distribute", definition: "v. 分发，分配", example: "They distributed food to the flood victims." },
+            { id: 16, word: "economy", definition: "n. 经济", example: "The global economy is facing challenges." },
+            { id: 17, word: "element", definition: "n. 元素，要素", example: "Trust is a key element in any relationship." },
+            { id: 18, word: "establish", definition: "v. 建立，确立", example: "The company was established in 1990." },
+            { id: 19, word: "estimate", definition: "v. 估计，估算", example: "It's difficult to estimate the exact cost." },
+            { id: 20, word: "evidence", definition: "n. 证据，证明", example: "There is no scientific evidence to support this claim." },
+            { id: 21, word: "factor", definition: "n. 因素，要素", example: "Cost is an important factor in our decision." },
+            { id: 22, word: "formula", definition: "n. 公式，配方", example: "The scientist developed a new chemical formula." },
+            { id: 23, word: "function", definition: "n. 功能，作用；v. 运行，起作用", example: "The function of the heart is to pump blood." },
+            { id: 24, word: "identify", definition: "v. 识别，认出", example: "Can you identify the person in this photo?" },
+            { id: 25, word: "impact", definition: "n. 影响，冲击；v. 影响", example: "Climate change will have a global impact." },
+            { id: 26, word: "indicate", definition: "v. 表明，指出", example: "The signs indicate a shift in public opinion." },
+            { id: 27, word: "individual", definition: "adj. 单独的；n. 个人", example: "Every individual has unique talents." },
+            { id: 28, word: "interpret", definition: "v. 解释，说明", example: "It's important to interpret the data correctly." },
+            { id: 29, word: "involve", definition: "v. 涉及，包含", example: "The job involves a lot of traveling." },
+            { id: 30, word: "issue", definition: "n. 问题，议题", example: "We need to address this important issue." },
+            { id: 31, word: "labor", definition: "n. 劳动，劳工", example: "Manual labor can be very demanding." },
+            { id: 32, word: "legal", definition: "adj. 法律的，合法的", example: "It's important to seek legal advice." },
+            { id: 33, word: "legislate", definition: "v. 立法", example: "The government legislated against smoking in public places." },
+            { id: 34, word: "major", definition: "adj. 主要的，重大的", example: "He has a major role in the company." },
+            { id: 35, word: "method", definition: "n. 方法，方式", example: "What method did you use to solve the problem?" },
+            { id: 36, word: "occur", definition: "v. 发生，出现", example: "The accident occurred at midnight." },
+            { id: 37, word: "percent", definition: "n. 百分比", example: "Only a small percent of the population voted." },
+            { id: 38, word: "period", definition: "n. 时期，阶段", example: "It was a period of rapid economic growth." },
+            { id: 39, word: "policy", definition: "n. 政策，方针", example: "The government implemented a new economic policy." },
+            { id: 40, word: "principle", definition: "n. 原则，原理", example: "The principle of equality is fundamental." },
+            { id: 41, word: "proceed", definition: "v. 继续进行，前进", example: "Please proceed with your presentation." },
+            { id: 42, word: "process", definition: "n. 过程；v. 处理", example: "The manufacturing process is complex." },
+            { id: 43, word: "require", definition: "v. 需要，要求", example: "The job requires strong communication skills." },
+            { id: 44, word: "research", definition: "n./v. 研究，调查", example: "She is conducting research into the causes of cancer." },
+            { id: 45, word: "respond", definition: "v. 回答，回应", example: "He didn't respond to my email." },
+            { id: 46, word: "role", definition: "n. 角色，作用", example: "Teachers play a crucial role in society." },
+            { id: 47, word: "section", definition: "n. 部分，部门", example: "Read the first section of the chapter." },
+            { id: 48, word: "sector", definition: "n. 部门，领域", example: "The service sector is growing rapidly." },
+            { id: 49, word: "significant", definition: "adj. 重要的，显著的", example: "There was a significant increase in sales." },
+            { id: 50, word: "similar", definition: "adj. 相似的，类似的", example: "Our ideas are very similar." },
+            { id: 51, word: "source", definition: "n. 来源，根源", example: "What is the source of this information?" },
+            { id: 52, word: "specific", definition: "adj. 具体的，明确的", example: "Could you be more specific?" },
+            { id: 53, word: "structure", definition: "n. 结构，构造；v. 组织", example: "The building has a solid structure." },
+            { id: 54, word: "theory", definition: "n. 理论，学说", example: "Einstein developed the theory of relativity." },
+            { id: 55, word: "vary", definition: "v. 变化，不同", example: "Prices vary depending on the season." },
+            { id: 56, word: "achieve", definition: "v. 达到，完成", example: "She worked hard to achieve her goals." },
+            { id: 57, word: "administration", definition: "n. 管理，行政", example: "The university administration handles student affairs." },
+            { id: 58, word: "affect", definition: "v. 影响", example: "Smoking can seriously affect your health." },
+            { id: 59, word: "appropriate", definition: "adj. 适当的，合适的", example: "Choose an appropriate gift for the occasion." },
+            { id: 60, word: "aspect", definition: "n. 方面，观点", example: "We discussed every aspect of the project." },
+            { id: 61, word: "category", definition: "n. 种类，类别", example: "These books fall into several categories." },
+            { id: 62, word: "chapter", definition: "n. 章，回", example: "Read the first chapter of the novel." },
+            { id: 63, word: "commission", definition: "n. 委员会，佣金；v. 委托", example: "He earned a 10% commission on the sales." },
+            { id: 64, word: "community", definition: "n. 社区，团体", example: "It's important to support your local community." },
+            { id: 65, word: "conclude", definition: "v. 结束，推断出", example: "The meeting concluded at 5 p.m." },
+            { id: 66, word: "conduct", definition: "v. 引导，管理；n. 行为", example: "They conducted a survey to gather opinions." },
+            { id: 67, word: "consequence", definition: "n. 结果，后果", example: "Carelessness can have serious consequences." },
+            { id: 68, word: "construct", definition: "v. 建造，构建", example: "They plan to construct a new bridge." },
+            { id: 69, word: "consume", definition: "v. 消耗，消费", example: "We consume a lot of energy every day." },
+            { id: 70, word: "credit", definition: "n. 信用，学分；v. 归功于", example: "He deserves credit for his hard work." },
+            { id: 71, word: "culture", definition: "n. 文化", example: "Learning about different cultures is enriching." },
+            { id: 72, word: "design", definition: "n./v. 设计", example: "The architect designed a beautiful house." },
+            { id: 73, word: "distinction", definition: "n. 区别，差别", example: "There's a clear distinction between right and wrong." },
+            { id: 74, word: "document", definition: "n. 文件，文献；v. 记录", example: "Keep all your important documents safe." },
+            { id: 75, word: "equation", definition: "n. 方程式，等式", example: "Solve the mathematical equation." },
+            { id: 76, word: "evaluate", definition: "v. 评估，评价", example: "We need to evaluate the risks carefully." },
+            { id: 77, word: "feature", definition: "n. 特征，特色；v. 以...为特色", example: "The car has many safety features." },
+            { id: 78, word: "final", definition: "adj. 最后的，最终的", example: "This is the final decision." },
+            { id: 79, word: "focus", definition: "n. 焦点；v. 集中，聚焦", example: "Please focus on your studies." },
+            { id: 80, word: "framework", definition: "n. 框架，结构", example: "We need a legal framework for this agreement." },
+            { id: 81, word: "initial", definition: "adj. 最初的，开始的", example: "His initial reaction was surprise." },
+            { id: 82, word: "instance", definition: "n. 例子，实例", example: "For instance, let's consider this case." },
+            { id: 83, word: "institute", definition: "n. 机构，研究所；v. 设立", example: "She works at a research institute." },
+            { id: 84, word: "invest", definition: "v. 投资", example: "It's wise to invest in your education." },
+            { id: 85, word: "item", definition: "n. 项目，条款", example: "Please check all the items on the list." },
+            { id: 86, word: "journal", definition: "n. 日记，期刊", example: "He published an article in a scientific journal." },
+            { id: 87, word: "maintain", definition: "v. 维持，保持", example: "It's hard to maintain a perfect balance." },
+            { id: 88, word: "normal", definition: "adj. 正常的，普通的", example: "It's normal to feel nervous before a big event." },
+            { id: 89, word: "obtain", definition: "v. 获得，得到", example: "Where did you obtain this information?" },
+            { id: 90, word: "participate", definition: "v. 参与，参加", example: "Everyone is encouraged to participate in the discussion." },
+            { id: 91, word: "positive", definition: "adj. 积极的，肯定的", example: "She has a very positive attitude." },
+            { id: 92, word: "potential", definition: "adj. 潜在的；n. 潜力", example: "He has great potential as an artist." },
+            { id: 93, word: "previous", definition: "adj. 以前的，先前的", example: "What was your previous job?" },
+            { id: 94, word: "primary", definition: "adj. 主要的，首要的", example: "Education is a primary concern for parents." },
+            { id: 95, word: "purchase", definition: "v. 购买；n. 购买物", example: "I need to purchase some new clothes." },
+            { id: 96, word: "range", definition: "n. 范围，幅度", example: "The prices range from $10 to $50." },
+            { id: 97, word: "region", definition: "n. 地区，区域", example: "This is an earthquake-prone region." },
+            { id: 98, word: "regulate", definition: "v. 管理，调节", example: "Governments regulate industries." },
+            { id: 99, word: "relevant", definition: "adj. 相关的，切题的", example: "Please provide relevant documents." },
+            { id: 100, word: "remove", definition: "v. 移除，搬开", example: "Please remove your shoes." }
+        ];
+
+        const wordContainer = document.getElementById('word-container');
+        const nextWordsBtn = document.getElementById('next-words-btn');
+        const resetProgressBtn = document.getElementById('reset-progress-btn');
+
+        let masteredWords = new Set(JSON.parse(localStorage.getItem('masteredWords') || '[]'));
+        let currentDisplayedWordIds = new Set(); // 记录当前页面显示的词汇ID，避免重复
+
+        // 从词库中随机选择20个不重复的词汇
+        function selectRandomWords(count = 20) {
+            const availableWords = vocabularyWords.filter(word => !currentDisplayedWordIds.has(word.id));
+            
+            // 如果可选词汇不足20个，就从所有词汇中选，确保总数够
+            const wordsToPickFrom = availableWords.length >= count ? availableWords : vocabularyWords;
+
+            const shuffled = [...wordsToPickFrom].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // 创建并显示词汇卡片
+        function renderWords() {
+            const words = selectRandomWords();
+            wordContainer.innerHTML = ''; // 清空现有卡片
+            currentDisplayedWordIds.clear(); // 清空当前显示的ID记录
+
+            words.forEach(word => {
+                currentDisplayedWordIds.add(word.id);
+
+                const card = document.createElement('div');
+                card.classList.add('word-card');
+                card.dataset.id = word.id; // 存储词汇ID
+
+                if (masteredWords.has(word.id)) {
+                    card.classList.add('mastered');
+                }
+
+                card.innerHTML = `
+                    <div class="card-inner">
+                        <div class="card-front">
+                            ${word.word}
+                        </div>
+                        <div class="card-back">
+                            <span class="definition">${word.definition}</span>
+                            <span class="example">${word.example}</span>
+                            <button class="mastered-btn" data-id="${word.id}">我已掌握</button>
+                        </div>
+                    </div>
+                `;
+
+                wordContainer.appendChild(card);
+            });
+
+            addCardEventListeners();
+        }
+
+        // 给卡片和掌握按钮添加事件监听器
+        function addCardEventListeners() {
+            document.querySelectorAll('.word-card').forEach(card => {
+                // 防止在掌握的卡片上添加翻转事件
+                if (!card.classList.contains('mastered')) {
+                    card.addEventListener('click', (event) => {
+                        // 如果点击的是掌握按钮，则不触发卡片翻转
+                        if (!event.target.classList.contains('mastered-btn')) {
+                            card.classList.toggle('flipped');
+                        }
+                    });
+                }
+            });
+
+            document.querySelectorAll('.mastered-btn').forEach(btn => {
+                btn.addEventListener('click', (event) => {
+                    event.stopPropagation(); // 阻止事件冒泡到卡片，避免翻转
+                    const wordId = parseInt(btn.dataset.id);
+                    markAsMastered(wordId);
+                });
+            });
+        }
+
+        // 标记为已掌握
+        function markAsMastered(wordId) {
+            masteredWords.add(wordId);
+            localStorage.setItem('masteredWords', JSON.stringify(Array.from(masteredWords))); // 保存到localStorage
+
+            // 更新DOM元素样式
+            const card = document.querySelector(`.word-card[data-id="${wordId}"]`);
+            if (card) {
+                card.classList.add('mastered');
+                // 移除翻转事件，防止再次点击
+                card.removeEventListener('click', (event) => {
+                    if (!event.target.classList.contains('mastered-btn')) {
+                        card.classList.toggle('flipped');
+                    }
+                });
+                // 禁用掌握按钮
+                const masteredBtn = card.querySelector('.mastered-btn');
+                if (masteredBtn) {
+                    masteredBtn.textContent = '已掌握 ✅';
+                    masteredBtn.disabled = true;
+                    masteredBtn.style.backgroundColor = 'var(--mastered-color)';
+                    masteredBtn.style.color = 'var(--text-color)';
+                    masteredBtn.style.boxShadow = 'none';
+                }
+            }
+        }
+
+        // 重置所有进度
+        function resetProgress() {
+            if (confirm('确定要重置所有已掌握词汇的进度吗？此操作不可撤销。')) {
+                masteredWords.clear();
+                localStorage.removeItem('masteredWords'); // 从localStorage中移除
+                renderWords(); // 重新加载卡片，清除掌握状态
+                alert('所有进度已重置！');
+            }
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderWords();
+
+            nextWordsBtn.addEventListener('click', renderWords);
+            resetProgressBtn.addEventListener('click', resetProgress);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>错题本</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a2332;
+            --bg-card: #242f3d;
+            --text-primary: #f0f4f8;
+            --text-secondary: #8899a6;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.3);
+            --border: #38444d;
+            --danger: #ff6b6b;
+            --warning: #ffc078;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* 背景动效 */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(255, 107, 107, 0.06) 0%, transparent 50%),
+                var(--bg-primary);
+            z-index: -1;
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 24px 24px;
+            z-index: -1;
+        }
+
+        /* 头部 */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(15, 20, 25, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 20px;
+        }
+
+        .header-title {
+            font-weight: 700;
+            font-size: 22px;
+            background: linear-gradient(135deg, var(--accent), #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tab-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            padding: 0 20px 12px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .filter-select {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 14px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238899a6' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* 统计卡片 */
+        .stats-card {
+            margin: 16px 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* 错题列表 */
+        .question-list {
+            padding: 0 20px 100px;
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: slideUp 0.4s ease backwards;
+        }
+
+        .question-card:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .subject-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .subject-math { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .subject-chinese { background: rgba(78, 205, 196, 0.2); color: #4ecdc4; }
+        .subject-english { background: rgba(255, 192, 120, 0.2); color: #ffc078; }
+        .subject-physics { background: rgba(116, 185, 255, 0.2); color: #74b9ff; }
+        .subject-chemistry { background: rgba(162, 155, 254, 0.2); color: #a29bfe; }
+        .subject-biology { background: rgba(85, 239, 196, 0.2); color: #55efc4; }
+
+        .card-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .card-body {
+            padding: 16px;
+        }
+
+        .question-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .knowledge-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-right: 8px;
+        }
+
+        .card-section {
+            margin-top: 16px;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-label.error { color: var(--danger); }
+        .section-label.correct { color: var(--accent); }
+
+        .section-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border-left: 3px solid;
+        }
+
+        .section-content.error { border-color: var(--danger); }
+        .section-content.correct { border-color: var(--accent); }
+
+        .card-actions {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+        }
+
+        .btn-delete {
+            background: rgba(255, 107, 107, 0.1);
+            color: var(--danger);
+        }
+
+        /* 浮动添加按钮 */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #4ecdc4);
+            border: none;
+            color: var(--bg-primary);
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px var(--accent-glow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            width: 100%;
+            max-height: 90vh;
+            background: var(--bg-secondary);
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            overflow-y: auto;
+            animation: slideUpModal 0.4s ease;
+        }
+
+        @keyframes slideUpModal {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238899a6' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), #4ecdc4);
+            border: none;
+            color: var(--bg-primary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* 减少动画 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* 安全区域适配 */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .question-list {
+                padding-bottom: calc(100px + env(safe-area-inset-bottom));
+            }
+            .fab {
+                bottom: calc(24px + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+
+    <!-- 头部 -->
+    <header class="header">
+        <h1 class="header-title">错题本</h1>
+    </header>
+
+    <!-- Tab导航 -->
+    <nav class="tab-nav" id="tabNav">
+        <button class="tab-btn active" data-tab="all">全部</button>
+        <button class="tab-btn" data-tab="math">数学</button>
+        <button class="tab-btn" data-tab="chinese">语文</button>
+        <button class="tab-btn" data-tab="english">英语</button>
+        <button class="tab-btn" data-tab="physics">物理</button>
+        <button class="tab-btn" data-tab="chemistry">化学</button>
+        <button class="tab-btn" data-tab="biology">生物</button>
+    </nav>
+
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <select class="filter-select" id="knowledgeFilter">
+                <option value="">全部知识点</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats-card">
+        <div class="stat-item">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">错题总数</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="subjectCount">0</div>
+            <div class="stat-label">涉及学科</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="knowledgePointCount">0</div>
+            <div class="stat-label">知识点</div>
+        </div>
+    </div>
+
+    <!-- 错题列表 -->
+    <div class="question-list" id="questionList"></div>
+
+    <!-- 浮动添加按钮 -->
+    <button class="fab" id="fabAdd" aria-label="添加错题">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
+
+    <!-- 添加/编辑模态框 -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">添加错题</h2>
+                <button class="modal-close" id="modalClose" aria-label="关闭">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <form id="questionForm">
+                <input type="hidden" id="questionId">
+                <div class="form-group">
+                    <label class="form-label">学科</label>
+                    <select class="form-select" id="subject" required>
+                        <option value="">请选择学科</option>
+                        <option value="math">数学</option>
+                        <option value="chinese">语文</option>
+                        <option value="english">英语</option>
+                        <option value="physics">物理</option>
+                        <option value="chemistry">化学</option>
+                        <option value="biology">生物</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">知识点</label>
+                    <input type="text" class="form-input" id="knowledge" placeholder="如：一元二次方程" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">错题内容</label>
+                    <textarea class="form-textarea" id="content" placeholder="请输入错题内容..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">错误原因</label>
+                    <textarea class="form-textarea" id="errorReason" placeholder="分析错误原因..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">正确解法</label>
+                    <textarea class="form-textarea" id="correctSolution" placeholder="写下正确解法..." required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 初始化数据
+        const subjectNames = {
+            math: '数学',
+            chinese: '语文',
+            english: '英语',
+            physics: '物理',
+            chemistry: '化学',
+            biology: '生物'
+        };
+
+        // 示例数据
+        let questions = [
+            {
+                id: 1,
+                subject: 'math',
+                knowledge: '一元二次方程',
+                content: '解方程 x² - 5x + 6 = 0，求x的值',
+                errorReason: '忘记检验根是否满足原方程，直接得出结论',
+                correctSolution: '使用因式分解法： = 0，所以 x-2=0 或 x-3=0，解得 x=2 或 x=3',
+                date: '2024-01-15'
+            },
+            {
+                id: 2,
+                subject: 'physics',
+                knowledge: '牛顿第二定律',
+                content: '一个质量为2kg的物体，受到10N的合力作用，求加速度',
+                errorReason: '公式记忆错误，写成 a = F/m 而不是 a = F/m',
+                correctSolution: '根据牛顿第二定律 F = ma，所以 a = F/m = 10N / 2kg = 5m/s²',
+                date: '2024-01-14'
+            },
+            {
+                id: 3,
+                subject: 'english',
+                knowledge: '定语从句',
+                content: 'The book _____ I bought yesterday is very interesting.',
+                errorReason: '混淆了关系代词that和which的使用场景',
+                correctSolution: '先行词是book（物），从句中作宾语，可以用that或which，也可以省略。答案：that/which 或留空',
+                date: '2024-01-13'
+            },
+            {
+                id: 4,
+                subject: 'chinese',
+                knowledge: '文言文翻译',
+                content: '翻译"学而时习之，不亦说乎"',
+                errorReason: '"说"字通假字识别错误，误读为shuō',
+                correctSolution: '"说"通"悦"，读yuè，意思是愉快。整句翻译：学习并且按时温习，不也是很愉快吗？',
+                date: '2024-01-12'
+            },
+            {
+                id: 5,
+                subject: 'chemistry',
+                knowledge: '氧化还原反应',
+                content: '判断反应 2Fe + 3Cl₂ = 2FeCl₃ 中铁的化合价变化',
+                errorReason: '误认为生成FeCl₂，铁的化合价为+2价',
+                correctSolution: '氯气具有强氧化性，将铁氧化为+3价。Fe从0价变为+3价，失去3个电子，被氧化',
+                date: '2024-01-11'
+            }
+        ];
+
+        // DOM元素
+        const tabNav = document.getElementById('tabNav');
+        const questionList = document.getElementById('questionList');
+        const modal = document.getElementById('modal');
+        const fabAdd = document.getElementById('fabAdd');
+        const modalClose = document.getElementById('modalClose');
+        const questionForm = document.getElementById('questionForm');
+        const knowledgeFilter = document.getElementById('knowledgeFilter');
+        const modalTitle = document.getElementById('modalTitle');
+
+        let currentTab = 'all';
+        let currentKnowledge = '';
+        let editingId = null;
+
+        // 渲染列表
+        function renderList() {
+            let filtered = questions;
+            
+            if (currentTab !== 'all') {
+                filtered = filtered.filter(q => q.subject === currentTab);
+            }
+            
+            if (currentKnowledge) {
+                filtered = filtered.filter(q => q.knowledge === currentKnowledge);
+            }
+
+            if (filtered.length === 0) {
+                questionList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                        <p class="empty-text">暂无错题记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            questionList.innerHTML = filtered.map((q, index) => `
+                <div class="question-card" style="animation-delay: ${index * 0.05}s" data-id="${q.id}">
+                    <div class="card-header">
+                        <span class="subject-tag subject-${q.subject}">${subjectNames[q.subject]}</span>
+                        <span class="card-date">${q.date}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="question-title">${q.content}</h3>
+                        <span class="knowledge-tag">${q.knowledge}</span>
+                        
+                        <div class="card-section">
+                            <div class="section-label error">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                                错误原因
+                            </div>
+                            <div class="section-content error">${q.errorReason}</div>
+                        </div>
+                        
+                        <div class="card-section">
+                            <div class="section-label correct">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                正确解法
+                            </div>
+                            <div class="section-content correct">${q.correctSolution}</div>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-btn btn-edit" onclick="editQuestion(${q.id})">编辑</button>
+                        <button class="action-btn btn-delete" onclick="deleteQuestion(${q.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalCount').textContent = questions.length;
+            
+            const subjects = new Set(questions.map(q => q.subject));
+            document.getElementById('subjectCount').textContent = subjects.size;
+            
+            const knowledgePoints = new Set(questions.map(q => q.knowledge));
+            document.getElementById('knowledgePointCount').textContent = knowledgePoints.size;
+        }
+
+        // 更新知识点筛选
+        function updateKnowledgeFilter() {
+            let filtered = questions;
+            if (currentTab !== 'all') {
+                filtered = filtered.filter(q => q.subject === currentTab);
+            }
+            
+            const knowledgePoints = [...new Set(filtered.map(q => q.knowledge))];
+            
+            knowledgeFilter.innerHTML = '<option value="">全部知识点</option>' +
+                knowledgePoints.map(k => `<option value="${k}">${k}</option>`).join('');
+            
+            currentKnowledge = '';
+        }
+
+        // Tab切换
+        tabNav.addEventListener('click', (e) => {
+            if (e.target.classList.contains('tab-btn')) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTab = e.target.dataset.tab;
+                updateKnowledgeFilter();
+                renderList();
+            }
+        });
+
+        // 知识点筛选
+        knowledgeFilter.addEventListener('change', (e) => {
+            currentKnowledge = e.target.value;
+            renderList();
+        });
+
+        // 打开模态框
+        function openModal(isEdit = false) {
+            modal.classList.add('active');
+            modalTitle.textContent = isEdit ? '编辑错题' : '添加错题';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            modal.classList.remove('active');
+            questionForm.reset();
+            editingId = null;
+            document.body.style.overflow = '';
+        }
+
+        fabAdd.addEventListener('click', () => openModal(false));
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // 编辑错题
+        function editQuestion(id) {
+            const q = questions.find(item => item.id === id);
+            if (!q) return;
+            
+            editingId = id;
+            document.getElementById('questionId').value = id;
+            document.getElementById('subject').value = q.subject;
+            document.getElementById('knowledge').value = q.knowledge;
+            document.getElementById('content').value = q.content;
+            document.getElementById('errorReason').value = q.errorReason;
+            document.getElementById('correctSolution').value = q.correctSolution;
+            
+            openModal(true);
+        }
+
+        // 删除错题
+        function deleteQuestion(id) {
+            if (confirm('确定要删除这道错题吗？')) {
+                questions = questions.filter(q => q.id !== id);
+                renderList();
+                updateStats();
+                updateKnowledgeFilter();
+            }
+        }
+
+        // 表单提交
+        questionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                subject: document.getElementById('subject').value,
+                knowledge: document.getElementById('knowledge').value,
+                content: document.getElementById('content').value,
+                errorReason: document.getElementById('errorReason').value,
+                correctSolution: document.getElementById('correctSolution').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            if (editingId) {
+                const index = questions.findIndex(q => q.id === editingId);
+                if (index !== -1) {
+                    questions[index] = { ...questions[index], ...formData };
+                }
+            } else {
+                const newId = Math.max(0, ...questions.map(q => q.id)) + 1;
+                questions.unshift({ id: newId, ...formData });
+            }
+
+            closeModal();
+            renderList();
+            updateStats();
+            updateKnowledgeFilter();
+        });
+
+        // 初始化
+        function init() {
+            renderList();
+            updateStats();
+            updateKnowledgeFilter();
+        }
+
+        init();
+    </script>
+</body>
+</html>

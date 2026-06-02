@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>家庭账单记录</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f5f6fa;color:#2c3e50;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:#f5f6fa;padding-bottom:90px;position:relative}
+.header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;padding:20px 20px 80px;border-radius:0 0 30px 30px;position:relative;box-shadow:0 4px 20px rgba(102,126,234,.3)}
+.month-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.month-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.month-btn:active{transform:scale(.9);background:rgba(255,255,255,.35)}
+.month-title{font-size:17px;font-weight:600;letter-spacing:.5px}
+.total-label{font-size:13px;opacity:.85;margin-top:8px}
+.total-amount{font-size:38px;font-weight:700;margin-top:6px;letter-spacing:1px}
+.total-amount .yuan{font-size:18px;margin-right:4px;opacity:.9}
+.summary{display:flex;gap:14px;margin-top:14px;font-size:12px;opacity:.9}
+.summary span{padding:4px 10px;background:rgba(255,255,255,.18);border-radius:12px}
+.card{background:#fff;border-radius:18px;padding:18px;margin:-60px 16px 16px;box-shadow:0 4px 20px rgba(0,0,0,.06);position:relative;z-index:2}
+.card-title{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.card-title .sub{font-size:12px;color:#999;font-weight:400}
+.chart-wrap{display:flex;align-items:center;gap:18px}
+.donut{width:120px;height:120px;flex-shrink:0;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-center .num{font-size:13px;color:#999}
+.donut-center .pct{font-size:20px;font-weight:700;color:#333}
+.legend{flex:1;display:flex;flex-direction:column;gap:8px;font-size:13px}
+.legend-item{display:flex;align-items:center;gap:8px}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.legend-name{flex:1;color:#555}
+.legend-pct{color:#999;font-size:12px}
+.empty-chart{text-align:center;padding:30px 10px;color:#bbb;font-size:13px}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px}
+.cat-item{background:#fff;border-radius:14px;padding:12px 6px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.04);cursor:pointer;transition:.2s}
+.cat-item:active{transform:scale(.95)}
+.cat-icon{width:42px;height:42px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff}
+.cat-name{font-size:11px;color:#666}
+.cat-amount{font-size:12px;font-weight:600;color:#333;margin-top:2px}
+.bills{margin:16px;background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.bill-list{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.bill-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;background:#fafbfc;transition:.2s}
+.bill-item:active{background:#f0f1f5}
+.bill-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0}
+.bill-info{flex:1;min-width:0}
+.bill-name{font-size:14px;font-weight:500;color:#333}
+.bill-date{font-size:11px;color:#999;margin-top:2px}
+.bill-amount{font-size:15px;font-weight:600;color:#333}
+.bill-del{width:28px;height:28px;border:none;background:transparent;color:#ccc;font-size:18px;cursor:pointer;border-radius:50%}
+.bill-del:active{background:#ffebee;color:#e74c3c}
+.empty{text-align:center;padding:30px 10px;color:#bbb;font-size:13px}
+.empty-icon{font-size:36px;margin-bottom:8px;opacity:.5}
+.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border:none;font-size:28px;box-shadow:0 6px 20px rgba(102,126,234,.5);cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center}
+.fab:active{transform:translateX(-50%) scale(.92)}
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal-mask.show{display:flex;animation:fade .25s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-width:480px;background:#fff;border-radius:24px 24px 0 0;padding:20px;animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-title{font-size:17px;font-weight:600;text-align:center;margin-bottom:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.cat-select{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cat-opt{padding:8px 4px;border-radius:10px;background:#f5f6fa;text-align:center;cursor:pointer;font-size:11px;color:#666;border:2px solid transparent;transition:.15s}
+.cat-opt.active{background:#eef0ff;border-color:#667eea;color:#667eea;font-weight:600}
+.cat-opt .ic{font-size:18px;display:block;margin-bottom:2px}
+.field input{width:100%;padding:12px 14px;border:1.5px solid #e8eaf0;border-radius:12px;font-size:15px;outline:none;transition:.2s;background:#fafbfc}
+.field input:focus{border-color:#667eea;background:#fff}
+.btn-row{display:flex;gap:10px;margin-top:18px}
+.btn{flex:1;padding:13px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer}
+.btn-cancel{background:#f0f1f5;color:#666}
+.btn-save{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff}
+.btn:active{opacity:.8}
+.toast{position:fixed;top:30%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:200;display:none}
+.toast.show{display:block;animation:fade .2s}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="month-bar">
+      <button class="month-btn" id="prevM">‹</button>
+      <div class="month-title" id="curMonth">2024年1月</div>
+      <button class="month-btn" id="nextM">›</button>
+    </div>
+    <div class="total-label">本月总支出</div>
+    <div class="total-amount"><span class="yuan">¥</span><span id="totalAmt">0.00</span></div>
+    <div class="summary">
+      <span id="billCount">共 0 笔</span>
+      <span id="avgAmt">日均 ¥0</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">支出分析 <span class="sub" id="chartSub"></span></div>
+    <div id="chartArea"></div>
+  </div>
+
+  <div class="cat-grid" id="catGrid"></div>
+
+  <div class="bills">
+    <div class="card-title">账单明细 <span class="sub" id="billSub">0 笔</span></div>
+    <div class="bill-list" id="billList"></div>
+  </div>
+</div>
+
+<button class="fab" id="addBtn">+</button>
+
+<div class="modal-mask" id="modal">
+  <div class="modal">
+    <div class="modal-title">记一笔账单</div>
+    <div class="field">
+      <label>分类</label>
+      <div class="cat-select" id="catSelect"></div>
+    </div>
+    <div class="field">
+      <label>金额（元）</label>
+      <input type="number" id="amtInput" placeholder="0.00" inputmode="decimal" step="0.01">
+    </div>
+    <div class="field">
+      <label>备注（可选）</label>
+      <input type="text" id="noteInput" placeholder="例如：1月水费" maxlength="20">
+    </div>
+    <div class="field">
+      <label>日期</label>
+      <input type="date" id="dateInput">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-cancel" id="cancelBtn">取消</button>
+      <button class="btn btn-save" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS=[
+  {id:'water',name:'水费',icon:'💧',color:'#4FC3F7'},
+  {id:'elec',name:'电费',icon:'⚡',color:'#FFB74D'},
+  {id:'gas',name:'燃气',icon:'🔥',color:'#FF7043'},
+  {id:'net',name:'网费',icon:'📡',color:'#9575CD'},
+  {id:'phone',name:'话费',icon:'📱',color:'#4DD0E1'},
+  {id:'rent',name:'房租',icon:'🏠',color:'#81C784'},
+  {id:'tv',name:'电视',icon:'📺',color:'#F06292'},
+  {id:'other',name:'其他',icon:'📦',color:'#A1887F'}
+];
+const KEY='family_bills_v1';
+let bills=JSON.parse(localStorage.getItem(KEY)||'[]');
+let curDate=new Date();
+let selCat='water';
+
+function save(){localStorage.setItem(KEY,JSON.stringify(bills))}
+function fmt(n){return Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function pad(n){return n<10?'0'+n:n}
+function ymd(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function curYM(){return curDate.getFullYear()+'-'+pad(curDate.getMonth()+1)}
+function getCat(id){return CATS.find(c=>c.id===id)||CATS[7]}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
+
+function monthBills(){
+  const ym=curYM();
+  return bills.filter(b=>b.date.startsWith(ym)).sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+function render(){
+  document.getElementById('curMonth').textContent=curDate.getFullYear()+'年'+(curDate.getMonth()+1)+'月';
+  const mb=monthBills();
+  const total=mb.reduce((s,b)=>s+b.amount,0);
+  document.getElementById('totalAmt').textContent=fmt(total);
+  document.getElementById('billCount').textContent='共 '+mb.length+' 笔';
+  const days=new Date(curDate.getFullYear(),curDate.getMonth()+1,0).getDate();
+  document.getElementById('avgAmt').textContent='日均 ¥'+fmt(total/days);
+  document.getElementById('billSub').textContent=mb.length+' 笔';
+
+  // 分类统计
+  const catTotal={};
+  CATS.forEach(c=>catTotal[c.id]=0);
+  mb.forEach(b=>catTotal[b.category]=(catTotal[b.category]||0)+b.amount);
+
+  // 渲染图表
+  const ca=document.getElementById('chartArea');
+  const sub=document.getElementById('chartSub');
+  if(total<=0){
+    ca.innerHTML='<div class="empty-chart">暂无数据，去记一笔吧 ✨</div>';
+    sub.textContent='';
+  }else{
+    const stats=CATS.filter(c=>catTotal[c.id]>0).map(c=>({...c,amt:catTotal[c.id],pct:catTotal[c.id]/total*100})).sort((a,b)=>b.amt-a.amt);
+    sub.textContent=stats.length+' 个分类';
+    let circ=2*Math.PI*40,off=0;
+    let segs='';
+    stats.forEach(s=>{
+      const len=circ*s.pct/100;
+      segs+=`<circle cx="60" cy="60" r="40" fill="none" stroke="${s.color}" stroke-width="18" stroke-dasharray="${len} ${circ}" stroke-dashoffset="${-off}"/>`;
+      off+=len;
+    });
+    const top=stats[0];
+    let legend=stats.slice(0,5).map(s=>`<div class="legend-item"><div class="legend-dot" style="background:${s.color}"></div><div class="legend-name">${s.icon} ${s.name}</div><div class="legend-pct">¥${fmt(s.amt)} · ${s.pct.toFixed(1)}%</div></div>`).join('');
+    ca.innerHTML=`<div class="chart-wrap"><div class="donut"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="40" fill="none" stroke="#f0f1f5" stroke-width="18"/>${segs}</svg><div class="donut-center"><div class="num">${top.name}</div><div class="pct">${top.pct.toFixed(0)}%</div></div></div><div class="legend">${legend}</div></div>`;
+  }
+
+  // 分类卡片
+  document.getElementById('catGrid').innerHTML=CATS.map(c=>`<div class="cat-item" data-cat="${c.id}"><div class="cat-icon" style="background:${c.color}">${c.icon}</div><div class="cat-name">${c.name}</div><div class="cat-amount">¥${fmt(catTotal[c.id]||0)}</div></div>`).join('');
+  document.querySelectorAll('.cat-item').forEach(el=>{
+    el.addEventListener('click',()=>{selCat=el.dataset.cat;openModal()});
+  });
+
+  // 账单列表
+  const bl=document.getElementById('billList');
+  if(mb.length===0){
+    bl.innerHTML='<div class="empty"><div class="empty-icon">📋</div>本月还没有账单<br>点击下方 + 按钮记账</div>';
+  }else{
+    bl.innerHTML=mb.map(b=>{const c=getCat(b.category);return `<div class="bill-item"><div class="bill-icon" style="background:${c.color}">${c.icon}</div><div class="bill-info"><div class="bill-name">${b.note||c.name}</div><div class="bill-date">${c.name} · ${b.date.slice(5)}</div></div><div class="bill-amount">¥${fmt(b.amount)}</div><button class="bill-del" data-id="${b.id}">×</button></div>`}).join('');
+    document.querySelectorAll('.bill-del').forEach(b=>{
+      b.addEventListener('click',e=>{e.stopPropagation();if(confirm('删除这笔账单？')){bills=bills.filter(x=>x.id!=b.dataset.id);save();render();showToast('已删除')}});
+    });
+  }
+}
+
+function renderCatSelect(){
+  document.getElementById('catSelect').innerHTML=CATS.map(c=>`<div class="cat-opt ${c.id===selCat?'active':''}" data-cat="${c.id}"><span class="ic">${c.icon}</span>${c.name}</div>`).join('');
+  document.querySelectorAll('.cat-opt').forEach(el=>{
+    el.addEventListener('click',()=>{selCat=el.dataset.cat;renderCatSelect()});
+  });
+}
+
+function openModal(){
+  renderCatSelect();
+  document.getElementById('amtInput').value='';
+  document.getElementById('noteInput').value='';
+  document.getElementById('dateInput').value=ymd(new Date());
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+
+document.getElementById('addBtn').addEventListener('click',()=>{selCat='water';openModal()});
+document.getElementById('cancelBtn').addEventListener('click',closeModal);
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+document.getElementById('saveBtn').addEventListener('click',()=>{
+  const amt=parseFloat(document.getElementById('amtInput').value);
+  const note=document.getElementById('noteInput').value.trim();
+  const date=document.getElementById('dateInput').value;
+  if(!amt||amt<=0){showToast('请输入有效金额');return}
+  if(!date){showToast('请选择日期');return}
+  bills.push({id:Date.now(),category:selCat,amount:amt,note:note,date:date});
+  save();closeModal();render();showToast('记账成功 ✓');
+});
+document.getElementById('prevM').addEventListener('click',()=>{curDate.setMonth(curDate.getMonth()-1);render()});
+document.getElementById('nextM').addEventListener('click',()=>{curDate.setMonth(curDate.getMonth()+1);render()});
+
+// 示例数据
+if(bills.length===0){
+  const ym=curYM();
+  bills=[
+    {id:1,category:'water',amount:68.5,note:'1月水费',date:ym+'-05'},
+    {id:2,category:'elec',amount:235.8,note:'1月电费',date:ym+'-08'},
+    {id:3,category:'gas',amount:92.3,note:'1月燃气',date:ym+'-10'},
+    {id:4,category:'net',amount:120,note:'宽带月费',date:ym+'-15'},
+    {id:5,category:'phone',amount:88,note:'手机话费',date:ym+'-15'}
+  ];
+  save();
+}
+render();
+</script>
+</body>
+</html>

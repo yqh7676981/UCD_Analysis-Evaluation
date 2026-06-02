@@ -1,0 +1,33 @@
+{
+  "index": 54,
+  "id": "G002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个经典贪吃蛇小游戏，方向键控制移动，吃到食物变长，碰到自己就 game over，显示当前长度和最高纪录。",
+  "evaluation": {
+    "total_score": 38,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 4,
+        "reason": "The game area is visually clean and coherent with a dark playfield and simple HUD, but the page feels bare and unfinished on mobile. Large empty gray margins dominate the screen, there is no intentional visual focus beyond the black rectangle, and the overall presentation lacks a polished game-oriented style."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Text is readable and aligned, and the playfield border radius and spacing are consistent. However, the HUD typography is basic, the game elements are extremely minimal, and the small colored blocks lack refinement or supporting detail. The screen looks functional rather than finished."
+      },
+      "easy_to_perceive": {
+        "score": 4,
+        "reason": "Current length and high score are immediately visible, and the play area is obvious. But the primary operation path is not perceptible: there are no visible direction controls on this mobile interface, no start/restart prompt, and no instruction text explaining how to interact."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The meaning of the red and green squares is not self-evident from the screenshot alone, and the requested mobile direction-key control is missing from the visible UI. Without on-screen controls or guidance, users cannot reliably infer how to move, start, or recover from game over."
+      }
+    },
+    "summary": "This is a recognizable but very minimal Snake game prototype. It satisfies part of the requested scenario by showing a playfield and score display, but the mobile UX is hard-capped by the absence of visible direction controls and lack of instructional or state feedback. The layout is readable yet sparse and unfinished, so the experience is directional but not complete for real users."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G002_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:26:32.560336"
+}

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>寻味杭州 · 探索人间天堂</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+    color: #2c3e2d;
+    background: #f5f1e8;
+    line-height: 1.7;
+  }
+
+  /* 顶部导航 */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+    z-index: 1000;
+    padding: 15px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  nav .logo {
+    font-size: 22px; font-weight: bold;
+    color: #2d5f3f; letter-spacing: 2px;
+  }
+  nav .logo span { color: #c8a45c; }
+  nav ul { display: flex; list-style: none; gap: 35px; }
+  nav ul a {
+    text-decoration: none; color: #2c3e2d;
+    font-size: 15px; transition: all 0.3s;
+    position: relative;
+  }
+  nav ul a:hover { color: #2d5f3f; }
+  nav ul a::after {
+    content: ''; position: absolute; bottom: -5px; left: 0;
+    width: 0; height: 2px; background: #c8a45c;
+    transition: width 0.3s;
+  }
+  nav ul a:hover::after { width: 100%; }
+
+  /* 英雄区 */
+  .hero {
+    height: 100vh;
+    background: linear-gradient(135deg, rgba(45,95,63,0.6), rgba(30,60,50,0.75)),
+                url('https://images.unsplash.com/photo-1537531383496-f4749b8032cf?w=1600') center/cover;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    color: white; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '杭'; position: absolute;
+    font-size: 600px; font-weight: bold;
+    color: rgba(255,255,255,0.06);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "STKaiti", serif;
+  }
+  .hero-content { position: relative; z-index: 2; padding: 0 20px; }
+  .hero h1 {
+    font-size: 72px; letter-spacing: 8px;
+    margin-bottom: 20px; font-weight: 300;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .hero .subtitle {
+    font-size: 22px; letter-spacing: 4px;
+    margin-bottom: 10px; opacity: 0.95;
+  }
+  .hero .poem {
+    font-size: 18px; font-style: italic;
+    margin: 30px 0; opacity: 0.85;
+    font-family: "STKaiti", serif;
+  }
+  .hero .btn {
+    display: inline-block;
+    padding: 14px 40px;
+    border: 2px solid white;
+    color: white; text-decoration: none;
+    letter-spacing: 3px;
+    transition: all 0.3s;
+    margin-top: 20px;
+  }
+  .hero .btn:hover {
+    background: white; color: #2d5f3f;
+  }
+  .scroll-hint {
+    position: absolute; bottom: 30px;
+    left: 50%; transform: translateX(-50%);
+    color: white; font-size: 12px;
+    letter-spacing: 2px;
+    animation: bounce 2s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-10px); }
+  }
+
+  /* 通用板块 */
+  section { padding: 100px 40px; max-width: 1280px; margin: 0 auto; }
+  .section-title {
+    text-align: center; margin-bottom: 60px;
+  }
+  .section-title h2 {
+    font-size: 42px; color: #2d5f3f;
+    letter-spacing: 4px; margin-bottom: 10px;
+    font-weight: 400;
+  }
+  .section-title .en {
+    color: #c8a45c; font-size: 14px;
+    letter-spacing: 6px; text-transform: uppercase;
+  }
+  .section-title .divider {
+    width: 60px; height: 2px;
+    background: #c8a45c;
+    margin: 20px auto;
+  }
+
+  /* 景点卡片 */
+  .attractions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+  }
+  .card {
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    transition: transform 0.4s, box-shadow 0.4s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(45,95,63,0.2);
+  }
+  .card-img {
+    height: 220px;
+    background-size: cover; background-position: center;
+    position: relative;
+  }
+  .card-img::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.4), transparent);
+  }
+  .card-label {
+    position: absolute; top: 15px; left: 15px;
+    background: rgba(200,164,92,0.95);
+    color: white; padding: 4px 12px;
+    font-size: 12px; letter-spacing: 2px;
+    z-index: 2;
+  }
+  .card-body { padding: 25px; }
+  .card-body h3 {
+    font-size: 22px; color: #2d5f3f;
+    margin-bottom: 10px; letter-spacing: 2px;
+  }
+  .card-body .meta {
+    font-size: 13px; color: #888;
+    margin-bottom: 12px;
+  }
+  .card-body p {
+    color: #555; font-size: 14px;
+    line-height: 1.8;
+  }
+
+  /* 活动区 */
+  .activities-section {
+    background: linear-gradient(180deg, #eae3d2 0%, #f5f1e8 100%);
+    margin: 0; max-width: 100%;
+  }
+  .activities-inner { max-width: 1280px; margin: 0 auto; }
+  .activities {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+  }
+  .activity {
+    background: white;
+    padding: 35px 25px;
+    text-align: center;
+    border-top: 3px solid #c8a45c;
+    transition: all 0.3s;
+  }
+  .activity:hover {
+    transform: translateY(-5px);
+    background: #2d5f3f; color: white;
+  }
+  .activity:hover .icon { color: #c8a45c; }
+  .activity:hover h4 { color: white; }
+  .activity .icon {
+    font-size: 42px; color: #2d5f3f;
+    margin-bottom: 15px; transition: color 0.3s;
+  }
+  .activity h4 {
+    font-size: 18px; color: #2d5f3f;
+    margin-bottom: 10px; letter-spacing: 2px;
+    transition: color 0.3s;
+  }
+  .activity p { font-size: 13px; line-height: 1.8; }
+
+  /* 文化区 */
+  .culture-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+  }
+  .culture-text h3 {
+    font-size: 32px; color: #2d5f3f;
+    letter-spacing: 3px; margin-bottom: 20px;
+    font-weight: 400;
+  }
+  .culture-text .quote {
+    font-family: "STKaiti", serif;
+    font-size: 18px; color: #c8a45c;
+    margin-bottom: 20px;
+    padding-left: 15px;
+    border-left: 3px solid #c8a45c;
+  }
+  .culture-text p {
+    color: #555; margin-bottom: 15px;
+    font-size: 15px;
+  }
+  .culture-tags {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 25px;
+  }
+  .tag {
+    background: #f0ead9;
+    color: #8b6f2c;
+    padding: 6px 16px;
+    font-size: 13px;
+    border-radius: 20px;
+  }
+  .culture-img {
+    height: 450px;
+    background: url('https://images.unsplash.com/photo-1545048702-79362596cdc9?w=800') center/cover;
+    border-radius: 4px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .culture-img::before {
+    content: ''; position: absolute;
+    top: 20px; left: 20px; right: -20px; bottom: -20px;
+    border: 2px solid #c8a45c;
+    z-index: -1;
+  }
+
+  /* 十景轮播 */
+  .scenes-section {
+    background: #2d5f3f;
+    color: white;
+    margin: 0; max-width: 100%;
+  }
+  .scenes-section .section-title h2 { color: white; }
+  .scenes-section .section-title .divider { background: #c8a45c; }
+  .scenes-inner { max-width: 1280px; margin: 0 auto; }
+  .scenes {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+  }
+  .scene {
+    padding: 25px 10px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.2);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .scene:hover {
+    background: rgba(200,164,92,0.2);
+    border-color: #c8a45c;
+    transform: scale(1.05);
+  }
+  .scene .num {
+    font-size: 28px; color: #c8a45c;
+    font-family: "STKaiti", serif;
+    margin-bottom: 8px;
+  }
+  .scene .name {
+    font-size: 15px; letter-spacing: 2px;
+  }
+
+  /* 页脚 */
+  footer {
+    background: #1a2d22;
+    color: #b5c4b8;
+    padding: 50px 40px 25px;
+    text-align: center;
+  }
+  footer h4 {
+    color: white; margin-bottom: 15px;
+    letter-spacing: 3px;
+  }
+  footer p { font-size: 13px; margin-bottom: 10px; }
+  footer .copyright {
+    margin-top: 30px; padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px; color: #6b7a6e;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 12px 20px; }
+    nav ul { gap: 15px; font-size: 13px; }
+    nav ul a { font-size: 13px; }
+    .hero h1 { font-size: 42px; letter-spacing: 4px; }
+    .hero .subtitle { font-size: 16px; }
+    .hero::before { font-size: 300px; }
+    section { padding: 60px 20px; }
+    .section-title h2 { font-size: 30px; }
+    .culture-grid { grid-template-columns: 1fr; }
+    .culture-img { height: 300px; }
+    .scenes { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .fade-in {
+    opacity: 1; /* fixed: was 0 */
+    transform: translateY(0); /* fixed */
+    transition: opacity 0.8s, transform 0.8s;
+  }
+  .fade-in.visible {
+    opacity: 1; transform: translateY(0);
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<nav>
+  <div class="logo">寻味<span>杭州</span></div>
+  <ul>
+    <li><a href="#home">首页</a></li>
+    <li><a href="#attractions">景点</a></li>
+    <li><a href="#activities">活动</a></li>
+    <li><a href="#culture">文化</a></li>
+    <li><a href="#scenes">西湖十景</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="subtitle">HANGZHOU · 人间天堂</div>
+    <h1>烟雨江南</h1>
+    <div class="poem">"欲把西湖比西子，淡妆浓抹总相宜"</div>
+    <a href="#attractions" class="btn">开启旅程</a>
+  </div>
+  <div class="scroll-hint">SCROLL DOWN ↓</div>
+</section>
+
+<section id="attractions">
+  <div class="section-title fade-in">
+    <div class="en">ATTRACTIONS</div>
+    <h2>山水名胜</h2>
+    <div class="divider"></div>
+    <p style="color:#888; max-width:600px; margin:0 auto;">杭州的每一处风景，都是千年诗画中走出的意境</p>
+  </div>
+  <div class="attractions">
+    <div class="card fade-in">
+      <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1598887142487-3c854d51d185?w=800')">
+        <span class="card-label">5A 景区</span>
+      </div>
+      <div class="card-body">
+        <h3>西湖</h3>
+        <div class="meta">📍 西湖区 · 全年开放 · 免费</div>
+        <p>三面环山，一面临城。苏堤春晓、断桥残雪、雷峰夕照，湖光山色间书写着千年风雅。</p>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1528181304800-259b08848526?w=800')">
+        <span class="card-label">千年古刹</span>
+      </div>
+      <div class="card-body">
+        <h3>灵隐寺</h3>
+        <div class="meta">📍 西湖区灵隐路 · 7:00-18:00</div>
+        <p>始建于东晋，江南禅宗"五山"之一。飞来峰石窟造像与云林禅意，诉说千六百年的佛门清幽。</p>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1555921015-5532091f6026?w=800')">
+        <span class="card-label">世界遗产</span>
+      </div>
+      <div class="card-body">
+        <h3>京杭大运河</h3>
+        <div class="meta">📍 拱墅区 · 夜游最佳</div>
+        <p>世界上最长的古代运河。拱宸桥畔，桥西历史街区保留着老杭州的市井烟火与运河记忆。</p>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1509600110300-21b9d5fedeb7?w=800')">
+        <span class="card-label">城市湿地</span>
+      </div>
+      <div class="card-body">
+        <h3>西溪湿地</h3>
+        <div class="meta">📍 余杭区 · 8:30-17:30</div>
+        <p>"冷、野、淡、雅"的独特风韵。摇橹船穿行芦苇丛间，是都市中难得的秘境。</p>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1599458252573-56ae36120de1?w=800')">
+        <span class="card-label">宋韵街区</span>
+      </div>
+      <div class="card-body">
+        <h3>河坊街</h3>
+        <div class="meta">📍 上城区 · 全天开放</div>
+        <p>杭州唯一保存完好的古街区。胡庆余堂、王星记扇庄、张小泉剪刀，老字号串起南宋临安的繁华。</p>
+      </div>
+    </div>
+    <div class="card fade-in">
+      <div class="card-img" style="background-image:url('https://images.unsplash.com/photo-1582650625119-3a31f8fa2699?w=800')">
+        <span class="card-label">钱塘奇观</span>
+      </div>
+      <div class="card-body">
+        <h3>钱塘江大潮</h3>
+        <div class="meta">📍 萧山区 · 农历八月</div>
+        <p>"八月十八潮，壮观天下无"。每年中秋前后，百里浪涛如万马奔腾，天下奇观。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="activities-section">
+  <section class="activities-inner" id="activities">
+    <div class="section-title fade-in">
+      <div class="en">EXPERIENCES</div>
+      <h2>风雅体验</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="activities">
+      <div class="activity fade-in">
+        <div class="icon">🍵</div>
+        <h4>龙井问茶</h4>
+        <p>登狮峰山采龙井，访梅家坞茶农，品明前第一鲜。</p>
+      </div>
+      <div class="activity fade-in">
+        <div class="icon">🚣</div>
+        <h4>西湖泛舟</h4>
+        <p>手摇船游三潭印月，夕阳下赏"断桥残雪"的诗意。</p>
+      </div>
+      <div class="activity fade-in">
+        <div class="icon">🎭</div>
+        <h4>宋城千古情</h4>
+        <p>一场歌舞穿越千年，感受南宋临安的繁华盛景。</p>
+      </div>
+      <div class="activity fade-in">
+        <div class="icon">🚴</div>
+        <h4>环湖骑行</h4>
+        <p>沿苏堤白堤骑行，15公里一览西湖四季风光。</p>
+      </div>
+      <div class="activity fade-in">
+        <div class="icon">🌸</div>
+        <h4>太子湾赏樱</h4>
+        <p>三月樱花与郁金香齐放，江南春色最浪漫的打开方式。</p>
+      </div>
+      <div class="activity fade-in">
+        <div class="icon">🥟</div>
+        <h4>寻味老杭州</h4>
+        <p>西湖醋鱼、东坡肉、片儿川、定胜糕，舌尖上的宋韵。</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section id="culture">
+  <div class="section-title fade-in">
+    <div class="en">CULTURE</div>
+    <h2>人文底蕴</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="culture-grid">
+    <div class="culture-img fade-in"></div>
+    <div class="culture-text fade-in">
+      <h3>千年宋韵 风雅钱塘</h3>
+      <div class="quote">"山外青山楼外楼，西湖歌舞几时休"</div>
+      <p>杭州，八大古都之一，南宋故都临安。这座城市的骨子里流淌着风雅——文人墨客在此吟诗作画，商贾游人于此云集。</p>
+      <p>从梁祝化蝶到白蛇传说，从岳王忠骨到秋瑾英魂，杭州的每一寸土地都写满故事。茶文化、丝绸文化、南宋官窑、越剧昆曲，共同织就江南文化最璀璨的锦缎。</p>
+      <div class="culture-tags">
+        <span class="tag">西湖文化</span>
+        <span class="tag">龙井茶艺</span>
+        <span class="tag">丝绸之府</span>
+        <span class="tag">宋代官窑</span>
+        <span class="tag">良渚文明</span>
+        <span class="tag">越剧之乡</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scenes-section">
+  <section class="scenes-inner" id="scenes">
+    <div class="section-title fade-in">
+      <div class="en">TEN SCENES</div>
+      <h2>西湖十景</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="scenes" id="scenesGrid"></div>
+  </section>
+</div>
+
+<footer>
+  <h4>寻味杭州</h4>
+  <p>上有天堂，下有苏杭</p>
+  <p>探索 · 品味 · 感受这座千年古城的诗意栖居</p>
+  <p style="margin-top:15px;">📧 hello@hangzhou-travel.cn　|　📱 400-888-8888</p>
+  <div class="copyright">© 2024 寻味杭州 · 此网站为文化推广展示页面</div>
+</footer>
+
+<script>
+  const scenes = [
+    { num: '一', name: '苏堤春晓' },
+    { num: '二', name: '曲院风荷' },
+    { num: '三', name: '平湖秋月' },
+    { num: '四', name: '断桥残雪' },
+    { num: '五', name: '柳浪闻莺' },
+    { num: '六', name: '花港观鱼' },
+    { num: '七', name: '雷峰夕照' },
+    { num: '八', name: '双峰插云' },
+    { num: '九', name: '南屏晚钟' },
+    { num: '十', name: '三潭印月' }
+  ];
+  const grid = document.getElementById('scenesGrid');
+  scenes.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'scene fade-in';
+    div.innerHTML = `<div class="num">${s.num}</div><div class="name">${s.name}</div>`;
+    div.addEventListener('click', () => {
+      alert(`${s.name}\n\n——西湖十景之一，最早见于南宋画家的山水画题名，流传至今八百余载。`);
+    });
+    grid.appendChild(div);
+  });
+
+  // 滚动动画
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // 导航栏滚动效果
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 50) {
+      nav.style.padding = '10px 40px';
+    } else {
+      nav.style.padding = '15px 40px';
+    }
+  });
+</script>
+
+</body>
+</html>

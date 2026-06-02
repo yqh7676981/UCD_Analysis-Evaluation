@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>💊 爸妈吃药提醒</title>
+    <style>
+        /* ========== 全局重置 & 基础 ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f9ff;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        button, input, select, textarea {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        /* ========== Layout ========== */
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px 16px 80px;
+            position: relative;
+        }
+
+        /* ========== Header ========== */
+        .app-header {
+            text-align: center;
+            padding: 20px 0 12px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #2b6f9e;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .app-header span {
+            font-size: 32px;
+        }
+
+        /* ========== 药品列表 ========== */
+        #med-list {
+            flex: 1;
+            padding-top: 8px;
+        }
+        .empty-state {
+            text-align: center;
+            color: #aaa;
+            font-size: 20px;
+            padding: 60px 20px;
+            line-height: 1.8;
+        }
+        .empty-state::before {
+            content: "💊";
+            display: block;
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .med-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 16px rgba(0, 20, 40, 0.08);
+            padding: 18px 20px 14px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+            border-left: 6px solid #4a9eff;
+            position: relative;
+        }
+
+        .med-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a3b5e;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .med-name::before {
+            content: "💊";
+            font-size: 26px;
+        }
+
+        .med-times {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 14px;
+            margin-bottom: 10px;
+        }
+        .time-item {
+            background: #f0f7ff;
+            border-radius: 30px;
+            padding: 6px 18px 6px 14px;
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #1a5a8c;
+        }
+        .time-item .time {
+            font-weight: 600;
+        }
+        .time-item .dose {
+            background: #4a9eff;
+            color: #fff;
+            border-radius: 24px;
+            padding: 2px 12px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #ccc;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 12px;
+            transition: 0.2s;
+        }
+        .delete-btn:hover,
+        .delete-btn:active {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+        .delete-btn::after {
+            content: "✕";
+        }
+
+        /* ========== 底部添加按钮 ========== */
+        .footer-add {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 16px 20px 24px;
+            background: linear-gradient(to top, #f5f9ff 60%, transparent);
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .footer-add button {
+            pointer-events: auto;
+            width: 100%;
+            max-width: 440px;
+            background: #4a9eff;
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            padding: 18px 0;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            box-shadow: 0 8px 30px rgba(74, 158, 255, 0.35);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .footer-add button:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 16px rgba(74, 158, 255, 0.25);
+        }
+        .footer-add button::before {
+            content: "＋ ";
+            font-weight: 300;
+        }
+
+        /* ========== 模态框 ========== */
+        .modal {
+            display: none; /* 由 JS 控制 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 480px;
+            max-height: 90vh;
+            border-radius: 28px 28px 0 0;
+            padding: 28px 24px 40px;
+            overflow-y: auto;
+            box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            font-size: 26px;
+            color: #1a3b5e;
+        }
+        .close-btn {
+            background: #f1f3f5;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .close-btn:active {
+            background: #e0e4e8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 18px;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="time"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            outline: none;
+            transition: 0.2s;
+            background: #fafcff;
+        }
+        .form-group input:focus {
+            border-color: #4a9eff;
+            box-shadow: 0 0 0 4px rgba(74, 158, 255, 0.15);
+        }
+
+        .time-entry {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 14px;
+            background: #f8faff;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid #e9edf4;
+        }
+        .time-entry input[type="time"] {
+            flex: 1;
+            padding: 12px 12px;
+            font-size: 20px;
+            border: 1px solid #dce3ec;
+            border-radius: 12px;
+            outline: none;
+            background: #fff;
+        }
+        .time-entry input[type="text"] {
+            flex: 1;
+            padding: 12px 12px;
+            font-size: 18px;
+            border: 1px solid #dce3ec;
+            border-radius: 12px;
+            outline: none;
+            background: #fff;
+        }
+        .time-entry input:focus {
+            border-color: #4a9eff;
+        }
+        .time-entry .remove-time {
+            background: #fee2e2;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 22px;
+            color: #dc2626;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .time-entry .remove-time:active {
+            background: #fecaca;
+        }
+
+        .add-time-btn {
+            background: none;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 12px;
+            font-size: 18px;
+            color: #4a9eff;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 16px;
+            transition: 0.2s;
+        }
+        .add-time-btn:active {
+            background: #f1f9ff;
+            border-color: #4a9eff;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: #4a9eff;
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            padding: 18px 0;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            box-shadow: 0 6px 24px rgba(74, 158, 255, 0.3);
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+        .submit-btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 3px 12px rgba(74, 158, 255, 0.2);
+        }
+
+        /* ========== 提醒覆盖层 ========== */
+        .reminder-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(160deg, #ff6b6b, #ee5a24);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.2s ease-in-out infinite alternate;
+            backdrop-filter: blur(2px);
+        }
+        @keyframes pulse {
+            0% { background: linear-gradient(160deg, #ff6b6b, #ee5a24); }
+            100% { background: linear-gradient(160deg, #ff8a8a, #f53d3d); }
+        }
+
+        .reminder-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 48px 36px 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            color: #fff;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .reminder-header {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .reminder-header::before {
+            content: "⏰ ";
+        }
+        .reminder-item {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 60px;
+            padding: 16px 24px;
+            margin-bottom: 16px;
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .reminder-name {
+            font-weight: 700;
+        }
+        .reminder-dose {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 0 18px;
+            border-radius: 40px;
+            font-weight: 600;
+        }
+        .reminder-btn {
+            margin-top: 28px;
+            background: #fff;
+            color: #ee5a24;
+            border: none;
+            border-radius: 60px;
+            padding: 18px 48px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+            width: 100%;
+        }
+        .reminder-btn:active {
+            transform: scale(0.94);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ========== 辅助 ========== */
+        .hidden {
+            display: none !important;
+        }
+        /* ========== 响应式微调 ========== */
+        @media (max-width: 420px) {
+            .app-header { font-size: 24px; }
+            .med-name { font-size: 22px; }
+            .time-item { font-size: 16px; padding: 4px 14px 4px 10px; }
+            .modal-content { padding: 20px 18px 30px; }
+            .reminder-header { font-size: 26px; }
+            .reminder-item { font-size: 22px; padding: 12px 16px; }
+            .reminder-btn { font-size: 20px; padding: 16px 20px; }
+            .footer-add button { font-size: 20px; padding: 16px 0; }
+        }
+        @media (min-width: 480px) {
+            #app { padding-left: 24px; padding-right: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 头部 -->
+        <header class="app-header">
+            <span>💊</span> 吃药提醒
+        </header>
+
+        <!-- 药品列表 -->
+        <main id="med-list">
+            <div class="empty-state">还没有药品<br>点击下方按钮添加</div>
+        </main>
+
+        <!-- 底部添加按钮 -->
+        <div class="footer-add">
+            <button id="show-add-btn">添加药品</button>
+        </div>
+    </div>
+
+    <!-- 添加药品模态框 -->
+    <div id="add-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💊 添加药品</h2>
+                <button class="close-btn" id="close-modal-btn">✕</button>
+            </div>
+            <form id="add-form">
+                <div class="form-group">
+                    <label for="med-name">药品名称</label>
+                    <input type="text" id="med-name" placeholder="例如：阿莫西林" required>
+                </div>
+
+                <div id="time-entries">
+                    <div class="time-entry">
+                        <input type="time" class="time-input" required>
+                        <input type="text" class="dose-input" placeholder="剂量（如 1粒）">
+                        <button type="button" class="remove-time" style="display:none;">✕</button>
+                    </div>
+                </div>
+
+                <button type="button" class="add-time-btn" id="add-time-btn">＋ 添加另一个时间</button>
+                <button type="submit" class="submit-btn">保存药品</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // 数据管理
+            // ============================================================
+            let medications = [];
+            let remindedToday = {};     // 键: "日期_id_时间" -> true
+            let todayStr = '';
+
+            const STORAGE_KEY_MED = 'medications';
+            const STORAGE_KEY_REM = 'remindedToday';
+
+            function getDateStr() {
+                const d = new Date();
+                return d.getFullYear() + '-' +
+                    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(d.getDate()).padStart(2, '0');
+            }
+
+            function loadData() {
+                // 药品
+                const raw = localStorage.getItem(STORAGE_KEY_MED);
+                medications = raw ? JSON.parse(raw) : [];
+
+                // 提醒记录
+                const remRaw = localStorage.getItem(STORAGE_KEY_REM);
+                const curDate = getDateStr();
+                if (remRaw) {
+                    const parsed = JSON.parse(remRaw);
+                    if (parsed.date === curDate) {
+                        remindedToday = parsed.reminded || {};
+                    } else {
+                        remindedToday = {};
+                    }
+                } else {
+                    remindedToday = {};
+                }
+                todayStr = curDate;
+                // 保存一下（确保日期最新）
+                saveReminded();
+            }
+
+            function saveMedications() {
+                localStorage.setItem(STORAGE_KEY_MED, JSON.stringify(medications));
+            }
+
+            function saveReminded() {
+                localStorage.setItem(STORAGE_KEY_REM, JSON.stringify({
+                    date: todayStr,
+                    reminded: remindedToday
+                }));
+            }
+
+            // ============================================================
+            // 渲染药品列表
+            // ============================================================
+            function renderList() {
+                const container = document.getElementById('med-list');
+                if (!medications.length) {
+                    container.innerHTML = '<div class="empty-state">还没有药品<br>点击下方按钮添加</div>';
+                    return;
+                }
+
+                let html = '';
+                medications.forEach(med => {
+                    const timesHtml = med.times.map(t =>
+                        `<span class="time-item">
+                            <span class="time">${t.time}</span>
+                            <span class="dose">${t.dose || '—'}</span>
+                        </span>`
+                    ).join('');
+                    html += `
+                        <div class="med-card" data-id="${med.id}">
+                            <div class="med-name">${med.name}</div>
+                            <div class="med-times">${timesHtml}</div>
+                            <button class="delete-btn" data-id="${med.id}"></button>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+                // 绑定删除事件 (事件委托)
+                container.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        const id = Number(this.dataset.id);
+                        if (confirm('确定要删除这个药品吗？')) {
+                            medications = medications.filter(m => m.id !== id);
+                            // 同时清除该药品相关的提醒记录（保留其他药品）
+                            for (const key of Object.keys(remindedToday)) {
+                                if (key.includes(`_${id}_`)) {
+                                    delete remindedToday[key];
+                                }
+                            }
+                            saveMedications();
+                            saveReminded();
+                            renderList();
+                        }
+                    });
+                });
+            }
+
+            // ============================================================
+            // 模态框控制
+            // ============================================================
+            const modal = document.getElementById('add-modal');
+            const showAddBtn = document.getElementById('show-add-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const form = document.getElementById('add-form');
+            const medNameInput = document.getElementById('med-name');
+            const timeEntries = document.getElementById('time-entries');
+            const addTimeBtn = document.getElementById('add-time-btn');
+
+            function openModal() {
+                modal.classList.add('show');
+                medNameInput.focus();
+                // 如果只有一行且没有内容，重置表单
+                resetForm();
+            }
+
+            function closeModal() {
+                modal.classList.remove('show');
+                form.reset();
+                // 重置时间条目到一行
+                resetTimeEntries(1);
+            }
+
+            function resetForm() {
+                form.reset();
+                resetTimeEntries(1);
+            }
+
+            function resetTimeEntries(count) {
+                timeEntries.innerHTML = '';
+                for (let i = 0; i < count; i++) {
+                    addTimeEntry();
+                }
+                // 确保第一行的删除按钮隐藏
+                const firstRemove = timeEntries.querySelector('.remove-time');
+                if (firstRemove) firstRemove.style.display = 'none';
+            }
+
+            // 添加一行时间输入
+            function addTimeEntry() {
+                const entry = document.createElement('div');
+                entry.className = 'time-entry';
+                entry.innerHTML = `
+                    <input type="time" class="time-input" required>
+                    <input type="text" class="dose-input" placeholder="剂量（如 1粒）">
+                    <button type="button" class="remove-time">✕</button>
+                `;
+                timeEntries.appendChild(entry);
+                // 显示删除按钮（仅当条目多于1行）
+                updateRemoveButtons();
+                // 事件绑定
+                const removeBtn = entry.querySelector('.remove-time');
+                removeBtn.addEventListener('click', function() {
+                    if (timeEntries.children.length > 1) {
+                        entry.remove();
+                        updateRemoveButtons();
+                    }
+                });
+                // 给新添加的 time 输入默认值？ 不用
+            }
+
+            // 更新删除按钮显示：如果只有1行，隐藏删除按钮
+            function updateRemoveButtons() {
+                const entries = timeEntries.querySelectorAll('.time-entry');
+                const removeBtns = timeEntries.querySelectorAll('.remove-time');
+                if (entries.length <= 1) {
+                    removeBtns.forEach(btn => btn.style.display = 'none');
+                } else {
+                    removeBtns.forEach(btn => btn.style.display = 'flex');
+                }
+            }
+
+            // 事件绑定
+            showAddBtn.addEventListener('click', openModal);
+            closeModalBtn.addEventListener('click', closeModal);
+            // 点击遮罩关闭（仅点击遮罩本身）
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            addTimeBtn.addEventListener('click', addTimeEntry);
+
+            // 表单提交
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = medNameInput.value.trim();
+                if (!name) {
+                    alert('请输入药品名称');
+                    return;
+                }
+
+                const timeEntriesList = timeEntries.querySelectorAll('.time-entry');
+                const times = [];
+                let valid = false;
+                timeEntriesList.forEach(entry => {
+                    const timeInput = entry.querySelector('.time-input');
+                    const doseInput = entry.querySelector('.dose-input');
+                    const time = timeInput.value;
+                    const dose = doseInput.value.trim();
+                    if (time) {  // 时间必须有值
+                        valid = true;
+                        times.push({
+                            time: time,
+                            dose: dose || (doseInput.placeholder.replace('剂量（如 ', '').replace('）', '') || '按说明')
+                        });
+                    }
+                });
+                if (!valid) {
+                    alert('请至少添加一个有效的服用时间');
+                    return;
+                }
+
+                // 创建药品对象
+                const newMed = {
+                    id: Date.now() + Math.floor(Math.random() * 1000),
+                    name: name,
+                    times: times
+                };
+                medications.push(newMed);
+                saveMedications();
+                renderList();
+                closeModal();
+                // 简单反馈
+            });
+
+            // 初始化时间条目（1行）
+            resetTimeEntries(1);
+
+            // ============================================================
+            // 提醒检查
+            // ============================================================
+            function checkForReminder() {
+                const now = new Date();
+                const curTime = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                const curDate = getDateStr();
+
+                // 如果日期改变，重置提醒记录
+                if (curDate !== todayStr) {
+                    remindedToday = {};
+                    todayStr = curDate;
+                    saveReminded();
+                }
+
+                const toRemind = [];  // 存储需要提醒的 { name, dose, time }
+
+                medications.forEach(med => {
+                    med.times.forEach(t => {
+                        const key = `${curDate}_${med.id}_${t.time}`;
+                        if (t.time === curTime && !remindedToday[key]) {
+                            toRemind.push({ name: med.name, dose: t.dose, time: t.time });
+                            remindedToday[key] = true;
+                        }
+                    });
+                });
+
+                if (toRemind.length > 0) {
+                    saveReminded();
+                    showReminder(toRemind);
+                }
+            }
+
+            // 显示提醒覆盖层
+            function showReminder(meds) {
+                // 如果已经有一个提醒覆盖层，先移除（应该不会同时出现，但防止叠加）
+                const existing = document.querySelector('.reminder-overlay');
+                if (existing) existing.remove();
+
+                const overlay = document.createElement('div');
+                overlay.className = 'reminder-overlay';
+                overlay.innerHTML = `
+                    <div class="reminder-content">
+                        <div class="reminder-header">⏰ 吃药时间到了！</div>
+                        ${meds.map(m => `
+                            <div class="reminder-item">
+                                <span class="reminder-name">${m.name}</span>
+                                <span class="reminder-dose">${m.dose}</span>
+                            </div>
+                        `).join('')}
+                        <button class="reminder-btn">✅ 好的，已服用</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                // 点击按钮关闭
+                overlay.querySelector('.reminder-btn').addEventListener('click', function() {
+                    overlay.remove();
+                });
+
+                // 尝试播放提示音（用户需有过交互）
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        const ctx = new AudioContext();
+                        const osc = ctx.createOscillator();
+                        osc.type = 'sine';
+                        osc.frequency.value = 880;
+                        const gain = ctx.createGain();
+                        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.6);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start();
+                        osc.stop(ctx.currentTime + 0.6);
+                    }
+                } catch (e) {
+                    // 忽略声音播放错误
+                }
+            }
+
+            // 设置定时检查（每30秒）
+            let checkInterval = null;
+            function startChecker() {
+                if (checkInterval) clearInterval(checkInterval);
+                // 首次延迟3秒后检查，让页面完全加载
+                setTimeout(checkForReminder, 3000);
+                checkInterval = setInterval(checkForReminder, 30000);
+            }
+
+            // ============================================================
+            // 初始化
+            // ============================================================
+            function init() {
+                loadData();
+                renderList();
+                startChecker();
+                // 每次窗口获得焦点时重新检查（例如从锁屏回来）
+                document.addEventListener('visibilitychange', function() {
+                    if (!document.hidden) {
+                        checkForReminder();
+                    }
+                });
+            }
+
+            init();
+
+            // 暴露一些用于调试（可删）
+            window.__debug = {
+                medications,
+                remindedToday,
+                renderList,
+                checkForReminder
+            };
+        })();
+    </script>
+</body>
+</html>

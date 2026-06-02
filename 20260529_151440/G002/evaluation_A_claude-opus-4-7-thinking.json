@@ -1,0 +1,33 @@
+{
+  "index": 204,
+  "id": "G002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "claude-opus-4-7-thinking",
+  "question": "做一个经典贪吃蛇小游戏，方向键控制移动，吃到食物变长，碰到自己就 game over，显示当前长度和最高纪录。",
+  "evaluation": {
+    "total_score": 78,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent dark neon arcade style with a consistent cyan accent, rounded cards, and a clear central focus on the game board and start CTA. The tone fits a mobile snake game well, though the visual system is still fairly generic and the board itself lacks stronger game-specific character or feedback."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Spacing and alignment are generally clean, the stat cards and control pad are visually consistent, and typography hierarchy is mostly stable. However, some text is small and low-contrast, the footer guidance is hard to read, and the triangle arrow icons feel basic rather than polished game controls."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the title, current length, high score, main game area, and the primary start action. The layout has a clear top-to-bottom reading path, but the board is visually sparse and the gameplay state is not yet obvious beyond the start overlay, so the actual play focus depends on user interpretation."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "The rules are explained in plain language and the directional controls plus pause button match expected mental models for a snake game. Still, swipe control relies on instruction text rather than affordance, the empty board gives little hint about where movement begins, and icon-only arrows are understandable but not especially explicit."
+      }
+    },
+    "summary": "This is a solid, launch-near mobile game UI with a clear structure, appropriate arcade tone, and visible access to the main task: start, control movement, and track score. Its main strengths are coherence and immediate discoverability of core elements. The score is capped by modest detail polish, weak readability in small text, and limited gameplay-specific feedback in the board area, which keeps it from feeling fully complete or highly refined."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G002_A_claude-opus-4-7-thinking/screenshot_mobile.png",
+  "time": "2026-05-29T16:04:28.476557"
+}

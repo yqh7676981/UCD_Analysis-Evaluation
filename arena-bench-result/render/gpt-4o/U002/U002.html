@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AA记账小工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .list {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .list li:last-child {
+            border-bottom: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .result p {
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AA聚餐记账工具</h1>
+        <div>
+            <input type="text" id="participant" placeholder="添加参与人">
+            <button onclick="addParticipant()">添加参与人</button>
+        </div>
+        <div>
+            <input type="number" id="expenseAmount" placeholder="消费金额">
+            <select id="payer">
+                <option value="">选择付款人</option>
+            </select>
+            <button onclick="addExpense()">记录消费</button>
+        </div>
+        <div class="list" id="participantsList">
+            <h3>参与人列表</h3>
+            <ul id="participants"></ul>
+        </div>
+        <div class="list" id="expensesList">
+            <h3>消费记录</h3>
+            <ul id="expenses"></ul>
+        </div>
+        <div class="result" id="result">
+            <h3>结算结果</h3>
+            <p id="settlement"></p>
+        </div>
+    </div>
+    <script>
+        const participants = [];
+        const expenses = [];
+
+        function addParticipant() {
+            const participantName = document.getElementById('participant').value.trim();
+            if (participantName && !participants.includes(participantName)) {
+                participants.push(participantName);
+                updateParticipantsList();
+                updatePayerOptions();
+                document.getElementById('participant').value = '';
+            }
+        }
+
+        function updateParticipantsList() {
+            const participantsElement = document.getElementById('participants');
+            participantsElement.innerHTML = participants.map(name => `<li>${name}</li>`).join('');
+        }
+
+        function updatePayerOptions() {
+            const payerElement = document.getElementById('payer');
+            payerElement.innerHTML = '<option value="">选择付款人</option>' + participants.map(name => `<option value="${name}">${name}</option>`).join('');
+        }
+
+        function addExpense() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const payer = document.getElementById('payer').value;
+
+            if (amount > 0 && payer) {
+                expenses.push({ amount, payer });
+                updateExpensesList();
+                calculateSettlement();
+                document.getElementById('expenseAmount').value = '';
+                document.getElementById('payer').value = '';
+            }
+        }
+
+        function updateExpensesList() {
+            const expensesElement = document.getElementById('expenses');
+            expensesElement.innerHTML = expenses.map(expense => `<li>${expense.payer} 支付了 ￥${expense.amount.toFixed(2)}</li>`).join('');
+        }
+
+        function calculateSettlement() {
+            const totals = {};
+            participants.forEach(name => totals[name] = 0);
+
+            expenses.forEach(expense => {
+                totals[expense.payer] += expense.amount;
+            });
+
+            const totalSpent = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const perPerson = totalSpent / participants.length;
+
+            const balances = participants.map(name => ({
+                name,
+                balance: totals[name] - perPerson
+            }));
+
+            let resultText = '结算情况：<br>';
+            balances.filter(b => b.balance !== 0).forEach(b => {
+                resultText += `${b.name} ${b.balance > 0 ? '多付' : '少付'}了 ￥${Math.abs(b.balance).toFixed(2)}<br>`;
+            });
+
+            document.getElementById('settlement').innerHTML = resultText;
+        }
+    </script>
+</body>
+</html>

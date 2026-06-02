@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>康心守护 · 慢性病管理助手</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #e0f2fe 0%, #f0fdf4 100%);
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+  }
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 28px 18px;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 36px; }
+  .logo-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 20px; font-weight: bold;
+  }
+  .logo h1 { font-size: 18px; color: #0f172a; }
+  .logo p { font-size: 11px; color: #64748b; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: 10px; cursor: pointer;
+    color: #475569; font-size: 14px; margin-bottom: 4px;
+    transition: all 0.2s;
+  }
+  .nav-item:hover { background: #f1f5f9; }
+  .nav-item.active {
+    background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+    color: white;
+    box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+  }
+  .nav-icon { font-size: 18px; }
+  .user-card {
+    margin-top: auto; padding: 14px; background: #f8fafc;
+    border-radius: 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #fbbf24, #f97316);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: bold;
+  }
+  .user-info p:first-child { font-size: 13px; font-weight: 600; }
+  .user-info p:last-child { font-size: 11px; color: #64748b; }
+
+  /* Main */
+  .main { flex: 1; padding: 32px 40px; overflow-y: auto; }
+  .page-header { margin-bottom: 28px; }
+  .page-header h2 { font-size: 26px; color: #0f172a; margin-bottom: 6px; }
+  .page-header p { color: #64748b; font-size: 14px; }
+
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* Cards */
+  .card {
+    background: white; border-radius: 16px; padding: 22px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    border: 1px solid #f1f5f9;
+  }
+  .card h3 { font-size: 16px; margin-bottom: 16px; color: #0f172a; }
+
+  /* Dashboard */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: white; padding: 20px; border-radius: 14px;
+    border-left: 4px solid #14b8a6;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+  }
+  .stat-card:nth-child(2) { border-color: #0ea5e9; }
+  .stat-card:nth-child(3) { border-color: #f59e0b; }
+  .stat-card:nth-child(4) { border-color: #ec4899; }
+  .stat-card .label { font-size: 12px; color: #64748b; margin-bottom: 6px; }
+  .stat-card .value { font-size: 24px; font-weight: 700; color: #0f172a; }
+  .stat-card .sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+  .dash-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; }
+  .tip-box {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 12px; padding: 16px; margin-top: 12px;
+    font-size: 13px; color: #78350f; line-height: 1.6;
+  }
+
+  /* Forms */
+  .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  input, select, textarea {
+    padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px;
+    font-size: 14px; font-family: inherit; flex: 1; min-width: 100px;
+    outline: none; transition: border 0.2s;
+    background: #f8fafc;
+  }
+  input:focus, select:focus, textarea:focus { border-color: #14b8a6; background: white; }
+  textarea { width: 100%; resize: vertical; min-height: 60px; }
+  button {
+    background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+    color: white; border: none; padding: 10px 22px;
+    border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
+  }
+  button:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(20,184,166,0.35); }
+  button.ghost { background: #f1f5f9; color: #475569; }
+  button.ghost:hover { box-shadow: none; background: #e2e8f0; }
+
+  /* Lists */
+  .item-list { display: flex; flex-direction: column; gap: 10px; max-height: 420px; overflow-y: auto; }
+  .log-item, .med-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px; background: #f8fafc; border-radius: 10px;
+    border-left: 4px solid #0ea5e9;
+  }
+  .log-item .title { font-weight: 600; font-size: 14px; margin-bottom: 3px; }
+  .log-item .meta { font-size: 12px; color: #64748b; }
+  .severity {
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .sev-1 { background: #dcfce7; color: #166534; }
+  .sev-2 { background: #fef3c7; color: #854d0e; }
+  .sev-3 { background: #fee2e2; color: #991b1b; }
+
+  .med-item { border-left-color: #14b8a6; }
+  .med-check {
+    width: 22px; height: 22px; border: 2px solid #cbd5e1;
+    border-radius: 6px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.2s; background: white;
+  }
+  .med-check.done {
+    background: #14b8a6; border-color: #14b8a6; color: white;
+  }
+  .med-check.done::after { content: "✓"; font-size: 14px; font-weight: bold; }
+  .med-info { flex: 1; margin: 0 14px; }
+  .med-info .name { font-weight: 600; font-size: 14px; }
+  .med-info .dose { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .del-btn {
+    background: none; color: #ef4444; padding: 4px 8px;
+    font-size: 12px;
+  }
+  .del-btn:hover { background: #fee2e2; box-shadow: none; transform: none; }
+
+  /* Chart */
+  .chart { display: flex; align-items: flex-end; gap: 6px; height: 140px; padding: 10px 0; }
+  .bar {
+    flex: 1; background: linear-gradient(to top, #14b8a6, #5eead4);
+    border-radius: 6px 6px 0 0; min-height: 4px;
+    position: relative; transition: all 0.3s;
+  }
+  .bar:hover { filter: brightness(1.1); }
+  .bar-label {
+    position: absolute; bottom: -22px; left: 0; right: 0;
+    text-align: center; font-size: 11px; color: #94a3b8;
+  }
+  .bar-value {
+    position: absolute; top: -20px; left: 0; right: 0;
+    text-align: center; font-size: 11px; color: #475569; font-weight: 600;
+  }
+
+  /* Education */
+  .edu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+  .edu-card {
+    background: white; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .edu-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
+  .edu-banner {
+    height: 110px; display: flex; align-items: center; justify-content: center;
+    font-size: 42px; color: white;
+  }
+  .edu-body { padding: 16px; }
+  .edu-body h4 { font-size: 15px; margin-bottom: 6px; color: #0f172a; }
+  .edu-body p { font-size: 13px; color: #64748b; line-height: 1.5; }
+  .tag {
+    display: inline-block; padding: 3px 10px; background: #ecfeff;
+    color: #0e7490; border-radius: 12px; font-size: 11px;
+    margin-top: 10px;
+  }
+
+  /* Modal */
+  .modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.5); z-index: 10;
+    align-items: center; justify-content: center;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; padding: 28px;
+    max-width: 520px; width: 90%; max-height: 80vh; overflow-y: auto;
+  }
+  .modal h3 { font-size: 20px; margin-bottom: 12px; }
+  .modal p { color: #475569; line-height: 1.7; margin-bottom: 10px; font-size: 14px; }
+  .close-btn { float: right; background: #f1f5f9; color: #64748b; padding: 6px 14px; }
+
+  .empty { text-align: center; padding: 30px; color: #94a3b8; font-size: 13px; }
+  .section-gap { margin-top: 20px; }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">♥</div>
+    <div>
+      <h1>康心守护</h1>
+      <p>慢性病管理助手</p>
+    </div>
+  </div>
+  <div class="nav-item active" data-page="dashboard"><span class="nav-icon">🏠</span>健康概览</div>
+  <div class="nav-item" data-page="symptoms"><span class="nav-icon">📊</span>症状追踪</div>
+  <div class="nav-item" data-page="meds"><span class="nav-icon">💊</span>用药管理</div>
+  <div class="nav-item" data-page="edu"><span class="nav-icon">📚</span>健康课堂</div>
+  <div class="user-card">
+    <div class="avatar">李</div>
+    <div class="user-info">
+      <p>李小明</p>
+      <p>高血压 · 2型糖尿病</p>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <!-- Dashboard -->
+  <section id="dashboard" class="page active">
+    <div class="page-header">
+      <h2>您好，李小明 👋</h2>
+      <p id="today-date"></p>
+    </div>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="label">今日用药完成</div>
+        <div class="value" id="med-progress">0/0</div>
+        <div class="sub">坚持按时服药</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">本周症状记录</div>
+        <div class="value" id="week-symptoms">0</div>
+        <div class="sub">次记录</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">平均症状严重度</div>
+        <div class="value" id="avg-severity">-</div>
+        <div class="sub">满分 10</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">连续打卡</div>
+        <div class="value">7<span style="font-size:14px;">天</span></div>
+        <div class="sub">继续保持</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <h3>📈 近 7 天症状趋势</h3>
+        <div class="chart" id="trend-chart"></div>
+      </div>
+      <div class="card">
+        <h3>💡 今日健康建议</h3>
+        <div class="tip-box" id="daily-tip"></div>
+        <div class="section-gap"></div>
+        <h3>⏰ 下一次用药</h3>
+        <div id="next-med" style="font-size:14px;color:#475569;margin-top:8px;line-height:1.7;">暂无安排</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Symptoms -->
+  <section id="symptoms" class="page">
+    <div class="page-header">
+      <h2>症状追踪</h2>
+      <p>记录您的每日健康状况，帮助医生更好地了解病情</p>
+    </div>
+    <div class="card">
+      <h3>➕ 新增症状记录</h3>
+      <div class="form-row">
+        <input type="text" id="sym-name" placeholder="症状描述（如头痛、乏力）">
+        <select id="sym-severity">
+          <option value="1">轻微（1-3）</option>
+          <option value="2" selected>中度（4-6）</option>
+          <option value="3">严重（7-10）</option>
+        </select>
+        <input type="number" id="sym-score" min="1" max="10" value="5" style="max-width:90px;">
+      </div>
+      <div class="form-row">
+        <textarea id="sym-note" placeholder="备注：触发因素、持续时间等..."></textarea>
+      </div>
+      <button onclick="addSymptom()">保存记录</button>
+    </div>
+    <div class="card section-gap">
+      <h3>📋 历史记录</h3>
+      <div class="item-list" id="sym-list"></div>
+    </div>
+  </section>
+
+  <!-- Medications -->
+  <section id="meds" class="page">
+    <div class="page-header">
+      <h2>用药管理</h2>
+      <p>按时服药是控制慢性病的关键</p>
+    </div>
+    <div class="card">
+      <h3>➕ 添加用药计划</h3>
+      <div class="form-row">
+        <input type="text" id="med-name" placeholder="药品名称（如二甲双胍）">
+        <input type="text" id="med-dose" placeholder="剂量（如 500mg）">
+        <input type="time" id="med-time" value="08:00">
+        <select id="med-freq">
+          <option>每日一次</option>
+          <option>每日两次</option>
+          <option>每日三次</option>
+          <option>按需服用</option>
+        </select>
+      </div>
+      <button onclick="addMed()">添加药品</button>
+    </div>
+    <div class="card section-gap">
+      <h3>💊 今日用药清单</h3>
+      <div class="item-list" id="med-list"></div>
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section id="edu" class="page">
+    <div class="page-header">
+      <h2>健康课堂</h2>
+      <p>权威慢性病科普，助您科学管理健康</p>
+    </div>
+    <div class="edu-grid" id="edu-grid"></div>
+  </section>
+</main>
+
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">关闭</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+// ===== Data =====
+const tips = [
+  "每日饮水 1500-2000ml，有助于血糖与血压稳定。",
+  "快走 30 分钟可有效改善心血管健康，记得循序渐进。",
+  "低钠饮食：每日食盐摄入应少于 5 克。",
+  "充足睡眠（7-8小时）对血糖调节至关重要。",
+  "定期监测血压、血糖并做好记录，便于复诊参考。"
+];
+
+const eduContent = [
+  { icon:"🫀", title:"高血压日常管理", desc:"了解血压控制目标、饮食禁忌与运动处方", tag:"心血管",
+    color:"linear-gradient(135deg,#ef4444,#f97316)",
+    body:"高血压是常见的慢性病。建议保持血压低于 140/90 mmHg，每日盐摄入控制在 5g 以内。规律运动如快走、游泳每周 150 分钟。戒烟限酒，管理压力。按医嘱服用降压药，切勿自行停药。定期监测血压并记录。" },
+  { icon:"🩸", title:"糖尿病饮食指南", desc:"科学搭配三餐，稳定餐后血糖", tag:"代谢",
+    color:"linear-gradient(135deg,#0ea5e9,#6366f1)",
+    body:"糖尿病患者应遵循低 GI 饮食。主食优选全谷物、杂豆，每餐主食约一拳大小。蔬菜占餐盘一半，优选绿叶菜。蛋白质选择鱼、禽、豆制品。少食多餐，避免含糖饮料。餐后散步 15 分钟有助于降糖。" },
+  { icon:"🫁", title:"慢阻肺呼吸训练", desc:"缩唇呼吸、腹式呼吸改善肺功能", tag:"呼吸",
+    color:"linear-gradient(135deg,#14b8a6,#22d3ee)",
+    body:"慢阻肺患者可通过呼吸训练改善通气功能。缩唇呼吸：鼻吸气2秒，缩唇缓慢呼气4-6秒。腹式呼吸：吸气时腹部鼓起，呼气时内收。每日练习 2-3 次，每次 10 分钟。避免吸烟和空气污染环境。" },
+  { icon:"🦴", title:"骨关节炎防护", desc:"减轻关节负担的日常技巧", tag:"骨骼",
+    color:"linear-gradient(135deg,#a855f7,#ec4899)",
+    body:"骨关节炎需避免长时间站立、爬楼梯、蹲起等负重动作。控制体重减轻关节压力。选择游泳、骑车等低冲击运动。热敷可缓解僵硬，冷敷可减轻急性疼痛。加强大腿肌肉力量训练有助稳定膝关节。" },
+  { icon:"💗", title:"冠心病用药须知", desc:"抗血小板与他汀类药物的正确服用", tag:"心血管",
+    color:"linear-gradient(135deg,#f43f5e,#fb7185)",
+    body:"冠心病患者通常需长期服用阿司匹林（抗血小板）与他汀类药物（降脂稳斑）。不可自行停药。出现牙龈出血、肌肉酸痛等异常应及时就医。舌下含服硝酸甘油适用于心绞痛急性发作，5 分钟未缓解需立即就诊。" },
+  { icon:"🧠", title:"情绪与慢病关系", desc:"压力管理与心理健康小贴士", tag:"心理",
+    color:"linear-gradient(135deg,#8b5cf6,#3b82f6)",
+    body:"长期焦虑抑郁会加重慢性病。建议每日深呼吸或冥想 10 分钟。保持社交联系，加入病友支持小组。规律作息，避免熬夜。如情绪持续低落超过 2 周，请及时寻求心理医生帮助。" }
+];
+
+// ===== State =====
+let symptoms = JSON.parse(localStorage.getItem('kx_symptoms') || '[]');
+let meds = JSON.parse(localStorage.getItem('kx_meds') || '[]');
+let medStatus = JSON.parse(localStorage.getItem('kx_medstatus_'+today()) || '{}');
+
+function today() { return new Date().toISOString().slice(0,10); }
+function save() {
+  localStorage.setItem('kx_symptoms', JSON.stringify(symptoms));
+  localStorage.setItem('kx_meds', JSON.stringify(meds));
+  localStorage.setItem('kx_medstatus_'+today(), JSON.stringify(medStatus));
+}
+
+// ===== Navigation =====
+document.querySelectorAll('.nav-item').forEach(n => {
+  n.onclick = () => {
+    document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+    n.classList.add('active');
+    document.getElementById(n.dataset.page).classList.add('active');
+  };
+});
+
+// ===== Render =====
+function renderDate() {
+  const d = new Date();
+  const wd = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+  document.getElementById('today-date').textContent =
+    `今天是 ${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${wd[d.getDay()]}`;
+}
+
+function renderDashboard() {
+  const done = Object.values(medStatus).filter(Boolean).length;
+  document.getElementById('med-progress').textContent = `${done}/${meds.length}`;
+
+  const weekAgo = Date.now() - 7*86400000;
+  const recent = symptoms.filter(s => new Date(s.date).getTime() > weekAgo);
+  document.getElementById('week-symptoms').textContent = recent.length;
+  const avg = recent.length ? (recent.reduce((a,b)=>a+Number(b.score),0)/recent.length).toFixed(1) : '-';
+  document.getElementById('avg-severity').textContent = avg;
+
+  document.getElementById('daily-tip').textContent = tips[new Date().getDate() % tips.length];
+
+  // Next medication
+  const now = new Date();
+  const curMin = now.getHours()*60 + now.getMinutes();
+  const upcoming = meds.filter(m => !medStatus[m.id])
+    .map(m => { const [h,mi] = m.time.split(':'); return {...m, mins:+h*60+ +mi}; })
+    .sort((a,b) => a.mins - b.mins)
+    .find(m => m.mins >= curMin) || meds.filter(m => !medStatus[m.id])[0];
+  document.getElementById('next-med').textContent = upcoming
+    ? `${upcoming.time} — ${upcoming.name} (${upcoming.dose})`
+    : '今日用药已完成 ✓';
+
+  // Chart - last 7 days
+  const chart = document.getElementById('trend-chart');
+  chart.innerHTML = '';
+  const days = [];
+  for (let i=6; i>=0; i--) {
+    const d = new Date(Date.now() - i*86400000);
+    const key = d.toISOString().slice(0,10);
+    const dayRecs = symptoms.filter(s => s.date.slice(0,10) === key);
+    const avg = dayRecs.length ? dayRecs.reduce((a,b)=>a+Number(b.score),0)/dayRecs.length : 0;
+    days.push({ label: (d.getMonth()+1)+'/'+d.getDate(), value: avg });
+  }
+  days.forEach(d => {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = Math.max(d.value*10, 4) + '%';
+    bar.innerHTML = `<div class="bar-value">${d.value?d.value.toFixed(1):''}</div><div class="bar-label">${d.label}</div>`;
+    chart.appendChild(bar);
+  });
+}
+
+function renderSymptoms() {
+  const list = document.getElementById('sym-list');
+  if (!symptoms.length) { list.innerHTML = '<div class="empty">暂无记录，开始记录您的第一条症状吧</div>'; return; }
+  list.innerHTML = symptoms.slice().reverse().map(s => `
+    <div class="log-item">
+      <div style="flex:1;">
+        <div class="title">${s.name}</div>
+        <div class="meta">${s.date} · 评分 ${s.score}/10${s.note?' · '+s.note:''}</div>
+      </div>
+      <span class="severity sev-${s.severity}">${['','轻微','中度','严重'][s.severity]}</span>
+      <button class="del-btn" onclick="delSymptom(${s.id})">删除</button>
+    </div>
+  `).join('');
+}
+
+function renderMeds() {
+  const list = document.getElementById('med-list');
+  if (!meds.length) { list.innerHTML = '<div class="empty">还未添加用药计划</div>'; return; }
+  list.innerHTML = meds.sort((a,b)=>a.time.localeCompare(b.time)).map(m => `
+    <div class="med-item">
+      <div class="med-check ${medStatus[m.id]?'done':''}" onclick="toggleMed(${m.id})"></div>
+      <div class="med-info">
+        <div class="name">${m.name} <span style="color:#64748b;font-weight:400;font-size:12px;">· ${m.time}</span></div>
+        <div class="dose">${m.dose} · ${m.freq}</div>
+      </div>
+      <button class="del-btn" onclick="delMed(${m.id})">删除</button>
+    </div>
+  `).join('');
+}
+
+function renderEdu() {
+  const grid = document.getElementById('edu-grid');
+  grid.innerHTML = eduContent.map((e,i) => `
+    <div class="edu-card" onclick="openEdu(${i})">
+      <div class="edu-banner" style="background:${e.color}">${e.icon}</div>
+      <div class="edu-body">
+        <h4>${e.title}</h4>
+        <p>${e.desc}</p>
+        <span class="tag">${e.tag}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== Actions =====
+function addSymptom() {
+  const name = document.getElementById('sym-name').value.trim();
+  if (!name) { alert('请填写症状描述'); return; }
+  symptoms.push({
+    id: Date.now(),
+    name,
+    severity: +document.getElementById('sym-severity').value,
+    score: +document.getElementById('sym-score').value,
+    note: document.getElementById('sym-note').value.trim(),
+    date: new Date().toISOString().slice(0,16).replace('T',' ')
+  });
+  document.getElementById('sym-name').value = '';
+  document.getElementById('sym-note').value = '';
+  save(); renderSymptoms(); renderDashboard();
+}
+function delSymptom(id) { symptoms = symptoms.filter(s => s.id !== id); save(); renderSymptoms(); renderDashboard(); }
+
+function addMed() {
+  const name = document.getElementById('med-name').value.trim();
+  const dose = document.getElementById('med-dose').value.trim();
+  if (!name || !dose) { alert('请填写药品名称与剂量'); return; }
+  meds.push({
+    id: Date.now(), name, dose,
+    time: document.getElementById('med-time').value,
+    freq: document.getElementById('med-freq').value
+  });
+  document.getElementById('med-name').value = '';
+  document.getElementById('med-dose').value = '';
+  save(); renderMeds(); renderDashboard();
+}
+function delMed(id) { meds = meds.filter(m => m.id !== id); delete medStatus[id]; save(); renderMeds(); renderDashboard(); }
+function toggleMed(id) { medStatus[id] = !medStatus[id]; save(); renderMeds(); renderDashboard(); }
+
+function openEdu(i) {
+  const e = eduContent[i];
+  document.getElementById('modal-content').innerHTML = `
+    <div style="font-size:48px;text-align:center;margin-bottom:10px;">${e.icon}</div>
+    <h3>${e.title}</h3>
+    <span class="tag">${e.tag}</span>
+    <p style="margin-top:16px;">${e.body}</p>
+    <p style="font-size:12px;color:#94a3b8;margin-top:16px;">⚠ 本内容仅供健康科普参考，具体诊疗请遵医嘱。</p>
+  `;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+document.getElementById('modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
+
+// ===== Seed demo data =====
+if (!symptoms.length && !meds.length) {
+  meds = [
+    { id:1, name:'二甲双胍', dose:'500mg', time:'08:00', freq:'每日两次' },
+    { id:2, name:'氨氯地平', dose:'5mg', time:'20:00', freq:'每日一次' }
+  ];
+  const now = Date.now();
+  symptoms = [
+    { id:now-3, name:'轻度头晕', severity:1, score:3, note:'早起时出现', date:new Date(now-172800000).toISOString().slice(0,16).replace('T',' ') },
+    { id:now-2, name:'餐后乏力', severity:2, score:5, note:'午餐后一小时', date:new Date(now-86400000).toISOString().slice(0,16).replace('T',' ') }
+  ];
+  save();
+}
+
+// ===== Init =====
+renderDate();
+renderDashboard();
+renderSymptoms();
+renderMeds();
+renderEdu();
+</script>
+</body>
+</html>

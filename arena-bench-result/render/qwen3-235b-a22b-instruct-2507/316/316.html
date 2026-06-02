@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BookLink - 连接爱书之人</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f7f9fc;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 300px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .feature-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.8rem;
+      color: #3a3a3a;
+    }
+
+    .feature-card p {
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .cta {
+      text-align: center;
+      margin: 3rem 0;
+    }
+
+    .btn {
+      display: inline-block;
+      background: #ff6b6b;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    }
+
+    .btn:hover {
+      background: #ff5252;
+      transform: translateY(-2px);
+    }
+
+    .club-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    .club-preview h3 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      color: #2c3e50;
+    }
+
+    .members {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+
+    .member-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #eee;
+    }
+
+    .discussion {
+      margin-top: 1.5rem;
+    }
+
+    .post {
+      padding: 1rem;
+      background: #f1f5f9;
+      border-left: 4px solid #2575fc;
+      margin-bottom: 0.8rem;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .post strong {
+      color: #2c3e50;
+    }
+
+    .progress-tracker {
+      margin-top: 1.5rem;
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: #e0e0e0;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #2575fc;
+      width: 65%;
+      border-radius: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #2c3e50;
+      color: #ecf0f1;
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 2rem;
+      }
+      .features {
+        flex-direction: column;
+        align-items: center;
+      }
+      .feature-card {
+        width: 100%;
+        max-width: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📘 BookLink</h1>
+    <p>根据阅读偏好连接图书爱好者，发现你的读书圈</p>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h2>遇见与你灵魂共鸣的读者</h2>
+      <p>像 Tinder 一样匹配，像 Goodreads 一样记录，像 Slack 一样交流</p>
+    </section>
+
+    <section class="features">
+      <div class="feature-card">
+        <h3>智能匹配</h3>
+        <p>基于你喜欢的书籍、体裁和阅读习惯，我们为你推荐最契合的读书俱乐部和书友。</p>
+      </div>
+      <div class="feature-card">
+        <h3>小型读书俱乐部</h3>
+        <p>加入或创建 4-8 人的小型读书会，深度讨论每一本书，建立真实联系。</p>
+      </div>
+      <div class="feature-card">
+        <h3>实时讨论论坛</h3>
+        <p>在专属频道中分享想法、提问和参与每日话题，像 Slack 一样流畅沟通。</p>
+      </div>
+      <div class="feature-card">
+        <h3>阅读进度追踪</h3>
+        <p>设定目标、跟踪页数、查看队友进度，让阅读更有动力和陪伴感。</p>
+      </div>
+    </section>
+
+    <div class="cta">
+      <a href="#" class="btn">立即开始匹配 →</a>
+    </div>
+
+    <section class="club-preview">
+      <h3>📚 「现代文学探索者」读书俱乐部</h3>
+      <p><strong>当前共读：</strong>《克拉拉与太阳》— 石黑一雄</p>
+      <p><strong>下一本投票中：</strong>《渺小一生》VS《正常人》</p>
+
+      <div class="members">
+        <img src="https://randomuser.me/api/portraits/women/42.jpg" alt="用户头像" class="member-avatar">
+        <img src="https://randomuser.me/api/portraits/men/36.jpg" alt="用户头像" class="member-avatar">
+        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="用户头像" class="member-avatar">
+        <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="用户头像" class="member-avatar">
+        <span style="align-self: center; color: #777;">+2 位成员</span>
+      </div>
+
+      <div class="discussion">
+        <h4>💬 最新讨论</h4>
+        <div class="post">
+          <strong>林然：</strong> 克拉拉的观察视角太独特了，她眼中的“人心”究竟是什么？
+        </div>
+        <div class="post">
+          <strong>小雅：</strong> 我觉得这其实是在探讨爱是否可以被模仿或替代...
+        </div>
+      </div>
+
+      <div class="progress-tracker">
+        <h4>📖 阅读进度（全书 320 页）</h4>
+        <p>你：已读 <strong>208 / 320 页</strong> (65%)</p>
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <p>小组平均进度：72%</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 BookLink. 让每一本书都不再孤单。</p>
+    <p>混合了 Tinder 的匹配、Goodreads 的书库、Slack 的沟通体验</p>
+  </footer>
+
+  <script>
+    // 模拟交互：点击按钮弹出提示
+    document.querySelector('.btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      alert('欢迎来到 BookLink！请先完成阅读偏好测试，我们将为你匹配最适合的读书俱乐部。');
+    });
+
+    // 模拟进度条可点击更新（简化版）
+    document.querySelector('.progress-bar').addEventListener('click', function(e) {
+      const rect = this.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const width = rect.width;
+      const percent = Math.round((clickX / width) * 100);
+
+      const fill = this.querySelector('.progress-fill');
+      fill.style.width = `${percent}%`;
+
+      const progressText = this.previousElementSibling;
+      const currentPage = Math.round(percent * 3.2); // 假设总页数320
+      progressText.innerHTML = `你：已读 <strong>${currentPage} / 320 页</strong> (${percent}%)`;
+      
+      alert(`阅读进度已更新至 ${percent}%！继续保持！`);
+    });
+  </script>
+</body>
+</html>

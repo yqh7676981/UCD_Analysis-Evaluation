@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>会议纪要整理工具</title>
+    <style>
+        /* ===== 基础重置 & 全局样式 ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #1A56DB;
+            --primary-light: #2563EB;
+            --primary-bg: #EFF6FF;
+            --primary-dark: #1E40AF;
+            --bg: #F0F4F8;
+            --card-bg: #FFFFFF;
+            --text: #1E293B;
+            --text-secondary: #64748B;
+            --border: #E2E8F0;
+            --success: #059669;
+            --success-bg: #ECFDF5;
+            --danger: #E53E3E;
+            --danger-bg: #FEF2F2;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-xs: 6px;
+            --font-base: 16px;
+            --touch-size: 44px;
+        }
+
+        html {
+            font-size: var(--font-base);
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0 0 40px 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== 容器 ===== */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        /* ===== 顶部标题 ===== */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #fff;
+            padding: 24px 16px 20px;
+            text-align: center;
+            margin: 0 -16px 20px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(26, 86, 219, 0.25);
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: var(--bg);
+            border-radius: 12px 12px 0 0;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        /* ===== 卡片通用 ===== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            transition: box-shadow 0.2s ease;
+        }
+        .card:active {
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title .icon {
+            font-size: 1.1rem;
+        }
+        .card-title .badge {
+            background: var(--primary-bg);
+            color: var(--primary);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0 8px;
+            border-radius: 20px;
+            line-height: 20px;
+            margin-left: auto;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ===== 表单元素 ===== */
+        .field-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .field-group .input-wrap {
+            flex: 1;
+            position: relative;
+        }
+        .field-group input[type="text"],
+        .field-group input[type="search"] {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: #FAFBFC;
+            color: var(--text);
+            outline: none;
+            transition: border 0.2s, background 0.2s;
+            -webkit-appearance: none;
+            appearance: none;
+            height: var(--touch-size);
+        }
+        .field-group input[type="text"]:focus,
+        .field-group input[type="search"]:focus {
+            border-color: var(--primary-light);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .field-group input[type="text"]::placeholder,
+        .field-group input[type="search"]::placeholder {
+            color: #A0AEC0;
+        }
+
+        .btn-add {
+            flex-shrink: 0;
+            height: var(--touch-size);
+            padding: 0 18px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 64px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .btn-add:active {
+            transform: scale(0.96);
+            background: var(--primary-dark);
+        }
+        .btn-add:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== 标签（参会人） ===== */
+        .tags-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-height: 32px;
+            padding-top: 4px;
+        }
+        .tags-wrap:empty::after {
+            content: '暂无参会人';
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background: var(--primary-bg);
+            color: var(--primary-dark);
+            padding: 4px 8px 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            gap: 6px;
+            animation: fadeIn 0.2s ease;
+            border: 1px solid rgba(37, 99, 235, 0.12);
+            line-height: 1.4;
+        }
+        .tag .tag-del {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            padding: 0;
+            flex-shrink: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .tag .tag-del:active {
+            background: rgba(0, 0, 0, 0.15);
+            color: var(--danger);
+        }
+
+        /* ===== 列表项（讨论要点 / 待办事项） ===== */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-height: 20px;
+        }
+        .item-list:empty::after {
+            content: '暂无内容';
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            opacity: 0.6;
+            padding: 4px 0;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #FAFBFC;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            animation: fadeIn 0.2s ease;
+            transition: background 0.15s;
+            min-height: var(--touch-size);
+        }
+        .item-row:active {
+            background: #F1F4F8;
+        }
+
+        .item-row .item-check {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            color: var(--text-secondary);
+        }
+        .item-row .item-check:active {
+            transform: scale(0.9);
+            background: rgba(0, 0, 0, 0.04);
+        }
+        .item-row .item-check.checked {
+            color: var(--success);
+        }
+
+        .item-row .item-text {
+            flex: 1;
+            font-size: 0.9rem;
+            color: var(--text);
+            word-break: break-word;
+            line-height: 1.5;
+            padding: 2px 0;
+        }
+        .item-row .item-text.done {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .item-row .item-num {
+            flex-shrink: 0;
+            width: 26px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .item-row .item-del {
+            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .item-row .item-del:active {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        /* ===== 主要按钮 ===== */
+        .btn-primary {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(26, 86, 219, 0.25);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            letter-spacing: 0.5px;
+            min-height: var(--touch-size);
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(26, 86, 219, 0.2);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.25);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            letter-spacing: 0.5px;
+            min-height: var(--touch-size);
+            margin-top: 12px;
+        }
+        .btn-success:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+        }
+        .btn-success:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* ===== 预览区域 ===== */
+        .preview-wrap {
+            margin-top: 4px;
+        }
+        .preview-area {
+            background: #FAFBFC;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 18px 16px;
+            min-height: 120px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+            color: var(--text);
+            transition: border-color 0.2s;
+        }
+        .preview-area:empty {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            opacity: 0.5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.9rem;
+        }
+        .preview-area:empty::after {
+            content: '点击 "生成纪要" 查看结果';
+        }
+        .preview-area.highlight {
+            border-color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .preview-actions .btn-success {
+            margin-top: 0;
+            flex: 1;
+        }
+        .preview-actions .btn-outline {
+            flex: 1;
+            padding: 14px 20px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: var(--touch-size);
+        }
+        .preview-actions .btn-outline:active {
+            background: #F1F4F8;
+            border-color: #CBD5E0;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1E293B;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            opacity: 1; /* fixed: was 0 */
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+            z-index: 999;
+            pointer-events: none;
+            max-width: calc(100vw - 40px);
+            text-align: center;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            background: var(--success);
+        }
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 空状态提示 ===== */
+        .empty-hint {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+
+        /* ===== 分隔线 ===== */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 16px 0;
+        }
+
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 420px) {
+            .container {
+                padding: 0 12px;
+            }
+            .header {
+                padding: 20px 12px 18px;
+                margin: 0 -12px 16px;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .card {
+                padding: 16px 14px;
+                border-radius: 10px;
+            }
+            .field-group {
+                gap: 8px;
+            }
+            .field-group input[type="text"],
+            .field-group input[type="search"] {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                height: 40px;
+            }
+            .btn-add {
+                padding: 0 14px;
+                font-size: 0.85rem;
+                min-width: 56px;
+                height: 40px;
+            }
+            .item-row {
+                padding: 8px 10px;
+                gap: 8px;
+                min-height: 40px;
+            }
+            .item-row .item-check {
+                width: 24px;
+                height: 24px;
+                font-size: 1.15rem;
+            }
+            .item-row .item-del {
+                width: 28px;
+                height: 28px;
+                font-size: 1.05rem;
+            }
+            .preview-area {
+                padding: 14px 12px;
+                font-size: 0.85rem;
+                line-height: 1.7;
+            }
+            .btn-primary,
+            .btn-success,
+            .preview-actions .btn-outline {
+                padding: 12px 16px;
+                font-size: 0.95rem;
+                min-height: 40px;
+            }
+            .tag {
+                font-size: 0.8rem;
+                padding: 3px 6px 3px 10px;
+            }
+            .tag .tag-del {
+                width: 20px;
+                height: 20px;
+                font-size: 0.9rem;
+            }
+            .card-title {
+                font-size: 0.9rem;
+            }
+            .toast {
+                font-size: 0.85rem;
+                padding: 10px 20px;
+                bottom: 20px;
+            }
+        }
+
+        @media (min-width: 600px) {
+            .container {
+                padding: 0 24px;
+            }
+            .header {
+                border-radius: 0 0 20px 20px;
+                margin-left: -24px;
+                margin-right: -24px;
+                padding: 32px 24px 28px;
+            }
+            .header::after {
+                bottom: -16px;
+                height: 16px;
+                border-radius: 16px 16px 0 0;
+            }
+            .card {
+                padding: 24px 22px;
+                border-radius: 16px;
+            }
+            .preview-area {
+                padding: 22px 20px;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* ===== 隐藏辅助 ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E0;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A0AEC0;
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <!-- ====== 顶部标题 ====== -->
+    <header class="header">
+        <h1>📝 会议纪要整理</h1>
+        <p>填写信息，一键生成整齐纪要</p>
+    </header>
+
+    <div class="container">
+
+        <!-- ====== 会议主题 ====== -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">📌</span>
+                会议主题
+            </div>
+            <input type="text" id="topicInput" class="topic-input" placeholder="例如：Q2 产品评审会" style="width:100%;padding:12px 14px;font-size:0.95rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:#FAFBFC;color:var(--text);outline:none;height:var(--touch-size);-webkit-appearance:none;appearance:none;">
+        </div>
+
+        <!-- ====== 参会人 ====== -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">👥</span>
+                参会人
+                <span class="badge" id="attendeeCount">0</span>
+            </div>
+            <div class="field-group">
+                <div class="input-wrap">
+                    <input type="text" id="attendeeInput" placeholder="输入姓名" autocomplete="off">
+                </div>
+                <button class="btn-add" id="addAttendeeBtn">添加</button>
+            </div>
+            <div class="tags-wrap" id="attendeeList"></div>
+        </div>
+
+        <!-- ====== 讨论要点 ====== -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">💡</span>
+                讨论要点
+                <span class="badge" id="pointCount">0</span>
+            </div>
+            <div class="field-group">
+                <div class="input-wrap">
+                    <input type="text" id="pointInput" placeholder="输入讨论要点" autocomplete="off">
+                </div>
+                <button class="btn-add" id="addPointBtn">添加</button>
+            </div>
+            <div class="item-list" id="pointList"></div>
+        </div>
+
+        <!-- ====== 待办事项 ====== -->
+        <div class="card">
+            <div class="card-title">
+                <span class="icon">✅</span>
+                待办事项
+                <span class="badge" id="todoCount">0</span>
+            </div>
+            <div class="field-group">
+                <div class="input-wrap">
+                    <input type="text" id="todoInput" placeholder="输入待办事项" autocomplete="off">
+                </div>
+                <button class="btn-add" id="addTodoBtn">添加</button>
+            </div>
+            <div class="item-list" id="todoList"></div>
+        </div>
+
+        <!-- ====== 生成按钮 ====== -->
+        <button class="btn-primary" id="generateBtn">✨ 生成会议纪要</button>
+
+        <!-- ====== 预览区域 ====== -->
+        <div class="card preview-wrap" style="margin-top:16px;">
+            <div class="card-title">
+                <span class="icon">📄</span>
+                纪要预览
+            </div>
+            <div class="preview-area" id="previewArea"></div>
+            <div class="preview-actions">
+                <button class="btn-outline" id="clearPreviewBtn">清空</button>
+                <button class="btn-success" id="copyBtn">📋 一键复制</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ====== Toast ====== -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== DOM 引用 =====
+            const topicInput = document.getElementById('topicInput');
+            const attendeeInput = document.getElementById('attendeeInput');
+            const addAttendeeBtn = document.getElementById('addAttendeeBtn');
+            const attendeeList = document.getElementById('attendeeList');
+            const attendeeCount = document.getElementById('attendeeCount');
+
+            const pointInput = document.getElementById('pointInput');
+            const addPointBtn = document.getElementById('addPointBtn');
+            const pointList = document.getElementById('pointList');
+            const pointCount = document.getElementById('pointCount');
+
+            const todoInput = document.getElementById('todoInput');
+            const addTodoBtn = document.getElementById('addTodoBtn');
+            const todoList = document.getElementById('todoList');
+            const todoCount = document.getElementById('todoCount');
+
+            const generateBtn = document.getElementById('generateBtn');
+            const previewArea = document.getElementById('previewArea');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearPreviewBtn = document.getElementById('clearPreviewBtn');
+            const toast = document.getElementById('toast');
+
+            // ===== 数据状态 =====
+            let attendees = [];
+            let points = [];
+            let todos = []; // { text: string, done: boolean }
+
+            // ===== 工具函数 =====
+            function formatDate(d) {
+                const year = d.getFullYear();
+                const month = d.getMonth() + 1;
+                const day = d.getDate();
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return year + '年' + month + '月' + day + '日 ' + hours + ':' + minutes;
+            }
+
+            function getNow() {
+                return formatDate(new Date());
+            }
+
+            // ===== Toast 提示 =====
+            let toastTimer = null;
+
+            function showToast(message, type) {
+                type = type || 'success';
+                toast.textContent = message;
+                toast.className = 'toast ' + type;
+                // 强制回流后显示
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(function() {
+                    toast.classList.remove('show');
+                }, 2200);
+            }
+
+            // ===== 渲染函数 =====
+            function renderAttendees() {
+                if (attendees.length === 0) {
+                    attendeeList.innerHTML = '';
+                } else {
+                    var html = '';
+                    for (var i = 0; i < attendees.length; i++) {
+                        html += '<span class="tag">' +
+                            escapeHtml(attendees[i]) +
+                            '<button class="tag-del" data-index="' + i + '" aria-label="删除">×</button>' +
+                            '</span>';
+                    }
+                    attendeeList.innerHTML = html;
+                }
+                attendeeCount.textContent = attendees.length;
+                // 绑定删除事件
+                var dels = attendeeList.querySelectorAll('.tag-del');
+                for (var j = 0; j < dels.length; j++) {
+                    (function(idx) {
+                        dels[idx].addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            var index = parseInt(this.getAttribute('data-index'));
+                            attendees.splice(index, 1);
+                            renderAttendees();
+                        });
+                    })(j);
+                }
+            }
+
+            function renderPoints() {
+                if (points.length === 0) {
+                    pointList.innerHTML = '';
+                } else {
+                    var html = '';
+                    for (var i = 0; i < points.length; i++) {
+                        html += '<div class="item-row">' +
+                            '<span class="item-num">' + (i + 1) + '.</span>' +
+                            '<span class="item-text">' + escapeHtml(points[i]) + '</span>' +
+                            '<button class="item-del" data-index="' + i + '" aria-label="删除">×</button>' +
+                            '</div>';
+                    }
+                    pointList.innerHTML = html;
+                }
+                pointCount.textContent = points.length;
+                // 绑定删除
+                var dels = pointList.querySelectorAll('.item-del');
+                for (var j = 0; j < dels.length; j++) {
+                    (function(idx) {
+                        dels[idx].addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            var index = parseInt(this.getAttribute('data-index'));
+                            points.splice(index, 1);
+                            renderPoints();
+                        });
+                    })(j);
+                }
+            }
+
+            function renderTodos() {
+                if (todos.length === 0) {
+                    todoList.innerHTML = '';
+                } else {
+                    var html = '';
+                    for (var i = 0; i < todos.length; i++) {
+                        var done = todos[i].done;
+                        var checkClass = done ? 'item-check checked' : 'item-check';
+                        var textClass = done ? 'item-text done' : 'item-text';
+                        var checkChar = done ? '☑' : '☐';
+                        html += '<div class="item-row">' +
+                            '<span class="' + checkClass + '" data-index="' + i + '" role="button" aria-label="切换完成状态">' +
+                            checkChar + '</span>' +
+                            '<span class="' + textClass + '">' + escapeHtml(todos[i].text) + '</span>' +
+                            '<button class="item-del" data-index="' + i + '" aria-label="删除">×</button>' +
+                            '</div>';
+                    }
+                    todoList.innerHTML = html;
+                }
+                todoCount.textContent = todos.length;
+                // 绑定切换状态
+                var checks = todoList.querySelectorAll('.item-check');
+                for (var j = 0; j < checks.length; j++) {
+                    (function(idx) {
+                        checks[idx].addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            var index = parseInt(this.getAttribute('data-index'));
+                            todos[index].done = !todos[index].done;
+                            renderTodos();
+                        });
+                    })(j);
+                }
+                // 绑定删除
+                var dels = todoList.querySelectorAll('.item-del');
+                for (var k = 0; k < dels.length; k++) {
+                    (function(idx) {
+                        dels[idx].addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            var index = parseInt(this.getAttribute('data-index'));
+                            todos.splice(index, 1);
+                            renderTodos();
+                        });
+                    })(k);
+                }
+            }
+
+            // ===== 简单的转义 =====
+            function escapeHtml(str) {
+                var div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ===== 添加逻辑 =====
+            function addAttendee() {
+                var val = attendeeInput.value.trim();
+                if (!val) {
+                    showToast('请输入姓名', 'error');
+                    return;
+                }
+                // 避免重复
+                if (attendees.indexOf(val) !== -1) {
+                    showToast('该参会人已存在', 'error');
+                    return;
+                }
+                attendees.push(val);
+                renderAttendees();
+                attendeeInput.value = '';
+                attendeeInput.focus();
+                showToast('已添加「' + val + '」', 'success');
+            }
+
+            function addPoint() {
+                var val = pointInput.value.trim();
+                if (!val) {
+                    showToast('请输入讨论要点', 'error');
+                    return;
+                }
+                points.push(val);
+                renderPoints();
+                pointInput.value = '';
+                pointInput.focus();
+                showToast('已添加要点', 'success');
+            }
+
+            function addTodo() {
+                var val = todoInput.value.trim();
+                if (!val) {
+                    showToast('请输入待办事项', 'error');
+                    return;
+                }
+                todos.push({ text: val, done: false });
+                renderTodos();
+                todoInput.value = '';
+                todoInput.focus();
+                showToast('已添加待办事项', 'success');
+            }
+
+            // ===== 生成纪要 =====
+            function generateMinutes() {
+                var topic = topicInput.value.trim() || '（未填写）';
+                var attendeeStr = attendees.length > 0 ? attendees.join('、') : '（无）';
+                var pointStr = '';
+                if (points.length > 0) {
+                    var pArr = [];
+                    for (var i = 0; i < points.length; i++) {
+                        pArr.push((i + 1) + '. ' + points[i]);
+                    }
+                    pointStr = pArr.join('\n');
+                } else {
+                    pointStr = '（无）';
+                }
+                var todoStr = '';
+                if (todos.length > 0) {
+                    var tArr = [];
+                    for (var j = 0; j < todos.length; j++) {
+                        var mark = todos[j].done ? '☑' : '☐';
+                        tArr.push(mark + ' ' + todos[j].text);
+                    }
+                    todoStr = tArr.join('\n');
+                } else {
+                    todoStr = '（无）';
+                }
+
+                var now = getNow();
+
+                var result = '';
+                result += '==============================\n';
+                result += '      会 议 纪 要\n';
+                result += '==============================\n\n';
+                result += '会议主题：' + topic + '\n\n';
+                result += '参会人：' + attendeeStr + '\n\n';
+                result += '讨论要点：\n' + pointStr + '\n\n';
+                result += '待办事项：\n' + todoStr + '\n\n';
+                result += '生成时间：' + now + '\n';
+                result += '==============================';
+
+                previewArea.textContent = result;
+                previewArea.classList.remove('highlight');
+                // 触发动画
+                void previewArea.offsetWidth;
+                previewArea.classList.add('highlight');
+                setTimeout(function() {
+                    previewArea.classList.remove('highlight');
+                }, 600);
+
+                showToast('✅ 纪要已生成', 'success');
+                return result;
+            }
+
+            // ===== 复制功能 =====
+            function copyContent() {
+                var text = previewArea.textContent;
+                if (!text) {
+                    showToast('请先生成纪要', 'error');
+                    return;
+                }
+                // 使用 Clipboard API
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(function() {
+                        showToast('📋 已复制到剪贴板！', 'success');
+                    }).catch(function() {
+                        // 降级方案
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            }
+
+            function fallbackCopy(text) {
+                var textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '-9999px';
+                textarea.style.width = '1px';
+                textarea.style.height = '1px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    var success = document.execCommand('copy');
+                    if (success) {
+                        showToast('📋 已复制到剪贴板！', 'success');
+                    } else {
+                        showToast('复制失败，请手动复制', 'error');
+                    }
+                } catch (e) {
+                    showToast('复制失败，请手动复制', 'error');
+                }
+                document.body.removeChild(textarea);
+            }
+
+            // ===== 清空预览 =====
+            function clearPreview() {
+                previewArea.textContent = '';
+                previewArea.classList.remove('highlight');
+                showToast('已清空预览', 'success');
+            }
+
+            // ===== 键盘支持 =====
+            function onEnter(e, callback) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    e.preventDefault();
+                    callback();
+                }
+            }
+
+            // ===== 事件绑定 =====
+            addAttendeeBtn.addEventListener('click', addAttendee);
+            attendeeInput.addEventListener('keydown', function(e) { onEnter(e, addAttendee); });
+
+            addPointBtn.addEventListener('click', addPoint);
+            pointInput.addEventListener('keydown', function(e) { onEnter(e, addPoint); });
+
+            addTodoBtn.addEventListener('click', addTodo);
+            todoInput.addEventListener('keydown', function(e) { onEnter(e, addTodo); });
+
+            generateBtn.addEventListener('click', generateMinutes);
+
+            copyBtn.addEventListener('click', copyContent);
+
+            clearPreviewBtn.addEventListener('click', clearPreview);
+
+            // ===== 初始化渲染 =====
+            renderAttendees();
+            renderPoints();
+            renderTodos();
+
+            // 默认主题占位
+            if (!topicInput.value) {
+                // 留空
+            }
+
+            console.log('📝 会议纪要工具已加载');
+            console.log('Tip: 填写信息后点击「生成会议纪要」即可');
+
+            // 额外：如果点击生成时预览区已有内容，自动更新覆盖
+            // 额外：点击生成时自动滚动到预览区
+            generateBtn.addEventListener('click', function() {
+                setTimeout(function() {
+                    var rect = previewArea.getBoundingClientRect();
+                    if (rect.top < 0 || rect.top > window.innerHeight) {
+                        document.querySelector('.preview-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 200);
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

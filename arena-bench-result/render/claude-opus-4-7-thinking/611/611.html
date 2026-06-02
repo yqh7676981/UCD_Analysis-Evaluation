@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学海无涯 · 大学生免费学习资源平台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f7fb;
+    color: #2d3748;
+    line-height: 1.6;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+  }
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+  }
+  nav a:hover { opacity: 1; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4rem 2rem 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.3;
+  }
+  .hero-content {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+  .hero p {
+    font-size: 1.2rem;
+    opacity: 0.95;
+    margin-bottom: 2rem;
+  }
+  .search-box {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    background: white;
+    border-radius: 50px;
+    padding: 0.3rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .search-box input {
+    flex: 1;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 50px;
+    outline: none;
+    color: #333;
+  }
+  .search-box button {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s;
+  }
+  .search-box button:hover { transform: scale(1.05); }
+
+  /* Stats */
+  .stats {
+    max-width: 1200px;
+    margin: -3rem auto 3rem;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    position: relative;
+    z-index: 10;
+  }
+  .stat-card {
+    background: white;
+    padding: 1.8rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s;
+  }
+  .stat-card:hover { transform: translateY(-5px); }
+  .stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-label {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+  }
+
+  /* Main Content */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #1a202c;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title::before {
+    content: "";
+    width: 5px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 3px;
+  }
+
+  /* Filters */
+  .filters {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .filter-group label {
+    font-weight: 600;
+    color: #4a5568;
+  }
+  .filter-group select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .filter-group select:focus { border-color: #667eea; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow-x: auto;
+  }
+  .tab {
+    flex: 1;
+    min-width: 140px;
+    padding: 0.8rem 1.2rem;
+    border: none;
+    background: transparent;
+    color: #4a5568;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab:hover { background: #edf2f7; }
+  .tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+
+  /* Resource Grid */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .resource-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .resource-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  }
+  .card-banner {
+    height: 120px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    position: relative;
+  }
+  .card-banner.notes { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+  .card-banner.videos { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+  .card-banner.exams { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+  .card-type-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(255,255,255,0.25);
+    backdrop-filter: blur(10px);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .card-body {
+    padding: 1.3rem;
+  }
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+  .card-meta {
+    display: flex;
+    gap: 0.8rem;
+    color: #718096;
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .tag {
+    background: #edf2f7;
+    color: #4a5568;
+    padding: 0.2rem 0.7rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.8rem;
+    border-top: 1px solid #edf2f7;
+  }
+  .downloads {
+    color: #718096;
+    font-size: 0.85rem;
+  }
+  .btn-download {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .btn-download:hover { transform: scale(1.05); }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #a0aec0;
+    background: white;
+    border-radius: 12px;
+  }
+  .empty-state .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Footer */
+  footer {
+    background: #1a202c;
+    color: #cbd5e0;
+    padding: 2.5rem 2rem 1.5rem;
+    margin-top: 3rem;
+  }
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  .footer-section h4 {
+    color: white;
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+  }
+  .footer-section ul {
+    list-style: none;
+  }
+  .footer-section li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .footer-section a {
+    color: #cbd5e0;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-section a:hover { color: #667eea; }
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 1.5rem;
+    border-top: 1px solid #2d3748;
+    text-align: center;
+    font-size: 0.85rem;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal h3 {
+    margin-bottom: 1rem;
+    color: #1a202c;
+  }
+  .modal p {
+    color: #4a5568;
+    margin-bottom: 1.5rem;
+  }
+  .modal-close {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 2rem; }
+    nav ul { gap: 1rem; font-size: 0.9rem; }
+    .logo { font-size: 1.2rem; }
+    .section-title { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav-container">
+    <div class="logo">
+      <div class="logo-icon">📚</div>
+      <span>学海无涯</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#home">首页</a></li>
+        <li><a href="#resources">资源库</a></li>
+        <li><a href="#about">关于我们</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <div class="hero-content">
+    <h1>大学生免费学习资源平台</h1>
+    <p>汇聚学习笔记 · 视频讲座 · 历年试题，助你轻松应对每一门课程</p>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索课程、科目或资源..." />
+      <button onclick="performSearch()">🔍 搜索</button>
+    </div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="stat-number">1,200+</div>
+    <div class="stat-label">学习笔记</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">580+</div>
+    <div class="stat-label">视频讲座</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">2,400+</div>
+    <div class="stat-label">历年试卷</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">50,000+</div>
+    <div class="stat-label">注册学生</div>
+  </div>
+</div>
+
+<main id="resources">
+  <h2 class="section-title">学习资源库</h2>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label for="semesterFilter">学期：</label>
+      <select id="semesterFilter" onchange="filterResources()">
+        <option value="all">全部学期</option>
+        <option value="大一上">大一上学期</option>
+        <option value="大一下">大一下学期</option>
+        <option value="大二上">大二上学期</option>
+        <option value="大二下">大二下学期</option>
+        <option value="大三上">大三上学期</option>
+        <option value="大三下">大三下学期</option>
+        <option value="大四上">大四上学期</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="subjectFilter">科目：</label>
+      <select id="subjectFilter" onchange="filterResources()">
+        <option value="all">全部科目</option>
+        <option value="高等数学">高等数学</option>
+        <option value="线性代数">线性代数</option>
+        <option value="概率论">概率论与数理统计</option>
+        <option value="大学英语">大学英语</option>
+        <option value="数据结构">数据结构</option>
+        <option value="计算机组成原理">计算机组成原理</option>
+        <option value="操作系统">操作系统</option>
+        <option value="计算机网络">计算机网络</option>
+        <option value="算法">算法设计与分析</option>
+        <option value="大学物理">大学物理</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-type="all" onclick="switchTab(this)">🌐 全部资源</button>
+    <button class="tab" data-type="notes" onclick="switchTab(this)">📝 学习笔记</button>
+    <button class="tab" data-type="videos" onclick="switchTab(this)">🎬 视频讲座</button>
+    <button class="tab" data-type="exams" onclick="switchTab(this)">📄 历年试卷</button>
+  </div>
+
+  <div class="resource-grid" id="resourceGrid">
+    <!-- 动态渲染 -->
+  </div>
+</main>
+
+<footer id="about">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h4>📚 学海无涯</h4>
+      <p style="font-size: 0.9rem; line-height: 1.7;">
+        由大学生创建、为大学生服务的免费学习资源共享平台。我们相信知识应该人人共享。
+      </p>
+    </div>
+    <div class="footer-section">
+      <h4>快速链接</h4>
+      <ul>
+        <li><a href="#home">首页</a></li>
+        <li><a href="#resources">资源库</a></li>
+        <li><a href="#">上传资源</a></li>
+        <li><a href="#">帮助中心</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>热门科目</h4>
+      <ul>
+        <li><a href="#">高等数学</a></li>
+        <li><a href="#">数据结构</a></li>
+        <li><a href="#">操作系统</a></li>
+        <li><a href="#">大学英语</a></li>
+      </ul>
+    </div>
+    <div class="footer-section">
+      <h4>联系我们</h4>
+      <ul>
+        <li>✉️ support@xuehai.edu</li>
+        <li>💬 微信公众号：学海无涯</li>
+        <li>🐙 GitHub: xuehai-edu</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2025 学海无涯. 让知识自由流动 · Made with ❤️ by students, for students
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">📥 下载资源</h3>
+    <p id="modalText">感谢你使用本平台！该资源即将开始下载，请稍候。</p>
+    <button class="modal-close" onclick="closeModal()">确定</button>
+  </div>
+</div>
+
+<script>
+  // 资源数据
+  const resources = [
+    // 学习笔记
+    { id: 1, type: 'notes', title: '高等数学（上）完整笔记', semester: '大一上', subject: '高等数学', author: '张学长', downloads: 3420, tags: ['极限', '导数', '积分'] },
+    { id: 2, type: 'notes', title: '线性代数核心知识点总结', semester: '大一下', subject: '线性代数', author: '李学姐', downloads: 2890, tags: ['矩阵', '行列式', '特征值'] },
+    { id: 3, type: 'notes', title: '数据结构手写精华笔记', semester: '大二上', subject: '数据结构', author: '王同学', downloads: 5120, tags: ['树', '图', '排序'] },
+    { id: 4, type: 'notes', title: '操作系统重点梳理', semester: '大二下', subject: '操作系统', author: '陈学长', downloads: 4230, tags: ['进程', '内存', '文件系统'] },
+    { id: 5, type: 'notes', title: '概率论与数理统计公式大全', semester: '大二上', subject: '概率论', author: '赵学姐', downloads: 3780, tags: ['分布', '统计推断'] },
+    { id: 6, type: 'notes', title: '计算机网络五层模型详解', semester: '大三上', subject: '计算机网络', author: '刘同学', downloads: 2950, tags: ['TCP/IP', 'HTTP', '路由'] },
+
+    // 视频讲座
+    { id: 7, type: 'videos', title: '高数极限与连续专题讲解', semester: '大一上', subject: '高等数学', author: '周教授', downloads: 8900, tags: ['视频', '12课时'] },
+    { id: 8, type: 'videos', title: '算法导论全套视频课程', semester: '大三上', subject: '算法', author: '吴老师', downloads: 6700, tags: ['视频', '24课时'] },
+    { id: 9, type: 'videos', title: '大学英语四级冲刺课程', semester: '大一下', subject: '大学英语', author: '钱老师', downloads: 9230, tags: ['视频', '听说读写'] },
+    { id: 10, type: 'videos', title: '计算机组成原理精讲', semester: '大二下', subject: '计算机组成原理', author: '孙教授', downloads: 4560, tags: ['视频', '18课时'] },
+    { id: 11, type: 'videos', title: '数据结构动画演示课', semester: '大二上', subject: '数据结构', author: '郑老师', downloads: 7820, tags: ['视频', '动画演示'] },
+    { id: 12, type: 'videos', title: '大学物理力学专题', semester: '大一上', subject: '大学物理', author: '冯教授', downloads: 3210, tags: ['视频', '15课时'] },
+
+    // 历年试卷
+    { id: 13, type: 'exams', title: '2023高等数学期末真题+答案', semester: '大一上', subject: '高等数学', author: '教务处', downloads: 6540, tags: ['2023', '期末', '含答案'] },
+    { id: 14, type: 'exams', title: '数据结构历年考试题集(2019-2023)', semester: '大二上', subject: '数据结构', author: '资源组', downloads: 8120, tags: ['5年真题', '含答案'] },
+    { id: 15, type: 'exams', title: '操作系统期中期末合集', semester: '大二下', subject: '操作系统', author: '教务处', downloads: 5430, tags: ['期中', '期末'] },
+    { id: 16, type: 'exams', title: '线性代数模拟测试卷', semester: '大一下', subject: '线性代数', author: '数学系', downloads: 4320, tags: ['模拟题', '10套'] },
+    { id: 17, type: 'exams', title: '大学英语六级历年真题', semester: '大二上', subject: '大学英语', author: '外语系', downloads: 11240, tags: ['CET-6', '真题'] },
+    { id: 18, type: 'exams', title: '计算机网络期末考试复习题', semester: '大三上', subject: '计算机网络', author: '资源组', downloads: 3890, tags: ['期末', '含答案'] },
+    { id: 19, type: 'exams', title: '概率论期末试卷及详解', semester: '大二上', subject: '概率论', author: '数学系', downloads: 2870, tags: ['期末', '详细解答'] },
+    { id: 20, type: 'exams', title: '算法设计与分析考研真题', semester: '大三下', subject: '算法', author: '考研组', downloads: 6710, tags: ['考研', '真题'] },
+  ];
+
+  let currentFilter = { type: 'all', semester: 'all', subject: 'all', keyword: '' };
+
+  // 图标映射
+  const typeIcons = {
+    notes: '📝',
+    videos: '🎬',
+    exams: '📄'
+  };
+  const typeNames = {
+    notes: '学习笔记',
+    videos: '视频讲座',
+    exams: '历年试卷'
+  };
+
+  // 渲染资源卡片
+  function renderResources() {
+    const grid = document.getElementById('resourceGrid');
+    const filtered = resources.filter(r => {
+      if (currentFilter.type !== 'all' && r.type !== currentFilter.type) return false;
+      if (currentFilter.semester !== 'all' && r.semester !== currentFilter.semester) return false;
+      if (currentFilter.subject !== 'all' && r.subject !== currentFilter.subject) return false;
+      if (currentFilter.keyword) {
+        const kw = currentFilter.keyword.toLowerCase();
+        const searchText = (r.title + r.subject + r.tags.join('')).toLowerCase();
+        if (!searchText.includes(kw)) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+          <div class="icon">🔍</div>
+          <h3>暂无匹配的资源</h3>
+          <p>试试调整筛选条件或搜索其他关键词</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(r => `
+      <div class="resource-card" onclick="openResource(${r.id})">
+        <div class="card-banner ${r.type}">
+          ${typeIcons[r.type]}
+          <div class="card-type-badge">${typeNames[r.type]}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-title">${r.title}</div>
+          <div class="card-meta">
+            <span>📅 ${r.semester}</span>
+            <span>📖 ${r.subject}</span>
+          </div>
+          <div class="card-meta">
+            <span>👤 ${r.author}</span>
+          </div>
+          <div class="card-tags">
+            ${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+          <div class="card-footer">
+            <span class="downloads">⬇️ ${r.downloads.toLocaleString()} 次下载</span>
+            <button class="btn-download" onclick="event.stopPropagation(); openResource(${r.id})">下载</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // 切换标签
+  function switchTab(btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter.type = btn.dataset.type;
+    renderResources();
+  }
+
+  // 筛选
+  function filterResources() {
+    currentFilter.semester = document.getElementById('semesterFilter').value;
+    currentFilter.subject = document.getElementById('subjectFilter').value;
+    renderResources();
+  }
+
+  // 搜索
+  function performSearch() {
+    currentFilter.keyword = document.getElementById('searchInput').value.trim();
+    renderResources();
+    document.getElementById('resources').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.getElementById('searchInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') performSearch();
+  });
+
+  // 打开资源
+  function openResource(id) {
+    const res = resources.find(r => r.id === id);
+    if (!res) return;
+    document.getElementById('modalTitle').textContent = `📥 ${res.title}`;
+    document.getElementById('modalText').textContent = 
+      `资源类型：${typeNames[res.type]}\n学期：${res.semester}\n科目：${res.subject}\n\n感谢你使用本平台！点击确定将开始下载（演示版，实际项目中会链接到文件存储）。`;
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target.id === 'modalOverlay') closeModal();
+  });
+
+  // 初始渲染
+  renderResources();
+</script>
+
+</body>
+</html>

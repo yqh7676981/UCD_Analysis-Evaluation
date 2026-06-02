@@ -1,0 +1,33 @@
+{
+  "index": 93,
+  "id": "G001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个简单的飞机大战小游戏，玩家飞机用键盘方向键控制,自动发射子弹击落从上方飞来的敌机,显示得分。",
+  "evaluation": {
+    "total_score": 24,
+    "score_band": "0-29",
+    "dimensions": {
+      "overall_style": {
+        "score": 2,
+        "reason": "The screen is almost entirely empty black with only a plain white score label and a blue square. While visually consistent, it lacks any intentional game-style system, focus treatment, or aircraft-shooter tone beyond a bare prototype."
+      },
+      "local_details": {
+        "score": 2,
+        "reason": "Element finishing is very rough: the score text is default-looking, spacing feels arbitrary, and the player is represented as an unrefined blue rectangle rather than a readable plane asset. There is no visible component polish, iconography, or completed visual language."
+      },
+      "easy_to_perceive": {
+        "score": 3,
+        "reason": "Users can identify the score and likely player object immediately because the screen is sparse, but the main game state is not perceptible. No enemies, bullets, boundaries, controls, start state, or feedback are visible, so the core task flow is not readable from the interface."
+      },
+      "easy_to_understand": {
+        "score": 1,
+        "reason": "The requested scenario is a simple plane shooter on mobile, but the interface shows no onboarding or control hint, and the instruction depends on keyboard arrow keys, which is a poor fit for mobile. The blue block does not clearly communicate 'player plane,' and available actions are not self-evident."
+      }
+    },
+    "summary": "This looks like an unfinished prototype rather than a usable mobile plane-shooter game. Basic contrast is acceptable, but the page fails on scenario fit, semantic clarity, and visual completion: the player craft is not recognizable, gameplay objects and states are missing from view, and keyboard-based control conflicts with the mobile context. The hard cap is low because users cannot confidently understand or play the requested game from this interface."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G001_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:36:05.268974"
+}

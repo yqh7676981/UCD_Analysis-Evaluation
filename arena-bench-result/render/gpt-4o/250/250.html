@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Sales Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #0056b3;
+            padding: 10px 0;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #0069d9;
+            border-radius: 5px;
+        }
+        main {
+            padding: 20px;
+        }
+        .ticket-section {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .ticket-section h2 {
+            text-align: center;
+        }
+        .ticket {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .ticket-price {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .buy-ticket-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+        }
+        .buy-ticket-btn:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            background-color: #343a40;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ticketify - Your Ticket Sales Hub</h1>
+    </header>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#tickets">Tickets</a>
+        <a href="#manage">Manage Tickets</a>
+        <a href="#contact">Contact Us</a>
+    </nav>
+    <main id="tickets">
+        <div class="ticket-section">
+            <h2>Available Tickets</h2>
+            <div class="ticket">
+                <span>Concert A</span>
+                <span class="ticket-price">$50</span>
+                <button class="buy-ticket-btn" onclick="buyTicket('Concert A', 50)">Buy Ticket</button>
+            </div>
+            <div class="ticket">
+                <span>Concert B</span>
+                <span class="ticket-price">$75</span>
+                <button class="buy-ticket-btn" onclick="buyTicket('Concert B', 75)">Buy Ticket</button>
+            </div>
+            <div class="ticket">
+                <span>Festival C</span>
+                <span class="ticket-price">$100</span>
+                <button class="buy-ticket-btn" onclick="buyTicket('Festival C', 100)">Buy Ticket</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2023 Ticketify. All Rights Reserved.</p>
+    </footer>
+    <script>
+        function buyTicket(eventName, price) {
+            alert(`You selected "${eventName}" with a price of $${price}.`);
+        }
+    </script>
+</body>
+</html>

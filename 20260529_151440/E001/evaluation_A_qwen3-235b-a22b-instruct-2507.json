@@ -1,0 +1,33 @@
+{
+  "index": 26,
+  "id": "E001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个雅思核心词汇打卡工具，每天展示 20 个单词卡片，可以翻转查看释义和例句，记录已掌握的进度。",
+  "evaluation": {
+    "total_score": 42,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The interface has a basic consistent style with blue header, white cards, and green action buttons, but it feels generic and unfinished. There is little visual focus beyond the title block, and the long repeated card list lacks rhythm or distinctive product character for a study tool."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Spacing, rounded cards, and shadows are mostly consistent, and text is readable. However, typography hierarchy is minimal, card interiors are sparse, buttons look small relative to the cards, and the repeated layout creates a templated feel rather than polished element-level craftsmanship."
+      },
+      "easy_to_perceive": {
+        "score": 4,
+        "reason": "Users can identify the title, progress, and word list quickly, but the page is a long undifferentiated column of nearly identical cards. Core study information is weakly emphasized, there is no visible distinction between current learning state and completed state, and the task flow lacks clear prioritization beyond scrolling."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The requested key interaction—flip cards to view meaning and example—is not evident in the screenshot, and the visible UI only supports marking mastery. The bottom previous/next controls are understandable, but semantics are incomplete because users cannot infer how to study each word beyond tapping a mastery button."
+      }
+    },
+    "summary": "This is a usable but below-average mobile vocabulary list, not a complete IELTS word check-in tool. It succeeds at basic readability and simple progress framing, but it misses the core card-flip learning interaction, provides weak information hierarchy across 20 repeated items, and lacks richer learning states or semantic cues. The result feels structurally functional yet immature and only partially aligned with the requested scenario."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E001_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:20:17.549261"
+}

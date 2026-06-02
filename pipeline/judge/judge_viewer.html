@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型评估结果可视化查看器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        .model-card { transition: all 0.3s ease; }
+        .model-card:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        .dimension-bar { transition: width 0.5s ease-out; }
+        .question-card { transition: all 0.2s ease; cursor: pointer; }
+        .question-card:hover { background-color: #f8fafc; }
+        .score-badge { font-variant-numeric: tabular-nums; }
+        .tab-button { transition: all 0.2s ease; }
+        .tab-button.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; }
+        .comparison-table th, .comparison-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        .rank-1 { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); }
+        .rank-2 { background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%); }
+        .rank-3 { background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%); }
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s ease;
+        }
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+        }
+        .mode-btn {
+            transition: all 0.2s ease;
+        }
+        .mode-btn.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">模型评估结果可视化</h1>
+            <p class="text-gray-600" id="batch-info">选择数据来源以查看评估结果</p>
+        </header>
+
+        <!-- Upload Section -->
+        <div id="upload-section" class="bg-white rounded-xl shadow-sm p-8 mb-6">
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="mode-files" class="mode-btn active px-4 py-2 rounded-lg border border-gray-300" onclick="switchMode('files')">
+                    上传 Evaluation 文件
+                </button>
+                <button id="mode-zip" class="mode-btn px-4 py-2 rounded-lg border border-gray-300" onclick="switchMode('zip')">
+                    上传 ZIP 压缩包
+                </button>
+            </div>
+
+            <!-- Files Mode -->
+            <div id="upload-files-mode">
+                <div class="upload-zone rounded-xl p-12 text-center mb-4" id="folder-drop-zone">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-4-4H5a2 2 0 00-2 2z"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">上传整个文件夹</h3>
+                    <p class="text-gray-500 mb-4">选择包含所有题目子文件夹的批次文件夹（如 20260529_151440）</p>
+                    <input type="file" id="folder-input" webkitdirectory directory multiple class="hidden">
+                    <input type="file" id="file-input" accept=".json" multiple class="hidden">
+                    <div class="flex justify-center gap-4">
+                        <button onclick="document.getElementById('folder-input').click()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                            选择文件夹
+                        </button>
+                        <button onclick="document.getElementById('file-input').click()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition text-sm">
+                            或选择多个文件
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-sm text-yellow-800">
+                    <p class="font-semibold mb-1">📁 文件夹上传说明：</p>
+                    <p>点击"选择文件夹"，直接选中整个批次文件夹（如 <code>20260529_151440</code>），系统会自动递归读取所有子文件夹中的 evaluation_A_*.json 文件。</p>
+                    <p class="mt-2 text-gray-600">如果浏览器不支持文件夹上传，可以使用"选择多个文件"或 ZIP 压缩包方式。</p>
+                </div>
+            </div>
+
+            <!-- ZIP Mode -->
+            <div id="upload-zip-mode" class="hidden">
+                <div class="upload-zone rounded-xl p-12 text-center mb-4">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">上传 ZIP 压缩包</h3>
+                    <p class="text-gray-500 mb-4">将整个批次文件夹压缩为 ZIP 后上传</p>
+                    <input type="file" id="zip-input" accept=".zip" class="hidden">
+                    <button onclick="document.getElementById('zip-input').click()" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+                        选择 ZIP 文件
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading-indicator" class="hidden mt-4 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                <p class="text-gray-600 mt-2">正在处理文件...</p>
+            </div>
+
+            <div id="file-list" class="hidden mt-4">
+                <h4 class="font-semibold mb-2">已选择的文件：</h4>
+                <div id="file-list-content" class="max-h-40 overflow-y-auto bg-gray-50 rounded-lg p-3 text-sm"></div>
+                <button onclick="processSelectedFiles()" class="mt-4 w-full px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    开始分析
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content (Hidden initially) -->
+        <div id="main-content" class="hidden">
+            <div class="flex justify-end mb-4">
+                <button onclick="resetData()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                    重新上传
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="tab-overview" class="tab-button active px-6 py-3 font-medium" onclick="switchTab('overview')">
+                    模型排行榜
+                </button>
+                <button id="tab-dimensions" class="tab-button px-6 py-3 font-medium text-gray-600" onclick="switchTab('dimensions')">
+                    维度分析
+                </button>
+                <button id="tab-questions" class="tab-button px-6 py-3 font-medium text-gray-600" onclick="switchTab('questions')">
+                    题目对比
+                </button>
+                <button id="tab-details" class="tab-button px-6 py-3 font-medium text-gray-600" onclick="switchTab('details')">
+                    详细评分矩阵
+                </button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="content-overview" class="tab-content">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4">模型总排行榜</h2>
+                    <div id="rankings-table" class="overflow-x-auto"></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-xl font-semibold mb-4">分数分布</h2>
+                        <canvas id="score-chart" height="200"></canvas>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h2 class="text-xl font-semibold mb-4">各模型分数范围</h2>
+                        <canvas id="range-chart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dimensions Tab -->
+            <div id="content-dimensions" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4">各维度平均分对比 (雷达图)</h2>
+                    <div style="height: 400px; max-width: 600px; margin: 0 auto;">
+                        <canvas id="dimensions-radar"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4">维度柱状图对比</h2>
+                    <canvas id="dimensions-bar" height="100"></canvas>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-xl font-semibold mb-4">维度详细数据</h2>
+                    <div id="dimensions-table"></div>
+                </div>
+            </div>
+
+            <!-- Questions Tab -->
+            <div id="content-questions" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-sm p-4 mb-4">
+                            <h3 class="font-semibold mb-3">选择题目</h3>
+                            <div id="question-filter" class="space-y-2 max-h-[70vh] overflow-y-auto"></div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-3">
+                        <div id="question-detail" class="bg-white rounded-xl shadow-sm p-6">
+                            <div class="text-center text-gray-500 py-12">
+                                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                                <p>选择左侧题目查看详细对比</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Details Tab -->
+            <div id="content-details" class="tab-content hidden">
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h2 class="text-xl font-semibold mb-4">完整评分矩阵</h2>
+                    <div id="score-matrix" class="overflow-x-auto"></div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-xl font-semibold mb-4">题目平均分</h2>
+                    <canvas id="question-avg-chart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global data storage
+        let evalData = [];
+        let questionMap = {};
+        let modelRankings = [];
+        let questionScores = {};
+        let charts = {};
+        let selectedFiles = [];
+
+        // Mode switching
+        function switchMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`mode-${mode}`).classList.add('active');
+            
+            if (mode === 'files') {
+                document.getElementById('upload-files-mode').classList.remove('hidden');
+                document.getElementById('upload-zip-mode').classList.add('hidden');
+            } else {
+                document.getElementById('upload-files-mode').classList.add('hidden');
+                document.getElementById('upload-zip-mode').classList.remove('hidden');
+            }
+        }
+
+        // File input handling
+        const fileInput = document.getElementById('file-input');
+        const folderInput = document.getElementById('folder-input');
+        const zipInput = document.getElementById('zip-input');
+
+        fileInput.addEventListener('change', async (e) => {
+            selectedFiles = Array.from(e.target.files).filter(f => f.name.endsWith('.json'));
+            displayFileList();
+        });
+
+        folderInput.addEventListener('change', async (e) => {
+            const allFiles = Array.from(e.target.files);
+            console.log('All files in folder:', allFiles.length);
+            
+            // When uploading a folder, file.webkitRelativePath contains the full path
+            // e.g., "20260529_151440/77/evaluation_A_claude-opus-4-7-thinking.json"
+            // file.name might just be "evaluation_A_claude-opus-4-7-thinking.json" or the full path
+            console.log('Sample files:', allFiles.slice(0, 5).map(f => ({
+                name: f.name,
+                path: f.webkitRelativePath || 'no path'
+            })));
+            
+            // Filter only evaluation_A_*.json files - check both name and webkitRelativePath
+            selectedFiles = allFiles.filter(f => {
+                // Use webkitRelativePath if available (it has the full path), otherwise use name
+                const fullPath = (f.webkitRelativePath || f.name).toLowerCase();
+                const fileName = f.name.toLowerCase();
+                
+                // Check if it ends with .json and contains evaluation in the path
+                const isJson = fileName.endsWith('.json');
+                const hasEval = fullPath.includes('evaluation') || fullPath.includes('eval');
+                
+                return isJson && hasEval;
+            });
+            
+            console.log('Filtered files:', selectedFiles.length);
+            if (selectedFiles.length > 0) {
+                console.log('Sample filtered:', selectedFiles.slice(0, 3).map(f => ({
+                    name: f.name,
+                    path: f.webkitRelativePath || 'no path'
+                })));
+            }
+            
+            displayFileList();
+            
+            // Auto-process if files found
+            if (selectedFiles.length > 0) {
+                document.getElementById('file-list').scrollIntoView({ behavior: 'smooth' });
+            } else if (allFiles.length > 0) {
+                const sampleFiles = allFiles.slice(0, 3).map(f => f.webkitRelativePath || f.name);
+                alert(`找到 ${allFiles.length} 个文件，但没有匹配的 evaluation 文件。\n\n请确保选择包含 evaluation_A_*.json 文件的文件夹。\n\n找到的文件示例：\n${sampleFiles.join('\n')}`);
+            }
+        });
+
+        zipInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                await processZipFile(file);
+            }
+        });
+
+        function displayFileList() {
+            const container = document.getElementById('file-list');
+            const content = document.getElementById('file-list-content');
+            
+            if (selectedFiles.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+
+            const groups = {};
+            const unknownFiles = [];
+            
+            selectedFiles.forEach(file => {
+                // Use just the filename part (not full path) for matching
+                const fileName = file.name;
+                
+                // Extract model name from filename: evaluation_A_<model>.json or evaluation_<model>.json
+                let match = fileName.match(/evaluation_A_(.+)\.json/i);
+                if (!match) {
+                    match = fileName.match(/evaluation_(.+)\.json/i);
+                }
+                if (!match) {
+                    match = fileName.match(/eval_(.+)\.json/i);
+                }
+                const model = match ? match[1] : null;
+                
+                if (model) {
+                    if (!groups[model]) groups[model] = [];
+                    groups[model].push(file);
+                } else {
+                    unknownFiles.push(file.webkitRelativePath || fileName);
+                }
+            });
+
+            let html = `<p class="text-green-600 font-semibold mb-2">共选择 ${selectedFiles.length} 个文件</p>`;
+            
+            if (Object.keys(groups).length > 0) {
+                html += '<div class="mb-4">';
+                Object.keys(groups).sort().forEach(model => {
+                    html += `<div class="mb-1"><span class="font-semibold text-indigo-600">${model}</span>: ${groups[model].length} 个题目</div>`;
+                });
+                html += '</div>';
+            }
+            
+            if (unknownFiles.length > 0) {
+                html += `<p class="text-yellow-600 text-sm mb-2">${unknownFiles.length} 个文件无法识别模型:</p>`;
+                html += `<div class="text-gray-500 text-xs mb-4">${unknownFiles.slice(0, 5).join(', ')}${unknownFiles.length > 5 ? '...' : ''}</div>`;
+            }
+
+            content.innerHTML = html;
+            container.classList.remove('hidden');
+        }
+
+        async function processSelectedFiles() {
+            if (selectedFiles.length === 0) return;
+
+            showLoading(true);
+            evalData = [];
+
+            for (const file of selectedFiles) {
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    if (isValidEvalData(data)) {
+                        evalData.push(normalizeEvalData(data));
+                    }
+                } catch (err) {
+                    console.error('Failed to parse', file.name, err);
+                }
+            }
+
+            showLoading(false);
+
+            if (evalData.length > 0) {
+                processData();
+                showMainContent();
+                renderAll();
+            } else {
+                alert('未能从文件中读取有效数据');
+            }
+        }
+
+        async function processZipFile(zipFile) {
+            showLoading(true);
+            
+            try {
+                const zip = await JSZip.loadAsync(zipFile);
+                evalData = [];
+                
+                const jsonFiles = Object.keys(zip.files).filter(name => 
+                    name.endsWith('.json') && name.includes('evaluation_A_')
+                );
+
+                for (const filename of jsonFiles) {
+                    try {
+                        const content = await zip.files[filename].async('text');
+                        const data = JSON.parse(content);
+                        if (isValidEvalData(data)) {
+                            evalData.push(normalizeEvalData(data));
+                        }
+                    } catch (err) {
+                        console.error('Failed to parse', filename, err);
+                    }
+                }
+
+                if (evalData.length > 0) {
+                    processData();
+                    showMainContent();
+                    renderAll();
+                } else {
+                    alert('ZIP 中未找到有效的 evaluation 文件');
+                }
+            } catch (err) {
+                alert('解析 ZIP 文件失败: ' + err.message);
+            }
+
+            showLoading(false);
+        }
+
+        function isValidEvalData(data) {
+            return data && data.id && data.model && data.evaluation && data.evaluation.total_score !== undefined;
+        }
+
+        function normalizeEvalData(data) {
+            // Extract short question name from full question text
+            const questionText = data.question || '';
+            const shortName = extractShortName(questionText);
+            
+            // Detect category from question ID prefix or content
+            const category = detectCategory(data.id, questionText);
+
+            return {
+                id: data.id,
+                model: data.model,
+                class: data.class || 'Unknown',
+                question: questionText,
+                shortName: shortName,
+                category: category,
+                total_score: data.evaluation.total_score,
+                score_band: data.evaluation.score_band,
+                dimensions: {
+                    overall_style: data.evaluation.dimensions?.overall_style?.score || data.evaluation.dimensions?.overall_style || 0,
+                    local_details: data.evaluation.dimensions?.local_details?.score || data.evaluation.dimensions?.local_details || 0,
+                    easy_to_perceive: data.evaluation.dimensions?.easy_to_perceive?.score || data.evaluation.dimensions?.easy_to_perceive || 0,
+                    easy_to_understand: data.evaluation.dimensions?.easy_to_understand?.score || data.evaluation.dimensions?.easy_to_understand || 0
+                },
+                dimension_reasons: {
+                    overall_style: data.evaluation.dimensions?.overall_style?.reason || '',
+                    local_details: data.evaluation.dimensions?.local_details?.reason || '',
+                    easy_to_perceive: data.evaluation.dimensions?.easy_to_perceive?.reason || '',
+                    easy_to_understand: data.evaluation.dimensions?.easy_to_understand?.reason || ''
+                },
+                summary: data.evaluation.summary || ''
+            };
+        }
+
+        function extractShortName(questionText) {
+            if (!questionText) return '未命名';
+            
+            // Try to extract the main task from the question
+            // Common patterns:
+            // - "设计一个..." -> extract noun after 设计
+            // - "创建一个..." 
+            // - "为...设计"
+            
+            const patterns = [
+                /设计一个(.+?)[，。]/,
+                /创建一个(.+?)[，。]/,
+                /为(.+?)设计/,
+                /构建一个(.+?)[，。]/,
+                /开发一个(.+?)[，。]/
+            ];
+
+            for (const pattern of patterns) {
+                const match = questionText.match(pattern);
+                if (match) {
+                    return match[1].substring(0, 30);
+                }
+            }
+
+            // Fallback: first 30 chars
+            return questionText.substring(0, 30) + (questionText.length > 30 ? '...' : '');
+        }
+
+        function detectCategory(id, questionText) {
+            const text = (questionText || '').toLowerCase();
+            
+            // Detect from ID prefix
+            if (id.startsWith('E')) return '教育';
+            if (id.startsWith('G')) return '游戏';
+            if (id.startsWith('H')) return '健康';
+            if (id.startsWith('U')) return '城市';
+            if (id.startsWith('W')) return '工作';
+            
+            // Detect from content keywords
+            if (text.includes('游戏') || text.includes('game')) return '游戏';
+            if (text.includes('教育') || text.includes('学习') || text.includes('课程')) return '教育';
+            if (text.includes('健康') || text.includes('医疗') || text.includes('健身')) return '健康';
+            if (text.includes('电商') || text.includes('购物') || text.includes('商品')) return '电商';
+            if (text.includes('餐厅') || text.includes('食物') || text.includes('菜单')) return '餐饮';
+            if (text.includes('银行') || text.includes('金融') || text.includes('支付')) return '金融';
+            if (text.includes('社交') || text.includes('社区') || text.includes('聊天')) return '社交';
+            if (text.includes('工具') || text.includes('仪表板') || text.includes('管理')) return '工具';
+            
+            return '其他';
+        }
+
+        function processData() {
+            // Group by question id
+            const byQuestion = {};
+            evalData.forEach(item => {
+                if (!byQuestion[item.id]) {
+                    byQuestion[item.id] = [];
+                }
+                byQuestion[item.id].push(item);
+            });
+
+            // Build question map
+            questionMap = {};
+            questionScores = {};
+            
+            Object.keys(byQuestion).forEach(qid => {
+                const items = byQuestion[qid];
+                const first = items[0];
+                
+                questionMap[qid] = {
+                    task: first.shortName,
+                    fullQuestion: first.question,
+                    category: first.category,
+                    class: first.class
+                };
+
+                questionScores[qid] = {};
+                items.forEach(item => {
+                    questionScores[qid][item.model] = {
+                        score: item.total_score,
+                        dimensions: item.dimensions,
+                        band: item.score_band
+                    };
+                });
+            });
+
+            // Calculate model rankings
+            const modelStats = {};
+            
+            evalData.forEach(item => {
+                const model = item.model;
+                if (!modelStats[model]) {
+                    modelStats[model] = {
+                        scores: [],
+                        dimensions: { overall_style: [], local_details: [], easy_to_perceive: [], easy_to_understand: [] },
+                        questions: {}
+                    };
+                }
+                
+                modelStats[model].scores.push(item.total_score);
+                modelStats[model].dimensions.overall_style.push(item.dimensions.overall_style);
+                modelStats[model].dimensions.local_details.push(item.dimensions.local_details);
+                modelStats[model].dimensions.easy_to_perceive.push(item.dimensions.easy_to_perceive);
+                modelStats[model].dimensions.easy_to_understand.push(item.dimensions.easy_to_understand);
+                modelStats[model].questions[item.id] = item;
+            });
+
+            modelRankings = Object.keys(modelStats).map(model => {
+                const scores = modelStats[model].scores;
+                const dims = modelStats[model].dimensions;
+                return {
+                    model,
+                    avgScore: scores.reduce((a,b) => a+b, 0) / scores.length,
+                    maxScore: Math.max(...scores),
+                    minScore: Math.min(...scores),
+                    count: scores.length,
+                    dimensions: {
+                        overall_style: dims.overall_style.reduce((a,b) => a+b, 0) / dims.overall_style.length,
+                        local_details: dims.local_details.reduce((a,b) => a+b, 0) / dims.local_details.length,
+                        easy_to_perceive: dims.easy_to_perceive.reduce((a,b) => a+b, 0) / dims.easy_to_perceive.length,
+                        easy_to_understand: dims.easy_to_understand.reduce((a,b) => a+b, 0) / dims.easy_to_understand.length
+                    },
+                    questions: modelStats[model].questions
+                };
+            }).sort((a, b) => b.avgScore - a.avgScore);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading-indicator').classList.toggle('hidden', !show);
+        }
+
+        function showMainContent() {
+            document.getElementById('upload-section').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            
+            const modelCount = modelRankings.length;
+            const questionCount = Object.keys(questionMap).length;
+            document.getElementById('batch-info').textContent = 
+                `共 ${modelCount} 个模型，${questionCount} 个题目，${evalData.length} 条评估数据`;
+        }
+
+        function resetData() {
+            evalData = [];
+            selectedFiles = [];
+            document.getElementById('file-list').classList.add('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+            document.getElementById('upload-section').classList.remove('hidden');
+            document.getElementById('batch-info').textContent = '选择数据来源以查看评估结果';
+            fileInput.value = '';
+            
+            // Destroy all charts
+            Object.values(charts).forEach(chart => {
+                if (chart) chart.destroy();
+            });
+            charts = {};
+        }
+
+        function renderAll() {
+            renderRankings();
+            renderScoreChart();
+            renderRangeChart();
+            renderDimensionsRadar();
+            renderDimensionsBar();
+            renderDimensionsTable();
+            renderQuestionFilter();
+            renderScoreMatrix();
+            renderQuestionAvgChart();
+
+            // Show first question by default
+            const firstQid = Object.keys(questionScores)[0];
+            if (firstQid) showQuestionDetail(firstQid);
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('text-gray-600');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-600');
+        }
+
+        // Render rankings table
+        function renderRankings() {
+            let html = '<table class="comparison-table w-full"><thead><tr class="bg-gray-50">';
+            html += '<th class="text-left w-16">排名</th>';
+            html += '<th class="text-left">模型</th>';
+            html += '<th class="text-center">平均分</th>';
+            html += '<th class="text-center">最高分</th>';
+            html += '<th class="text-center">最低分</th>';
+            html += '<th class="text-center">评分次数</th>';
+            html += '<th class="text-left" style="width:200px">分数分布</th>';
+            html += '</tr></thead><tbody>';
+
+            modelRankings.forEach((m, idx) => {
+                const rankNum = idx + 1;
+                let rankBadge = '';
+                if (rankNum === 1) rankBadge = '<span class="inline-block w-8 h-8 rounded-full rank-1 text-center leading-8 font-bold text-yellow-800">1</span>';
+                else if (rankNum === 2) rankBadge = '<span class="inline-block w-8 h-8 rounded-full rank-2 text-center leading-8 font-bold text-gray-700">2</span>';
+                else if (rankNum === 3) rankBadge = '<span class="inline-block w-8 h-8 rounded-full rank-3 text-center leading-8 font-bold text-yellow-900">3</span>';
+                else rankBadge = `<span class="inline-block w-8 h-8 rounded-full bg-gray-200 text-center leading-8 font-bold text-gray-600">${rankNum}</span>`;
+
+                const scoreColor = m.avgScore >= 70 ? 'text-green-600' : m.avgScore >= 60 ? 'text-blue-600' : m.avgScore >= 40 ? 'text-yellow-600' : 'text-red-600';
+
+                html += `<tr class="hover:bg-gray-50">`;
+                html += `<td>${rankBadge}</td>`;
+                html += `<td class="font-medium">${m.model}</td>`;
+                html += `<td class="text-center font-bold ${scoreColor} text-lg">${m.avgScore.toFixed(1)}</td>`;
+                html += `<td class="text-center text-green-600">${m.maxScore}</td>`;
+                html += `<td class="text-center text-red-500">${m.minScore}</td>`;
+                html += `<td class="text-center">${m.count}</td>`;
+                html += `<td><div class="w-full bg-gray-200 rounded-full h-3"><div class="bg-indigo-500 h-3 rounded-full" style="width: ${m.avgScore}%"></div></div></td>`;
+                html += `</tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('rankings-table').innerHTML = html;
+        }
+
+        // Render score chart
+        function renderScoreChart() {
+            const ctx = document.getElementById('score-chart');
+            if (!ctx) return;
+            if (charts.score) charts.score.destroy();
+            
+            charts.score = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: modelRankings.map(m => truncateText(m.model, 20)),
+                    datasets: [{
+                        label: '平均分',
+                        data: modelRankings.map(m => m.avgScore),
+                        backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: '最高分',
+                        data: modelRankings.map(m => m.maxScore),
+                        backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: '最低分',
+                        data: modelRankings.map(m => m.minScore),
+                        backgroundColor: 'rgba(239, 68, 68, 0.4)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        // Render range chart
+        function renderRangeChart() {
+            const ctx = document.getElementById('range-chart');
+            if (!ctx) return;
+            if (charts.range) charts.range.destroy();
+
+            charts.range = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: modelRankings.map(m => truncateText(m.model, 20)),
+                    datasets: [{
+                        label: '分数范围 (最低-最高)',
+                        data: modelRankings.map(m => m.maxScore - m.minScore),
+                        backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        // Render dimensions radar
+        function renderDimensionsRadar() {
+            const ctx = document.getElementById('dimensions-radar');
+            if (!ctx) return;
+            if (charts.radar) charts.radar.destroy();
+
+            const colors = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['整体风格', '局部细节', '易于感知', '易于理解'],
+                    datasets: modelRankings.map((m, idx) => ({
+                        label: truncateText(m.model, 15),
+                        data: [
+                            m.dimensions.overall_style,
+                            m.dimensions.local_details,
+                            m.dimensions.easy_to_perceive,
+                            m.dimensions.easy_to_understand
+                        ],
+                        borderColor: colors[idx % colors.length],
+                        backgroundColor: colors[idx % colors.length] + '33',
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { r: { beginAtZero: true, max: 10, min: 0 } }
+                }
+            });
+        }
+
+        // Render dimensions bar
+        function renderDimensionsBar() {
+            const ctx = document.getElementById('dimensions-bar');
+            if (!ctx) return;
+            if (charts.dimensionsBar) charts.dimensionsBar.destroy();
+
+            const labels = modelRankings.map(m => truncateText(m.model, 15));
+
+            charts.dimensionsBar = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: '整体风格', data: modelRankings.map(m => m.dimensions.overall_style), backgroundColor: 'rgba(79, 70, 229, 0.8)' },
+                        { label: '局部细节', data: modelRankings.map(m => m.dimensions.local_details), backgroundColor: 'rgba(16, 185, 129, 0.8)' },
+                        { label: '易于感知', data: modelRankings.map(m => m.dimensions.easy_to_perceive), backgroundColor: 'rgba(245, 158, 11, 0.8)' },
+                        { label: '易于理解', data: modelRankings.map(m => m.dimensions.easy_to_understand), backgroundColor: 'rgba(239, 68, 68, 0.8)' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, max: 10 } }
+                }
+            });
+        }
+
+        // Render dimensions table
+        function renderDimensionsTable() {
+            let html = '<table class="comparison-table w-full"><thead><tr class="bg-gray-50">';
+            html += '<th>模型</th><th>整体风格</th><th>局部细节</th><th>易于感知</th><th>易于理解</th><th>平均分</th>';
+            html += '</tr></thead><tbody>';
+            modelRankings.forEach(m => {
+                const avg = (m.dimensions.overall_style + m.dimensions.local_details + m.dimensions.easy_to_perceive + m.dimensions.easy_to_understand) / 4;
+                html += `<tr class="hover:bg-gray-50">`;
+                html += `<td class="font-medium">${m.model}</td>`;
+                html += `<td>${m.dimensions.overall_style.toFixed(1)}</td>`;
+                html += `<td>${m.dimensions.local_details.toFixed(1)}</td>`;
+                html += `<td>${m.dimensions.easy_to_perceive.toFixed(1)}</td>`;
+                html += `<td>${m.dimensions.easy_to_understand.toFixed(1)}</td>`;
+                html += `<td class="font-bold text-indigo-600">${avg.toFixed(1)}</td>`;
+                html += `</tr>`;
+            });
+            html += '</tbody></table>';
+            document.getElementById('dimensions-table').innerHTML = html;
+        }
+
+        // Render question filter
+        function renderQuestionFilter() {
+            const qids = Object.keys(questionScores);
+            let html = '';
+            qids.forEach(qid => {
+                const info = questionMap[qid] || { category: '未知', task: '未知', class: '未知' };
+                const scores = questionScores[qid];
+                const models = Object.keys(scores);
+                const avgScore = models.reduce((sum, m) => sum + scores[m].score, 0) / models.length;
+
+                html += `<div class="question-card p-3 rounded-lg border border-gray-200 hover:border-indigo-300" onclick="showQuestionDetail('${qid}')">`;
+                html += `<div class="flex justify-between items-start">`;
+                html += `<div><div class="font-medium text-sm">${qid}</div><div class="text-xs text-gray-500 truncate" style="max-width:140px">${info.task}</div></div>`;
+                html += `<span class="text-xs font-bold ${avgScore >= 70 ? 'text-green-600' : avgScore >= 60 ? 'text-blue-600' : 'text-yellow-600'}">${avgScore.toFixed(1)}</span>`;
+                html += `</div>`;
+                html += `<div class="mt-2 flex gap-1"><span class="text-xs bg-gray-100 px-2 py-0.5 rounded">${info.category}</span><span class="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">${info.class}</span></div>`;
+                html += `</div>`;
+            });
+            document.getElementById('question-filter').innerHTML = html;
+        }
+
+        // Show question detail
+        function showQuestionDetail(qid) {
+            const info = questionMap[qid] || { category: '未知', task: '未知', class: '未知', fullQuestion: '' };
+            const scores = questionScores[qid];
+            const models = Object.keys(scores);
+
+            models.sort((a, b) => scores[b].score - scores[a].score);
+
+            let html = `<h2 class="text-2xl font-bold mb-2">${qid} - ${info.task}</h2>`;
+            html += `<p class="text-gray-600 text-sm mb-4">${info.fullQuestion}</p>`;
+            html += `<div class="mb-6 flex gap-2"><span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${info.category}</span><span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">${info.class}</span></div>`;
+
+            // Chart
+            html += '<div class="mb-6" style="height: 200px;"><canvas id="question-chart"></canvas></div>';
+
+            html += '<div class="grid grid-cols-1 gap-3">';
+            models.forEach((model, idx) => {
+                const s = scores[model];
+                const rankColor = idx === 0 ? 'border-l-4 border-l-yellow-400 bg-yellow-50' : idx === 1 ? 'border-l-4 border-l-gray-400 bg-gray-50' : idx === 2 ? 'border-l-4 border-l-orange-400 bg-orange-50' : 'border-l-4 border-l-gray-200';
+                const scoreClass = s.score >= 80 ? 'text-green-600' : s.score >= 60 ? 'text-blue-600' : s.score >= 40 ? 'text-yellow-600' : 'text-red-600';
+
+                html += `<div class="rounded-lg p-4 ${rankColor}">`;
+                html += `<div class="flex justify-between items-start mb-2">`;
+                html += `<div class="flex items-center gap-2"><span class="font-bold text-lg w-8">#${idx+1}</span><span class="font-medium">${model}</span></div>`;
+                html += `<div class="text-right"><span class="text-2xl font-bold ${scoreClass}">${s.score}</span><span class="text-sm text-gray-500 ml-2">${s.band}</span></div>`;
+                html += `</div>`;
+                html += `<div class="grid grid-cols-4 gap-2 text-sm mt-2">`;
+                html += `<div>整体: <span class="font-semibold">${s.dimensions.overall_style}</span></div>`;
+                html += `<div>细节: <span class="font-semibold">${s.dimensions.local_details}</span></div>`;
+                html += `<div>感知: <span class="font-semibold">${s.dimensions.easy_to_perceive}</span></div>`;
+                html += `<div>理解: <span class="font-semibold">${s.dimensions.easy_to_understand}</span></div>`;
+                html += `</div>`;
+                html += `</div>`;
+            });
+            html += '</div>';
+
+            document.getElementById('question-detail').innerHTML = html;
+
+            // Render chart
+            setTimeout(() => {
+                const ctx = document.getElementById('question-chart');
+                if (ctx) {
+                    if (charts.question) charts.question.destroy();
+                    charts.question = new Chart(ctx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: models.map(m => truncateText(m, 15)),
+                            datasets: [{
+                                label: '总分',
+                                data: models.map(m => scores[m].score),
+                                backgroundColor: models.map((_, i) => i === 0 ? 'rgba(234, 179, 8, 0.8)' : i === 1 ? 'rgba(156, 163, 175, 0.8)' : i === 2 ? 'rgba(249, 115, 22, 0.8)' : 'rgba(99, 102, 241, 0.6)')
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true, max: 100 } }
+                        }
+                    });
+                }
+            }, 100);
+        }
+
+        // Render score matrix
+        function renderScoreMatrix() {
+            const qids = Object.keys(questionScores);
+            let html = '<table class="comparison-table w-full text-sm"><thead><tr class="bg-gray-50">';
+            html += '<th class="sticky left-0 bg-gray-50">题目</th>';
+            modelRankings.forEach(m => {
+                html += `<th class="text-center" style="min-width:80px">${truncateText(m.model, 12)}</th>`;
+            });
+            html += '<th class="text-center">平均分</th>';
+            html += '</tr></thead><tbody>';
+
+            qids.forEach(qid => {
+                const info = questionMap[qid] || {};
+                let rowScores = [];
+                html += `<tr class="hover:bg-gray-50">`;
+                html += `<td class="sticky left-0 bg-white font-medium text-xs">${qid}<div class="text-xs text-gray-500 truncate" style="max-width:100px">${info.task || ''}</div></td>`;
+
+                modelRankings.forEach(m => {
+                    const score = questionScores[qid][m.model]?.score || '-';
+                    if (typeof score === 'number') rowScores.push(score);
+                    const color = score >= 80 ? 'text-green-600 font-semibold' : score >= 60 ? 'text-blue-600' : score >= 40 ? 'text-yellow-600' : 'text-red-600';
+                    html += `<td class="text-center ${color}">${score}</td>`;
+                });
+
+                const avg = rowScores.length > 0 ? (rowScores.reduce((a,b) => a+b, 0) / rowScores.length).toFixed(1) : '-';
+                html += `<td class="text-center font-bold">${avg}</td>`;
+                html += `</tr>`;
+            });
+
+            // Average row
+            html += `<tr class="bg-gray-100 font-bold">`;
+            html += `<td class="sticky left-0 bg-gray-100">平均分</td>`;
+            modelRankings.forEach(m => {
+                html += `<td class="text-center">${m.avgScore.toFixed(1)}</td>`;
+            });
+            html += `<td class="text-center">-</td>`;
+            html += `</tr>`;
+
+            html += '</tbody></table>';
+            document.getElementById('score-matrix').innerHTML = html;
+        }
+
+        // Render question average chart
+        function renderQuestionAvgChart() {
+            const ctx = document.getElementById('question-avg-chart');
+            if (!ctx) return;
+            if (charts.questionAvg) charts.questionAvg.destroy();
+
+            const qids = Object.keys(questionScores);
+            const avgs = qids.map(qid => {
+                const scores = Object.values(questionScores[qid]).map(s => s.score);
+                return scores.reduce((a,b) => a+b, 0) / scores.length;
+            });
+
+            charts.questionAvg = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: qids.map(qid => {
+                        const task = questionMap[qid]?.task || '';
+                        return `${qid} ${truncateText(task, 8)}`;
+                    }),
+                    datasets: [{
+                        label: '各题目平均分',
+                        data: avgs,
+                        backgroundColor: avgs.map(a => a >= 70 ? 'rgba(16, 185, 129, 0.8)' : a >= 60 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(245, 158, 11, 0.8)')
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, max: 100 } }
+                }
+            });
+        }
+
+        function truncateText(text, maxLen) {
+            if (!text) return '';
+            if (text.length <= maxLen) return text;
+            return text.substring(0, maxLen) + '...';
+        }
+    </script>
+</body>
+</html>

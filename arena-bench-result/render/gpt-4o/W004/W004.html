@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会议纪要整理工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        textarea, input, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result {
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>会议纪要整理工具</h1>
+    <form id="meetingForm">
+        <label for="title">会议主题</label>
+        <input type="text" id="title" placeholder="请输入会议主题" required>
+        
+        <label for="participants">参会人</label>
+        <textarea id="participants" placeholder="请输入参会人，多个参会人用英文逗号分隔" required></textarea>
+
+        <label for="discussion">讨论要点</label>
+        <textarea id="discussion" placeholder="请输入讨论要点" required></textarea>
+
+        <label for="todos">待办事项</label>
+        <textarea id="todos" placeholder="请输入待办事项" required></textarea>
+        
+        <button type="button" onclick="generateSummary()">生成会议纪要</button>
+    </form>
+
+    <div id="resultSection" class="result-container" style="display: none;">
+        <h3>生成的会议纪要</h3>
+        <div class="result" id="meetingSummary"></div>
+        <button class="copy-btn" onclick="copyToClipboard()">一键复制</button>
+    </div>
+</div>
+
+<script>
+    function generateSummary() {
+        const title = document.getElementById('title').value.trim();
+        const participants = document.getElementById('participants').value.trim();
+        const discussion = document.getElementById('discussion').value.trim();
+        const todos = document.getElementById('todos').value.trim();
+        
+        if (!title || !participants || !discussion || !todos) {
+            alert('请填写所有的字段');
+            return;
+        }
+
+        const summary = `
+会议主题：${title}
+
+参会人：
+${participants.split(',').map(p => '- ' + p.trim()).join('\n')}
+
+讨论要点：
+${discussion}
+
+待办事项：
+${todos.split('\n').map(t => '- ' + t.trim()).join('\n')}
+        `.trim();
+
+        document.getElementById('meetingSummary').textContent = summary;
+        document.getElementById('resultSection').style.display = 'block';
+    }
+
+    function copyToClipboard() {
+        const summary = document.getElementById('meetingSummary').textContent;
+        navigator.clipboard.writeText(summary).then(() => {
+            alert('会议纪要已复制到剪贴板');
+        }).catch(err => {
+            alert('复制失败，请手动复制');
+        });
+    }
+</script>
+
+</body>
+</html>

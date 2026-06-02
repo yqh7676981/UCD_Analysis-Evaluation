@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>电子木鱼</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #e4edf5);
+      color: #4b3e2c;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      touch-action: manipulation;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #6b5c45;
+      font-weight: 300;
+      letter-spacing: 2px;
+    }
+
+    .muyu-container {
+      position: relative;
+      width: 200px;
+      height: 120px;
+      margin: 40px auto;
+    }
+
+    .muyu {
+      width: 100%;
+      height: 100%;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120"><path d="M20,60 C20,90 60,110 100,110 C140,110 180,90 180,60 C180,30 140,10 100,10 C60,10 20,30 20,60 Z" fill="%238B7D6B" stroke="%235C4E3C" stroke-width="4"/><text x="100" y="70" font-size="40" font-family="SimSun" fill="%23FFF" text-anchor="middle">木</text><text x="100" y="105" font-size="20" font-family="SimSun" fill="%23DDD" text-anchor="middle">鱼</text></svg>');
+      background-size: contain;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      transition: transform 0.08s ease;
+      user-select: none;
+    }
+
+    .muyu.pressed {
+      transform: scale(0.95);
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120"><path d="M20,60 C20,90 60,110 100,110 C140,110 180,90 180,60 C180,30 140,10 100,10 C60,10 20,30 20,60 Z" fill="%237A6C5A" stroke="%234B3D2B" stroke-width="4"/><text x="100" y="70" font-size="40" font-family="SimSun" fill="%23EEE" text-anchor="middle">木</text><text x="100" y="105" font-size="20" font-family="SimSun" fill="%23CCC" text-anchor="middle">鱼</text></svg>');
+    }
+
+    .stats {
+      margin-top: 30px;
+      font-size: 1.1rem;
+      line-height: 2;
+      color: #7a6d5c;
+    }
+
+    .stat-item {
+      margin: 10px 0;
+    }
+
+    .stat-label {
+      font-weight: 500;
+      color: #5b4e3f;
+    }
+
+    .stat-value {
+      font-weight: bold;
+      color: #9c7a58;
+      margin-left: 8px;
+    }
+
+    .tip {
+      margin-top: 40px;
+      font-size: 0.9rem;
+      color: #aaa;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">电子木鱼</h1>
+
+    <div class="muyu-container">
+      <div class="muyu" id="muyu"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">已敲击次数：</span>
+        <span class="stat-value" id="count">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">今日功德值：</span>
+        <span class="stat-value" id="merit">0</span>
+      </div>
+    </div>
+
+    <p class="tip">轻点木鱼，静心养性</p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const muyu = document.getElementById('muyu');
+      const countDisplay = document.getElementById('count');
+      const meritDisplay = document.getElementById('merit');
+
+      // 从 localStorage 获取数据
+      let count = parseInt(localStorage.getItem('muyuCount') || '0');
+      let lastDate = localStorage.getItem('muyuLastDate');
+      let today = new Date().toDateString();
+
+      // 检查是否是新的一天
+      if (lastDate !== today) {
+        count = 0; // 新的一天重置计数
+      }
+
+      // 更新显示
+      countDisplay.textContent = count;
+      meritDisplay.textContent = count;
+
+      // 创建音效（使用 Web Audio API）
+      function playSound() {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(120, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 0.5);
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.5);
+      }
+
+      // 点击事件
+      muyu.addEventListener('touchstart', handleTap, { passive: true });
+      muyu.addEventListener('mousedown', handleTap);
+
+      function handleTap(e) {
+        e.preventDefault();
+        tapAction();
+      }
+
+      function tapAction() {
+        // 动画
+        muyu.classList.add('pressed');
+        setTimeout(() => {
+          muyu.classList.remove('pressed');
+        }, 100);
+
+        // 音效
+        playSound();
+
+        // 更新数据
+        count++;
+        countDisplay.textContent = count;
+        meritDisplay.textContent = count;
+
+        // 保存到本地存储
+        localStorage.setItem('muyuCount', count.toString());
+        localStorage.setItem('muyuLastDate', new Date().toDateString());
+      }
+    });
+  </script>
+</body>
+</html>

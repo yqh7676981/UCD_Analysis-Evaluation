@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>今晚吃啥</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFF8F0;
+      --fg: #2D2A26;
+      --accent: #FF6B35;
+      --accent-dark: #E55A2B;
+      --card: #FFFFFF;
+      --muted: #8A8785;
+      --border: #E8E2D9;
+      --success: #4CAF50;
+      --danger: #E53935;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--fg);
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* 背景装饰 */
+    .bg-decor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .bg-circle:nth-child(1) {
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(135deg, #FF6B35, #FFB347);
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .bg-circle:nth-child(2) {
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(135deg, #4ECDC4, #44A08D);
+      bottom: 20%;
+      left: -80px;
+      animation-delay: -7s;
+    }
+
+    .bg-circle:nth-child(3) {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, #F7DC6F, #F39C12);
+      bottom: -50px;
+      right: -30px;
+      animation-delay: -14s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -20px) scale(1.05); }
+      66% { transform: translate(-15px, 15px) scale(0.95); }
+    }
+
+    /* 头部 */
+    .header {
+      text-align: center;
+      padding: 20px 0 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header h1 {
+      font-family: 'ZCOOL KuaiLe', cursive;
+      font-size: 36px;
+      color: var(--accent);
+      text-shadow: 2px 2px 0 rgba(255, 107, 53, 0.2);
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* 转盘区域 */
+    .wheel-section {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 24px;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 0 auto;
+    }
+
+    .wheel-outer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #FFE4D6, #FFCDB2);
+      box-shadow: 
+        0 8px 32px rgba(255, 107, 53, 0.25),
+        inset 0 2px 4px rgba(255, 255, 255, 0.8);
+      padding: 12px;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--card);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+    }
+
+    .wheel.spinning {
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+    }
+
+    .wheel-segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      left: 50%;
+      top: 0;
+      transform-origin: 0% 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .wheel-segment span {
+      position: absolute;
+      left: 50%;
+      top: 55%;
+      transform: translateX(-50%) rotate(90deg);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--fg);
+      white-space: nowrap;
+      max-width: 70px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transform-origin: center;
+    }
+
+    .wheel-center {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(145deg, var(--accent), var(--accent-dark));
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .wheel-center span {
+      color: white;
+      font-size: 20px;
+    }
+
+    /* 指针 */
+    .pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+    }
+
+    .pointer svg {
+      width: 32px;
+      height: 40px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    }
+
+    /* 抽签按钮 */
+    .spin-btn {
+      display: block;
+      width: 100%;
+      max-width: 280px;
+      margin: 20px auto 0;
+      padding: 18px 32px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(145deg, var(--accent), var(--accent-dark));
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spin-btn:active {
+      transform: scale(0.96);
+      box-shadow: 0 3px 10px rgba(255, 107, 53, 0.3);
+    }
+
+    .spin-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .spin-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .spin-btn:not(:disabled):hover::after {
+      left: 100%;
+    }
+
+    /* 结果显示 */
+    .result-panel {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      position: relative;
+      z-index: 1;
+      opacity: 1; /* fixed: was 0 */
+      transform: translateY(20px);
+      transition: all 0.4s ease;
+    }
+
+    .result-panel.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-label {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .result-text {
+      font-family: 'ZCOOL KuaiLe', cursive;
+      font-size: 32px;
+      color: var(--accent);
+      animation: pulse 0.5s ease;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* 添加区域 */
+    .add-section {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      position: relative;
+      z-index: 1;
+    }
+
+    .add-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .add-section h3 svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--bg);
+      color: var(--fg);
+      transition: all 0.2s ease;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+    }
+
+    .input-group input::placeholder {
+      color: var(--muted);
+    }
+
+    .add-btn {
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      background: var(--success);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .add-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* 候选列表 */
+    .list-section {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      position: relative;
+      z-index: 1;
+    }
+
+    .list-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .list-count {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .candidate-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 60px;
+    }
+
+    .candidate-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: linear-gradient(145deg, #FFF5EE, #FFE4D6);
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 500;
+      animation: popIn 0.3s ease;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .candidate-item .delete-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(229, 57, 53, 0.15);
+      color: var(--danger);
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .candidate-item .delete-btn:active {
+      background: var(--danger);
+      color: white;
+      transform: scale(0.9);
+    }
+
+    .empty-state {
+      width: 100%;
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* 空状态占位 */
+    .wheel-empty {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .wheel-empty svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    /* 粒子效果 */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      pointer-events: none;
+      z-index: 100;
+      animation: confettiFall 3s ease-out forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(720deg);
+      }
+    }
+
+    /* 响应式 */
+    @media (max-width: 375px) {
+      .header h1 {
+        font-size: 30px;
+      }
+      
+      .wheel-container {
+        width: 240px;
+        height: 240px;
+      }
+      
+      .wheel-center {
+        width: 50px;
+        height: 50px;
+      }
+    }
+
+    /* 减少动画 */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+  <div class="bg-decor">
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+  </div>
+
+  <div class="app">
+    <header class="header">
+      <h1>今晚吃啥</h1>
+      <p>让命运决定你的晚餐</p>
+    </header>
+
+    <section class="wheel-section">
+      <div class="wheel-container">
+        <div class="wheel-outer">
+          <div class="wheel" id="wheel">
+            <div class="wheel-empty" id="wheelEmpty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              <span>添加候选开始抽签</span>
+            </div>
+          </div>
+          <div class="wheel-center">
+            <span>吃</span>
+          </div>
+        </div>
+        <div class="pointer">
+          <svg viewBox="0 0 32 40" fill="var(--accent)">
+            <path d="M16 0L32 12L16 40L0 12L16 0Z"/>
+          </svg>
+        </div>
+      </div>
+      
+      <button class="spin-btn" id="spinBtn">开始抽签</button>
+    </section>
+
+    <div class="result-panel" id="resultPanel">
+      <div class="result-label">今晚就吃</div>
+      <div class="result-text" id="resultText"></div>
+    </div>
+
+    <section class="add-section">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        添加候选
+      </h3>
+      <div class="input-group">
+        <input type="text" id="candidateInput" placeholder="输入餐厅或菜品名称" maxlength="20">
+        <button class="add-btn" id="addBtn">添加</button>
+      </div>
+    </section>
+
+    <section class="list-section">
+      <h3>
+        候选列表
+        <span class="list-count" id="listCount">0 个选项</span>
+      </h3>
+      <div class="candidate-list" id="candidateList">
+        <div class="empty-state">还没有添加候选，快去添加吧</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // 初始化数据
+    let candidates = [];
+    let isSpinning = false;
+    let currentRotation = 0;
+
+    // 颜色方案
+    const colors = [
+      '#FFB347', '#FF6B35', '#4ECDC4', '#45B7D1',
+      '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8',
+      '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8B500'
+    ];
+
+    // DOM 元素
+    const wheel = document.getElementById('wheel');
+    const wheelEmpty = document.getElementById('wheelEmpty');
+    const spinBtn = document.getElementById('spinBtn');
+    const candidateInput = document.getElementById('candidateInput');
+    const addBtn = document.getElementById('addBtn');
+    const candidateList = document.getElementById('candidateList');
+    const listCount = document.getElementById('listCount');
+    const resultPanel = document.getElementById('resultPanel');
+    const resultText = document.getElementById('resultText');
+
+    // 渲染转盘
+    function renderWheel() {
+      wheel.innerHTML = '';
+      
+      if (candidates.length === 0) {
+        wheel.innerHTML = `
+          <div class="wheel-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            <span>添加候选开始抽签</span>
+          </div>
+        `;
+        return;
+      }
+
+      const segmentAngle = 360 / candidates.length;
+      
+      candidates.forEach((item, index) => {
+        const segment = document.createElement('div');
+        segment.className = 'wheel-segment';
+        const rotation = index * segmentAngle - 90;
+        segment.style.transform = `rotate(${rotation}deg) skewY(${-(90 - segmentAngle)}deg)`;
+        segment.style.background = colors[index % colors.length];
+        
+        const text = document.createElement('span');
+        text.textContent = item;
+        text.style.transform = `skewY(${90 - segmentAngle}deg) rotate(${segmentAngle / 2}deg)`;
+        text.style.color = index % colors.length < 6 ? '#2D2A26' : '#FFFFFF';
+        
+        segment.appendChild(text);
+        wheel.appendChild(segment);
+      });
+      
+      // 重置旋转
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
+    }
+
+    // 渲染列表
+    function renderList() {
+      if (candidates.length === 0) {
+        candidateList.innerHTML = '<div class="empty-state">还没有添加候选，快去添加吧</div>';
+      } else {
+        candidateList.innerHTML = candidates.map((item, index) => `
+          <div class="candidate-item">
+            <span>${item}</span>
+            <button class="delete-btn" data-index="${index}">×</button>
+          </div>
+        `).join('');
+      }
+      
+      listCount.textContent = `${candidates.length} 个选项`;
+    }
+
+    // 添加候选
+    function addCandidate() {
+      const value = candidateInput.value.trim();
+      if (value && candidates.length < 12) {
+        candidates.push(value);
+        candidateInput.value = '';
+        renderList();
+        renderWheel();
+      } else if (candidates.length >= 12) {
+        alert('最多添加12个选项');
+      }
+    }
+
+    // 删除候选
+    function deleteCandidate(index) {
+      candidates.splice(index, 1);
+      renderList();
+      renderWheel();
+    }
+
+    // 抽签
+    function spin() {
+      if (isSpinning || candidates.length < 2) {
+        if (candidates.length < 2) {
+          alert('请至少添加2个候选');
+        }
+        return;
+      }
+
+      isSpinning = true;
+      spinBtn.disabled = true;
+      resultPanel.classList.remove('show');
+
+      // 计算结果
+      const selectedIndex = Math.floor(Math.random() * candidates.length);
+      const segmentAngle = 360 / candidates.length;
+      
+      // 计算需要旋转的角度
+      const targetAngle = 360 - (selectedIndex * segmentAngle + segmentAngle / 2);
+      const spins = 5 + Math.floor(Math.random() * 3);
+      const totalRotation = spins * 360 + targetAngle;
+      
+      currentRotation += totalRotation;
+      wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+      // 结果显示
+      setTimeout(() => {
+        isSpinning = false;
+        spinBtn.disabled = false;
+        
+        resultText.textContent = candidates[selectedIndex];
+        resultPanel.classList.add('show');
+        
+        createConfetti();
+      }, 4000);
+    }
+
+    // 彩带效果
+    function createConfetti() {
+      const confettiColors = ['#FF6B35', '#FFB347', '#4ECDC4', '#F7DC6F', '#DDA0DD'];
+      
+      for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        confetti.style.width = Math.random() * 8 + 6 + 'px';
+        confetti.style.height = Math.random() * 8 + 6 + 'px';
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        document.body.appendChild(confetti);
+        
+        setTimeout(() => confetti.remove(), 3500);
+      }
+    }
+
+    // 事件绑定
+    addBtn.addEventListener('click', addCandidate);
+    
+    candidateInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        addCandidate();
+      }
+    });
+
+    candidateList.addEventListener('click', (e) => {
+      if (e.target.classList.contains('delete-btn')) {
+        const index = parseInt(e.target.dataset.index);
+        deleteCandidate(index);
+      }
+    });
+
+    spinBtn.addEventListener('click', spin);
+
+    // 初始化示例数据
+    candidates = ['火锅', '烧烤', '麻辣烫', '炒菜', '炸鸡'];
+    renderList();
+    renderWheel();
+  </script>
+</body>
+</html>

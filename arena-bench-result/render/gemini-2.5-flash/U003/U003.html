@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>旅行打包清单</title>
+    <style>
+        /* CSS Reset and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Remove highlight on tap */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for the fixed add item section */
+        }
+
+        /* Header */
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Category Tabs */
+        .category-tabs {
+            display: flex;
+            justify-content: space-around;
+            background-color: #e0e0e0;
+            padding: 0.5rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+            overflow-x: auto; /* Enable horizontal scrolling if tabs are too wide */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        .category-tab-button {
+            flex-grow: 1;
+            padding: 0.8rem 0.5rem;
+            font-size: 0.9rem;
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            outline: none;
+            position: relative;
+            transition: color 0.3s ease;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        .category-tab-button.active {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .category-tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background-color: #4CAF50;
+            border-radius: 2px;
+        }
+
+        /* Category Content */
+        .category-content {
+            padding: 0 1rem;
+            display: none; /* Hidden by default */
+        }
+
+        .category-content.active {
+            display: block; /* Show active category */
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            margin-bottom: 0.8rem;
+            text-align: center;
+        }
+
+        /* Item List */
+        .item-list {
+            list-style: none;
+            margin-top: 1rem;
+            padding: 0;
+        }
+
+        .item-list li {
+            background-color: white;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease-out;
+        }
+
+        .item-list li.packed {
+            background-color: #e8f5e9; /* Light green for packed items */
+            color: #777;
+        }
+
+        .item-list li.packed .item-text {
+            text-decoration: line-through;
+        }
+
+        .item-checkbox {
+            margin-right: 1rem;
+            min-width: 24px; /* Ensure checkbox is large enough for touch */
+            min-height: 24px;
+            accent-color: #4CAF50; /* Style the checkbox */
+        }
+
+        .item-text {
+            flex-grow: 1;
+            font-size: 1.1rem;
+            word-break: break-word; /* Break long words */
+        }
+
+        .delete-button {
+            background: none;
+            border: none;
+            color: #ff5722;
+            font-size: 1.4rem;
+            cursor: pointer;
+            margin-left: 1rem;
+            padding: 0.5rem; /* Large tap target */
+            outline: none;
+            line-height: 1; /* Keep icon vertically centered */
+        }
+
+        /* Add Item Section (Fixed at bottom) */
+        .add-item-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            padding: 1rem;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .add-item-input {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .add-item-input:focus {
+            border-color: #4CAF50;
+        }
+
+        .add-item-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            outline: none;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+
+        .add-item-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Empty state message */
+        .empty-list-message {
+            text-align: center;
+            color: #888;
+            padding: 2rem;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        旅行打包清单
+    </header>
+
+    <nav class="category-tabs" id="categoryTabs">
+        <button class="category-tab-button active" data-category="clothing">衣物</button>
+        <button class="category-tab-button" data-category="toiletries">洗漱</button>
+        <button class="category-tab-button" data-category="electronics">电子</button>
+        <button class="category-tab-button" data-category="documents">证件</button>
+    </nav>
+
+    <main id="packingListContent">
+        <div id="clothingContent" class="category-content active" data-category="clothing">
+            <h2 class="category-title">衣物</h2>
+            <ul class="item-list" id="clothingList">
+                <!-- Items will be loaded here by JavaScript -->
+            </ul>
+            <p class="empty-list-message" id="clothingEmptyMessage">清单为空，快添加一些衣物吧！</p>
+        </div>
+
+        <div id="toiletriesContent" class="category-content" data-category="toiletries">
+            <h2 class="category-title">洗漱</h2>
+            <ul class="item-list" id="toiletriesList">
+                <!-- Items will be loaded here by JavaScript -->
+            </ul>
+            <p class="empty-list-message" id="toiletriesEmptyMessage">清单为空，快添加一些洗漱用品吧！</p>
+        </div>
+
+        <div id="electronicsContent" class="category-content" data-category="electronics">
+            <h2 class="category-title">电子</h2>
+            <ul class="item-list" id="electronicsList">
+                <!-- Items will be loaded here by JavaScript -->
+            </ul>
+            <p class="empty-list-message" id="electronicsEmptyMessage">清单为空，快添加一些电子产品吧！</p>
+        </div>
+
+        <div id="documentsContent" class="category-content" data-category="documents">
+            <h2 class="category-title">证件</h2>
+            <ul class="item-list" id="documentsList">
+                <!-- Items will be loaded here by JavaScript -->
+            </ul>
+            <p class="empty-list-message" id="documentsEmptyMessage">清单为空，快添加一些证件吧！</p>
+        </div>
+    </main>
+
+    <div class="add-item-section">
+        <input type="text" class="add-item-input" id="newItemInput" placeholder="添加新物品..." aria-label="添加新物品">
+        <button class="add-item-button" id="addItemButton">添加</button>
+    </div>
+
+    <script>
+        const CATEGORIES = ['clothing', 'toiletries', 'electronics', 'documents'];
+        let currentCategory = 'clothing';
+
+        // Load data from localStorage or use default structure
+        let packingList = loadPackingList() || {
+            clothing: [{ text: 'T恤', packed: false }, { text: '裤子', packed: true }],
+            toiletries: [{ text: '牙刷牙膏', packed: false }],
+            electronics: [{ text: '手机充电器', packed: false }],
+            documents: [{ text: '身份证', packed: false }, { text: '护照', packed: false }]
+        };
+
+        const categoryTabs = document.getElementById('categoryTabs');
+        const packingListContent = document.getElementById('packingListContent');
+        const newItemInput = document.getElementById('newItemInput');
+        const addItemButton = document.getElementById('addItemButton');
+
+        function loadPackingList() {
+            try {
+                const storedList = localStorage.getItem('travelPackingList');
+                return storedList ? JSON.parse(storedList) : null;
+            } catch (e) {
+                console.error("Failed to load packing list from localStorage", e);
+                return null;
+            }
+        }
+
+        function savePackingList() {
+            try {
+                localStorage.setItem('travelPackingList', JSON.stringify(packingList));
+            } catch (e) {
+                console.error("Failed to save packing list to localStorage", e);
+            }
+        }
+
+        function renderList(category) {
+            const listElement = document.getElementById(`${category}List`);
+            const emptyMessageElement = document.getElementById(`${category}EmptyMessage`);
+            listElement.innerHTML = ''; // Clear current list
+
+            if (packingList[category].length === 0) {
+                emptyMessageElement.style.display = 'block';
+            } else {
+                emptyMessageElement.style.display = 'none';
+                packingList[category].forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.classList.add('packing-item');
+                    if (item.packed) {
+                        li.classList.add('packed');
+                    }
+                    li.dataset.index = index;
+
+                    li.innerHTML = `
+                        <input type="checkbox" class="item-checkbox" ${item.packed ? 'checked' : ''} aria-label="标记为已打包">
+                        <span class="item-text">${item.text}</span>
+                        <button class="delete-button" aria-label="删除此物品">&times;</button>
+                    `;
+                    listElement.appendChild(li);
+                });
+            }
+        }
+
+        function switchCategory(newCategory) {
+            // Update active tab button
+            document.querySelectorAll('.category-tab-button').forEach(button => {
+                if (button.dataset.category === newCategory) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            // Show/hide category content
+            document.querySelectorAll('.category-content').forEach(content => {
+                if (content.dataset.category === newCategory) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+
+            currentCategory = newCategory;
+            renderList(currentCategory); // Re-render the new active list
+        }
+
+        function addItem() {
+            const itemText = newItemInput.value.trim();
+            if (itemText) {
+                packingList[currentCategory].push({ text: itemText, packed: false });
+                newItemInput.value = '';
+                renderList(currentCategory);
+                savePackingList();
+            }
+        }
+
+        function toggleItemPacked(index) {
+            packingList[currentCategory][index].packed = !packingList[currentCategory][index].packed;
+            renderList(currentCategory);
+            savePackingList();
+        }
+
+        function deleteItem(index) {
+            if (confirm('确定要删除此物品吗？')) {
+                packingList[currentCategory].splice(index, 1);
+                renderList(currentCategory);
+                savePackingList();
+            }
+        }
+
+        // Event Listeners
+        categoryTabs.addEventListener('click', (event) => {
+            const button = event.target.closest('.category-tab-button');
+            if (button && button.dataset.category !== currentCategory) {
+                switchCategory(button.dataset.category);
+            }
+        });
+
+        addItemButton.addEventListener('click', addItem);
+        newItemInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                addItem();
+            }
+        });
+
+        // Event delegation for checkboxes and delete buttons
+        packingListContent.addEventListener('click', (event) => {
+            const listItem = event.target.closest('li.packing-item');
+            if (!listItem) return;
+
+            const index = parseInt(listItem.dataset.index, 10);
+
+            if (event.target.classList.contains('item-checkbox')) {
+                toggleItemPacked(index);
+            } else if (event.target.classList.contains('delete-button')) {
+                deleteItem(index);
+            }
+        });
+
+        // Initial render on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            switchCategory(currentCategory); // Ensure initial category is rendered
+        });
+
+    </script>
+</body>
+</html>

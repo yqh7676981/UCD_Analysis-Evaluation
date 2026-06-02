@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>探索杭州 · 人间天堂</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+            background: #f9f6f0;
+            color: #2c2c2c;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            height: 70px;
+            transition: background 0.3s;
+        }
+
+        .navbar .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #b85c38;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar .logo span {
+            color: #3b7a5e;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+            font-weight: 500;
+        }
+
+        .nav-links li a {
+            padding: 6px 2px;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s, color 0.3s;
+            color: #444;
+            font-size: 1rem;
+        }
+
+        .nav-links li a:hover {
+            border-bottom-color: #b85c38;
+            color: #b85c38;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            width: 28px;
+            height: 3px;
+            background: #2c2c2c;
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        /* ===== 移动端导航 ===== */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.98);
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+            }
+
+            .nav-links.open {
+                max-height: 400px;
+            }
+
+            .nav-links li {
+                width: 100%;
+                text-align: center;
+                padding: 16px 0;
+                border-bottom: 1px solid #eee;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        /* ===== Hero 区域 ===== */
+        .hero {
+            margin-top: 70px;
+            height: 92vh;
+            min-height: 520px;
+            background: linear-gradient(135deg, #d4e9e2 0%, #f5ebe0 40%, #f0d5c3 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '🌸  🏯  🍃  ⛰️  🌊';
+            position: absolute;
+            top: 12%;
+            left: 5%;
+            font-size: 3.4rem;
+            opacity: 0.20;
+            white-space: nowrap;
+            transform: rotate(-6deg);
+            letter-spacing: 40px;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(to top, #f9f6f0, transparent);
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: 4.2rem;
+            font-weight: 800;
+            color: #1f4a3d;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .hero-content .subtitle {
+            font-size: 1.5rem;
+            color: #5d3e2e;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: 6px;
+        }
+
+        .hero-content p {
+            font-size: 1.15rem;
+            color: #3d2c22;
+            max-width: 600px;
+            margin: 0 auto 32px;
+            opacity: 0.85;
+        }
+
+        .hero-btn {
+            display: inline-block;
+            padding: 14px 48px;
+            background: #b85c38;
+            color: #fff;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            transition: background 0.3s, transform 0.2s;
+            box-shadow: 0 8px 24px rgba(184, 92, 56, 0.25);
+        }
+
+        .hero-btn:hover {
+            background: #9e4a2a;
+            transform: translateY(-3px);
+        }
+
+        /* ===== 通用 section ===== */
+        section {
+            padding: 80px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #1f4a3d;
+            margin-bottom: 12px;
+            letter-spacing: 2px;
+        }
+
+        .section-sub {
+            text-align: center;
+            color: #7a6a5c;
+            font-size: 1.05rem;
+            margin-bottom: 50px;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== 景点卡片 ===== */
+        .spots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .spot-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 32px 24px 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .spot-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        .spot-card .icon {
+            font-size: 3.6rem;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .spot-card h3 {
+            font-size: 1.5rem;
+            color: #1f4a3d;
+            margin-bottom: 8px;
+        }
+
+        .spot-card .tag {
+            display: inline-block;
+            background: #e8ddd0;
+            color: #5d3e2e;
+            padding: 4px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 14px;
+        }
+
+        .spot-card p {
+            color: #5a4a3c;
+            font-size: 0.95rem;
+        }
+
+        /* ===== 活动区域 ===== */
+        .activities-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px;
+        }
+
+        .activity-item {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 22px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+            border-left: 5px solid #b85c38;
+            transition: background 0.3s;
+        }
+
+        .activity-item:hover {
+            background: #fcf8f3;
+        }
+
+        .activity-item .act-icon {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+
+        .activity-item h4 {
+            font-size: 1.25rem;
+            color: #1f4a3d;
+            margin-bottom: 6px;
+        }
+
+        .activity-item p {
+            color: #6b5b4d;
+            font-size: 0.93rem;
+        }
+
+        /* ===== 文化展示 ===== */
+        .culture-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 28px;
+        }
+
+        .culture-block {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f0e8df;
+        }
+
+        .culture-block .c-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .culture-block h4 {
+            font-size: 1.3rem;
+            color: #1f4a3d;
+            margin-bottom: 8px;
+        }
+
+        .culture-block p {
+            color: #5a4a3c;
+            font-size: 0.93rem;
+        }
+
+        /* ===== 引语区块 ===== */
+        .quote-section {
+            background: linear-gradient(135deg, #e3d9ce 0%, #d4e9e2 100%);
+            padding: 70px 5%;
+            text-align: center;
+            max-width: 100%;
+            border-radius: 0;
+            margin: 0;
+        }
+
+        .quote-section blockquote {
+            font-size: 1.7rem;
+            font-weight: 300;
+            color: #1f4a3d;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .quote-section cite {
+            display: block;
+            margin-top: 18px;
+            font-size: 1rem;
+            color: #5d3e2e;
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        /* ===== 页脚 ===== */
+        footer {
+            background: #1f2e28;
+            color: #d6d0c8;
+            padding: 40px 5% 30px;
+            text-align: center;
+        }
+
+        footer .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        footer .footer-links {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        footer .footer-links a {
+            color: #b8ada2;
+            transition: color 0.3s;
+            font-size: 0.95rem;
+        }
+
+        footer .footer-links a:hover {
+            color: #e8ddd0;
+        }
+
+        footer p {
+            font-size: 0.9rem;
+            color: #9a8e82;
+            letter-spacing: 1px;
+        }
+
+        footer .footer-logo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #d4e9e2;
+            letter-spacing: 2px;
+        }
+
+        /* ===== 回到顶部 ===== */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #b85c38;
+            color: #fff;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(184, 92, 56, 0.3);
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(20px);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .back-to-top:hover {
+            background: #9e4a2a;
+            transform: translateY(-4px);
+        }
+
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 600px) {
+            .hero-content h1 {
+                font-size: 2.6rem;
+            }
+
+            .hero-content .subtitle {
+                font-size: 1.1rem;
+                letter-spacing: 3px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .navbar .logo {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* 平滑动画辅助 */
+        .fade-in {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(0); /* fixed */
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">
+            <span>🌿</span> 杭州 · 天堂
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="菜单">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#spots">🏯 景点</a></li>
+            <li><a href="#activities">🎭 活动</a></li>
+            <li><a href="#culture">🎋 文化</a></li>
+            <li><a href="#quote">📜 印象</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== Hero ===== -->
+    <header class="hero">
+        <div class="hero-content">
+            <h1>人间天堂 · 杭州</h1>
+            <div class="subtitle">✦ 西湖水 · 运河梦 ✦</div>
+            <p>
+                一座融合千年诗意与江南婉约的城市，<br />
+                在湖光山色与茶香氤氲中，等待你的探索。
+            </p>
+            <a href="#spots" class="hero-btn">开始探索</a>
+        </div>
+    </header>
+
+    <!-- ===== 景点 ===== -->
+    <section id="spots">
+        <h2 class="section-title">🏛️ 必游景点</h2>
+        <p class="section-sub">
+            从西湖的潋滟波光到古刹的晨钟暮鼓，每一处都是杭州独有的诗意画卷。
+        </p>
+        <div class="spots-grid">
+            <!-- 卡片 1 -->
+            <div class="spot-card fade-in">
+                <span class="icon">🌊</span>
+                <h3>西湖</h3>
+                <span class="tag">世界文化遗产</span>
+                <p>「欲把西湖比西子，淡妆浓抹总相宜。」漫步苏堤春晓，望雷峰夕照，感受千年湖光。</p>
+            </div>
+            <!-- 卡片 2 -->
+            <div class="spot-card fade-in">
+                <span class="icon">🏯</span>
+                <h3>灵隐寺</h3>
+                <span class="tag">千年古刹</span>
+                <p>背靠北高峰，面朝飞来峰，晨钟暮鼓中品味「禅意深深深几许」的幽静。</p>
+            </div>
+            <!-- 卡片 3 -->
+            <div class="spot-card fade-in">
+                <span class="icon">🗼</span>
+                <h3>雷峰塔</h3>
+                <span class="tag">传奇地标</span>
+                <p>夕照山上，雷峰塔影倒映西湖。登塔远眺，湖山胜境尽收眼底，白蛇传说在此流传。</p>
+            </div>
+            <!-- 卡片 4 -->
+            <div class="spot-card fade-in">
+                <span class="icon">🌳</span>
+                <h3>西溪湿地</h3>
+                <span class="tag">自然氧吧</span>
+                <p>曲水弯环，草木葱茏。乘一叶扁舟穿行芦荡，感受城市中的野趣与宁静。</p>
+            </div>
+            <!-- 卡片 5 -->
+            <div class="spot-card fade-in">
+                <span class="icon">⛰️</span>
+                <h3>龙井茶园</h3>
+                <span class="tag">茶乡风韵</span>
+                <p>狮峰山下一垄垄碧绿茶园，品一杯明前龙井，听茶农讲述「十八棵御茶」的故事。</p>
+            </div>
+            <!-- 卡片 6 -->
+            <div class="spot-card fade-in">
+                <span class="icon">🏞️</span>
+                <h3>钱塘江大桥</h3>
+                <span class="tag">建筑丰碑</span>
+                <p>横跨钱塘江的公铁两用桥，见证城市变迁。夕阳下大桥与江水相映，壮美非凡。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 活动 ===== -->
+    <section id="activities" style="background:#f3efe8; border-radius: 40px 40px 0 0; padding-bottom: 80px;">
+        <h2 class="section-title">🎉 特色活动</h2>
+        <p class="section-sub">
+            在杭州，每个季节都有独特的节庆与体验，让你沉浸式感受这座城市的活力。
+        </p>
+        <div class="activities-list">
+            <div class="activity-item fade-in">
+                <div class="act-icon">🚣</div>
+                <h4>西湖泛舟 · 湖心赏月</h4>
+                <p>乘古典画舫，荡漾碧波之上。中秋之夜，三潭印月，感受「湖光秋月两相和」的浪漫。</p>
+            </div>
+            <div class="activity-item fade-in">
+                <div class="act-icon">🍵</div>
+                <h4>龙井问茶 · 春日采青</h4>
+                <p>清明前后，随茶农上山采茶，亲手炒制一罐明前龙井，把春天的味道带回家。</p>
+            </div>
+            <div class="activity-item fade-in">
+                <div class="act-icon">🥟</div>
+                <h4>河坊街 · 寻味江南</h4>
+                <p>穿梭于古街巷陌，品尝定胜糕、葱包桧、片儿川，让味蕾也来一场江南之旅。</p>
+            </div>
+            <div class="activity-item fade-in">
+                <div class="act-icon">🎐</div>
+                <h4>钱江观潮 · 八月十八</h4>
+                <p>每年农历八月，钱塘江大潮奔腾而来，波涛汹涌，声如雷鸣，天下奇观不容错过。</p>
+            </div>
+            <div class="activity-item fade-in">
+                <div class="act-icon">🏮</div>
+                <h4>运河夜游 · 桨声灯影</h4>
+                <p>夜泊京杭大运河杭州段，两岸灯火阑珊，古桥、流水、人家，宛如一幅江南水墨画。</p>
+            </div>
+            <div class="activity-item fade-in">
+                <div class="act-icon">🖌️</div>
+                <h4>宋韵雅集 · 点茶插花</h4>
+                <p>在南宋故都体验点茶、焚香、插花、挂画，重温宋代文人的四般闲事。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 文化 ===== -->
+    <section id="culture">
+        <h2 class="section-title">🎋 当地文化</h2>
+        <p class="section-sub">
+            杭州的文化如同西湖水一般温润而深邃，从丝茶到戏曲，从古至今流淌着东方的雅致。
+        </p>
+        <div class="culture-wrapper">
+            <div class="culture-block fade-in">
+                <div class="c-icon">🧵</div>
+                <h4>丝绸之府</h4>
+                <p>「千里迢迢来杭州，半为西湖半为绸。」杭州丝绸历史悠久，都锦生织锦、杭罗轻盈如云。</p>
+            </div>
+            <div class="culture-block fade-in">
+                <div class="c-icon">🎭</div>
+                <h4>越剧 · 梁祝</h4>
+                <p>发源于浙江的越剧，以柔美唱腔、细腻表演著称。《梁祝》一曲，化蝶翩跹，感动千年。</p>
+            </div>
+            <div class="culture-block fade-in">
+                <div class="c-icon">📜</div>
+                <h4>南宋遗韵</h4>
+                <p>作为南宋行在，杭州处处可见宋韵：德寿宫、太庙遗址、宋词雅集，风雅如故。</p>
+            </div>
+            <div class="culture-block fade-in">
+                <div class="c-icon">🍃</div>
+                <h4>茶道精神</h4>
+                <p>龙井茶不仅是饮品，更是一种生活哲学。清、敬、和、美，在一杯茶中品味江南。</p>
+            </div>
+            <div class="culture-block fade-in">
+                <div class="c-icon">🎨</div>
+                <h4>金石书画</h4>
+                <p>西泠印社孤山而立，篆刻、书法、丹青墨韵，汇聚了百年文人风骨。</p>
+            </div>
+            <div class="culture-block fade-in">
+                <div class="c-icon">🥮</div>
+                <h4>杭州味道</h4>
+                <p>东坡肉、西湖醋鱼、龙井虾仁、叫花鸡……每一道菜都是一段故事，舌尖上的杭州。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 引语 ===== -->
+    <div class="quote-section" id="quote">
+        <blockquote>
+            “江南忆，最忆是杭州。<br />山寺月中寻桂子，郡亭枕上看潮头。”
+            <cite>—— 白居易《忆江南》</cite>
+        </blockquote>
+    </div>
+
+    <!-- ===== 页脚 ===== -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-logo">🌸 探索杭州 · 人间天堂</div>
+            <div class="footer-links">
+                <a href="#spots">景点</a>
+                <a href="#activities">活动</a>
+                <a href="#culture">文化</a>
+                <a href="#quote">印象</a>
+            </div>
+            <p>© 2025 杭州城市探索 · 用心感受每一处风景</p>
+        </div>
+    </footer>
+
+    <!-- ===== 回到顶部按钮 ===== -->
+    <button class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // 1. 移动端菜单
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+
+            hamburger.addEventListener('click', function() {
+                navLinks.classList.toggle('open');
+            });
+
+            // 点击导航链接后关闭菜单（移动端）
+            document.querySelectorAll('.nav-links a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    navLinks.classList.remove('open');
+                });
+            });
+
+            // 2. 回到顶部按钮
+            const backBtn = document.getElementById('backToTop');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    backBtn.classList.add('visible');
+                } else {
+                    backBtn.classList.remove('visible');
+                }
+            });
+
+            backBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // 3. 滚动淡入动画 (Intersection Observer)
+            const fadeEls = document.querySelectorAll('.fade-in');
+
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            // 可选：出现一次后不再观察
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, {
+                    threshold: 0.15,
+                    rootMargin: '0px 0px -40px 0px'
+                });
+
+                fadeEls.forEach(function(el) {
+                    observer.observe(el);
+                });
+            } else {
+                // 降级：直接全部可见
+                fadeEls.forEach(function(el) {
+                    el.classList.add('visible');
+                });
+            }
+
+            // 4. 导航栏背景加深（滚动后）
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    navbar.style.background = 'rgba(255, 255, 255, 0.97)';
+                    navbar.style.boxShadow = '0 2px 24px rgba(0,0,0,0.08)';
+                } else {
+                    navbar.style.background = 'rgba(255, 255, 255, 0.90)';
+                    navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.06)';
+                }
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

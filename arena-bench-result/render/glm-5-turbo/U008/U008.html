@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>心情日记本</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: rgba(30, 41, 72, 0.85);
+            --text-primary: #edf2f4;
+            --text-secondary: #8d99ae;
+            --accent-warm: #f4a261;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --shadow-glow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            
+            --mood-happy: #2ec4b6;
+            --mood-calm: #48bfe3;
+            --mood-anxious: #f77f00;
+            --mood-sad: #7b2cbf;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 动态背景 */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(46, 196, 182, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(123, 44, 191, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(244, 162, 97, 0.08) 0%, transparent 60%),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        }
+
+        .floating-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--mood-happy);
+            top: 10%;
+            left: -50px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 150px;
+            height: 150px;
+            background: var(--mood-sad);
+            bottom: 20%;
+            right: -30px;
+            animation-delay: -7s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(20px, -20px) scale(1.05); }
+            66% { transform: translate(-10px, 15px) scale(0.95); }
+        }
+
+        /* 主容器 */
+        .app-container {
+            max-width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            padding: 30px 0 20px;
+            opacity: 1; /* fixed: was 0 */
+            animation: slideDown 0.6s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-warm) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .date-display {
+            margin-top: 12px;
+            font-size: 15px;
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+
+        /* 导航标签 */
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0;
+            padding: 6px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            opacity: 1; /* fixed: was 0 */
+            animation: fadeIn 0.6s ease 0.2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 14px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(244, 162, 97, 0.2) 0%, rgba(244, 162, 97, 0.1) 100%);
+            color: var(--accent-warm);
+            box-shadow: 0 4px 15px rgba(244, 162, 97, 0.2);
+        }
+
+        .nav-tab:active {
+            transform: scale(0.96);
+        }
+
+        /* 面板容器 */
+        .panels {
+            position: relative;
+        }
+
+        .panel {
+            display: none;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(10px);
+        }
+
+        .panel.active {
+            display: block;
+            animation: panelIn 0.4s ease forwards;
+        }
+
+        @keyframes panelIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 心情选择 */
+        .mood-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .mood-btn {
+            position: relative;
+            padding: 20px 16px;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+        }
+
+        .mood-btn::before {
+            content: '';
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .mood-btn[data-mood="happy"]::before { background: var(--mood-happy); }
+        .mood-btn[data-mood="calm"]::before { background: var(--mood-calm); }
+        .mood-btn[data-mood="anxious"]::before { background: var(--mood-anxious); }
+        .mood-btn[data-mood="sad"]::before { background: var(--mood-sad); }
+
+        .mood-btn[data-mood="happy"] { border-color: rgba(46, 196, 182, 0.3); }
+        .mood-btn[data-mood="calm"] { border-color: rgba(72, 191, 227, 0.3); }
+        .mood-btn[data-mood="anxious"] { border-color: rgba(247, 127, 0, 0.3); }
+        .mood-btn[data-mood="sad"] { border-color: rgba(123, 44, 191, 0.3); }
+
+        .mood-btn.selected {
+            transform: scale(1.02);
+        }
+
+        .mood-btn.selected[data-mood="happy"] {
+            background: rgba(46, 196, 182, 0.15);
+            border-color: var(--mood-happy);
+            box-shadow: 0 4px 20px rgba(46, 196, 182, 0.3);
+        }
+
+        .mood-btn.selected[data-mood="calm"] {
+            background: rgba(72, 191, 227, 0.15);
+            border-color: var(--mood-calm);
+            box-shadow: 0 4px 20px rgba(72, 191, 227, 0.3);
+        }
+
+        .mood-btn.selected[data-mood="anxious"] {
+            background: rgba(247, 127, 0, 0.15);
+            border-color: var(--mood-anxious);
+            box-shadow: 0 4px 20px rgba(247, 127, 0, 0.3);
+        }
+
+        .mood-btn.selected[data-mood="sad"] {
+            background: rgba(123, 44, 191, 0.15);
+            border-color: var(--mood-sad);
+            box-shadow: 0 4px 20px rgba(123, 44, 191, 0.3);
+        }
+
+        .mood-btn.selected::before {
+            transform: scale(1.2);
+        }
+
+        .mood-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* 日记输入 */
+        .diary-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .diary-textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+            font-size: 16px;
+            line-height: 1.7;
+            resize: vertical;
+            font-family: 'Noto Sans SC', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .diary-textarea::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .diary-textarea:focus {
+            outline: none;
+            border-color: var(--accent-warm);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 0 0 4px rgba(244, 162, 97, 0.1);
+        }
+
+        .char-count {
+            text-align: right;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* 保存按钮 */
+        .save-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--accent-warm) 0%, #e76f51 100%);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .save-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+
+        .save-btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .save-btn:active {
+            transform: scale(0.98);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 统计面板 */
+        .stats-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .stats-month {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stats-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        /* 环形图 */
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .donut-chart svg {
+            transform: rotate(-90deg);
+        }
+
+        .donut-segment {
+            fill: none;
+            stroke-width: 35;
+            stroke-linecap: round;
+            transition: stroke-dasharray 1s ease, stroke-dashoffset 1s ease;
+        }
+
+        .chart-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .chart-center-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-center-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* 心情列表 */
+        .mood-stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .mood-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mood-stat-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .mood-stat-info {
+            flex: 1;
+        }
+
+        .mood-stat-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .mood-stat-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .mood-stat-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mood-stat-count {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 40px;
+            text-align: right;
+        }
+
+        /* 历史记录 */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .history-item:active {
+            transform: scale(0.99);
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .history-mood-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .history-date {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .history-mood-name {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .history-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-secondary);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            opacity: 0.4;
+        }
+
+        .empty-text {
+            font-size: 15px;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            padding: 14px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent-warm);
+            border-radius: 50px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 1; /* fixed: was 0 */
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+
+        /* 减少动画 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div class="bg-gradient"></div>
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+
+    <div class="app-container">
+        <header class="header">
+            <h1>心情日记本</h1>
+            <p class="date-display" id="currentDate"></p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="write">写日记</button>
+            <button class="nav-tab" data-tab="stats">本月统计</button>
+            <button class="nav-tab" data-tab="history">历史记录</button>
+        </nav>
+
+        <div class="panels">
+            <!-- 写日记面板 -->
+            <div class="panel active" id="writePanel">
+                <div class="mood-section">
+                    <p class="section-title">今天的心情</p>
+                    <div class="mood-grid">
+                        <button class="mood-btn" data-mood="happy">开心</button>
+                        <button class="mood-btn" data-mood="calm">平静</button>
+                        <button class="mood-btn" data-mood="anxious">焦虑</button>
+                        <button class="mood-btn" data-mood="sad">低落</button>
+                    </div>
+                </div>
+
+                <div class="diary-section">
+                    <p class="section-title">写点什么吧</p>
+                    <textarea class="diary-textarea" id="diaryContent" placeholder="记录今天发生的事情、心情变化、或是任何想法..." maxlength="500"></textarea>
+                    <p class="char-count"><span id="charCount">0</span>/500</p>
+                </div>
+
+                <button class="save-btn" id="saveBtn">保存今天的日记</button>
+            </div>
+
+            <!-- 统计面板 -->
+            <div class="panel" id="statsPanel">
+                <div class="stats-header">
+                    <h2 class="stats-month" id="statsMonth"></h2>
+                    <p class="stats-count" id="statsCount">已记录 0 天</p>
+                </div>
+
+                <div class="chart-container">
+                    <div class="donut-chart">
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <circle class="donut-segment" id="segmentHappy" cx="100" cy="100" r="80" stroke="var(--mood-happy)"></circle>
+                            <circle class="donut-segment" id="segmentCalm" cx="100" cy="100" r="80" stroke="var(--mood-calm)"></circle>
+                            <circle class="donut-segment" id="segmentAnxious" cx="100" cy="100" r="80" stroke="var(--mood-anxious)"></circle>
+                            <circle class="donut-segment" id="segmentSad" cx="100" cy="100" r="80" stroke="var(--mood-sad)"></circle>
+                        </svg>
+                        <div class="chart-center">
+                            <div class="chart-center-value" id="mainMood">-</div>
+                            <div class="chart-center-label">主要心情</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mood-stats-list" id="moodStatsList"></div>
+            </div>
+
+            <!-- 历史记录面板 -->
+            <div class="panel" id="historyPanel">
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 数据存储
+        const STORAGE_KEY = 'mood_diary_data';
+        
+        // 心情配置
+        const moodConfig = {
+            happy: { name: '开心', color: 'var(--mood-happy)' },
+            calm: { name: '平静', color: 'var(--mood-calm)' },
+            anxious: { name: '焦虑', color: 'var(--mood-anxious)' },
+            sad: { name: '低落', color: 'var(--mood-sad)' }
+        };
+
+        // 初始化数据
+        let diaryData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        
+        // 当前状态
+        let selectedMood = null;
+
+        // DOM 元素
+        const currentDateEl = document.getElementById('currentDate');
+        const diaryContentEl = document.getElementById('diaryContent');
+        const charCountEl = document.getElementById('charCount');
+        const saveBtn = document.getElementById('saveBtn');
+        const toast = document.getElementById('toast');
+        const moodBtns = document.querySelectorAll('.mood-btn');
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const panels = document.querySelectorAll('.panel');
+
+        // 初始化日期显示
+        function initDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            currentDateEl.textContent = now.toLocaleDateString('zh-CN', options);
+        }
+
+        // 获取今天日期字符串
+        function getTodayStr() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        // 获取月份字符串
+        function getMonthStr(date) {
+            const d = new Date(date);
+            return `${d.getFullYear()}年${d.getMonth() + 1}月`;
+        }
+
+        // 检查今天是否已记录
+        function checkTodayRecord() {
+            const today = getTodayStr();
+            const record = diaryData.find(d => d.date === today);
+            if (record) {
+                selectedMood = record.mood;
+                diaryContentEl.value = record.content || '';
+                charCountEl.textContent = record.content ? record.content.length : 0;
+                updateMoodSelection();
+                saveBtn.textContent = '更新今天的日记';
+            }
+        }
+
+        // 更新心情选择UI
+        function updateMoodSelection() {
+            moodBtns.forEach(btn => {
+                btn.classList.toggle('selected', btn.dataset.mood === selectedMood);
+            });
+        }
+
+        // 显示提示
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // 保存日记
+        function saveDiary() {
+            if (!selectedMood) {
+                showToast('请先选择今天的心情');
+                return;
+            }
+
+            const content = diaryContentEl.value.trim();
+            const today = getTodayStr();
+            
+            const existingIndex = diaryData.findIndex(d => d.date === today);
+            const record = {
+                date: today,
+                mood: selectedMood,
+                content: content,
+                timestamp: Date.now()
+            };
+
+            if (existingIndex >= 0) {
+                diaryData[existingIndex] = record;
+            } else {
+                diaryData.push(record);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(diaryData));
+            showToast('日记保存成功');
+            saveBtn.textContent = '更新今天的日记';
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            navTabs.forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.tab === tabName);
+            });
+            panels.forEach(panel => {
+                panel.classList.toggle('active', panel.id === `${tabName}Panel`);
+            });
+
+            if (tabName === 'stats') {
+                renderStats();
+            } else if (tabName === 'history') {
+                renderHistory();
+            }
+        }
+
+        // 渲染统计
+        function renderStats() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+            
+            const monthData = diaryData.filter(d => {
+                const date = new Date(d.date);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+
+            document.getElementById('statsMonth').textContent = `${currentYear}年${currentMonth + 1}月`;
+            document.getElementById('statsCount').textContent = `已记录 ${monthData.length} 天`;
+
+            // 统计各心情数量
+            const moodCounts = { happy: 0, calm: 0, anxious: 0, sad: 0 };
+            monthData.forEach(d => {
+                if (moodCounts.hasOwnProperty(d.mood)) {
+                    moodCounts[d.mood]++;
+                }
+            });
+
+            const total = monthData.length || 1;
+            const circumference = 2 * Math.PI * 80;
+            let offset = 0;
+
+            // 更新环形图
+            const segments = ['happy', 'calm', 'anxious', 'sad'];
+            segments.forEach(mood => {
+                const segment = document.getElementById(`segment${mood.charAt(0).toUpperCase() + mood.slice(1)}`);
+                const count = moodCounts[mood];
+                const percentage = count / total;
+                const dashLength = percentage * circumference;
+                
+                segment.style.strokeDasharray = `${dashLength} ${circumference}`;
+                segment.style.strokeDashoffset = -offset;
+                
+                offset += dashLength;
+            });
+
+            // 找出主要心情
+            let mainMood = '-';
+            let maxCount = 0;
+            segments.forEach(mood => {
+                if (moodCounts[mood] > maxCount) {
+                    maxCount = moodCounts[mood];
+                    mainMood = moodConfig[mood].name;
+                }
+            });
+            document.getElementById('mainMood').textContent = mainMood;
+
+            // 渲染列表
+            const listHtml = segments.map(mood => {
+                const count = moodCounts[mood];
+                const percentage = (count / total) * 100;
+                return `
+                    <div class="mood-stat-item">
+                        <div class="mood-stat-color" style="background: ${moodConfig[mood].color}"></div>
+                        <div class="mood-stat-info">
+                            <div class="mood-stat-name">${moodConfig[mood].name}</div>
+                            <div class="mood-stat-bar">
+                                <div class="mood-stat-fill" style="width: ${percentage}%; background: ${moodConfig[mood].color}"></div>
+                            </div>
+                        </div>
+                        <div class="mood-stat-count">${count}天</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('moodStatsList').innerHTML = listHtml;
+        }
+
+        // 渲染历史记录
+        function renderHistory() {
+            const sortedData = [...diaryData].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            if (sortedData.length === 0) {
+                document.getElementById('historyList').innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/>
+                            <path d="M12 8v4M12 16h.01"/>
+                        </svg>
+                        <p class="empty-text">还没有日记记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const listHtml = sortedData.map(d => {
+                const dateObj = new Date(d.date);
+                const dateStr = dateObj.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' });
+                return `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <div class="history-mood-dot" style="background: ${moodConfig[d.mood]?.color || '#888'}"></div>
+                            <span class="history-date">${dateStr}</span>
+                            <span class="history-mood-name">${moodConfig[d.mood]?.name || '未知'}</span>
+                        </div>
+                        <p class="history-content">${d.content || '今天没有写下什么...'}</p>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('historyList').innerHTML = listHtml;
+        }
+
+        // 事件绑定
+        moodBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                selectedMood = btn.dataset.mood;
+                updateMoodSelection();
+            });
+        });
+
+        diaryContentEl.addEventListener('input', () => {
+            charCountEl.textContent = diaryContentEl.value.length;
+        });
+
+        saveBtn.addEventListener('click', saveDiary);
+
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                switchTab(tab.dataset.tab);
+            });
+        });
+
+        // 初始化
+        initDate();
+        checkTodayRecord();
+    </script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "index": 66,
+  "id": "437",
+  "group": "A",
+  "class": "Desktop",
+  "model": "gpt-4o",
+  "question": "创建一个充满活力、色彩缤纷的待办事项列表网站，具有引人注目的动画和互动元素。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/437_A_gpt-4o/screenshot_desktop.png",
+  "time": "2026-05-29T15:29:03.883135"
+}

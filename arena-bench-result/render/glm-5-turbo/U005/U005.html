@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>吃药提醒</title>
+    <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FDF6E3;
+            --bg-card: #FFFFFF;
+            --fg: #5D4037;
+            --fg-light: #8D6E63;
+            --accent: #E65100;
+            --accent-light: #FF8A65;
+            --success: #43A047;
+            --border: #E0D5C7;
+        }
+        
+        * {
+            font-family: 'Noto Sans SC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overscroll-behavior: none;
+        }
+        
+        .pill-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(93, 64, 55, 0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .pill-card:active {
+            transform: scale(0.98);
+        }
+        
+        .time-badge {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: white;
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: white;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            box-shadow: 0 6px 24px rgba(230, 81, 0, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .add-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 3px 12px rgba(230, 81, 0, 0.3);
+        }
+        
+        .modal-overlay {
+            background: rgba(93, 64, 55, 0.6);
+            backdrop-filter: blur(8px);
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(93, 64, 55, 0.3);
+        }
+        
+        .input-field {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 1.125rem;
+            color: var(--fg);
+            width: 100%;
+            transition: border-color 0.2s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .input-field::placeholder {
+            color: var(--fg-light);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-light));
+            color: white;
+            border-radius: 16px;
+            padding: 18px 32px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 4px 16px rgba(230, 81, 0, 0.3);
+            transition: transform 0.15s ease;
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+        
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--fg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 32px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            transition: background 0.15s ease;
+        }
+        
+        .btn-secondary:active {
+            background: var(--border);
+        }
+        
+        .alert-overlay {
+            background: linear-gradient(135deg, #E65100, #BF360C);
+            animation: pulse-bg 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-bg {
+            0%, 100% { background: linear-gradient(135deg, #E65100, #BF360C); }
+            50% { background: linear-gradient(135deg, #FF6D00, #E65100); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .alert-shake {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-in {
+            animation: fade-in 0.4s ease-out forwards;
+        }
+        
+        .dosage-pill {
+            background: var(--success);
+            color: white;
+            border-radius: 10px;
+            padding: 6px 14px;
+            font-weight: 600;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.3);
+        }
+        
+        .status-dot.pending {
+            background: var(--accent);
+            box-shadow: 0 0 0 3px rgba(230, 81, 0, 0.3);
+        }
+        
+        input[type="time"] {
+            font-size: 1.5rem;
+        }
+        
+        .empty-state {
+            color: var(--fg-light);
+        }
+        
+        .empty-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 3px dashed var(--border);
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 主页面 -->
+    <div id="app" class="min-h-screen pb-24">
+        <!-- 顶部标题栏 -->
+        <header class="sticky top-0 z-40 bg-[var(--bg)] px-5 py-4 border-b-2 border-[var(--border)]">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight">吃药提醒</h1>
+                    <p class="text-[var(--fg-light)] mt-1 text-base" id="currentDate"></p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span class="text-sm font-medium" id="statusText">已开启提醒</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 今日提醒统计 -->
+        <div class="px-5 py-4">
+            <div class="pill-card p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[var(--fg-light)] text-lg">今日待服用</p>
+                        <p class="text-4xl font-black mt-1" id="todayCount">0</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[var(--fg-light)] text-lg">已完成</p>
+                        <p class="text-4xl font-black text-[var(--success)] mt-1" id="completedCount">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 药品列表 -->
+        <div class="px-5">
+            <h2 class="text-xl font-bold mb-4">我的药品</h2>
+            <div id="medicineList" class="space-y-4">
+                <!-- 动态渲染 -->
+            </div>
+            
+            <!-- 空状态 -->
+            <div id="emptyState" class="empty-state text-center py-12 hidden">
+                <div class="empty-icon mb-6">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"/>
+                        <circle cx="12" cy="14" r="2"/>
+                    </svg>
+                </div>
+                <p class="text-xl font-medium mb-2">暂无药品</p>
+                <p class="text-base">点击下方按钮添加药品</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加按钮 -->
+    <button id="addBtn" class="add-btn fixed bottom-6 right-5 z-50 flex items-center justify-center">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round">
+            <path d="M12 5v14M5 12h14"/>
+        </svg>
+    </button>
+    
+    <!-- 添加药品弹窗 -->
+    <div id="addModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
+        <div class="modal-content absolute bottom-0 left-0 right-0 p-6 pb-8 rounded-t-[28px] animate-in">
+            <div class="w-12 h-1 bg-[var(--border)] rounded-full mx-auto mb-6"></div>
+            <h2 class="text-2xl font-bold mb-6">添加药品</h2>
+            
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-lg font-medium mb-2">药品名称</label>
+                    <input type="text" id="medicineName" class="input-field" placeholder="如：降压药、阿司匹林">
+                </div>
+                
+                <div>
+                    <label class="block text-lg font-medium mb-2">服用时间</label>
+                    <input type="time" id="medicineTime" class="input-field text-center">
+                </div>
+                
+                <div>
+                    <label class="block text-lg font-medium mb-2">剂量</label>
+                    <input type="text" id="medicineDosage" class="input-field" placeholder="如：1片、2粒、半片">
+                </div>
+                
+                <div>
+                    <label class="block text-lg font-medium mb-2">备注（选填）</label>
+                    <input type="text" id="medicineNote" class="input-field" placeholder="如：饭后服用">
+                </div>
+            </div>
+            
+            <div class="flex gap-4 mt-8">
+                <button class="btn-secondary flex-1" onclick="closeModal()">取消</button>
+                <button class="btn-primary flex-1" onclick="saveMedicine()">保存</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 提醒弹窗 -->
+    <div id="alertModal" class="fixed inset-0 z-[100] hidden">
+        <div class="alert-overlay absolute inset-0 flex flex-col items-center justify-center p-8 text-white">
+            <div class="alert-shake mb-8">
+                <svg width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                    <path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path d="M21.75 10.5c0 6.979-6.09 12.602-8.896 14.799a1.5 1.5 0 01-1.808 0C8.34 23.102 2.25 17.479 2.25 10.5A9.75 9.75 0 0112 .75a9.75 9.75 0 019.75 9.75z"/>
+                    <path d="M12 15.75a.75.75 0 01-.75-.75v-1.5a.75.75 0 011.5 0v1.5a.75.75 0 01-.75.75z"/>
+                </svg>
+            </div>
+            
+            <h1 class="text-5xl font-black mb-4">该吃药了</h1>
+            <p class="text-2xl font-medium opacity-90 mb-8" id="alertTime"></p>
+            
+            <div class="bg-white/20 rounded-3xl p-8 w-full max-w-sm mb-8">
+                <p class="text-3xl font-black mb-2" id="alertMedicine"></p>
+                <p class="text-xl opacity-90" id="alertDosage"></p>
+                <p class="text-lg opacity-75 mt-2" id="alertNote"></p>
+            </div>
+            
+            <button class="bg-white text-[var(--accent)] text-2xl font-bold py-5 px-16 rounded-2xl shadow-lg" onclick="dismissAlert()">
+                我知道了
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        let medicines = JSON.parse(localStorage.getItem('medicines') || '[]');
+        let completedToday = JSON.parse(localStorage.getItem('completedToday') || '{}');
+        let alertQueue = [];
+        let isAlertShowing = false;
+        
+        // DOM 元素
+        const medicineList = document.getElementById('medicineList');
+        const emptyState = document.getElementById('emptyState');
+        const addModal = document.getElementById('addModal');
+        const alertModal = document.getElementById('alertModal');
+        const addBtn = document.getElementById('addBtn');
+        const todayCount = document.getElementById('todayCount');
+        const completedCount = document.getElementById('completedCount');
+        const currentDate = document.getElementById('currentDate');
+        
+        // 初始化
+        function init() {
+            updateDate();
+            renderMedicines();
+            updateStats();
+            startChecking();
+            requestNotificationPermission();
+        }
+        
+        // 更新日期显示
+        function updateDate() {
+            const now = new Date();
+            const options = { month: 'long', day: 'numeric', weekday: 'long' };
+            currentDate.textContent = now.toLocaleDateString('zh-CN', options);
+        }
+        
+        // 请求通知权限
+        function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+        
+        // 渲染药品列表
+        function renderMedicines() {
+            if (medicines.length === 0) {
+                medicineList.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            // 按时间排序
+            const sorted = [...medicines].sort((a, b) => a.time.localeCompare(b.time));
+            
+            medicineList.innerHTML = sorted.map((med, index) => {
+                const isCompleted = isMedicineCompletedToday(med.id);
+                const originalIndex = medicines.findIndex(m => m.id === med.id);
+                
+                return `
+                    <div class="pill-card p-5 animate-in ${isCompleted ? 'opacity-60' : ''}" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="status-dot ${isCompleted ? '' : 'pending'}"></div>
+                                    <span class="time-badge">${med.time}</span>
+                                </div>
+                                <h3 class="text-xl font-bold mb-2 ${isCompleted ? 'line-through' : ''}">${med.name}</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <span class="dosage-pill">${med.dosage}</span>
+                                    ${med.note ? `<span class="text-[var(--fg-light)] text-base">${med.note}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-2 ml-4">
+                                ${!isCompleted ? `
+                                    <button onclick="markComplete('${med.id}')" class="bg-[var(--success)] text-white text-base font-bold px-4 py-2 rounded-xl">
+                                        已服用
+                                    </button>
+                                ` : `
+                                    <span class="text-[var(--success)] text-base font-bold px-4 py-2">已完成</span>
+                                `}
+                                <button onclick="deleteMedicine('${med.id}')" class="text-[var(--fg-light)] text-base px-4 py-2">
+                                    删除
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 检查是否今天已完成
+        function isMedicineCompletedToday(id) {
+            const today = new Date().toDateString();
+            return completedToday[today]?.includes(id);
+        }
+        
+        // 标记完成
+        function markComplete(id) {
+            const today = new Date().toDateString();
+            if (!completedToday[today]) {
+                completedToday[today] = [];
+            }
+            if (!completedToday[today].includes(id)) {
+                completedToday[today].push(id);
+            }
+            localStorage.setItem('completedToday', JSON.stringify(completedToday));
+            renderMedicines();
+            updateStats();
+        }
+        
+        // 更新统计
+        function updateStats() {
+            const today = new Date().toDateString();
+            const completed = completedToday[today]?.length || 0;
+            const total = medicines.length;
+            
+            todayCount.textContent = total;
+            completedCount.textContent = completed;
+        }
+        
+        // 添加药品
+        addBtn.addEventListener('click', () => {
+            addModal.classList.remove('hidden');
+            document.getElementById('medicineName').focus();
+        });
+        
+        function closeModal() {
+            addModal.classList.add('hidden');
+            clearForm();
+        }
+        
+        function clearForm() {
+            document.getElementById('medicineName').value = '';
+            document.getElementById('medicineTime').value = '';
+            document.getElementById('medicineDosage').value = '';
+            document.getElementById('medicineNote').value = '';
+        }
+        
+        function saveMedicine() {
+            const name = document.getElementById('medicineName').value.trim();
+            const time = document.getElementById('medicineTime').value;
+            const dosage = document.getElementById('medicineDosage').value.trim();
+            const note = document.getElementById('medicineNote').value.trim();
+            
+            if (!name || !time || !dosage) {
+                alert('请填写药品名称、时间和剂量');
+                return;
+            }
+            
+            const medicine = {
+                id: Date.now().toString(),
+                name,
+                time,
+                dosage,
+                note
+            };
+            
+            medicines.push(medicine);
+            localStorage.setItem('medicines', JSON.stringify(medicines));
+            
+            closeModal();
+            renderMedicines();
+            updateStats();
+        }
+        
+        // 删除药品
+        function deleteMedicine(id) {
+            if (confirm('确定要删除这个药品吗？')) {
+                medicines = medicines.filter(m => m.id !== id);
+                localStorage.setItem('medicines', JSON.stringify(medicines));
+                renderMedicines();
+                updateStats();
+            }
+        }
+        
+        // 开始检查提醒
+        function startChecking() {
+            checkAndAlert();
+            setInterval(checkAndAlert, 30000); // 每30秒检查一次
+        }
+        
+        function checkAndAlert() {
+            const now = new Date();
+            const currentTime = now.toTimeString().slice(0, 5);
+            const today = now.toDateString();
+            
+            medicines.forEach(med => {
+                // 精确匹配时间（允许1分钟误差）
+                const timeDiff = Math.abs(timeToMinutes(currentTime) - timeToMinutes(med.time));
+                const isCompleted = completedToday[today]?.includes(med.id);
+                
+                if (timeDiff <= 1 && !isCompleted && !alertQueue.includes(med.id)) {
+                    alertQueue.push(med.id);
+                    triggerAlert(med);
+                }
+            });
+        }
+        
+        function timeToMinutes(time) {
+            const [h, m] = time.split(':').map(Number);
+            return h * 60 + m;
+        }
+        
+        // 触发提醒
+        function triggerAlert(med) {
+            if (isAlertShowing) return;
+            
+            isAlertShowing = true;
+            
+            // 页面内提醒
+            document.getElementById('alertTime').textContent = med.time;
+            document.getElementById('alertMedicine').textContent = med.name;
+            document.getElementById('alertDosage').textContent = '剂量：' + med.dosage;
+            document.getElementById('alertNote').textContent = med.note || '';
+            alertModal.classList.remove('hidden');
+            
+            // 尝试系统通知
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('吃药提醒', {
+                    body: `${med.name} - ${med.dosage}`,
+                    icon: '💊',
+                    vibrate: [200, 100, 200]
+                });
+            }
+            
+            // 震动反馈
+            if ('vibrate' in navigator) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+        }
+        
+        function dismissAlert() {
+            alertModal.classList.add('hidden');
+            isAlertShowing = false;
+            
+            // 标记当前提醒的药品为完成
+            if (alertQueue.length > 0) {
+                const id = alertQueue.shift();
+                markComplete(id);
+            }
+        }
+        
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>

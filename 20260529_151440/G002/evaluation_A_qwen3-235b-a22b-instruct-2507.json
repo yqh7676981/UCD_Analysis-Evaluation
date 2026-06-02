@@ -1,0 +1,33 @@
+{
+  "index": 4,
+  "id": "G002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个经典贪吃蛇小游戏，方向键控制移动，吃到食物变长，碰到自己就 game over，显示当前长度和最高纪录。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The interface has a coherent minimal game style: white background, black playfield, green restart CTA, and simple control pads. The layout is consistent and fits a casual mobile game, but it feels generic and visually sparse, with limited personality and weak focal refinement beyond the centered game-over message."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Basic spacing and card treatment are clean, with rounded corners and readable labels. However, typography hierarchy is only moderate, the arrow controls look plain and slightly oversized relative to their utility, and the screen lacks finer polish such as stronger visual alignment, clearer control affordances, and richer board/grid detail."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly identify the main areas: score bar, game board, restart button, and directional controls. The main task flow is obvious. The hard cap is that the board state is empty/black with little context, so there is minimal visual guidance about gameplay status, and the control area takes substantial space without stronger emphasis on current play state."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "The labels '长度' and '最高纪录' are understandable, and the restart action is clear. But the requested classic snake interaction is only partially self-explanatory: there is no explicit indication that arrow buttons control movement, no visible snake/food in the shown state, and no onboarding or state cues to help first-time users understand how play begins or how score relates to length."
+      }
+    },
+    "summary": "This is a usable, straightforward mobile snake game shell with clear core regions and acceptable readability. Its strengths are simplicity and a clean main task path. The main limitations are lack of visual richness, limited gameplay context in the board, and weak semantic guidance for first-time use. It feels functional but not fully polished or strongly communicative, which keeps it in the average-to-qualified range."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G002_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:15:28.054572"
+}

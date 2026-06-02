@@ -1,0 +1,11 @@
+{
+  "index": 46,
+  "id": "U005",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个给爸妈用的吃药提醒工具，可以添加多种药品、设置每天的服用时间和剂量，到时间会有大字号醒目提示。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/U005_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:24:56.824643"
+}

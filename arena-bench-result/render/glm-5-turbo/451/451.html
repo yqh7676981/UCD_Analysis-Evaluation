@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÉLÈVE 美发沙龙</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        body { background: #050505; color: #ffffff; }
+        ::selection { background: rgba(249, 115, 22, 0.3); }
+        
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleReveal {
+            from { opacity: 0; transform: scale(1.05); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        @keyframes slow-zoom {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes shine {
+            0% { left: -50%; }
+            100% { left: 150%; }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 8px rgba(249,115,22,0.3); }
+            50% { box-shadow: 0 0 20px rgba(249,115,22,0.6); }
+        }
+
+        .animate-slide-up { animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 1; /* fixed: was 0 */ }
+        .animate-scale-reveal { animation: scaleReveal 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 1; /* fixed: was 0 */ }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-breathe { animation: breathe 8s ease-in-out infinite; }
+        .animate-slow-zoom { animation: slow-zoom 20s ease-in-out infinite; }
+        .animate-scroll { animation: scroll 40s linear infinite; }
+        .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-700 { animation-delay: 700ms; }
+
+        .gradient-line {
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            height: 1px;
+        }
+        .gradient-line-orange {
+            background: linear-gradient(to right, transparent, rgba(249,115,22,0.5), transparent);
+            height: 1px;
+        }
+
+        .card-hover {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 0 40px -10px rgba(249, 115, 22, 0.15);
+        }
+
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(249,115,22,0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 25px rgba(249,115,22,0.5);
+            transform: scale(1.02);
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary .shine-effect {
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-20deg);
+        }
+        .btn-primary:hover .shine-effect { animation: shine 0.75s; }
+
+        .marquee-mask {
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .service-card {
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .service-card:hover {
+            border-color: rgba(249,115,22,0.2);
+            background: rgba(249,115,22,0.03);
+        }
+        .service-card:hover .service-icon {
+            transform: scale(1.1);
+            color: #f97316;
+        }
+        .service-icon { transition: all 0.5s ease; }
+
+        .stylist-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .stylist-card:hover { transform: translateY(-6px); }
+        .stylist-card:hover .stylist-img { transform: scale(1.05); }
+        .stylist-img { transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        .review-card {
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.5s ease;
+        }
+        .review-card:hover {
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .booking-form input,
+        .booking-form select,
+        .booking-form textarea {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        .booking-form input:focus,
+        .booking-form select:focus,
+        .booking-form textarea:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+        }
+        .booking-form select option { background: #1a1a1a; color: #fff; }
+
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #f97316;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            transform: translateX(120%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .toast.show { transform: translateX(0); }
+
+        html { scroll-behavior: smooth; }
+
+        .scroll-hidden { opacity: 1; /* fixed: was 0 */ transform: translateY(30px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .scroll-visible { opacity: 1; transform: translateY(0); }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="overflow-x-hidden">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast bg-black/80 backdrop-blur-xl border border-orange-500/30 rounded-2xl px-6 py-4 flex items-center gap-3">
+        <span class="iconify text-orange-500 text-xl" data-icon="mdi:check-circle"></span>
+        <span id="toast-msg" class="text-sm font-light">预约提交成功！</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-20 backdrop-blur-xl bg-black/60 border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+            <a href="#" class="text-xl font-semibold tracking-tight flex items-center gap-2">
+                <span class="iconify text-orange-500" data-icon="mdi:content-cut"></span>
+                ÉLÈVE
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#services" class="nav-link text-sm font-medium text-neutral-400 hover:text-white transition-colors">服务项目</a>
+                <a href="#stylists" class="nav-link text-sm font-medium text-neutral-400 hover:text-white transition-colors">造型师</a>
+                <a href="#reviews" class="nav-link text-sm font-medium text-neutral-400 hover:text-white transition-colors">客户评价</a>
+                <a href="#booking" class="btn-primary bg-orange-500 text-white text-sm font-semibold px-6 py-2.5 rounded-full inline-block">
+                    <span class="shine-effect"></span>
+                    立即预约
+                </a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-white">
+                <span class="iconify text-2xl" data-icon="mdi:menu"></span>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-black/95 backdrop-blur-xl border-b border-white/5 px-6 py-6">
+            <div class="flex flex-col gap-4">
+                <a href="#services" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors" onclick="closeMobileMenu()">服务项目</a>
+                <a href="#stylists" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors" onclick="closeMobileMenu()">造型师</a>
+                <a href="#reviews" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors" onclick="closeMobileMenu()">客户评价</a>
+                <a href="#booking" class="btn-primary bg-orange-500 text-white text-sm font-semibold px-6 py-2.5 rounded-full text-center" onclick="closeMobileMenu()">
+                    <span class="shine-effect"></span>立即预约
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen pt-20 relative overflow-hidden">
+        <!-- Background Glow -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-500/5 rounded-full blur-[120px] animate-breathe pointer-events-none"></div>
+        <div class="absolute top-20 right-0 w-[400px] h-[400px] bg-orange-600/3 rounded-full blur-[100px] animate-breathe delay-500 pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-80px)]">
+            <!-- Left Content -->
+            <div class="flex flex-col justify-center py-16 lg:py-0">
+                <div class="animate-slide-up">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8">
+                        <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse-glow"></span>
+                        <span class="text-xs font-medium tracking-wider uppercase text-neutral-400">上海 · 高端美发沙龙</span>
+                    </div>
+                </div>
+
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-medium leading-[0.9] tracking-tighter animate-slide-up delay-100">
+                    重新定义<br>
+                    <span class="text-orange-500">发型</span>美学
+                </h1>
+
+                <p class="text-lg font-light leading-relaxed text-neutral-400 mt-8 max-w-md animate-slide-up delay-200">
+                    在ÉLÈVE，每一次造型都是一场艺术创作。我们以极致匠心，为您打造独一无二的风格。
+                </p>
+
+                <div class="flex flex-wrap gap-4 mt-10 animate-slide-up delay-300">
+                    <a href="#booking" class="btn-primary bg-orange-500 text-white text-sm font-semibold px-8 py-3.5 rounded-full inline-flex items-center gap-2">
+                        <span class="shine-effect"></span>
+                        预约体验
+                        <span class="iconify" data-icon="mdi:arrow-right"></span>
+                    </a>
+                    <a href="#services" class="text-sm font-semibold px-8 py-3.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all inline-flex items-center gap-2">
+                        了解服务
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-8 mt-14 animate-slide-up delay-500">
+                    <div>
+                        <div class="text-3xl font-medium">12+</div>
+                        <div class="text-xs text-neutral-500 uppercase tracking-wider mt-1">年经验</div>
+                    </div>
+                    <div class="w-px h-10 bg-white/10"></div>
+                    <div>
+                        <div class="text-3xl font-medium">8K+</div>
+                        <div class="text-xs text-neutral-500 uppercase tracking-wider mt-1">满意客户</div>
+                    </div>
+                    <div class="w-px h-10 bg-white/10"></div>
+                    <div>
+                        <div class="text-3xl font-medium">4.9</div>
+                        <div class="text-xs text-neutral-500 uppercase tracking-wider mt-1">平均评分</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Image -->
+            <div class="relative animate-scale-reveal delay-300">
+                <div class="h-[500px] lg:h-[600px] rounded-t-[10rem] rounded-b-3xl overflow-hidden relative">
+                    <img src="https://picsum.photos/seed/salon-hero/800/1000.jpg" alt="Salon" class="w-full h-full object-cover opacity-80 animate-slow-zoom">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                </div>
+                <!-- Floating Card -->
+                <div class="absolute -left-6 bottom-20 bg-black/70 backdrop-blur-xl border border-white/10 rounded-2xl p-5 animate-float">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
+                            <span class="iconify text-orange-500 text-lg" data-icon="mdi:star"></span>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium">客户好评如潮</div>
+                            <div class="text-xs text-neutral-500">98% 推荐率</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marquee -->
+    <section class="py-12 border-y border-white/5 overflow-hidden marquee-mask">
+        <div class="flex animate-scroll whitespace-nowrap">
+            <div class="flex items-center gap-12 px-6">
+                <span class="text-2xl font-medium tracking-tight text-white/10">剪发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">染发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">烫发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">护理</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">造型设计</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">头皮护理</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">接发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">婚礼造型</span>
+                <span class="text-orange-500/30">✦</span>
+            </div>
+            <div class="flex items-center gap-12 px-6">
+                <span class="text-2xl font-medium tracking-tight text-white/10">剪发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">染发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">烫发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">护理</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">造型设计</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">头皮护理</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">接发</span>
+                <span class="text-orange-500/30">✦</span>
+                <span class="text-2xl font-medium tracking-tight text-white/10">婚礼造型</span>
+                <span class="text-orange-500/30">✦</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="scroll-hidden">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
+                    <span class="iconify text-orange-500 text-sm" data-icon="mdi:sparkles"></span>
+                    <span class="text-xs font-medium tracking-wider uppercase text-neutral-400">专业服务</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-medium tracking-tight">我们的<span class="text-orange-500">服务</span>项目</h2>
+                <p class="text-neutral-400 font-light text-lg mt-4 max-w-xl">从日常修剪到创意造型，我们提供全方位的美发服务，满足您对美的所有想象。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+                <!-- Service 1 -->
+                <div class="service-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="service-icon w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <span class="iconify text-orange-500 text-2xl" data-icon="mdi:content-cut"></span>
+                    </div>
+                    <h3 class="text-xl font-medium mb-3">精剪造型</h3>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">根据脸型、发质和个人风格，量身定制最适合您的发型方案。</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-orange-500 font-medium">¥288 起</span>
+                        <span class="text-xs text-neutral-500">约60分钟</span>
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="service-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="service-icon w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <span class="iconify text-orange-500 text-2xl" data-icon="mdi:palette"></span>
+                    </div>
+                    <h3 class="text-xl font-medium mb-3">专业染发</h3>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">采用国际顶级染发产品，色彩持久饱满，呵护每一根发丝。</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-orange-500 font-medium">¥488 起</span>
+                        <span class="text-xs text-neutral-500">约120分钟</span>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="service-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="service-icon w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <span class="iconify text-orange-500 text-2xl" data-icon="mdi:waves"></span>
+                    </div>
+                    <h3 class="text-xl font-medium mb-3">烫发塑形</h3>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">从自然微卷到时尚造型烫，打造持久蓬松的完美卷度。</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-orange-500 font-medium">¥688 起</span>
+                        <span class="text-xs text-neutral-500">约150分钟</span>
+                    </div>
+                </div>
+
+                <!-- Service 4 -->
+                <div class="service-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="service-icon w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <span class="iconify text-orange-500 text-2xl" data-icon="mdi:spa"></span>
+                    </div>
+                    <h3 class="text-xl font-medium mb-3">深度护理</h3>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">修复受损发质，深层滋养，让秀发重焕丝滑光泽。</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-orange-500 font-medium">¥388 起</span>
+                        <span class="text-xs text-neutral-500">约45分钟</span>
+                    </div>
+                </div>
+
+                <!-- Service 5 -->
+                <div class="service-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="service-icon w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <span class="iconify text-orange-500 text-2xl" data-icon="mdi:crown"></span>
+                    </div>
+                    <h3 class="text-xl font-medium mb-3">婚礼造型</h3>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">人生最重要的日子，让我们的造型师为您打造最完美的新娘造型。</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-orange-500 font-medium">¥1,288 起</span>
+                        <span class="text-xs text-neutral-500">约180分钟</span>
+                    </div>
+                </div>
+
+                <!-- Service 6 -->
+                <div class="service-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="service-icon w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-6">
+                        <span class="iconify text-orange-500 text-2xl" data-icon="mdi:head-snowflake-outline"></span>
+                    </div>
+                    <h3 class="text-xl font-medium mb-3">头皮管理</h3>
+                    <p class="text-neutral-400 font-light leading-relaxed mb-6">专业头皮检测与护理方案，从根源解决头皮问题，焕活秀发生机。</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-orange-500 font-medium">¥458 起</span>
+                        <span class="text-xs text-neutral-500">约60分钟</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="gradient-line max-w-7xl mx-auto"></div>
+
+    <!-- Stylists Section -->
+    <section id="stylists" class="py-32 relative">
+        <div class="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-orange-500/3 rounded-full blur-[120px] animate-breathe pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="scroll-hidden">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
+                    <span class="iconify text-orange-500 text-sm" data-icon="mdi:account-group"></span>
+                    <span class="text-xs font-medium tracking-wider uppercase text-neutral-400">精英团队</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-medium tracking-tight">我们的<span class="text-orange-500">造型师</span></h2>
+                <p class="text-neutral-400 font-light text-lg mt-4 max-w-xl">每位造型师都经过严格筛选与专业培训，拥有丰富的行业经验与独特的审美视角。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
+                <!-- Stylist 1 -->
+                <div class="stylist-card scroll-hidden group">
+                    <div class="rounded-3xl overflow-hidden h-[380px] relative mb-5">
+                        <img src="https://picsum.photos/seed/stylist-chen/400/500.jpg" alt="陈艺" class="stylist-img w-full h-full object-cover opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs">剪发专家</span>
+                                <span class="px-3 py-1 rounded-full bg-orange-500/20 backdrop-blur-md text-xs text-orange-400">总监</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-medium">陈艺</h3>
+                    <p class="text-neutral-500 text-sm mt-1">创意总监 · 15年经验</p>
+                    <div class="flex items-center gap-1 mt-2">
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="text-xs text-neutral-500 ml-1">5.0</span>
+                    </div>
+                </div>
+
+                <!-- Stylist 2 -->
+                <div class="stylist-card scroll-hidden group">
+                    <div class="rounded-3xl overflow-hidden h-[380px] relative mb-5">
+                        <img src="https://picsum.photos/seed/stylist-lin/400/500.jpg" alt="林薇" class="stylist-img w-full h-full object-cover opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs">染发专家</span>
+                                <span class="px-3 py-1 rounded-full bg-orange-500/20 backdrop-blur-md text-xs text-orange-400">高级</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-medium">林薇</h3>
+                    <p class="text-neutral-500 text-sm mt-1">色彩总监 · 10年经验</p>
+                    <div class="flex items-center gap-1 mt-2">
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star-half-full"></span>
+                        <span class="text-xs text-neutral-500 ml-1">4.9</span>
+                    </div>
+                </div>
+
+                <!-- Stylist 3 -->
+                <div class="stylist-card scroll-hidden group">
+                    <div class="rounded-3xl overflow-hidden h-[380px] relative mb-5">
+                        <img src="https://picsum.photos/seed/stylist-zhao/400/500.jpg" alt="赵明" class="stylist-img w-full h-full object-cover opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs">烫发专家</span>
+                                <span class="px-3 py-1 rounded-full bg-orange-500/20 backdrop-blur-md text-xs text-orange-400">高级</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-medium">赵明</h3>
+                    <p class="text-neutral-500 text-sm mt-1">烫发总监 · 12年经验</p>
+                    <div class="flex items-center gap-1 mt-2">
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star-half-full"></span>
+                        <span class="text-xs text-neutral-500 ml-1">4.8</span>
+                    </div>
+                </div>
+
+                <!-- Stylist 4 -->
+                <div class="stylist-card scroll-hidden group">
+                    <div class="rounded-3xl overflow-hidden h-[380px] relative mb-5">
+                        <img src="https://picsum.photos/seed/stylist-wang/400/500.jpg" alt="王雪" class="stylist-img w-full h-full object-cover opacity-80">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <div class="flex gap-2">
+                                <span class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs">造型设计</span>
+                                <span class="px-3 py-1 rounded-full bg-orange-500/20 backdrop-blur-md text-xs text-orange-400">资深</span>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-medium">王雪</h3>
+                    <p class="text-neutral-500 text-sm mt-1">资深造型师 · 8年经验</p>
+                    <div class="flex items-center gap-1 mt-2">
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:star-half-full"></span>
+                        <span class="text-xs text-neutral-500 ml-1">4.9</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="gradient-line-orange max-w-7xl mx-auto"></div>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="py-32 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="scroll-hidden">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
+                    <span class="iconify text-orange-500 text-sm" data-icon="mdi:message-star"></span>
+                    <span class="text-xs font-medium tracking-wider uppercase text-neutral-400">真实口碑</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-medium tracking-tight">客户<span class="text-orange-500">评价</span></h2>
+                <p class="text-neutral-400 font-light text-lg mt-4 max-w-xl">听听她们怎么说——真实的客户反馈，是我们最好的名片。</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
+                <!-- Review 1 -->
+                <div class="review-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="flex items-center gap-1 mb-5">
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                    </div>
+                    <p class="text-neutral-300 font-light leading-relaxed mb-6">"陈艺总监真的太厉害了！我之前一直找不到适合自己的发型，他根据我的脸型和气质给出了非常专业的建议，做完之后简直像换了一个人，朋友们都夸好看！"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-600/10 flex items-center justify-center text-sm font-medium">张</div>
+                        <div>
+                            <div class="text-sm font-medium">张雨晴</div>
+                            <div class="text-xs text-neutral-500">精剪造型 · 陈艺</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="review-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="flex items-center gap-1 mb-5">
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                    </div>
+                    <p class="text-neutral-300 font-light leading-relaxed mb-6">"林薇老师染的颜色太美了！我选了奶茶棕，颜色非常自然又显白，而且用了快一个月了还像刚染的一样。产品品质确实不一样，值得这个价格。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-600/10 flex items-center justify-center text-sm font-medium">李</div>
+                        <div>
+                            <div class="text-sm font-medium">李思涵</div>
+                            <div class="text-xs text-neutral-500">专业染发 · 林薇</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="review-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="flex items-center gap-1 mb-5">
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star-half-full"></span>
+                    </div>
+                    <p class="text-neutral-300 font-light leading-relaxed mb-6">"婚礼当天的造型是王雪老师做的，真的太完美了！从试妆到当天造型，每一步都很细致，全程非常耐心。所有伴娘都说要来这里做头发。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-600/10 flex items-center justify-center text-sm font-medium">周</div>
+                        <div>
+                            <div class="text-sm font-medium">周梦琳</div>
+                            <div class="text-xs text-neutral-500">婚礼造型 · 王雪</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 4 -->
+                <div class="review-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="flex items-center gap-1 mb-5">
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                    </div>
+                    <p class="text-neutral-300 font-light leading-relaxed mb-6">"赵明老师烫的卷太自然了！我一直想要法式慵懒卷，之前在其他店烫的都不满意，赵老师一出手就是我要的效果。环境也很舒服，整个过程很享受。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-600/10 flex items-center justify-center text-sm font-medium">陈</div>
+                        <div>
+                            <div class="text-sm font-medium">陈晓薇</div>
+                            <div class="text-xs text-neutral-500">烫发塑形 · 赵明</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 5 -->
+                <div class="review-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="flex items-center gap-1 mb-5">
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                    </div>
+                    <p class="text-neutral-300 font-light leading-relaxed mb-6">"头皮护理做了一次就爱上了，做完之后头皮特别清爽，头发也变得蓬松了很多。护理师很专业，会详细讲解头皮状况，推荐最合适的方案。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-600/10 flex items-center justify-center text-sm font-medium">吴</div>
+                        <div>
+                            <div class="text-sm font-medium">吴佳怡</div>
+                            <div class="text-xs text-neutral-500">头皮管理 · 门店</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 6 -->
+                <div class="review-card card-hover rounded-3xl p-8 bg-white/[0.02] scroll-hidden">
+                    <div class="flex items-center gap-1 mb-5">
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                        <span class="iconify text-orange-500" data-icon="mdi:star"></span>
+                    </div>
+                    <p class="text-neutral-300 font-light leading-relaxed mb-6">"已经是第三次来了，每次体验都很好。从进门到出门，服务细节都做得很到位。价格虽然不便宜但绝对物超所值，强烈推荐！"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500/30 to-orange-600/10 flex items-center justify-center text-sm font-medium">孙</div>
+                        <div>
+                            <div class="text-sm font-medium">孙雅琪</div>
+                            <div class="text-xs text-neutral-500">深度护理 · 林薇</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="gradient-line max-w-7xl mx-auto"></div>
+
+    <!-- Booking Section -->
+    <section id="booking" class="py-32 relative">
+        <div class="absolute bottom-0 right-0 w-[600px] h-[600px] bg-orange-500/5 rounded-full blur-[120px] animate-breathe pointer-events-none"></div>
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                <!-- Left Info -->
+                <div class="scroll-hidden">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6">
+                        <span class="iconify text-orange-500 text-sm" data-icon="mdi:calendar-check"></span>
+                        <span class="text-xs font-medium tracking-wider uppercase text-neutral-400">在线预约</span>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-medium tracking-tight">预约您的<span class="text-orange-500">专属</span>时刻</h2>
+                    <p class="text-neutral-400 font-light text-lg mt-4 max-w-md">填写以下信息，我们将在30分钟内确认您的预约。期待为您服务。</p>
+
+                    <div class="mt-12 space-y-6">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-orange-500 text-xl" data-icon="mdi:map-marker"></span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">门店地址</div>
+                                <div class="text-neutral-400 font-light text-sm mt-1">上海市静安区南京西路1788号3楼</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-orange-500 text-xl" data-icon="mdi:clock-outline"></span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">营业时间</div>
+                                <div class="text-neutral-400 font-light text-sm mt-1">周一至周五 10:00 - 21:00<br>周末及节假日 09:00 - 22:00</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0">
+                                <span class="iconify text-orange-500 text-xl" data-icon="mdi:phone"></span>
+                            </div>
+                            <div>
+                                <div class="font-medium text-sm">联系电话</div>
+                                <div class="text-neutral-400 font-light text-sm mt-1">021-6288-8888</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Form -->
+                <div class="scroll-hidden">
+                    <form id="bookingForm" class="booking-form bg-white/[0.02] border border-white/5 rounded-3xl p-8 md:p-10 space-y-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">姓名</label>
+                                <input type="text" placeholder="您的姓名" required class="w-full px-4 py-3 rounded-xl text-sm font-light">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">手机号</label>
+                                <input type="tel" placeholder="您的手机号" required class="w-full px-4 py-3 rounded-xl text-sm font-light">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">服务项目</label>
+                            <select required class="w-full px-4 py-3 rounded-xl text-sm font-light appearance-none cursor-pointer">
+                                <option value="">请选择服务项目</option>
+                                <option value="cut">精剪造型 - ¥288起</option>
+                                <option value="color">专业染发 - ¥488起</option>
+                                <option value="perm">烫发塑形 - ¥688起</option>
+                                <option value="care">深度护理 - ¥388起</option>
+                                <option value="wedding">婚礼造型 - ¥1,288起</option>
+                                <option value="scalp">头皮管理 - ¥458起</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">指定造型师</label>
+                            <select class="w-full px-4 py-3 rounded-xl text-sm font-light appearance-none cursor-pointer">
+                                <option value="">不指定（由门店安排）</option>
+                                <option value="chen">陈艺 · 创意总监</option>
+                                <option value="lin">林薇 · 色彩总监</option>
+                                <option value="zhao">赵明 · 烫发总监</option>
+                                <option value="wang">王雪 · 资深造型师</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">预约日期</label>
+                                <input type="date" required class="w-full px-4 py-3 rounded-xl text-sm font-light">
+                            </div>
+                            <div>
+                                <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">预约时间</label>
+                                <select required class="w-full px-4 py-3 rounded-xl text-sm font-light appearance-none cursor-pointer">
+                                    <option value="">选择时间</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="12:00">12:00</option>
+                                    <option value="13:00">13:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="18:00">18:00</option>
+                                    <option value="19:00">19:00</option>
+                                    <option value="20:00">20:00</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-medium text-neutral-400 uppercase tracking-wider mb-2 block">备注</label>
+                            <textarea rows="3" placeholder="如有特殊需求请在此说明..." class="w-full px-4 py-3 rounded-xl text-sm font-light resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full bg-orange-500 text-white text-sm font-semibold py-4 rounded-xl flex items-center justify-center gap-2 mt-2">
+                            <span class="shine-effect"></span>
+                            <span class="iconify" data-icon="mdi:calendar-check"></span>
+                            确认预约
+                        </button>
+
+                        <p class="text-xs text-neutral-500 text-center">提交即表示您同意我们的服务条款和隐私政策</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-32 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-orange-500/5 to-transparent pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto px-6 text-center scroll-hidden">
+            <h2 class="text-4xl md:text-6xl font-medium tracking-tighter leading-[0.9]">
+                准备好遇见<br>全新的<span class="text-orange-500">自己</span>了吗？
+            </h2>
+            <p class="text-neutral-400 font-light text-lg mt-6 max-w-lg mx-auto">每一次改变，都从走进ÉLÈVE开始。让我们用专业与热情，为您开启美丽新篇章。</p>
+            <div class="flex flex-wrap justify-center gap-4 mt-10">
+                <a href="#booking" class="btn-primary bg-orange-500 text-white text-sm font-semibold px-10 py-4 rounded-full inline-flex items-center gap-2">
+                    <span class="shine-effect"></span>
+                    立即预约
+                    <span class="iconify" data-icon="mdi:arrow-right"></span>
+                </a>
+                <a href="tel:02162888888" class="text-sm font-semibold px-10 py-4 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all inline-flex items-center gap-2">
+                    <span class="iconify" data-icon="mdi:phone"></span>
+                    致电咨询
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <!-- Brand -->
+                <div class="lg:col-span-1">
+                    <div class="text-xl font-semibold tracking-tight flex items-center gap-2 mb-4">
+                        <span class="iconify text-orange-500" data-icon="mdi:content-cut"></span>
+                        ÉLÈVE
+                    </div>
+                    <p class="text-neutral-500 font-light text-sm leading-relaxed">重新定义发型美学<br>上海高端美发沙龙</p>
+                    <div class="flex items-center gap-3 mt-6">
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-orange-500/30 transition-all">
+                            <span class="iconify text-sm" data-icon="mdi:wechat"></span>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-orange-500/30 transition-all">
+                            <span class="iconify text-sm" data-icon="mdi:sina-weibo"></span>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-orange-500/30 transition-all">
+                            <span class="iconify text-sm" data-icon="mdi:instagram"></span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div>
+                    <h4 class="text-xs font-medium uppercase tracking-wider text-neutral-400 mb-5">服务项目</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#services" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">精剪造型</a></li>
+                        <li><a href="#services" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">专业染发</a></li>
+                        <li><a href="#services" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">烫发塑形</a></li>
+                        <li><a href="#services" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">深度护理</a></li>
+                        <li><a href="#services" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">婚礼造型</a></li>
+                    </ul>
+                </div>
+
+                <!-- Info -->
+                <div>
+                    <h4 class="text-xs font-medium uppercase tracking-wider text-neutral-400 mb-5">关于我们</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#stylists" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">造型师团队</a></li>
+                        <li><a href="#reviews" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">客户评价</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">品牌故事</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors font-light">加入我们</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h4 class="text-xs font-medium uppercase tracking-wider text-neutral-400 mb-5">联系方式</h4>
+                    <ul class="space-y-3">
+                        <li class="text-sm text-neutral-500 font-light flex items-center gap-2">
+                            <span class="iconify text-orange-500/50 text-sm" data-icon="mdi:map-marker"></span>
+                            上海市静安区南京西路1788号
+                        </li>
+                        <li class="text-sm text-neutral-500 font-light flex items-center gap-2">
+                            <span class="iconify text-orange-500/50 text-sm" data-icon="mdi:phone"></span>
+                            021-6288-8888
+                        </li>
+                        <li class="text-sm text-neutral-500 font-light flex items-center gap-2">
+                            <span class="iconify text-orange-500/50 text-sm" data-icon="mdi:email"></span>
+                            hello@eleve-salon.com
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="gradient-line mt-12 mb-8"></div>
+
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-neutral-600 font-light">© 2024 ÉLÈVE 美发沙龙. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-xs text-neutral-600 hover:text-neutral-400 transition-colors font-light">隐私政策</a>
+                    <a href="#" class="text-xs text-neutral-600 hover:text-neutral-400 transition-colors font-light">服务条款</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        let menuOpen = false;
+
+        mobileMenuBtn.addEventListener('click', () => {
+            menuOpen = !menuOpen;
+            mobileMenu.classList.toggle('hidden');
+            mobileMenuBtn.innerHTML = menuOpen 
+                ? '<span class="iconify text-2xl" data-icon="mdi:close"></span>'
+                : '<span class="iconify text-2xl" data-icon="mdi:menu"></span>';
+        });
+
+        function closeMobileMenu() {
+            menuOpen = false;
+            mobileMenu.classList.add('hidden');
+            mobileMenuBtn.innerHTML = '<span class="iconify text-2xl" data-icon="mdi:menu"></span>';
+        }
+
+        // Toast Notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Booking Form
+        const bookingForm = document.getElementById('bookingForm');
+        bookingForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = bookingForm.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span class="iconify animate-spin" data-icon="mdi:loading"></span> 提交中...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                bookingForm.reset();
+                showToast('🎉 预约提交成功！我们将尽快与您确认。');
+            }, 1500);
+        });
+
+        // Scroll Animation Observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('scroll-visible');
+                    }, index * 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.scroll-hidden').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Navbar background on scroll
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.style.background = 'rgba(0,0,0,0.8)';
+            } else {
+                nav.style.background = 'rgba(0,0,0,0.6)';
+            }
+        });
+
+        // Set min date for date input
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.setAttribute('min', today);
+        }
+    </script>
+</body>
+</html>

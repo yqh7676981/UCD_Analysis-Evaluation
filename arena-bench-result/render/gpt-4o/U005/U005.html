@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吃药提醒工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+
+        header {
+            background-color: #4caf50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 1.5em;
+        }
+
+        .container {
+            margin: 20px;
+            font-size: 1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1em;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .reminder-list {
+            margin-top: 30px;
+        }
+
+        .reminder {
+            background-color: #ffffff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .reminder span {
+            font-size: 1.2em;
+            display: block;
+        }
+
+        .big-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .big-alert button {
+            margin-top: 20px;
+            background-color: #ff5722;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .big-alert button:hover {
+            background-color: #e64a19;
+        }
+    </style>
+</head>
+
+<body>
+    <header>吃药提醒工具</header>
+    <div class="container">
+        <div class="form-group">
+            <label for="medicine-name">药品名称</label>
+            <input type="text" id="medicine-name" placeholder="请输入药品名称">
+        </div>
+        <div class="form-group">
+            <label for="medicine-dose">服用剂量</label>
+            <input type="text" id="medicine-dose" placeholder="请输入服用剂量 (如：1片)">
+        </div>
+        <div class="form-group">
+            <label for="reminder-time">服用时间</label>
+            <input type="time" id="reminder-time">
+        </div>
+        <button id="add-reminder-btn">添加提醒</button>
+        <div class="reminder-list" id="reminder-list"></div>
+    </div>
+
+    <div class="big-alert" id="big-alert">
+        <div>
+            <div id="alert-message"></div>
+            <button id="dismiss-btn">知道了</button>
+        </div>
+    </div>
+
+    <script>
+        const addReminderBtn = document.getElementById("add-reminder-btn");
+        const reminderList = document.getElementById("reminder-list");
+        const bigAlert = document.getElementById("big-alert");
+        const alertMessage = document.getElementById("alert-message");
+        const dismissBtn = document.getElementById("dismiss-btn");
+
+        addReminderBtn.addEventListener("click", () => {
+            const medicineName = document.getElementById("medicine-name").value.trim();
+            const medicineDose = document.getElementById("medicine-dose").value.trim();
+            const reminderTime = document.getElementById("reminder-time").value;
+
+            if (!medicineName || !medicineDose || !reminderTime) {
+                alert("请填写完整信息！");
+                return;
+            }
+
+            const reminder = document.createElement("div");
+            reminder.classList.add("reminder");
+            reminder.innerHTML = `
+                <span>药品名称: ${medicineName}</span>
+                <span>剂量: ${medicineDose}</span>
+                <span>时间: ${reminderTime}</span>
+            `;
+
+            reminderList.appendChild(reminder);
+
+            setReminder(medicineName, medicineDose, reminderTime);
+            document.getElementById("medicine-name").value = "";
+            document.getElementById("medicine-dose").value = "";
+            document.getElementById("reminder-time").value = "";
+        });
+
+        function setReminder(name, dose, time) {
+            const now = new Date();
+            const [hours, minutes] = time.split(":").map(Number);
+            const targetTime = new Date();
+            targetTime.setHours(hours, minutes, 0, 0);
+
+            if (targetTime <= now) {
+                targetTime.setDate(targetTime.getDate() + 1);
+            }
+
+            const timeout = targetTime - now;
+            setTimeout(() => {
+                alertMessage.innerText = `时间到！请服用 ${name}，剂量：${dose}`;
+                bigAlert.style.display = "flex";
+            }, timeout);
+        }
+
+        dismissBtn.addEventListener("click", () => {
+            bigAlert.style.display = "none";
+        });
+    </script>
+</body>
+
+</html>

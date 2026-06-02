@@ -1,0 +1,33 @@
+{
+  "index": 276,
+  "id": "E001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个雅思核心词汇打卡工具，每天展示 20 个单词卡片，可以翻转查看释义和例句，记录已掌握的进度。",
+  "evaluation": {
+    "total_score": 66,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The dark theme with warm yellow accents is coherent and fits a focused study tool. Card, buttons, and grid share a mostly consistent visual language, but the page feels somewhat generic and flat, with limited visual focus beyond the central word card."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is generally clean and centered well, with decent spacing and readable card/button interiors. However, some secondary text is low-contrast and small, the pronunciation line is faint, and several components rely on similar dark tones, reducing finish and precision."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly find the main word, progress count, mastery buttons, next action, and 20-word index. The reading path is mostly clear, but the card face is visually sparse and the key study action—flipping to see meaning/example—is not strongly emphasized in the hierarchy."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Core operations like '已掌握', '不认识', and '下一个' are understandable. But the flip interaction is only hinted by helper text, with no obvious affordance or visible back state, so users may not immediately know how to reveal释义和例句; '上一个' also appears disabled without strong state explanation."
+      }
+    },
+    "summary": "This is a usable and visually coherent mobile study interface with a clear main card, progress summary, and simple mastery flow. Its main limitations are semantic discoverability and depth: the flip-to-see meaning/example interaction is not obvious from the screen, secondary text contrast is weak, and the overall hierarchy does not fully guide the vocabulary-learning task. Solid average UX, but not yet polished or self-explanatory enough for a higher score."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E001_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:19:57.818256"
+}

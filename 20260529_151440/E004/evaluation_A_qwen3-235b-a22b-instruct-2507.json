@@ -1,0 +1,33 @@
+{
+  "index": 11,
+  "id": "E004",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个错题本工具，支持录入错题、错误原因和正确解法，按学科和知识点分类，能筛选查看。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "Style is coherent and clean, with a simple light form layout suitable for mobile note entry. However, it is very generic, relies on default-looking controls, uses an emoji-like header icon and mixed green/blue CTA colors without a stronger system or product personality."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Spacing is generally consistent and inputs have adequate padding and touch size. But typography hierarchy is weak, placeholder text is low-contrast, borders and selects feel browser-default, and the icon/button treatment lacks polish expected in a finished product."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "The page is easy to scan top-to-bottom: subject, topic, wrong question, reason, solution, save, then filters. Labels are explicit and the primary tasks are visible. The main weakness is that entry and browsing/filtering are stacked with similar emphasis, and the empty state offers little guidance beyond one line of text."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Semantics are straightforward: fields match the requested scenario, and filter controls are recognizable. Users can predict what '保存错题' and '筛选' do. However, there is no visible list/result area in use, no feedback/state examples, and no stronger affordance for classification workflow beyond plain text inputs."
+      }
+    },
+    "summary": "This is a usable, task-relevant mobile wrong-question notebook with clear labels and a simple flow for recording mistakes. The hard cap comes from its generic visual system, limited hierarchy refinement, and incomplete browsing experience in the screenshot: users can enter data, but the product does not yet feel like a polished, efficient tool for managing and reviewing classified mistakes."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E004_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:16:58.226144"
+}

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>解压气泡膜</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f8ff;
+      overflow: hidden;
+      touch-action: manipulation;
+      user-select: none;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      padding: 10px;
+      gap: 10px;
+      justify-content: center;
+      align-content: center;
+    }
+
+    .bubble {
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle at 20px 20px, #ffffff, #c9e4ff);
+      border-radius: 50%;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1), inset 2px 2px 5px rgba(255, 255, 255, 0.6), inset -2px -2px 5px rgba(0, 0, 0, 0.1);
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .bubble::before {
+      content: '';
+      width: 15px;
+      height: 15px;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      position: absolute;
+      top: 12px;
+      left: 15px;
+    }
+
+    .bubble.popped {
+      animation: pop 0.3s ease-out forwards;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      70% {
+        transform: scale(1.1) rotate(10deg);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(0) rotate(30deg);
+        opacity: 0;
+      }
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background-color: #c9e4ff;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    #reset {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #reset:hover {
+      background-color: #357abd;
+    }
+
+    #score {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 18px;
+      color: #333;
+      font-weight: bold;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 8px 12px;
+      border-radius: 20px;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">已爆：<span id="count">0</span></div>
+  <div id="container"></div>
+  <button id="reset">重新开始</button>
+
+  <script>
+    const container = document.getElementById('container');
+    const resetBtn = document.getElementById('reset');
+    const countDisplay = document.getElementById('count');
+    let bubbleCount = 0;
+    let score = 0;
+
+    // 创建气泡音效
+    const popSound = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUlvT18AAAAPBw0REhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKmqq6ytrq+wsbKztLW2t7i5uru8vb6/wMHCw8TFxsfIycrLzM3Oz9DR0tPU1dbX2Nna29zd3t/g4eLj5OXm5+jp6uvs7e7v8PHy8/T19vf4+fr7/P3+/w==");
+
+    function createBubble() {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      
+      const containerRect = container.getBoundingClientRect();
+      const maxX = containerRect.width - 60;
+      const maxY = containerRect.height - 60;
+      
+      const randomX = Math.max(10, Math.floor(Math.random() * maxX));
+      const randomY = Math.max(10, Math.floor(Math.random() * maxY));
+      
+      bubble.style.left = `${randomX}px`;
+      bubble.style.top = `${randomY}px`;
+
+      bubble.addEventListener('touchstart', handlePop);
+      bubble.addEventListener('mousedown', handlePop);
+
+      container.appendChild(bubble);
+      bubbleCount++;
+    }
+
+    function handlePop(e) {
+      e.preventDefault();
+      const bubble = e.target;
+      if (bubble.classList.contains('popped')) return;
+
+      bubble.classList.add('popped');
+      playPopEffect(bubble);
+      playPopSound();
+      updateScore();
+      
+      setTimeout(() => {
+        bubble.remove();
+        bubbleCount--;
+        if (bubbleCount < 15) createBubble();
+      }, 300);
+    }
+
+    function playPopSound() {
+      const sound = popSound.cloneNode();
+      sound.volume = 0.3;
+      sound.play().catch(() => {});
+    }
+
+    function playPopEffect(bubble) {
+      const rect = bubble.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+
+      for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 2 + Math.random() * 3;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        
+        document.body.appendChild(particle);
+
+        let px = x;
+        let py = y;
+        const animate = () => {
+          px += vx;
+          py += vy;
+          particle.style.left = `${px}px`;
+          particle.style.top = `${py}px`;
+          
+          if (py < window.innerHeight && px > 0 && px < window.innerWidth) {
+            requestAnimationFrame(animate);
+          } else {
+            particle.remove();
+          }
+        };
+        requestAnimationFrame(animate);
+      }
+    }
+
+    function updateScore() {
+      score++;
+      countDisplay.textContent = score;
+    }
+
+    function reset() {
+      document.querySelectorAll('.bubble').forEach(b => b.remove());
+      document.querySelectorAll('.particle').forEach(p => p.remove());
+      bubbleCount = 0;
+      score = 0;
+      countDisplay.textContent = '0';
+      initBubbles();
+    }
+
+    function initBubbles() {
+      const count = Math.min(15, Math.floor((window.innerWidth * window.innerHeight) / (60 * 60 * 2)));
+      for (let i = 0; i < count; i++) {
+        createBubble();
+      }
+    }
+
+    resetBtn.addEventListener('click', reset);
+
+    // 初始化
+    window.addEventListener('load', () => {
+      initBubbles();
+    });
+
+    // 屏幕大小变化时重新初始化
+    window.addEventListener('resize', () => {
+      reset();
+    });
+  </script>
+</body>
+</html>

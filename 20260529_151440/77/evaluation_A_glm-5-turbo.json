@@ -1,0 +1,33 @@
+{
+  "index": 300,
+  "id": "77",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为一家快餐公司设计一个主页，突出显示他们的菜单项、特别优惠和简单的订购选项。",
+  "evaluation": {
+    "total_score": 34,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "Dark red-black theme is coherent and fits a fast-food brand tone, but the page feels like a generic promo template rather than a food homepage. Hero imagery and most cards use irrelevant scenic stock photos instead of appetizing menu visuals, weakening scenario fit and visual focus."
+      },
+      "local_details": {
+        "score": 4,
+        "reason": "Typography, spacing, and card structure are mostly consistent, but text is often too small and low-contrast on dark backgrounds. Menu cards are cramped, repeated badges/buttons feel tiny, and several visuals look mismatched to the content, making the interface feel unfinished at element level."
+      },
+      "easy_to_perceive": {
+        "score": 3,
+        "reason": "Primary task priorities are unclear. The hero headline is strong, but menu browsing, offers, and ordering compete without a clear conversion path. The oversized menu grid creates heavy density, while the shopping cart/order area is visually weak and easy to miss."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The page does not match common fast-food mental models well. Many menu items appear to be placeholders with unrelated images and unclear names, so users cannot confidently identify food choices. Ordering actions are fragmented across cards and a nearly empty cart panel, with limited clarity on how checkout proceeds."
+      }
+    },
+    "summary": "The interface has a consistent dark promotional style and basic homepage sections, but it fails the requested fast-food scenario in crucial ways: menu imagery/content is not believable, ordering is not clearly guided, and information hierarchy is weak. Users can recognize that this is meant to be a restaurant homepage, but they would need extra interpretation to browse real food, understand specials, and place an order confidently."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/77_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:25:04.294455"
+}

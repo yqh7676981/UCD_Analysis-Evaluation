@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电子木鱼</title>
+    <style>
+        /* 全局样式和移动端适配 */
+        :root {
+            --primary-bg: #f9f0e1; /* 淡米色背景 */
+            --secondary-bg: #ffffff; /* 卡片背景 */
+            --accent-color: #a0522d; /* 棕色，木鱼颜色 */
+            --text-color: #5a4b41; /* 深棕色文字 */
+            --merit-color: #d4af37; /* 金色，功德值 */
+            --border-radius-large: 15px;
+            --box-shadow-subtle: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 针对所有元素的盒模型，确保内边距和边框不会增加元素的总尺寸 */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow: hidden; /* 防止页面滚动 */
+            position: relative;
+            /* 渐变背景增加佛系治愈氛围 */
+            background-image: radial-gradient(circle at center, #fffbe6 0%, #f9f0e1 100%);
+        }
+
+        /* 标题样式 */
+        h1 {
+            font-size: 8vw; /* 适应小屏幕，根据视口宽度调整字体大小 */
+            margin-top: 5vh;
+            margin-bottom: 5vh;
+            color: var(--accent-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        /* 当屏幕宽度大于600px时，使用固定字体大小 */
+        @media (min-width: 600px) {
+            h1 {
+                font-size: 48px;
+            }
+        }
+
+        /* 主内容容器 */
+        .container {
+            background-color: var(--secondary-bg);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--box-shadow-subtle);
+            padding: 5vw; /* 适应小屏幕的内边距 */
+            margin: 2vw; /* 适应小屏幕的外边距 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4vh; /* 元素之间间距 */
+            max-width: 90vw; /* 最大宽度为视口宽度的90% */
+            width: 350px; /* 限制容器的最大宽度，防止在桌面端过宽 */
+            border: 1px solid rgba(0, 0, 0, 0.05); /* 细微边框 */
+        }
+
+        /* 木鱼本体样式 */
+        #wooden-fish {
+            width: 50vw; /* 宽度为视口宽度的50% */
+            height: 30vw; /* 高度为视口宽度的30% */
+            max-width: 250px; /* 桌面端最大宽度 */
+            max-height: 150px; /* 桌面端最大高度 */
+            background-color: var(--accent-color);
+            border-radius: 50% / 30%; /* 模拟木鱼的椭圆形形状 */
+            cursor: pointer; /* 鼠标悬停时显示手型光标 */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6vw; /* 文字大小适应屏幕 */
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2), inset 0 -5px 10px rgba(0, 0, 0, 0.3); /* 立体感阴影 */
+            border: 3px solid #8B4513; /* 更深色的边框 */
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out; /* 动画过渡效果 */
+            user-select: none; /* 防止文字被选中 */
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮效果 */
+        }
+        /* 木鱼内部高光效果 */
+        #wooden-fish::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 40%;
+            background-color: rgba(255, 255, 255, 0.15); /* 高光颜色 */
+            border-radius: 50%;
+            filter: blur(5px); /* 模糊效果 */
+            opacity: 0.8;
+        }
+
+        /* 木鱼敲击动画效果 */
+        #wooden-fish.animate {
+            transform: scale(0.95) translateY(5px); /* 缩小并下移 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 -3px 6px rgba(0, 0, 0, 0.3); /* 阴影变化，增加敲击感 */
+        }
+
+        /* 计数器区域 */
+        #counters {
+            display: flex;
+            flex-direction: column;
+            gap: 2vh; /* 各计数器项之间的间距 */
+            width: 100%;
+        }
+
+        .counter-item {
+            font-size: 4.5vw; /* 适应小屏幕字体大小 */
+            font-weight: 500;
+            color: var(--text-color);
+            padding: 1.5vh 0;
+            background-color: #fcf6ed; /* 浅米色背景 */
+            border-radius: 10px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* 内阴影 */
+            border: 1px solid rgba(0, 0, 0, 0.03); /* 细微边框 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px; /* 图标和文字的间距 */
+        }
+        /* 当屏幕宽度大于600px时，使用固定字体大小 */
+        @media (min-width: 600px) {
+            .counter-item {
+                font-size: 24px;
+            }
+        }
+
+        /* 功德值文字样式 */
+        .merit-value {
+            color: var(--merit-color);
+            font-weight: bold;
+            font-size: 1.1em; /* 稍微大一点 */
+            text-shadow: 0 0 5px rgba(212, 175, 55, 0.5); /* 金色发光效果 */
+        }
+
+        /* 隐藏的音频播放器，防止页面上显示播放控件 */
+        audio {
+            display: none;
+        }
+
+        /* 佛系治愈氛围的图标 */
+        .icon-circle {
+            display: inline-flex;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            vertical-align: middle;
+            margin-right: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .icon-taps { background-color: #e0e6e0; color: #5a8a5a; } /* 淡绿色 */
+        .icon-merit { background-color: #f0e0c0; color: #d4af37; } /* 淡黄色 */
+
+        /* 微调木鱼文字位置，使其在椭圆中居中 */
+        #wooden-fish span {
+             position: relative;
+             top: -5px; /* 稍微向上调整，因为椭圆的视觉中心可能偏下 */
+        }
+    </style>
+</head>
+<body>
+    <h1>电子木鱼</h1>
+    <div class="container">
+        <div id="wooden-fish" aria-label="点击敲击木鱼">
+            <span>敲击</span>
+        </div>
+        <div id="counters">
+            <div class="counter-item">
+                <span class="icon-circle icon-taps">🪘</span> 已敲击次数: <span id="taps-count">0</span>
+            </div>
+            <div class="counter-item">
+                <span class="icon-circle icon-merit">✨</span> 今日功德值: <span id="merit-count" class="merit-value">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 木鱼敲击音效 -->
+    <audio id="wood-sound" src="https://cdn.jsdelivr.net/gh/Dmitry-S/wooden-fish/wooden-fish-sound.mp3" preload="auto"></audio>
+    <!--
+        注意: 上方音效链接为在线资源，如果您需要离线使用或更换音效，
+        请将 'src' 属性替换为您的音频文件路径，例如: src="path/to/your/sound.mp3"。
+        您也可以使用 Base64 编码的音频数据。
+    -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const woodenFish = document.getElementById('wooden-fish');
+            const tapsCountSpan = document.getElementById('taps-count');
+            const meritCountSpan = document.getElementById('merit-count');
+            const woodSound = document.getElementById('wood-sound');
+
+            let taps = 0; // 已敲击次数，每次页面加载从0开始
+            let merit = 0; // 今日功德值
+
+            // --- 今日功德值持久化逻辑 ---
+            const today = new Date().toDateString(); // 获取今日日期字符串，例如 "Wed Oct 27 2023"
+
+            // 从 localStorage 加载数据
+            function loadMeritData() {
+                const storedDate = localStorage.getItem('lastMeritDate');
+                if (storedDate === today) {
+                    // 如果是今天，加载今日功德值
+                    merit = parseInt(localStorage.getItem('todayMerit') || '0', 10);
+                } else {
+                    // 如果不是今天，重置今日功德值并更新日期
+                    merit = 0;
+                    localStorage.setItem('lastMeritDate', today);
+                    localStorage.setItem('todayMerit', '0');
+                }
+                // 敲击次数不持久化，每次加载页面都从0开始
+                taps = 0;
+                updateDisplay();
+            }
+
+            // 保存今日功德值到 localStorage
+            function saveMeritData() {
+                localStorage.setItem('todayMerit', merit.toString());
+                localStorage.setItem('lastMeritDate', today); // 确保日期是最新的
+            }
+
+            // 更新页面上显示的计数
+            function updateDisplay() {
+                tapsCountSpan.textContent = taps;
+                meritCountSpan.textContent = merit;
+            }
+
+            // 点击木鱼事件
+            woodenFish.addEventListener('click', () => {
+                // 1. 播放音效
+                if (woodSound) {
+                    woodSound.currentTime = 0; // 确保每次从头播放
+                    // 使用.catch()捕获可能的用户未交互前自动播放的错误
+                    woodSound.play().catch(e => console.log("Audio play failed:", e));
+                }
+
+                // 2. 敲击动画
+                woodenFish.classList.add('animate');
+                // 动画持续时间与CSS transition时间匹配，然后移除class
+                setTimeout(() => {
+                    woodenFish.classList.remove('animate');
+                }, 100);
+
+                // 3. 更新计数
+                taps++;
+                merit += 1; // 每次敲击增加1点功德值
+
+                updateDisplay();    // 更新显示
+                saveMeritData();    // 保存今日功德值
+            });
+
+            // 页面加载时执行一次，加载功德值数据
+            loadMeritData();
+
+            // 阻止长按弹出菜单 (移动端优化，提升用户体验)
+            woodenFish.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        });
+    </script>
+</body>
+</html>

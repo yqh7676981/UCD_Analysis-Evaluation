@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>贪吃蛇</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #game-container {
+      position: relative;
+      width: 90vmin;
+      height: 90vmin;
+      background-color: #242424;
+      border: 2px solid #333;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+    #info {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background: #111;
+      color: white;
+      font-size: 16px;
+    }
+    canvas {
+      flex-grow: 1;
+      background-color: #000;
+      touch-action: none; /* Prevent scrolling on touch devices */
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="info">
+      <div>长度: <span id="current-length">1</span></div>
+      <div>最高纪录: <span id="high-score">0</span></div>
+    </div>
+    <canvas id="game-canvas"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    const infoLength = document.getElementById('current-length');
+    const infoHighScore = document.getElementById('high-score');
+
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+
+    const tileSize = Math.floor(canvas.width / 20);
+    const boardWidth = Math.floor(canvas.width / tileSize);
+    const boardHeight = Math.floor(canvas.height / tileSize);
+
+    let snake = [{ x: 10, y: 10 }];
+    let food = { x: 15, y: 15 };
+    let direction = { x: 0, y: 0 };
+    let length = 1;
+    let highScore = 0;
+    let gameOver = false;
+
+    function drawBoard() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawSnake() {
+      ctx.fillStyle = '#0f0';
+      snake.forEach(segment => {
+        ctx.fillRect(segment.x * tileSize, segment.y * tileSize, tileSize, tileSize);
+      });
+    }
+
+    function drawFood() {
+      ctx.fillStyle = '#f00';
+      ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+    }
+
+    function moveSnake() {
+      if (direction.x === 0 && direction.y === 0) return;
+
+      const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+      // Check collision with walls
+      if (head.x < 0 || head.x >= boardWidth || head.y < 0 || head.y >= boardHeight) {
+        handleGameOver();
+        return;
+      }
+
+      // Check collision with itself
+      if (snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+        handleGameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      // Check if food is eaten
+      if (head.x === food.x && head.y === food.y) {
+        length++;
+        infoLength.textContent = length;
+        spawnFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    function spawnFood() {
+      food = {
+        x: Math.floor(Math.random() * boardWidth),
+        y: Math.floor(Math.random() * boardHeight)
+      };
+
+      // Ensure food does not spawn in the snake body
+      if (snake.some(segment => segment.x === food.x && segment.y === food.y)) {
+        spawnFood();
+      }
+    }
+
+    function handleGameOver() {
+      gameOver = true;
+      highScore = Math.max(highScore, length);
+      infoHighScore.textContent = highScore;
+      direction = { x: 0, y: 0 };
+      alert('游戏结束！点击确定重新开始');
+      resetGame();
+    }
+
+    function resetGame() {
+      snake = [{ x: 10, y: 10 }];
+      length = 1;
+      infoLength.textContent = length;
+      direction = { x: 0, y: 0 };
+      gameOver = false;
+      spawnFood();
+    }
+
+    function gameLoop() {
+      if (!gameOver) {
+        moveSnake();
+        drawBoard();
+        drawSnake();
+        drawFood();
+      }
+      setTimeout(gameLoop, 100);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp' && direction.y === 0) direction = { x: 0, y: -1 };
+      if (e.key === 'ArrowDown' && direction.y === 0) direction = { x: 0, y: 1 };
+      if (e.key === 'ArrowLeft' && direction.x === 0) direction = { x: -1, y: 0 };
+      if (e.key === 'ArrowRight' && direction.x === 0) direction = { x: 1, y: 0 };
+    });
+
+    canvas.addEventListener('touchstart', handleTouchStart, false);
+    canvas.addEventListener('touchmove', handleTouchMove, false);
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    function handleTouchStart(e) {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }
+
+    function handleTouchMove(e) {
+      if (e.touches.length > 1) return;
+
+      const touch = e.touches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+
+      if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0 && direction.x === 0) direction = { x: 1, y: 0 };
+        if (dx < 0 && direction.x === 0) direction = { x: -1, y: 0 };
+      } else {
+        if (dy > 0 && direction.y === 0) direction = { x: 0, y: 1 };
+        if (dy < 0 && direction.y === 0) direction = { x: 0, y: -1 };
+      }
+
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    }
+
+    resetGame();
+    gameLoop();
+  </script>
+</body>
+</html>

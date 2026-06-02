@@ -1,0 +1,33 @@
+{
+  "index": 157,
+  "id": "U006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gemini-2.5-flash",
+  "question": "做个今晚吃啥的抽签小工具，我可以自己加候选餐厅或菜品,点一下按钮随机抽一个,带个简单的转盘动画。",
+  "evaluation": {
+    "total_score": 56,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The page has a simple, coherent mobile card layout with restrained colors and a clear central focus on the wheel. However, the visual language is generic, the blue wheel style does not strongly fit a food-selection scenario, and the interface feels more like a basic utility than a finished product system."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Typography is readable and spacing is mostly clean, but the wheel text is visibly clipped/oversized, the textarea feels browser-default and under-designed, and component detailing is minimal. Button styling is consistent enough, yet overall polish is only moderate."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly identify the main flow: edit candidates, update, then draw. The hierarchy is straightforward with the draw button prominent. Still, the result area lacks strong state differentiation, and the large wheel occupies substantial space without clearly showing selection logic or feedback before/after the draw."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Labels are plain and easy to interpret, and the primary action is obvious. But '更新候选' is a slightly awkward extra step for a small tool, the wheel suggests spinning yet the screenshot does not show clear pointer/segment logic, and the result state '点击下方按钮开始' inside the wheel is semantically awkward and partially unreadable."
+      }
+    },
+    "summary": "This is a usable, straightforward mobile random meal picker with a clear basic flow and acceptable readability. Its main strengths are simplicity and obvious primary actions. The hard caps are limited polish, weak scenario expression, and an underdeveloped result/wheel experience: the wheel text is clipped, the textarea looks default, and the animation/result model is not clearly communicated. Overall it meets the core task at a basic level but does not feel fully refined or delightfully complete."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U006_A_gemini-2.5-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:52:37.489803"
+}

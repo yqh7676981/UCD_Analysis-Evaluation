@@ -1,0 +1,11 @@
+{
+  "index": 34,
+  "id": "U003",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "帮我做一个旅行打包清单工具，可以按类别(衣物/洗漱/电子/证件)添加物品，打勾标记是否已装入行李。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/U003_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:22:07.748433"
+}

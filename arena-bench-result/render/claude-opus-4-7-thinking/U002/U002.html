@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>AA 记账</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#333;font-size:14px;padding-bottom:80px}
+.app{max-width:480px;margin:0 auto;background:#f5f6fa;min-height:100vh;position:relative;box-shadow:0 0 20px rgba(0,0,0,.1)}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:20px 16px;text-align:center;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.header h1{font-size:20px;font-weight:600;letter-spacing:1px}
+.header .sub{font-size:12px;opacity:.85;margin-top:4px}
+.tabs{display:flex;background:#fff;position:sticky;top:74px;z-index:9;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.tab{flex:1;text-align:center;padding:12px 0;font-size:14px;color:#888;border-bottom:2px solid transparent;transition:all .2s;cursor:pointer;font-weight:500}
+.tab.active{color:#667eea;border-bottom-color:#667eea}
+.tab .badge{display:inline-block;background:#667eea;color:#fff;font-size:10px;padding:1px 6px;border-radius:8px;margin-left:4px;vertical-align:middle}
+.page{display:none;padding:16px;animation:fadeIn .3s}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card h3{font-size:15px;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card h3::before{content:"";width:3px;height:14px;background:linear-gradient(180deg,#667eea,#764ba2);border-radius:2px}
+.input-row{display:flex;gap:8px;margin-bottom:10px}
+input[type=text],input[type=number]{flex:1;padding:12px 14px;border:1.5px solid #e5e7ef;border-radius:10px;font-size:15px;background:#fafbfc;transition:all .2s;outline:none;-webkit-appearance:none;width:100%}
+input:focus{border-color:#667eea;background:#fff;box-shadow:0 0 0 3px rgba(102,126,234,.1)}
+.btn{padding:12px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-size:15px;font-weight:500;cursor:pointer;transition:transform .1s;white-space:nowrap;min-height:44px}
+.btn:active{transform:scale(.96)}
+.btn-sm{padding:6px 12px;font-size:13px;min-height:32px}
+.btn-ghost{background:#f0f1f7;color:#667eea}
+.btn-danger{background:#ff6b6b;background:linear-gradient(135deg,#ff6b6b,#ee5a6f)}
+.btn-block{width:100%;display:block}
+.empty{text-align:center;color:#aaa;padding:30px 16px;font-size:13px}
+.empty .icon{font-size:40px;margin-bottom:8px;opacity:.5}
+.member-list{display:flex;flex-wrap:wrap;gap:8px}
+.member-tag{display:inline-flex;align-items:center;background:linear-gradient(135deg,#eef0ff,#f5e6ff);padding:8px 12px;border-radius:20px;font-size:13px;color:#5546a3;gap:6px}
+.member-tag .avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600}
+.member-tag .del{cursor:pointer;color:#bbb;font-size:18px;line-height:1;padding:0 2px}
+.member-tag .del:active{color:#ff6b6b}
+.expense-item{padding:12px 0;border-bottom:1px solid #f0f1f5;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.expense-item:last-child{border-bottom:none}
+.expense-info{flex:1;min-width:0}
+.expense-title{font-size:15px;color:#333;margin-bottom:4px;font-weight:500;word-break:break-all}
+.expense-meta{font-size:12px;color:#888;line-height:1.5}
+.expense-meta .payer{color:#667eea;font-weight:500}
+.expense-amount{font-size:17px;color:#ff6b6b;font-weight:600;white-space:nowrap}
+.del-btn{color:#ccc;font-size:20px;cursor:pointer;padding:0 4px;line-height:1}
+.del-btn:active{color:#ff6b6b}
+select{flex:1;padding:12px 14px;border:1.5px solid #e5e7ef;border-radius:10px;font-size:15px;background:#fafbfc;outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='%23999' d='M6 8L2 4h8z'/></svg>");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.checkbox-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chk{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:#fafbfc;border:1.5px solid #e5e7ef;border-radius:20px;font-size:13px;cursor:pointer;transition:all .2s;user-select:none}
+.chk.checked{background:linear-gradient(135deg,#eef0ff,#f5e6ff);border-color:#667eea;color:#5546a3;font-weight:500}
+.chk input{display:none}
+.label{font-size:13px;color:#666;margin-bottom:6px;display:block}
+.summary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border-radius:12px;padding:16px;margin-bottom:12px;text-align:center}
+.summary .total{font-size:28px;font-weight:700;margin:4px 0}
+.summary .label2{font-size:12px;opacity:.85}
+.balance-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f1f5}
+.balance-item:last-child{border-bottom:none}
+.balance-name{display:flex;align-items:center;gap:8px;font-size:14px}
+.balance-name .avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.balance-amount{font-size:15px;font-weight:600}
+.positive{color:#52c41a}
+.negative{color:#ff6b6b}
+.transfer-item{background:#fafbfc;border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;font-size:14px;border-left:3px solid #667eea}
+.transfer-item .from{color:#ff6b6b;font-weight:600}
+.transfer-item .to{color:#52c41a;font-weight:600}
+.transfer-item .arrow{color:#667eea;font-size:16px}
+.transfer-item .amt{margin-left:auto;font-weight:600;color:#333}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;z-index:1000;opacity: 1; /* fixed: was 0 */transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<div class="app">
+<div class="header">
+<h1>🍽️ AA 记账小工具</h1>
+<div class="sub">朋友聚餐 · 智能分账</div>
+</div>
+<div class="tabs">
+<div class="tab active" data-tab="members">成员<span class="badge" id="bMem">0</span></div>
+<div class="tab" data-tab="expenses">账单<span class="badge" id="bExp">0</span></div>
+<div class="tab" data-tab="result">结算</div>
+</div>
+
+<div class="page active" id="p-members">
+<div class="card">
+<h3>添加参与人</h3>
+<div class="input-row">
+<input type="text" id="memberName" placeholder="输入姓名（如：小明）" maxlength="10">
+<button class="btn" onclick="addMember()">添加</button>
+</div>
+</div>
+<div class="card">
+<h3>参与人员</h3>
+<div id="memberList"></div>
+</div>
+</div>
+
+<div class="page" id="p-expenses">
+<div class="card">
+<h3>记一笔账</h3>
+<label class="label">消费内容</label>
+<input type="text" id="expDesc" placeholder="如：火锅、KTV..." maxlength="20" style="margin-bottom:10px">
+<label class="label">金额（元）</label>
+<input type="number" id="expAmount" placeholder="0.00" step="0.01" min="0" style="margin-bottom:10px">
+<label class="label">付款人</label>
+<select id="expPayer" style="margin-bottom:10px;width:100%"></select>
+<label class="label">参与分摊的人（默认全选）</label>
+<div class="checkbox-list" id="expShares"></div>
+<button class="btn btn-block" onclick="addExpense()" style="margin-top:14px">✓ 添加这笔账</button>
+</div>
+<div class="card">
+<h3>账单记录</h3>
+<div id="expenseList"></div>
+</div>
+</div>
+
+<div class="page" id="p-result">
+<div id="resultContent"></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const state={members:[],expenses:[]};
+const $=id=>document.getElementById(id);
+const colors=['#667eea','#f5576c','#43e97b','#fa709a','#feca57','#48dbfb','#ff9ff3','#54a0ff'];
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1500)}
+function save(){try{localStorage.setItem('aa_data',JSON.stringify(state))}catch(e){}}
+function load(){try{const d=localStorage.getItem('aa_data');if(d){const o=JSON.parse(d);state.members=o.members||[];state.expenses=o.expenses||[]}}catch(e){}}
+function avatar(name){return name.slice(0,1)}
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    $('p-'+t.dataset.tab).classList.add('active');
+    if(t.dataset.tab==='result')renderResult();
+    if(t.dataset.tab==='expenses')renderExpenseForm();
+  }
+});
+
+function addMember(){
+  const n=$('memberName').value.trim();
+  if(!n){toast('请输入姓名');return}
+  if(state.members.find(m=>m.name===n)){toast('该成员已存在');return}
+  state.members.push({id:Date.now()+'',name:n});
+  $('memberName').value='';
+  save();renderMembers();toast('添加成功');
+}
+
+function delMember(id){
+  const m=state.members.find(x=>x.id===id);
+  if(!m)return;
+  if(state.expenses.some(e=>e.payer===id||e.shares.includes(id))){
+    if(!confirm('该成员涉及账单，删除将一并移除相关账单，确定吗？'))return;
+    state.expenses=state.expenses.filter(e=>e.payer!==id&&!e.shares.includes(id));
+  }
+  state.members=state.members.filter(x=>x.id!==id);
+  save();renderMembers();
+}
+
+function renderMembers(){
+  const box=$('memberList');
+  $('bMem').textContent=state.members.length;
+  $('bExp').textContent=state.expenses.length;
+  if(!state.members.length){box.innerHTML='<div class="empty"><div class="icon">👥</div>还没有添加成员哦</div>';return}
+  box.innerHTML='<div class="member-list">'+state.members.map(m=>{
+    const c=colors[parseInt(m.id)%colors.length];
+    return `<div class="member-tag"><div class="avatar" style="background:${c}">${avatar(m.name)}</div>${m.name}<span class="del" onclick="delMember('${m.id}')">×</span></div>`;
+  }).join('')+'</div>';
+}
+
+function renderExpenseForm(){
+  const sel=$('expPayer');
+  if(!state.members.length){
+    sel.innerHTML='<option>请先添加成员</option>';
+    $('expShares').innerHTML='<div style="color:#aaa;font-size:13px">请先添加成员</div>';
+    return;
+  }
+  sel.innerHTML=state.members.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  $('expShares').innerHTML=state.members.map(m=>
+    `<label class="chk checked" data-id="${m.id}"><input type="checkbox" checked>${m.name}</label>`
+  ).join('');
+  document.querySelectorAll('#expShares .chk').forEach(c=>{
+    c.onclick=e=>{e.preventDefault();c.classList.toggle('checked');const i=c.querySelector('input');i.checked=!i.checked}
+  });
+  renderExpenses();
+}
+
+function addExpense(){
+  if(!state.members.length){toast('请先添加成员');return}
+  const desc=$('expDesc').value.trim()||'未命名消费';
+  const amt=parseFloat($('expAmount').value);
+  if(!amt||amt<=0){toast('请输入正确金额');return}
+  const payer=$('expPayer').value;
+  const shares=[...document.querySelectorAll('#expShares .chk.checked')].map(c=>c.dataset.id);
+  if(!shares.length){toast('请选择分摊人');return}
+  state.expenses.push({id:Date.now()+'',desc,amount:amt,payer,shares});
+  $('expDesc').value='';$('expAmount').value='';
+  save();renderExpenseForm();toast('记账成功');
+}
+
+function delExpense(id){
+  state.expenses=state.expenses.filter(e=>e.id!==id);
+  save();renderExpenseForm();
+}
+
+function renderExpenses(){
+  const box=$('expenseList');
+  $('bExp').textContent=state.expenses.length;
+  if(!state.expenses.length){box.innerHTML='<div class="empty"><div class="icon">📝</div>还没有账单记录</div>';return}
+  box.innerHTML=state.expenses.map(e=>{
+    const p=state.members.find(m=>m.id===e.payer);
+    const sn=e.shares.map(id=>state.members.find(m=>m.id===id)?.name).filter(Boolean).join('、');
+    return `<div class="expense-item">
+      <div class="expense-info">
+        <div class="expense-title">${e.desc}</div>
+        <div class="expense-meta"><span class="payer">${p?.name||'?'}</span> 付款 · ${e.shares.length}人分摊</div>
+        <div class="expense-meta" style="margin-top:2px">分摊：${sn}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="expense-amount">¥${e.amount.toFixed(2)}</div>
+        <span class="del-btn" onclick="delExpense('${e.id}')">🗑</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function calcSettle(){
+  const bal={};
+  state.members.forEach(m=>bal[m.id]=0);
+  state.expenses.forEach(e=>{
+    bal[e.payer]+=e.amount;
+    const per=e.amount/e.shares.length;
+    e.shares.forEach(id=>bal[id]-=per);
+  });
+  const trans=[];
+  const arr=state.members.map(m=>({id:m.id,name:m.name,bal:Math.round(bal[m.id]*100)/100}));
+  while(true){
+    const cs=arr.filter(x=>x.bal>0.01).sort((a,b)=>b.bal-a.bal);
+    const ds=arr.filter(x=>x.bal<-0.01).sort((a,b)=>a.bal-b.bal);
+    if(!cs.length||!ds.length)break;
+    const c=cs[0],d=ds[0];
+    const v=Math.min(c.bal,-d.bal);
+    trans.push({from:d.name,to:c.name,amount:Math.round(v*100)/100});
+    c.bal-=v;d.bal+=v;
+  }
+  return {balances:arr,transfers:trans};
+}
+
+function renderResult(){
+  const box=$('resultContent');
+  if(!state.members.length||!state.expenses.length){
+    box.innerHTML='<div class="card"><div class="empty"><div class="icon">📊</div>添加成员和账单后<br>这里会显示结算结果</div></div>';
+    return;
+  }
+  const total=state.expenses.reduce((s,e)=>s+e.amount,0);
+  const avg=total/state.members.length;
+  const {balances,transfers}=calcSettle();
+  let html=`<div class="summary">
+    <div class="label2">本次聚餐总消费</div>
+    <div class="total">¥${total.toFixed(2)}</div>
+    <div class="label2">${state.members.length}人均 ¥${avg.toFixed(2)}（按总额平均参考）</div>
+  </div>`;
+  html+='<div class="card"><h3>个人收支</h3>';
+  html+=balances.map(b=>{
+    const c=colors[parseInt(b.id)%colors.length];
+    const cls=b.bal>0.01?'positive':b.bal<-0.01?'negative':'';
+    const sign=b.bal>0.01?'+':'';
+    const tip=b.bal>0.01?'应收回':b.bal<-0.01?'需支付':'已结清';
+    return `<div class="balance-item">
+      <div class="balance-name"><div class="avatar" style="background:${c}">${avatar(b.name)}</div>${b.name}<span style="color:#aaa;font-size:11px;margin-left:4px">${tip}</span></div>
+      <div class="balance-amount ${cls}">${sign}¥${b.bal.toFixed(2)}</div>
+    </div>`;
+  }).join('');
+  html+='</div>';
+  html+='<div class="card"><h3>💸 转账方案</h3>';
+  if(!transfers.length){
+    html+='<div class="empty" style="padding:16px"><div class="icon">✅</div>大家都已结清，无需转账</div>';
+  }else{
+    html+=transfers.map(t=>`<div class="transfer-item">
+      <span class="from">${t.from}</span>
+      <span class="arrow">→</span>
+      <span class="to">${t.to}</span>
+      <span class="amt">¥${t.amount.toFixed(2)}</span>
+    </div>`).join('');
+  }
+  html+='</div>';
+  html+=`<button class="btn btn-danger btn-block" onclick="resetAll()" style="margin-top:8px">🗑 清空所有数据</button>`;
+  box.innerHTML=html;
+}
+
+function resetAll(){
+  if(!confirm('确定要清空所有成员和账单吗？'))return;
+  state.members=[];state.expenses=[];
+  save();renderMembers();renderExpenseForm();renderResult();
+  toast('已清空');
+}
+
+load();renderMembers();renderExpenseForm();
+</script>
+</body>
+</html>

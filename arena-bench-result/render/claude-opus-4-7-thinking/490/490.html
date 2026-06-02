@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASCOTAPPS - Cuidado Inteligente para tu Mascota</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  :root {
+    --primary: #FF6B6B;
+    --secondary: #4ECDC4;
+    --accent: #FFE66D;
+    --dark: #2C3E50;
+    --light: #F7F9FC;
+    --purple: #A78BFA;
+    --shadow: 0 10px 30px rgba(0,0,0,0.08);
+  }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: var(--light);
+    color: var(--dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  
+  /* Navbar */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+    z-index: 1000;
+    padding: 15px 5%;
+  }
+  
+  .nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 1.6em;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .logo-icon {
+    font-size: 1.8rem;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+  }
+  
+  .nav-links a {
+    color: var(--dark);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+    position: relative;
+  }
+  
+  .nav-links a:hover { color: var(--primary); }
+  
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    transition: width 0.3s;
+  }
+  
+  .nav-links a:hover::after { width: 100%; }
+  
+  .btn-download {
+    background: linear-gradient(135deg, var(--primary), #ff8787);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 30px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  
+  .btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+  }
+  
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 100px 5% 50px;
+    background: linear-gradient(135deg, #FFE5E5 0%, #E0F7F5 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero::before {
+    content: '🐾';
+    position: absolute;
+    font-size: 15rem;
+    opacity: 0.05;
+    top: 10%;
+    right: -5%;
+    transform: rotate(-15deg);
+  }
+  
+  .hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 50px;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .hero-content h1 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    font-weight: 800;
+  }
+  
+  .hero-content h1 span {
+    background: linear-gradient(135deg, var(--primary), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .hero-content p {
+    font-size: 1.15rem;
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  .hero-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  .btn-primary, .btn-secondary {
+    padding: 14px 30px;
+    border-radius: 30px;
+    border: none;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), #ff8787);
+    color: white;
+  }
+  
+  .btn-secondary {
+    background: white;
+    color: var(--dark);
+    border: 2px solid var(--dark);
+  }
+  
+  .btn-primary:hover, .btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  }
+  
+  .hero-stats {
+    display: flex;
+    gap: 30px;
+    margin-top: 40px;
+  }
+  
+  .stat h3 {
+    font-size: 2rem;
+    color: var(--primary);
+  }
+  
+  .stat p { font-size: 0.9rem; color: #666; }
+  
+  .hero-image {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .phone-mockup {
+    width: 280px;
+    height: 560px;
+    background: var(--dark);
+    border-radius: 40px;
+    padding: 12px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+    position: relative;
+    animation: float 4s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--secondary), var(--purple));
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .phone-screen .pet-emoji {
+    font-size: 6rem;
+    margin-bottom: 20px;
+  }
+  
+  .phone-screen h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .phone-card {
+    background: rgba(255,255,255,0.2);
+    padding: 15px;
+    border-radius: 15px;
+    margin-top: 20px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+  }
+  
+  .floating-icon {
+    position: absolute;
+    background: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: var(--shadow);
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  .floating-icon:nth-child(2) { top: 10%; left: 5%; animation-delay: 0.5s; }
+  .floating-icon:nth-child(3) { top: 60%; right: 5%; animation-delay: 1s; }
+  .floating-icon:nth-child(4) { bottom: 10%; left: 15%; animation-delay: 1.5s; }
+  
+  /* Sections */
+  section {
+    padding: 80px 5%;
+  }
+  
+  .section-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .section-title {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  
+  .section-title h2 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    font-weight: 800;
+  }
+  
+  .section-title p {
+    color: #666;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  /* Features */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+  }
+  
+  .feature-card {
+    background: white;
+    padding: 35px 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+    border-top: 4px solid transparent;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    border-top-color: var(--primary);
+  }
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2.2rem;
+  }
+  
+  .feature-card:nth-child(2) .feature-icon { background: linear-gradient(135deg, var(--secondary), var(--accent)); }
+  .feature-card:nth-child(3) .feature-icon { background: linear-gradient(135deg, var(--accent), var(--primary)); }
+  .feature-card:nth-child(4) .feature-icon { background: linear-gradient(135deg, var(--purple), var(--secondary)); }
+  .feature-card:nth-child(5) .feature-icon { background: linear-gradient(135deg, var(--primary), var(--purple)); }
+  .feature-card:nth-child(6) .feature-icon { background: linear-gradient(135deg, var(--secondary), var(--primary)); }
+  
+  .feature-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+  }
+  
+  .feature-card p {
+    color: #666;
+    font-size: 0.95rem;
+  }
+  
+  /* Tips Section */
+  .tips {
+    background: linear-gradient(135deg, #2C3E50 0%, #4A5A6E 100%);
+    color: white;
+  }
+  
+  .tips .section-title h2 { color: white; }
+  .tips .section-title p { color: rgba(255,255,255,0.8); }
+  
+  .tips-carousel {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .tip-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    display: none;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .tip-card.active {
+    display: block;
+    animation: fadeIn 0.5s;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .tip-emoji {
+    font-size: 4rem;
+    margin-bottom: 15px;
+  }
+  
+  .tip-card h3 {
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+    color: var(--accent);
+  }
+  
+  .tip-card p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+  
+  .carousel-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+  }
+  
+  .carousel-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: background 0.3s;
+  }
+  
+  .carousel-btn:hover {
+    background: var(--primary);
+  }
+  
+  .carousel-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .dot.active { background: var(--accent); }
+  
+  /* Tools Section */
+  .tool-calculator {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .calculator-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .calculator-header h3 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+  
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  
+  .calculate-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  
+  .calculate-btn:hover { transform: translateY(-2px); }
+  
+  .result-box {
+    margin-top: 25px;
+    padding: 25px;
+    background: linear-gradient(135deg, #FFE5E5, #E0F7F5);
+    border-radius: 15px;
+    text-align: center;
+    display: none;
+  }
+  
+  .result-box.show { display: block; animation: fadeIn 0.5s; }
+  
+  .result-box h4 {
+    color: var(--primary);
+    margin-bottom: 10px;
+  }
+  
+  .result-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--dark);
+  }
+  
+  /* Resources */
+  .resources {
+    background: linear-gradient(135deg, #fff5f5 0%, #f0fdfa 100%);
+  }
+  
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+  }
+  
+  .resource-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s;
+  }
+  
+  .resource-card:hover { transform: translateY(-5px); }
+  
+  .resource-image {
+    height: 180px;
+    background: linear-gradient(135deg, var(--secondary), var(--purple));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+  }
+  
+  .resource-card:nth-child(2) .resource-image { background: linear-gradient(135deg, var(--primary), var(--accent)); }
+  .resource-card:nth-child(3) .resource-image { background: linear-gradient(135deg, var(--purple), var(--primary)); }
+  
+  .resource-content {
+    padding: 25px;
+  }
+  
+  .resource-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--dark);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .resource-content h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+  }
+  
+  .resource-content p {
+    color: #666;
+    margin-bottom: 15px;
+  }
+  
+  .read-more {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  /* CTA */
+  .cta {
+    background: linear-gradient(135deg, var(--primary), var(--purple));
+    color: white;
+    text-align: center;
+    padding: 100px 5%;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .cta::before, .cta::after {
+    content: '🐾';
+    position: absolute;
+    font-size: 8rem;
+    opacity: 0.1;
+  }
+  
+  .cta::before { top: 10%; left: 5%; transform: rotate(-20deg); }
+  .cta::after { bottom: 10%; right: 5%; transform: rotate(20deg); }
+  
+  .cta h2 {
+    font-size: 2.8rem;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .cta p {
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    opacity: 0.95;
+    position: relative;
+  }
+  
+  .store-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    position: relative;
+  }
+  
+  .store-btn {
+    background: var(--dark);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.3s;
+  }
+  
+  .store-btn:hover { transform: translateY(-3px); }
+  
+  .store-btn-icon { font-size: 2rem; }
+  
+  .store-btn-text small { display: block; font-size: 0.75rem; opacity: 0.8; }
+  .store-btn-text strong { font-size: 1.1rem; }
+  
+  /* Footer */
+  footer {
+    background: var(--dark);
+    color: white;
+    padding: 50px 5% 20px;
+  }
+  
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 30px;
+  }
+  
+  .footer-col h4 {
+    margin-bottom: 20px;
+    color: var(--accent);
+  }
+  
+  .footer-col ul {
+    list-style: none;
+  }
+  
+  .footer-col ul li {
+    margin-bottom: 10px;
+  }
+  
+  .footer-col a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  
+  .footer-col a:hover { color: var(--primary); }
+  
+  .social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+  }
+  
+  .social-icons a {
+    width: 40px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.3s;
+  }
+  
+  .social-icons a:hover { background: var(--primary); }
+  
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 20px;
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero-container { grid-template-columns: 1fr; text-align: center; }
+    .hero-content h1 { font-size: 2.3rem; }
+    .hero-stats { justify-content: center; }
+    .hero-buttons { justify-content: center; }
+    .section-title h2 { font-size: 1.9rem; }
+    .cta h2 { font-size: 2rem; }
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<nav>
+  <div class="nav-container">
+    <div class="logo">
+      <span class="logo-icon">🐾</span>
+      <span>MASCOTAPPS</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#features">Funciones</a></li>
+      <li><a href="#tips">Consejos</a></li>
+      <li><a href="#tools">Herramientas</a></li>
+      <li><a href="#resources">Recursos</a></li>
+    </ul>
+    <button class="btn-download" onclick="scrollToSection('cta')">Descargar</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1>Cuidado inteligente para tu <span>mejor amigo</span> 🐶</h1>
+      <p>MASCOTAPPS es tu compañero digital para el cuidado integral de tu mascota. Consejos de expertos, recordatorios, herramientas y mucho más, todo en una sola aplicación.</p>
+      <div class="hero-buttons">
+        <button class="btn-primary" onclick="scrollToSection('cta')">Empezar Gratis</button>
+        <button class="btn-secondary" onclick="scrollToSection('features')">Conocer más</button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <h3>50K+</h3>
+          <p>Usuarios activos</p>
+        </div>
+        <div class="stat">
+          <h3>4.9 ⭐</h3>
+          <p>Calificación</p>
+        </div>
+        <div class="stat">
+          <h3>200+</h3>
+          <p>Veterinarios</p>
+        </div>
+      </div>
+    </div>
+    <div class="hero-image">
+      <div class="phone-mockup">
+        <div class="phone-screen">
+          <div class="pet-emoji">🐕</div>
+          <h2>¡Hola, Max!</h2>
+          <p>Tu mascota está saludable</p>
+          <div class="phone-card">
+            <p>💊 Próxima vacuna</p>
+            <strong>En 5 días</strong>
+          </div>
+          <div class="phone-card">
+            <p>🍖 Comida del día</p>
+            <strong>2 de 3 porciones</strong>
+          </div>
+        </div>
+      </div>
+      <div class="floating-icon">🦴</div>
+      <div class="floating-icon">❤️</div>
+      <div class="floating-icon">🐾</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-container">
+    <div class="section-title">
+      <h2>Todo lo que necesitas en una app</h2>
+      <p>Funciones diseñadas para hacer más fácil el cuidado de tu mascota cada día</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💊</div>
+        <h3>Recordatorios de Salud</h3>
+        <p>Nunca olvides vacunas, desparasitaciones o medicamentos de tu mascota.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🍖</div>
+        <h3>Control de Alimentación</h3>
+        <p>Registra las porciones y horarios de comida con recomendaciones personalizadas.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏥</div>
+        <h3>Veterinarios Cercanos</h3>
+        <p>Encuentra clínicas y especialistas en tu zona con reseñas verificadas.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📸</div>
+        <h3>Álbum de Momentos</h3>
+        <p>Guarda todas las fotos y recuerdos especiales de tu mejor amigo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎓</div>
+        <h3>Guías y Tutoriales</h3>
+        <p>Aprende trucos, adiestramiento y cuidados con videos profesionales.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛒</div>
+        <h3>Tienda Integrada</h3>
+        <p>Compra alimentos, juguetes y accesorios con envío a domicilio.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section class="tips" id="tips">
+  <div class="section-container">
+    <div class="section-title">
+      <h2>Consejos de Expertos</h2>
+      <p>Tips esenciales para un cuidado óptimo de tu mascota</p>
+    </div>
+    <div class="tips-carousel">
+      <div class="tip-card active">
+        <div class="tip-emoji">🥗</div>
+        <h3>Alimentación Balanceada</h3>
+        <p>Proporciona una dieta adecuada a la edad, tamaño y raza. Consulta con tu veterinario antes de cambiar la alimentación y siempre asegúrate de que tenga agua fresca disponible.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-emoji">🏃</div>
+        <h3>Ejercicio Diario</h3>
+        <p>Los perros necesitan de 30 a 120 minutos de actividad física al día según la raza. Los gatos también requieren estimulación con juguetes interactivos para mantenerse saludables.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-emoji">🛁</div>
+        <h3>Higiene Regular</h3>
+        <p>Baña a tu mascota con productos específicos para su tipo de piel. Cepilla su pelaje regularmente y no olvides el cuidado dental y de las uñas.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-emoji">💉</div>
+        <h3>Visitas al Veterinario</h3>
+        <p>Realiza chequeos de salud al menos una vez al año. Mantén al día el calendario de vacunación y desparasitación para prevenir enfermedades.</p>
+      </div>
+      <div class="tip-card">
+        <div class="tip-emoji">❤️</div>
+        <h3>Amor y Atención</h3>
+        <p>El cariño y la compañía son fundamentales para el bienestar emocional. Dedica tiempo diario a jugar e interactuar con tu mascota.</p>
+      </div>
+    </div>
+    <div class="carousel-controls">
+      <button class="carousel-btn" onclick="changeTip(-1)">‹</button>
+      <div class="carousel-dots">
+        <span class="dot active" onclick="goToTip(0)"></span>
+        <span class="dot" onclick="goToTip(1)"></span>
+        <span class="dot" onclick="goToTip(2)"></span>
+        <span class="dot" onclick="goToTip(3)"></span>
+        <span class="dot" onclick="goToTip(4)"></span>
+      </div>
+      <button class="carousel-btn" onclick="changeTip(1)">›</button>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-container">
+    <div class="section-title">
+      <h2>Herramientas Útiles</h2>
+      <p>Calcula las necesidades diarias de tu mascota</p>
+    </div>
+    <div class="tool-calculator">
+      <div class="calculator-header">
+        <h3>🦴 Calculadora de Ración Diaria</h3>
+        <p>Descubre cuánto alimento necesita tu mascota</p>
+      </div>
+      <div class="form-group">
+        <label>Tipo de mascota</label>
+        <select id="petType">
+          <option value="dog">Perro 🐕</option>
+          <option value="cat">Gato 🐈</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Peso (kg)</label>
+        <input type="number" id="petWeight" placeholder="Ej: 10" min="0.5" max="80" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>Nivel de actividad</label>
+        <select id="activityLevel">
+          <option value="low">Bajo (sedentario)</option>
+          <option value="medium" selected>Medio (normal)</option>
+          <option value="high">Alto (muy activo)</option>
+        </select>
+      </div>
+      <button class="calculate-btn" onclick="calculateFood()">Calcular Ración</button>
+      <div class="result-box" id="result">
+        <h4>Ración diaria recomendada</h4>
+        <div class="result-value" id="resultValue">0g</div>
+        <p id="resultDesc" style="margin-top:10px; color:#666;"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="resources" id="resources">
+  <div class="section-container">
+    <div class="section-title">
+      <h2>Recursos Educativos</h2>
+      <p>Artículos y guías escritos por veterinarios profesionales</p>
+    </div>
+    <div class="resources-grid">
+      <div class="resource-card">
+        <div class="resource-image">🐶</div>
+        <div class="resource-content">
+          <span class="resource-tag">Adiestramiento</span>
+          <h3>Cómo enseñar trucos básicos</h3>
+          <p>Aprende técnicas de refuerzo positivo para entrenar a tu perro de forma efectiva.</p>
+          <a href="#" class="read-more">Leer más →</a>
+        </div>
+      </div>
+      <div class="resource-card">
+        <div class="resource-image">🐱</div>
+        <div class="resource-content">
+          <span class="resource-tag">Salud</span>
+          <h3>Signos de alerta en gatos</h3>
+          <p>Identifica los síntomas tempranos que pueden indicar problemas de salud en felinos.</p>
+          <a href="#" class="read-more">Leer más →</a>
+        </div>
+      </div>
+      <div class="resource-card">
+        <div class="resource-image">🦜</div>
+        <div class="resource-content">
+          <span class="resource-tag">Nutrición</span>
+          <h3>Guía de alimentación por edad</h3>
+          <p>Recomendaciones nutricionales específicas para cada etapa de vida de tu mascota.</p>
+          <a href="#" class="read-more">Leer más →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="cta">
+  <h2>Descarga MASCOTAPPS hoy</h2>
+  <p>Únete a miles de dueños de mascotas que ya confían en nosotros</p>
+  <div class="store-buttons">
+    <a href="#" class="store-btn">
+      <span class="store-btn-icon">🍎</span>
+      <div class="store-btn-text">
+        <small>Descarga en</small>
+        <strong>App Store</strong>
+      </div>
+    </a>
+    <a href="#" class="store-btn">
+      <span class="store-btn-icon">▶️</span>
+      <div class="store-btn-text">
+        <small>Disponible en</small>
+        <strong>Google Play</strong>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-container">
+    <div class="footer-col">
+      <div class="logo" style="color: white; margin-bottom: 15px;">
+        <span class="logo-icon">🐾</span>
+        <span style="color: white; -webkit-text-fill-color: white;">MASCOTAPPS</span>
+      </div>
+      <p style="color: rgba(255,255,255,0.7);">Cuidado inteligente para tu mejor amigo peludo.</p>
+      <div class="social-icons">
+        <a href="#">📘</a>
+        <a href="#">📷</a>
+        <a href="#">🐦</a>
+        <a href="#">📹</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Producto</h4>
+      <ul>
+        <li><a href="#">Funciones</a></li>
+        <li><a href="#">Precios</a></li>
+        <li><a href="#">Descargar</a></li>
+        <li><a href="#">Actualizaciones</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Recursos</h4>
+      <ul>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Guías</a></li>
+        <li><a href="#">Veterinarios</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Sobre nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="#">Privacidad</a></li>
+        <li><a href="#">Términos</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2024 MASCOTAPPS. Hecho con ❤️ para mascotas y sus humanos.</p>
+  </div>
+</footer>
+
+<script>
+  // Smooth scroll
+  function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+  }
+  
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = link.getAttribute('href').substring(1);
+      scrollToSection(target);
+    });
+  });
+  
+  // Tips Carousel
+  let currentTip = 0;
+  const tips = document.querySelectorAll('.tip-card');
+  const dots = document.querySelectorAll('.dot');
+  
+  function showTip(index) {
+    tips.forEach(t => t.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    tips[index].classList.add('active');
+    dots[index].classList.add('active');
+  }
+  
+  function changeTip(direction) {
+    currentTip = (currentTip + direction + tips.length) % tips.length;
+    showTip(currentTip);
+  }
+  
+  function goToTip(index) {
+    currentTip = index;
+    showTip(currentTip);
+  }
+  
+  // Auto rotate tips
+  setInterval(() => changeTip(1), 6000);
+  
+  // Food Calculator
+  function calculateFood() {
+    const petType = document.getElementById('petType').value;
+    const weight = parseFloat(document.getElementById('petWeight').value);
+    const activity = document.getElementById('activityLevel').value;
+    
+    if (!weight || weight <= 0) {
+      alert('Por favor ingresa un peso válido');
+      return;
+    }
+    
+    // Base formula (grams per kg of body weight)
+    let baseRatio = petType === 'dog' ? 25 : 20;
+    
+    const multipliers = { low: 0.8, medium: 1.0, high: 1.3 };
+    const amount = Math.round(weight * baseRatio * multipliers[activity]);
+    
+    const result = document.getElementById('result');
+    document.getElementById('resultValue').textContent = amount + 'g';
+    
+    const meals = petType === 'dog' ? 2 : 3;
+    const perMeal = Math.round(amount / meals);
+    document.getElementById('resultDesc').textContent = 
+      `Divide en ${meals} comidas de aproximadamente ${perMeal}g cada una.`;
+    
+    result.classList.add('show');
+  }
+  
+  // Scroll animation for feature cards
+  const observerOptions = { threshold: 0.1 };
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+  
+  document.querySelectorAll('.feature-card, .resource-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(30px)';
+    card.style.transition = 'opacity 0.6s, transform 0.6s';
+    observer.observe(card);
+  });
+</script>
+
+</body>
+</html>

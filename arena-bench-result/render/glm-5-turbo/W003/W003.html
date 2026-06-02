@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>番茄时钟</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #252525;
+            --bg-card: #2d2d2d;
+            --text-primary: #f5f5f5;
+            --text-secondary: #a0a0a0;
+            --work-accent: #e85d04;
+            --work-glow: rgba(232, 93, 4, 0.3);
+            --rest-accent: #38b000;
+            --rest-glow: rgba(56, 176, 0, 0.3);
+            --border-color: #3a3a3a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: radial-gradient(ellipse at 30% 20%, var(--work-glow) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(232, 93, 4, 0.15) 0%, transparent 40%);
+            animation: bgFloat 15s ease-in-out infinite;
+            transition: background 1s ease;
+        }
+
+        body.rest-mode .bg-gradient {
+            background: radial-gradient(ellipse at 30% 20%, var(--rest-glow) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 80%, rgba(56, 176, 0, 0.15) 0%, transparent 40%);
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 1%) rotate(1deg); }
+            66% { transform: translate(-1%, 2%) rotate(-1deg); }
+        }
+
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            justify-content: space-between;
+            padding-bottom: env(safe-area-inset-bottom, 24px);
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: fadeSlideDown 0.6s ease forwards;
+        }
+
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.4s ease;
+            opacity: 0;
+            animation: fadeSlideDown 0.6s ease 0.1s forwards;
+        }
+
+        .mode-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--work-accent);
+            box-shadow: 0 0 8px var(--work-accent);
+            transition: all 0.4s ease;
+        }
+
+        body.rest-mode .mode-badge .dot {
+            background: var(--rest-accent);
+            box-shadow: 0 0 8px var(--rest-accent);
+        }
+
+        /* Timer circle */
+        .timer-wrapper {
+            position: relative;
+            margin: 20px 0;
+            opacity: 0;
+            animation: scaleIn 0.8s ease 0.2s forwards;
+        }
+
+        .timer-circle {
+            width: 260px;
+            height: 260px;
+            position: relative;
+        }
+
+        .timer-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle .bg-ring {
+            fill: none;
+            stroke: var(--bg-card);
+            stroke-width: 8;
+        }
+
+        .timer-circle .progress-ring {
+            fill: none;
+            stroke: var(--work-accent);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 754;
+            stroke-dashoffset: 0;
+            transition: stroke 0.4s ease, stroke-dashoffset 0.5s ease;
+            filter: drop-shadow(0 0 6px var(--work-accent));
+        }
+
+        body.rest-mode .timer-circle .progress-ring {
+            stroke: var(--rest-accent);
+            filter: drop-shadow(0 0 6px var(--rest-accent));
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .timer-display .time {
+            font-family: 'Space Mono', monospace;
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            line-height: 1;
+            color: var(--text-primary);
+            transition: transform 0.15s ease;
+        }
+
+        .timer-display .time.pulse {
+            animation: timePulse 0.3s ease;
+        }
+
+        @keyframes timePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .timer-display .label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 24px;
+            margin: 24px 0;
+            opacity: 0;
+            animation: fadeSlideUp 0.6s ease 0.3s forwards;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            min-width: 100px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-item:active {
+            transform: scale(0.96);
+        }
+
+        .stat-item .value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--work-accent);
+            transition: color 0.4s ease;
+        }
+
+        body.rest-mode .stat-item .value {
+            color: var(--rest-accent);
+        }
+
+        .stat-item .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 320px;
+            opacity: 0;
+            animation: fadeSlideUp 0.6s ease 0.4s forwards;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 18px 16px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 1rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--work-accent);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--work-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px var(--work-glow);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        body.rest-mode .btn-primary {
+            background: var(--rest-accent);
+            box-shadow: 0 4px 20px var(--rest-glow);
+        }
+
+        body.rest-mode .btn-primary:hover {
+            box-shadow: 0 6px 24px var(--rest-glow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--text-secondary);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.98);
+        }
+
+        /* Mode switch */
+        .mode-switch {
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4px;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeSlideUp 0.6s ease 0.5s forwards;
+        }
+
+        .mode-btn {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: var(--work-accent);
+            color: #fff;
+            box-shadow: 0 2px 10px var(--work-glow);
+        }
+
+        body.rest-mode .mode-btn.active {
+            background: var(--rest-accent);
+            box-shadow: 0 2px 10px var(--rest-glow);
+        }
+
+        /* Animations */
+        @keyframes fadeSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Complete animation */
+        .complete-flash {
+            animation: flashComplete 0.6s ease;
+        }
+
+        @keyframes flashComplete {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-layer">
+        <div class="bg-gradient"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>POMODORO</h1>
+            <div class="mode-badge">
+                <span class="dot"></span>
+                <span class="mode-text">专注模式</span>
+            </div>
+        </header>
+
+        <div class="timer-wrapper">
+            <div class="timer-circle">
+                <svg viewBox="0 0 260 260">
+                    <circle class="bg-ring" cx="130" cy="130" r="120"></circle>
+                    <circle class="progress-ring" cx="130" cy="130" r="120"></circle>
+                </svg>
+                <div class="timer-display">
+                    <div class="time">25:00</div>
+                    <div class="label">剩余时间</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="value" id="todayCount">0</div>
+                <div class="label">今日完成</div>
+            </div>
+            <div class="stat-item">
+                <div class="value" id="totalTime">0</div>
+                <div class="label">专注分钟</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-secondary" id="resetBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                    <path d="M3 3v5h5"/>
+                </svg>
+                重置
+            </button>
+            <button class="btn btn-primary" id="startBtn">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+                    <rect x="6" y="4" width="4" height="16"/>
+                    <rect x="14" y="4" width="4" height="16"/>
+                </svg>
+                <span class="btn-text">开始</span>
+            </button>
+        </div>
+
+        <div class="mode-switch">
+            <button class="mode-btn active" data-mode="work">专注</button>
+            <button class="mode-btn" data-mode="rest">休息</button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize state
+        const WORK_TIME = 25 * 60;
+        const REST_TIME = 5 * 60;
+        
+        let currentMode = 'work';
+        let timeLeft = WORK_TIME;
+        let totalSeconds = WORK_TIME;
+        let isRunning = false;
+        let timerInterval = null;
+        let todayCount = parseInt(localStorage.getItem('pomodoroTodayCount') || '0');
+        let totalMinutes = parseInt(localStorage.getItem('pomodoroTotalMinutes') || '0');
+
+        // DOM elements
+        const timeDisplay = document.querySelector('.time');
+        const progressRing = document.querySelector('.progress-ring');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const todayCountEl = document.getElementById('todayCount');
+        const totalTimeEl = document.getElementById('totalTime');
+        const modeText = document.querySelector('.mode-text');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const playIcon = document.querySelector('.play-icon');
+        const pauseIcon = document.querySelector('.pause-icon');
+        const btnText = document.querySelector('.btn-text');
+
+        // Initialize
+        function init() {
+            updateDisplay();
+            updateStats();
+            checkNewDay();
+        }
+
+        // Check if it's a new day and reset daily count
+        function checkNewDay() {
+            const lastDate = localStorage.getItem('pomodoroLastDate');
+            const today = new Date().toDateString();
+            
+            if (lastDate !== today) {
+                todayCount = 0;
+                localStorage.setItem('pomodoroTodayCount', '0');
+                localStorage.setItem('pomodoroLastDate', today);
+                updateStats();
+            }
+        }
+
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update the display
+        function updateDisplay() {
+            timeDisplay.textContent = formatTime(timeLeft);
+            
+            // Update progress ring
+            const circumference = 2 * Math.PI * 120;
+            const progress = (totalSeconds - timeLeft) / totalSeconds;
+            const offset = circumference * progress;
+            progressRing.style.strokeDashoffset = offset;
+        }
+
+        // Update stats display
+        function updateStats() {
+            todayCountEl.textContent = todayCount;
+            totalTimeEl.textContent = totalMinutes;
+        }
+
+        // Switch mode
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            if (mode === 'work') {
+                timeLeft = WORK_TIME;
+                totalSeconds = WORK_TIME;
+                document.body.classList.remove('rest-mode');
+                modeText.textContent = '专注模式';
+            } else {
+                timeLeft = REST_TIME;
+                totalSeconds = REST_TIME;
+                document.body.classList.add('rest-mode');
+                modeText.textContent = '休息模式';
+            }
+            
+            // Update mode buttons
+            modeBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            
+            // Stop timer if running
+            if (isRunning) {
+                stopTimer();
+            }
+            
+            updateDisplay();
+        }
+
+        // Start timer
+        function startTimer() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            btnText.textContent = '暂停';
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                    
+                    // Add pulse animation every second
+                    if (timeLeft <= 10 && timeLeft > 0) {
+                        timeDisplay.classList.add('pulse');
+                        setTimeout(() => timeDisplay.classList.remove('pulse'), 150);
+                    }
+                } else {
+                    completeTimer();
+                }
+            }, 1000);
+        }
+
+        // Stop timer
+        function stopTimer() {
+            isRunning = false;
+            playIcon.style.display = 'block';
+            pauseIcon.style.display = 'none';
+            btnText.textContent = '继续';
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Complete timer
+        function completeTimer() {
+            stopTimer();
+            
+            // Flash effect
+            document.body.classList.add('complete-flash');
+            setTimeout(() => document.body.classList.remove('complete-flash'), 600);
+            
+            // Update stats if work session completed
+            if (currentMode === 'work') {
+                todayCount++;
+                totalMinutes += 25;
+                localStorage.setItem('pomodoroTodayCount', todayCount.toString());
+                localStorage.setItem('pomodoroTotalMinutes', totalMinutes.toString());
+                localStorage.setItem('pomodoroLastDate', new Date().toDateString());
+                updateStats();
+                
+                // Auto switch to rest mode
+                setTimeout(() => {
+                    switchMode('rest');
+                }, 1000);
+            } else {
+                // Auto switch back to work mode
+                setTimeout(() => {
+                    switchMode('work');
+                }, 1000);
+            }
+        }
+
+        // Reset timer
+        function resetTimer() {
+            stopTimer();
+            btnText.textContent = '开始';
+            
+            if (currentMode === 'work') {
+                timeLeft = WORK_TIME;
+                totalSeconds = WORK_TIME;
+            } else {
+                timeLeft = REST_TIME;
+                totalSeconds = REST_TIME;
+            }
+            
+            updateDisplay();
+        }
+
+        // Toggle timer
+        function toggleTimer() {
+            if (isRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', toggleTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isRunning) {
+                    switchMode(btn.dataset.mode);
+                }
+            });
+        });
+
+        // Prevent double-tap zoom on buttons
+        document.querySelectorAll('.btn, .mode-btn').forEach(btn => {
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btn.click();
+            });
+        });
+
+        // Handle visibility change to keep timer accurate
+        let hiddenTime = null;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                hiddenTime = Date.now();
+            } else if (hiddenTime && isRunning) {
+                const elapsed = Math.floor((Date.now() - hiddenTime) / 1000);
+                timeLeft = Math.max(0, timeLeft - elapsed);
+                updateDisplay();
+                
+                if (timeLeft === 0) {
+                    completeTimer();
+                }
+                hiddenTime = null;
+            }
+        });
+
+        // Initialize app
+        init();
+    </script>
+</body>
+</html>

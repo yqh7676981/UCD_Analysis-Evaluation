@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>电子木鱼 · 功德</title>
+    <style>
+        /* ===== 基础重置 & 全局 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            background: #1c0e08;
+            color: #f5e6d3;
+            touch-action: manipulation;
+        }
+
+        /* ===== 背景 ===== */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(ellipse at 50% 40%, #3d2216 0%, #1f1009 45%, #0d0704 100%);
+            position: relative;
+        }
+
+        /* 背景光晕 - 佛光 */
+        .bg-halo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 90vmin;
+            height: 90vmin;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at center, rgba(255, 180, 80, 0.15) 0%, rgba(255, 130, 30, 0.05) 40%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: haloPulse 5s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes haloPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.95);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* 飘浮光点 */
+        .floating-dots {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, rgba(255, 200, 120, 0.7), transparent);
+            border-radius: 50%;
+            animation: floatDot linear infinite;
+            opacity: 0;
+        }
+
+        .dot:nth-child(1) {
+            top: 12%;
+            left: 8%;
+            width: 5px;
+            height: 5px;
+            animation-duration: 8s;
+            animation-delay: 0s;
+        }
+        .dot:nth-child(2) {
+            top: 25%;
+            left: 85%;
+            width: 3px;
+            height: 3px;
+            animation-duration: 11s;
+            animation-delay: 2s;
+        }
+        .dot:nth-child(3) {
+            top: 55%;
+            left: 5%;
+            width: 6px;
+            height: 6px;
+            animation-duration: 9s;
+            animation-delay: 4s;
+        }
+        .dot:nth-child(4) {
+            top: 70%;
+            left: 90%;
+            width: 4px;
+            height: 4px;
+            animation-duration: 10s;
+            animation-delay: 1s;
+        }
+        .dot:nth-child(5) {
+            top: 85%;
+            left: 20%;
+            width: 5px;
+            height: 5px;
+            animation-duration: 12s;
+            animation-delay: 3s;
+        }
+        .dot:nth-child(6) {
+            top: 10%;
+            left: 50%;
+            width: 3px;
+            height: 3px;
+            animation-duration: 7s;
+            animation-delay: 5s;
+        }
+        .dot:nth-child(7) {
+            top: 40%;
+            left: 95%;
+            width: 5px;
+            height: 5px;
+            animation-duration: 9s;
+            animation-delay: 6s;
+        }
+        .dot:nth-child(8) {
+            top: 92%;
+            left: 70%;
+            width: 4px;
+            height: 4px;
+            animation-duration: 10s;
+            animation-delay: 2s;
+        }
+        .dot:nth-child(9) {
+            top: 45%;
+            left: 15%;
+            width: 3px;
+            height: 3px;
+            animation-duration: 8s;
+            animation-delay: 7s;
+        }
+        .dot:nth-child(10) {
+            top: 78%;
+            left: 45%;
+            width: 5px;
+            height: 5px;
+            animation-duration: 11s;
+            animation-delay: 1s;
+        }
+
+        @keyframes floatDot {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1);
+            }
+            80% {
+                opacity: 1;
+                transform: translateY(-80px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(0.3);
+            }
+        }
+
+        /* ===== 主容器 ===== */
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            max-width: 480px;
+            padding: 16px 20px;
+            margin: 0 auto;
+        }
+
+        /* ===== 顶部标题 ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+
+        .header .title {
+            font-size: clamp(14px, 3.6vw, 22px);
+            letter-spacing: 6px;
+            color: #d4a373;
+            font-weight: 300;
+            text-shadow: 0 0 30px rgba(212, 163, 115, 0.15);
+            opacity: 0.9;
+        }
+
+        .header .title .deco {
+            font-size: 0.7em;
+            opacity: 0.5;
+            margin: 0 4px;
+        }
+
+        /* ===== 统计卡片 ===== */
+        .stats {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(212, 163, 115, 0.15);
+            border-radius: 50px;
+            padding: 8px 22px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+            min-height: 52px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.3;
+        }
+
+        .stat-label {
+            font-size: clamp(10px, 2.2vw, 13px);
+            color: #a78a6f;
+            letter-spacing: 2px;
+            font-weight: 300;
+        }
+
+        .stat-value {
+            font-size: clamp(24px, 6vw, 34px);
+            font-weight: 600;
+            color: #f5d9b8;
+            text-shadow: 0 0 30px rgba(245, 217, 184, 0.2);
+            font-variant-numeric: tabular-nums;
+            min-width: 50px;
+            text-align: center;
+            transition: transform 0.15s ease;
+        }
+
+        .stat-value.bump {
+            animation: statBump 0.3s ease;
+        }
+
+        @keyframes statBump {
+            0% {
+                transform: scale(1);
+            }
+            40% {
+                transform: scale(1.2);
+                color: #ffe4b5;
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .stat-divider {
+            width: 1px;
+            height: 32px;
+            background: rgba(212, 163, 115, 0.2);
+        }
+
+        /* ===== 木鱼区域 ===== */
+        .muyu-area {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            padding: 4px 0;
+        }
+
+        /* 木鱼外发光 */
+        .muyu-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 70vmin;
+            height: 70vmin;
+            max-width: 360px;
+            max-height: 360px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at center,
+                    rgba(255, 180, 80, 0.20) 0%,
+                    rgba(255, 120, 40, 0.08) 35%,
+                    transparent 65%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: glowPulse 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes glowPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.92);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.08);
+                opacity: 1;
+            }
+        }
+
+        /* 敲击时发光加强 */
+        .muyu-glow.hit-glow {
+            animation: none;
+            transform: translate(-50%, -50%) scale(1.15);
+            background: radial-gradient(circle at center,
+                    rgba(255, 200, 100, 0.40) 0%,
+                    rgba(255, 150, 50, 0.18) 30%,
+                    transparent 60%);
+            transition: all 0.08s ease;
+        }
+
+        /* 木鱼主体 */
+        .muyu {
+            position: relative;
+            width: 55vmin;
+            height: 46vmin;
+            max-width: 260px;
+            max-height: 218px;
+            border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+            background:
+                radial-gradient(ellipse at 35% 30%, #e8b88a, #b86b3a 40%, #7a3318 75%, #4d1e0c 100%);
+            box-shadow:
+                inset 0 -12px 30px rgba(0, 0, 0, 0.7),
+                inset 0 12px 40px rgba(255, 200, 120, 0.25),
+                inset 0 4px 12px rgba(255, 220, 160, 0.15),
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 80px rgba(200, 120, 50, 0.10);
+            cursor: pointer;
+            transition: transform 0.10s cubic-bezier(0.34, 1.56, 0.64, 1);
+            touch-action: manipulation;
+            will-change: transform;
+            flex-shrink: 0;
+        }
+
+        /* 木鱼被敲击动画 */
+        .muyu.hit {
+            transform: scale(0.92) translateY(4px);
+            transition: transform 0.07s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 木鱼弹回 */
+        .muyu.hit-back {
+            transform: scale(1) translateY(0);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* 木鱼高光 */
+        .muyu::before {
+            content: '';
+            position: absolute;
+            top: 8%;
+            left: 18%;
+            width: 50%;
+            height: 35%;
+            border-radius: 50%;
+            background: radial-gradient(ellipse at center,
+                    rgba(255, 230, 190, 0.35) 0%,
+                    rgba(255, 200, 150, 0.10) 50%,
+                    transparent 70%);
+            pointer-events: none;
+        }
+
+        /* 木鱼底部阴影 */
+        .muyu::after {
+            content: '';
+            position: absolute;
+            bottom: -8%;
+            left: 10%;
+            width: 80%;
+            height: 18%;
+            background: radial-gradient(ellipse at center,
+                    rgba(0, 0, 0, 0.35) 0%,
+                    transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        /* 木鱼纹路 - 装饰线 */
+        .muyu-vein {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 75%;
+            transform: translate(-50%, -50%);
+            border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+            border: 1.5px solid rgba(180, 110, 60, 0.25);
+            pointer-events: none;
+        }
+
+        .muyu-vein::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 88%;
+            height: 82%;
+            transform: translate(-50%, -50%);
+            border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+            border: 1px solid rgba(180, 110, 60, 0.15);
+        }
+
+        /* 佛字 */
+        .fo-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(40px, 12vw, 70px);
+            font-weight: 700;
+            color: #f5d9a0;
+            text-shadow:
+                0 0 30px rgba(245, 217, 160, 0.25),
+                0 2px 8px rgba(0, 0, 0, 0.4);
+            font-family: "STKaiti", "KaiTi", "楷体", serif;
+            letter-spacing: 2px;
+            pointer-events: none;
+            transition: text-shadow 0.2s ease;
+            line-height: 1;
+        }
+
+        .muyu.hit .fo-text {
+            text-shadow:
+                0 0 50px rgba(255, 220, 130, 0.6),
+                0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* ===== 涟漪效果 ===== */
+        .ripple-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .ripple-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 200, 120, 0.5);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .ripple-ring.active {
+            animation: rippleAnim 0.7s ease-out forwards;
+        }
+
+        @keyframes rippleAnim {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 0.6;
+                border-width: 3px;
+                border-color: rgba(255, 210, 140, 0.7);
+            }
+            100% {
+                width: 180%;
+                height: 180%;
+                opacity: 0;
+                border-width: 1px;
+                border-color: rgba(255, 180, 80, 0);
+            }
+        }
+
+        /* ===== 功德+1 浮动提示 ===== */
+        .merit-toast {
+            position: absolute;
+            top: 38%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            font-size: clamp(28px, 7vw, 44px);
+            font-weight: 700;
+            color: #f5d9a0;
+            text-shadow: 0 0 40px rgba(245, 217, 160, 0.3), 0 4px 20px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 10;
+            font-family: "STKaiti", "KaiTi", "楷体", serif;
+            white-space: nowrap;
+        }
+
+        .merit-toast.show {
+            animation: toastFloat 1.0s ease-out forwards;
+        }
+
+        @keyframes toastFloat {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 10px) scale(0.6);
+            }
+            25% {
+                opacity: 1;
+                transform: translate(-50%, -10px) scale(1.1);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -30px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -75px) scale(0.9);
+            }
+        }
+
+        /* ===== 底部提示 ===== */
+        .footer {
+            text-align: center;
+            padding-bottom: 4px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        .footer .hint {
+            font-size: clamp(11px, 2.4vw, 14px);
+            color: #8a7a6a;
+            letter-spacing: 3px;
+            font-weight: 300;
+            opacity: 0.7;
+        }
+
+        .footer .hint span {
+            display: inline-block;
+            animation: hintPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes hintPulse {
+            0%,
+            100% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* ===== 音效提示（无声音时） ===== */
+        .audio-status {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ===== 响应式适配 ===== */
+        @media (max-width: 360px) {
+            .container {
+                padding: 10px 12px;
+            }
+            .stats {
+                padding: 6px 14px;
+                gap: 14px;
+                min-height: 44px;
+            }
+            .stat-value {
+                font-size: clamp(20px, 5.5vw, 28px);
+                min-width: 40px;
+            }
+            .muyu {
+                width: 50vmin;
+                height: 42vmin;
+                max-width: 200px;
+                max-height: 168px;
+            }
+            .fo-text {
+                font-size: clamp(32px, 10vw, 50px);
+            }
+        }
+
+        @media (min-width: 420px) {
+            .muyu {
+                width: 50vmin;
+                height: 42vmin;
+                max-width: 280px;
+                max-height: 236px;
+            }
+            .fo-text {
+                font-size: clamp(44px, 10vw, 72px);
+            }
+            .stats {
+                padding: 10px 28px;
+                gap: 28px;
+            }
+        }
+
+        @media (max-height: 640px) {
+            .header {
+                margin-bottom: 2px;
+            }
+            .header .title {
+                font-size: clamp(12px, 3vw, 16px);
+            }
+            .stats {
+                padding: 4px 14px;
+                min-height: 38px;
+                margin-bottom: 6px;
+                gap: 14px;
+            }
+            .stat-value {
+                font-size: clamp(18px, 4.5vw, 24px);
+                min-width: 36px;
+            }
+            .stat-label {
+                font-size: clamp(9px, 1.8vw, 11px);
+            }
+            .muyu {
+                width: 45vmin;
+                height: 38vmin;
+                max-width: 180px;
+                max-height: 152px;
+            }
+            .fo-text {
+                font-size: clamp(28px, 8vw, 44px);
+            }
+            .footer .hint {
+                font-size: clamp(10px, 2vw, 12px);
+            }
+            .merit-toast {
+                font-size: clamp(22px, 5vw, 32px);
+                top: 35%;
+            }
+        }
+
+        @media (max-height: 520px) {
+            .muyu {
+                width: 38vmin;
+                height: 32vmin;
+                max-width: 150px;
+                max-height: 126px;
+            }
+            .fo-text {
+                font-size: clamp(22px, 6vw, 34px);
+            }
+            .stats {
+                padding: 2px 12px;
+                min-height: 32px;
+                gap: 10px;
+            }
+            .stat-value {
+                font-size: clamp(16px, 4vw, 20px);
+                min-width: 30px;
+            }
+            .header .title {
+                font-size: clamp(10px, 2.5vw, 13px);
+                letter-spacing: 3px;
+            }
+            .header {
+                margin-bottom: 0;
+            }
+            .footer .hint {
+                font-size: clamp(9px, 1.8vw, 10px);
+            }
+        }
+
+        /* 禁用双击缩放 */
+        .muyu,
+        .stats,
+        .header,
+        .footer {
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+        }
+
+        /* 安全区域适配 */
+        @supports (padding: max(0px)) {
+            .container {
+                padding-left: max(16px, env(safe-area-inset-left));
+                padding-right: max(16px, env(safe-area-inset-right));
+                padding-top: max(12px, env(safe-area-inset-top));
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景光晕 -->
+    <div class="bg-halo"></div>
+
+    <!-- 漂浮光点 -->
+    <div class="floating-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container" role="main" aria-label="电子木鱼">
+
+        <!-- 标题 -->
+        <header class="header">
+            <div class="title">
+                <span class="deco">༄</span> 功 德 <span class="deco">༄</span>
+            </div>
+        </header>
+
+        <!-- 统计 -->
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">敲 击</span>
+                <span class="stat-value" id="totalDisplay">0</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-label">功 德</span>
+                <span class="stat-value" id="todayDisplay">0</span>
+            </div>
+        </div>
+
+        <!-- 木鱼 -->
+        <div class="muyu-area">
+            <div class="muyu-glow" id="muyuGlow"></div>
+
+            <div class="muyu" id="muyu" role="button" tabindex="0" aria-label="敲击木鱼">
+                <!-- 纹路 -->
+                <div class="muyu-vein"></div>
+                <!-- 佛字 -->
+                <span class="fo-text">佛</span>
+            </div>
+
+            <!-- 涟漪容器 -->
+            <div class="ripple-container" id="rippleContainer"></div>
+
+            <!-- 功德浮动提示 -->
+            <div class="merit-toast" id="meritToast">功德 +1</div>
+        </div>
+
+        <!-- 底部 -->
+        <footer class="footer">
+            <div class="hint"><span>· 点击木鱼  ·  心诚则灵  ·</span></div>
+        </footer>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== DOM 引用 =====
+            const muyu = document.getElementById('muyu');
+            const totalDisplay = document.getElementById('totalDisplay');
+            const todayDisplay = document.getElementById('todayDisplay');
+            const meritToast = document.getElementById('meritToast');
+            const glow = document.getElementById('muyuGlow');
+            const rippleContainer = document.getElementById('rippleContainer');
+
+            // ===== 音效系统 (Web Audio) =====
+            let audioCtx = null;
+            let audioReady = false;
+
+            function initAudio() {
+                if (audioReady) return true;
+                try {
+                    audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                    audioReady = true;
+                    return true;
+                } catch (e) {
+                    console.warn('Web Audio不可用');
+                    return false;
+                }
+            }
+
+            function playMuyuSound() {
+                if (!audioReady) {
+                    if (!initAudio()) return;
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(function() {});
+                }
+
+                var now = audioCtx.currentTime;
+
+                // —— 主音 (敲击基音) ——
+                var osc1 = audioCtx.createOscillator();
+                var gain1 = audioCtx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(720, now);
+                osc1.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+                gain1.gain.setValueAtTime(0.55, now);
+                gain1.gain.exponentialRampToValueAtTime(0.3, now + 0.04);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc1.connect(gain1);
+                gain1.connect(audioCtx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.35);
+
+                // —— 泛音 (共鸣) ——
+                var osc2 = audioCtx.createOscillator();
+                var gain2 = audioCtx.createGain();
+                osc2.type = 'triangle';
+                osc2.frequency.setValueAtTime(1150, now);
+                osc2.frequency.exponentialRampToValueAtTime(350, now + 0.06);
+                gain2.gain.setValueAtTime(0.20, now);
+                gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.20);
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.start(now);
+                osc2.stop(now + 0.20);
+
+                // —— 高频轻微泛音 (木质感) ——
+                var osc3 = audioCtx.createOscillator();
+                var gain3 = audioCtx.createGain();
+                osc3.type = 'sine';
+                osc3.frequency.setValueAtTime(2100, now);
+                osc3.frequency.exponentialRampToValueAtTime(800, now + 0.04);
+                gain3.gain.setValueAtTime(0.08, now);
+                gain3.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+                osc3.connect(gain3);
+                gain3.connect(audioCtx.destination);
+                osc3.start(now);
+                osc3.stop(now + 0.10);
+            }
+
+            // ===== 数据存储 (localStorage) =====
+            var STORAGE_KEY = 'muyu_merit_data_v2';
+
+            function loadData() {
+                var data = {
+                    total: 0,
+                    date: '',
+                    today: 0
+                };
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    if (raw) {
+                        var parsed = JSON.parse(raw);
+                        if (typeof parsed.total === 'number') data.total = parsed.total;
+                        if (typeof parsed.date === 'string') data.date = parsed.date;
+                        if (typeof parsed.today === 'number') data.today = parsed.today;
+                    }
+                } catch (e) { /* 忽略 */ }
+                return data;
+            }
+
+            function saveData(data) {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+                } catch (e) { /* 忽略 */ }
+            }
+
+            function getTodayDateStr() {
+                var d = new Date();
+                var y = d.getFullYear();
+                var m = String(d.getMonth() + 1).padStart(2, '0');
+                var day = String(d.getDate()).padStart(2, '0');
+                return y + '-' + m + '-' + day;
+            }
+
+            // ===== 应用状态 =====
+            var state = loadData();
+            var currentDate = getTodayDateStr();
+
+            // 如果日期变了，重置今日计数
+            if (state.date !== currentDate) {
+                state.date = currentDate;
+                state.today = 0;
+                saveData(state);
+            }
+
+            // 更新显示
+            totalDisplay.textContent = state.total;
+            todayDisplay.textContent = state.today;
+
+            // ===== 敲击逻辑 =====
+            var isHit = false;
+            var toastTimer = null;
+            var rippleIdCounter = 0;
+
+            function hitMuyu(e) {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                // 防止连点过快
+                if (isHit) return;
+                isHit = true;
+
+                // ---- 数据更新 ----
+                state.total += 1;
+                state.today += 1;
+                state.date = getTodayDateStr();
+                saveData(state);
+
+                // 更新显示 (带微动效)
+                totalDisplay.textContent = state.total;
+                todayDisplay.textContent = state.today;
+                totalDisplay.classList.remove('bump');
+                todayDisplay.classList.remove('bump');
+                // 强制回流后加动画
+                void totalDisplay.offsetWidth;
+                void todayDisplay.offsetWidth;
+                totalDisplay.classList.add('bump');
+                todayDisplay.classList.add('bump');
+
+                // ---- 音效 ----
+                playMuyuSound();
+
+                // ---- 木鱼动画 ----
+                muyu.classList.remove('hit', 'hit-back');
+                void muyu.offsetWidth;
+                muyu.classList.add('hit');
+
+                // 发光增强
+                glow.classList.add('hit-glow');
+
+                // 延时弹回
+                setTimeout(function() {
+                    muyu.classList.remove('hit');
+                    muyu.classList.add('hit-back');
+                    glow.classList.remove('hit-glow');
+
+                    // 清除hit-back状态以便下次触发
+                    setTimeout(function() {
+                        muyu.classList.remove('hit-back');
+                        isHit = false;
+                    }, 280);
+                }, 90);
+
+                // ---- 涟漪 ----
+                createRipple();
+
+                // ---- 功德+1 提示 ----
+                showMeritToast();
+
+                // ---- 振动反馈 (如果支持) ----
+                if (navigator.vibrate) {
+                    navigator.vibrate(15);
+                }
+            }
+
+            // ===== 涟漪效果 =====
+            function createRipple() {
+                var ring = document.createElement('div');
+                ring.className = 'ripple-ring';
+                // 随机微调位置使涟漪更自然
+                var offsetX = (Math.random() - 0.5) * 6;
+                var offsetY = (Math.random() - 0.5) * 6;
+                ring.style.transform = 'translate(calc(-50% + ' + offsetX + 'px), calc(-50% + ' + offsetY + 'px))';
+                rippleContainer.appendChild(ring);
+
+                // 触发动画
+                void ring.offsetWidth;
+                ring.classList.add('active');
+
+                // 动画结束后移除
+                ring.addEventListener('animationend', function() {
+                    if (ring.parentNode) ring.parentNode.removeChild(ring);
+                }, { once: true });
+
+                // 保底移除
+                setTimeout(function() {
+                    if (ring.parentNode) ring.parentNode.removeChild(ring);
+                }, 1000);
+            }
+
+            // ===== 功德+1 提示 =====
+            function showMeritToast() {
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    meritToast.classList.remove('show');
+                }
+                // 随机偏移一点位置
+                var offsetX = (Math.random() - 0.5) * 20;
+                meritToast.style.transform = 'translate(calc(-50% + ' + offsetX + 'px), 0)';
+                void meritToast.offsetWidth;
+                meritToast.classList.add('show');
+
+                toastTimer = setTimeout(function() {
+                    meritToast.classList.remove('show');
+                    toastTimer = null;
+                }, 1000);
+            }
+
+            // ===== 事件绑定 =====
+            // 触摸事件 (优先)
+            muyu.addEventListener('touchstart', function(e) {
+                // 不阻止默认行为，但要阻止滚动穿透
+                hitMuyu(e);
+            }, { passive: false });
+
+            // 鼠标/点击事件
+            muyu.addEventListener('click', function(e) {
+                hitMuyu(e);
+            });
+
+            // 键盘支持 (无障碍)
+            muyu.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    hitMuyu(e);
+                }
+            });
+
+            // ===== 防止页面滚动/拖动干扰 =====
+            document.addEventListener('touchmove', function(e) {
+                // 如果触摸点在木鱼区域，阻止滚动
+                var target = e.target;
+                if (target && (target.closest('.muyu-area') || target.closest('.muyu'))) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            // ===== 预先初始化音频 (在用户首次交互时激活) =====
+            var firstTouch = true;
+            document.addEventListener('touchstart', function initOnTouch() {
+                if (firstTouch) {
+                    firstTouch = false;
+                    initAudio();
+                    // 只执行一次
+                    document.removeEventListener('touchstart', initOnTouch);
+                }
+            }, { passive: true });
+
+            document.addEventListener('click', function initOnClick() {
+                if (firstTouch) {
+                    firstTouch = false;
+                    initAudio();
+                    document.removeEventListener('click', initOnClick);
+                }
+            }, { passive: true });
+
+            // ===== 保存数据到本地 (页面关闭前) =====
+            window.addEventListener('beforeunload', function() {
+                saveData(state);
+            });
+
+            // ===== 额外: 当页面可见性变化时保存 =====
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    saveData(state);
+                }
+            });
+
+            console.log('🪘 电子木鱼已加载 · 功德无量');
+            console.log('  总敲击: ' + state.total + ' | 今日功德: ' + state.today);
+
+        })();
+    </script>
+
+</body>
+</html>

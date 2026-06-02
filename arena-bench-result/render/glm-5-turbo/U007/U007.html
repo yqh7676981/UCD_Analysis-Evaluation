@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宠物成长记录本</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #FDF6EC;
+            --bg-secondary: #F5EBE0;
+            --fg-primary: #3D3426;
+            --fg-secondary: #6B5D4D;
+            --accent: #C4883A;
+            --accent-light: #E8B86D;
+            --success: #5B8C5A;
+            --warning: #D4893A;
+            --info: #5B8A9E;
+            --card: #FFFFFF;
+            --border: #E8DDD0;
+            --shadow: rgba(61, 52, 38, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景纹理 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(196, 136, 58, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(91, 140, 90, 0.06) 0%, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C4883A' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 头部 */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, rgba(253, 246, 236, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--fg-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .pet-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 12px rgba(196, 136, 58, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .pet-avatar:active {
+            transform: scale(0.95);
+        }
+
+        .pet-avatar svg {
+            width: 26px;
+            height: 26px;
+            fill: white;
+        }
+
+        /* 宠物信息卡片 */
+        .pet-card {
+            margin: 20px;
+            padding: 20px;
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px var(--shadow);
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pet-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pet-photo {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #E8DDD0 0%, #D4C4B0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pet-photo svg {
+            width: 40px;
+            height: 40px;
+            fill: var(--accent);
+        }
+
+        .pet-details h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .pet-details p {
+            font-size: 14px;
+            color: var(--fg-secondary);
+        }
+
+        .pet-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            margin-top: 2px;
+        }
+
+        /* 添加记录按钮 */
+        .add-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, #D49A3A 100%);
+            border: none;
+            box-shadow: 0 6px 24px rgba(196, 136, 58, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .add-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 4px 16px rgba(196, 136, 58, 0.5);
+        }
+
+        .add-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke: white;
+            stroke-width: 2.5;
+            transition: transform 0.3s ease;
+        }
+
+        .add-btn.active svg {
+            transform: rotate(45deg);
+        }
+
+        /* 记录列表 */
+        .records-section {
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--fg-secondary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 2px;
+        }
+
+        .record-item {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px var(--shadow);
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+            transition: transform 0.3s ease;
+        }
+
+        .record-item:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .record-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .record-date {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--fg-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .record-date svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--accent);
+        }
+
+        .mood-badge {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .mood-badge.happy {
+            background: rgba(91, 140, 90, 0.15);
+            color: var(--success);
+        }
+
+        .mood-badge.excited {
+            background: rgba(196, 136, 58, 0.15);
+            color: var(--accent);
+        }
+
+        .mood-badge.normal {
+            background: rgba(107, 93, 77, 0.1);
+            color: var(--fg-secondary);
+        }
+
+        .mood-badge.sick {
+            background: rgba(212, 137, 58, 0.15);
+            color: var(--warning);
+        }
+
+        .record-content {
+            display: grid;
+            gap: 10px;
+        }
+
+        .record-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .record-label {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            min-width: 48px;
+            padding-top: 2px;
+        }
+
+        .record-value {
+            font-size: 14px;
+            color: var(--fg-primary);
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .record-story {
+            margin-top: 8px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            font-size: 13px;
+            color: var(--fg-secondary);
+            line-height: 1.6;
+            border-left: 3px solid var(--accent-light);
+        }
+
+        /* 弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(61, 52, 38, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 300;
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-radius: 24px 24px 0 0;
+            z-index: 310;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            transform: translateY(0);
+        }
+
+        .modal-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 12px auto;
+        }
+
+        .modal-header {
+            padding: 0 20px 16px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--fg-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: inherit;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-input::placeholder {
+            color: var(--fg-secondary);
+            opacity: 0.6;
+        }
+
+        textarea.form-input {
+            resize: none;
+            min-height: 100px;
+        }
+
+        .mood-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .mood-option {
+            flex: 1;
+            min-width: calc(50% - 5px);
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .mood-option:active {
+            transform: scale(0.96);
+        }
+
+        .mood-option.selected {
+            border-color: var(--accent);
+            background: rgba(196, 136, 58, 0.1);
+        }
+
+        .mood-option svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #D49A3A 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 16px rgba(196, 136, 58, 0.4);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--fg-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            stroke: var(--border);
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* 动画延迟 */
+        .record-item:nth-child(1) { animation-delay: 0.1s; }
+        .record-item:nth-child(2) { animation-delay: 0.2s; }
+        .record-item:nth-child(3) { animation-delay: 0.3s; }
+        .record-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>成长记录本</h1>
+            <div class="pet-avatar">
+                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+        </div>
+    </header>
+
+    <section class="pet-card">
+        <div class="pet-info">
+            <div class="pet-photo">
+                <svg viewBox="0 0 24 24"><path d="M4.5 9.5C3.12 9.5 2 8.38 2 7S3.12 4.5 4.5 4.5 7 5.62 7 7 5.88 9.5 4.5 9.5zm15 0C18.12 9.5 17 8.38 17 7s1.12-2.5 2.5-2.5S22 5.62 22 7s-1.12 2.5-2.5 2.5zm-3.5 2c0 1.38-1.12 2.5-2.5 2.5S10.5 12.88 10.5 11.5 11.62 9 13 9s2.5 1.12 2.5 2.5zM7 13c-1.38 0-2.5 1.12-2.5 2.5S5.62 18 7 18s2.5-1.12 2.5-2.5S8.38 13 7 13zm10 0c-1.38 0-2.5 1.12-2.5 2.5S15.62 18 17 18s2.5-1.12 2.5-2.5S18.38 13 17 13zm-5 4c-1.38 0-2.5 1.12-2.5 2.5S10.62 22 12 22s2.5-1.12 2.5-2.5S13.38 17 12 17z"/></svg>
+            </div>
+            <div class="pet-details">
+                <h2 id="petName">小团子</h2>
+                <p id="petBreed">金毛犬 · 2岁3个月</p>
+            </div>
+        </div>
+        <div class="pet-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="recordCount">0</div>
+                <div class="stat-label">记录天数</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="currentWeight">28.5kg</div>
+                <div class="stat-label">当前体重</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="healthyDays">0</div>
+                <div class="stat-label">健康天数</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="records-section">
+        <div class="section-title">成长记录</div>
+        <div id="recordsList"></div>
+    </section>
+
+    <button class="add-btn" id="addBtn" aria-label="添加新记录">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
+
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal" id="modal">
+        <div class="modal-handle"></div>
+        <div class="modal-header">
+            <h3>新增记录</h3>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">日期</label>
+                <input type="date" class="form-input" id="recordDate">
+            </div>
+            <div class="form-group">
+                <label class="form-label">体重</label>
+                <input type="text" class="form-input" id="recordWeight" placeholder="例如：28.5kg">
+            </div>
+            <div class="form-group">
+                <label class="form-label">饮食情况</label>
+                <input type="text" class="form-input" id="recordDiet" placeholder="今日饮食记录...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">健康状态</label>
+                <input type="text" class="form-input" id="recordHealth" placeholder="健康状态描述...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">今日趣事</label>
+                <textarea class="form-input" id="recordStory" placeholder="记录今天发生的有趣事情..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">今日心情</label>
+                <div class="mood-selector">
+                    <div class="mood-option" data-mood="happy">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#5B8C5A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        开心
+                    </div>
+                    <div class="mood-option" data-mood="excited">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#C4883A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+                        兴奋
+                    </div>
+                    <div class="mood-option" data-mood="normal">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#6B5D4D" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="16" y2="15"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                        平静
+                    </div>
+                    <div class="mood-option" data-mood="sick">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#D4893A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 9h.01M15 9h.01"/><path d="M8 14c.5-.5 1.5-1 4-1s3.5.5 4 1"/><path d="M9 18h6"/></svg>
+                        不适
+                    </div>
+                </div>
+            </div>
+            <button class="submit-btn" id="submitBtn">保存记录</button>
+        </div>
+    </div>
+
+    <script>
+        // 初始化数据
+        const defaultRecords = [
+            {
+                id: 1,
+                date: '2024-01-15',
+                weight: '28.5kg',
+                diet: '早餐狗粮150g，午餐鸡肉100g，晚餐狗粮150g',
+                health: '精神状态良好，便便正常',
+                story: '今天带小团子去公园玩，它第一次见到鸭子，追着鸭子跑了半天，结果被鸭子追着跑回来了，太搞笑了！',
+                mood: 'excited'
+            },
+            {
+                id: 2,
+                date: '2024-01-14',
+                weight: '28.3kg',
+                diet: '狗粮300g，零食若干',
+                health: '有点轻微咳嗽，多喝水',
+                story: '今天下雨，在家陪它玩了丢球游戏，它把沙发底下的球都找出来了，真是个小机灵鬼。',
+                mood: 'normal'
+            },
+            {
+                id: 3,
+                date: '2024-01-13',
+                weight: '28.4kg',
+                diet: '狗粮280g，牛肉干50g',
+                health: '一切正常，活力满满',
+                story: '邻居家的泰迪来找它玩，两个小家伙在院子里追逐打闹了一下午，晚上睡得特别香。',
+                mood: 'happy'
+            }
+        ];
+
+        const moodConfig = {
+            happy: { label: '开心', class: 'happy' },
+            excited: { label: '兴奋', class: 'excited' },
+            normal: { label: '平静', class: 'normal' },
+            sick: { label: '不适', class: 'sick' }
+        };
+
+        // 状态管理
+        let records = JSON.parse(localStorage.getItem('petRecords')) || defaultRecords;
+        let selectedMood = 'happy';
+
+        // DOM 元素
+        const addBtn = document.getElementById('addBtn');
+        const modal = document.getElementById('modal');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const submitBtn = document.getElementById('submitBtn');
+        const recordsList = document.getElementById('recordsList');
+        const moodOptions = document.querySelectorAll('.mood-option');
+
+        // 初始化日期为今天
+        document.getElementById('recordDate').valueAsDate = new Date();
+
+        // 渲染记录列表
+        function renderRecords() {
+            if (records.length === 0) {
+                recordsList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/>
+                            <line x1="12" y1="8" x2="12" y2="16"/>
+                            <line x1="8" y1="12" x2="16" y2="12"/>
+                        </svg>
+                        <p>还没有记录，点击右下角按钮添加第一条吧</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sortedRecords = [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            recordsList.innerHTML = sortedRecords.map((record, index) => {
+                const mood = moodConfig[record.mood] || moodConfig.normal;
+                const dateObj = new Date(record.date);
+                const formattedDate = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日`;
+                
+                return `
+                    <div class="record-item" style="animation-delay: ${index * 0.1}s">
+                        <div class="record-header">
+                            <div class="record-date">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                ${formattedDate}
+                            </div>
+                            <div class="mood-badge ${mood.class}">${mood.label}</div>
+                        </div>
+                        <div class="record-content">
+                            ${record.weight ? `
+                            <div class="record-row">
+                                <span class="record-label">体重</span>
+                                <span class="record-value">${record.weight}</span>
+                            </div>` : ''}
+                            ${record.diet ? `
+                            <div class="record-row">
+                                <span class="record-label">饮食</span>
+                                <span class="record-value">${record.diet}</span>
+                            </div>` : ''}
+                            ${record.health ? `
+                            <div class="record-row">
+                                <span class="record-label">健康</span>
+                                <span class="record-value">${record.health}</span>
+                            </div>` : ''}
+                            ${record.story ? `
+                            <div class="record-story">${record.story}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateStats();
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            document.getElementById('recordCount').textContent = records.length;
+            
+            const healthyRecords = records.filter(r => r.mood === 'happy' || r.mood === 'excited' || r.mood === 'normal');
+            document.getElementById('healthyDays').textContent = healthyRecords.length;
+            
+            const sortedByDate = [...records].sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (sortedByDate.length > 0 && sortedByDate[0].weight) {
+                document.getElementById('currentWeight').textContent = sortedByDate[0].weight;
+            }
+        }
+
+        // 打开弹窗
+        function openModal() {
+            modal.classList.add('active');
+            modalOverlay.classList.add('active');
+            addBtn.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            modal.classList.remove('active');
+            modalOverlay.classList.remove('active');
+            addBtn.classList.remove('active');
+            document.body.style.overflow = '';
+            resetForm();
+        }
+
+        // 重置表单
+        function resetForm() {
+            document.getElementById('recordDate').valueAsDate = new Date();
+            document.getElementById('recordWeight').value = '';
+            document.getElementById('recordDiet').value = '';
+            document.getElementById('recordHealth').value = '';
+            document.getElementById('recordStory').value = '';
+            selectedMood = 'happy';
+            updateMoodSelection();
+        }
+
+        // 更新心情选择
+        function updateMoodSelection() {
+            moodOptions.forEach(option => {
+                option.classList.toggle('selected', option.dataset.mood === selectedMood);
+            });
+        }
+
+        // 保存记录
+        function saveRecord() {
+            const date = document.getElementById('recordDate').value;
+            const weight = document.getElementById('recordWeight').value.trim();
+            const diet = document.getElementById('recordDiet').value.trim();
+            const health = document.getElementById('recordHealth').value.trim();
+            const story = document.getElementById('recordStory').value.trim();
+
+            if (!date) {
+                alert('请选择日期');
+                return;
+            }
+
+            if (!weight && !diet && !health && !story) {
+                alert('请至少填写一项内容');
+                return;
+            }
+
+            const newRecord = {
+                id: Date.now(),
+                date,
+                weight,
+                diet,
+                health,
+                story,
+                mood: selectedMood
+            };
+
+            records.push(newRecord);
+            localStorage.setItem('petRecords', JSON.stringify(records));
+            
+            renderRecords();
+            closeModal();
+        }
+
+        // 事件绑定
+        addBtn.addEventListener('click', openModal);
+        modalOverlay.addEventListener('click', closeModal);
+        submitBtn.addEventListener('click', saveRecord);
+
+        moodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                selectedMood = option.dataset.mood;
+                updateMoodSelection();
+            });
+        });
+
+        // 触摸滑动关闭
+        let touchStartY = 0;
+        modal.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        modal.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const diff = touchY - touchStartY;
+            if (diff > 100) {
+                closeModal();
+            }
+        });
+
+        // 初始化
+        updateMoodSelection();
+        renderRecords();
+    </script>
+</body>
+</html>

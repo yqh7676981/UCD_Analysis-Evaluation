@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chirp - 分享你的想法</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: #15202b;
+    color: #e7e9ea;
+    min-height: 100vh;
+  }
+  .app {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 240px 1fr 320px;
+    gap: 0;
+    min-height: 100vh;
+  }
+  /* Sidebar */
+  .sidebar {
+    padding: 20px 12px;
+    border-right: 1px solid #2f3336;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+  .logo {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1d9bf0;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    background: #1d9bf0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.2s;
+    color: #e7e9ea;
+  }
+  .nav-item:hover { background: rgba(231,233,234,0.1); }
+  .nav-item.active { font-weight: 700; }
+  .nav-item .icon { font-size: 22px; }
+  .tweet-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    background: #1d9bf0;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .tweet-btn:hover { background: #1a8cd8; }
+  .user-profile {
+    position: absolute;
+    bottom: 20px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .user-profile:hover { background: rgba(231,233,234,0.1); }
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1d9bf0, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .user-profile-info { flex: 1; overflow: hidden; }
+  .user-profile-name { font-weight: 700; font-size: 15px; }
+  .user-profile-handle { color: #71767b; font-size: 13px; }
+
+  /* Main Feed */
+  .main {
+    border-right: 1px solid #2f3336;
+    min-height: 100vh;
+  }
+  .main-header {
+    position: sticky;
+    top: 0;
+    background: rgba(21,32,43,0.85);
+    backdrop-filter: blur(12px);
+    padding: 16px 20px;
+    border-bottom: 1px solid #2f3336;
+    z-index: 10;
+  }
+  .main-header h1 { font-size: 20px; }
+  .tabs {
+    display: flex;
+    margin-top: 16px;
+    margin: 16px -20px -16px;
+  }
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 16px;
+    cursor: pointer;
+    color: #71767b;
+    font-weight: 500;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .tab:hover { background: rgba(231,233,234,0.05); }
+  .tab.active { color: #e7e9ea; font-weight: 700; }
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 4px;
+    background: #1d9bf0;
+    border-radius: 2px;
+  }
+
+  /* Compose */
+  .compose {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #2f3336;
+  }
+  .compose-content { flex: 1; }
+  .compose-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #e7e9ea;
+    font-size: 20px;
+    resize: none;
+    outline: none;
+    min-height: 60px;
+    font-family: inherit;
+  }
+  .compose-input::placeholder { color: #71767b; }
+  .compose-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #2f3336;
+  }
+  .compose-tools { display: flex; gap: 4px; }
+  .tool-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: #1d9bf0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+  }
+  .tool-btn:hover { background: rgba(29,155,240,0.1); }
+  .compose-submit {
+    padding: 10px 20px;
+    background: #1d9bf0;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .compose-submit:hover:not(:disabled) { background: #1a8cd8; }
+  .compose-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  .char-count { color: #71767b; font-size: 13px; margin-right: 12px; }
+  .char-count.warn { color: #ffd400; }
+  .char-count.over { color: #f4212e; }
+
+  /* Tweet */
+  .tweet {
+    display: flex;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #2f3336;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .tweet:hover { background: rgba(231,233,234,0.03); }
+  .tweet-body { flex: 1; min-width: 0; }
+  .tweet-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+  .tweet-name { font-weight: 700; color: #e7e9ea; }
+  .tweet-handle, .tweet-time { color: #71767b; font-size: 15px; }
+  .tweet-dot { color: #71767b; }
+  .tweet-text {
+    font-size: 15px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .retweet-label {
+    color: #71767b;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    padding-left: 32px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tweet-actions {
+    display: flex;
+    justify-content: space-between;
+    max-width: 425px;
+    margin-top: 12px;
+  }
+  .action {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #71767b;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px;
+    border-radius: 999px;
+    transition: color 0.2s;
+    background: transparent;
+    border: none;
+  }
+  .action-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s;
+    font-size: 16px;
+  }
+  .action:hover .action-icon { background: rgba(29,155,240,0.1); }
+  .action:hover { color: #1d9bf0; }
+  .action.retweet:hover .action-icon { background: rgba(0,186,124,0.1); }
+  .action.retweet:hover { color: #00ba7c; }
+  .action.retweet.active { color: #00ba7c; }
+  .action.like:hover .action-icon { background: rgba(249,24,128,0.1); }
+  .action.like:hover { color: #f91880; }
+  .action.like.active { color: #f91880; }
+  .action.share:hover .action-icon { background: rgba(29,155,240,0.1); }
+
+  /* Comments */
+  .comments {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #2f3336;
+    display: none;
+  }
+  .comments.open { display: block; }
+  .comment {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+  }
+  .comment .avatar { width: 32px; height: 32px; font-size: 13px; }
+  .comment-body {
+    flex: 1;
+    background: #192734;
+    padding: 8px 12px;
+    border-radius: 16px;
+  }
+  .comment-header {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+  .comment-name { font-weight: 700; }
+  .comment-handle { color: #71767b; }
+  .comment-text { font-size: 14px; line-height: 1.4; }
+  .comment-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .comment-input {
+    flex: 1;
+    background: #192734;
+    border: 1px solid #2f3336;
+    border-radius: 999px;
+    padding: 8px 14px;
+    color: #e7e9ea;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .comment-input:focus { border-color: #1d9bf0; }
+  .comment-submit {
+    padding: 6px 14px;
+    background: #1d9bf0;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .comment-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Right panel */
+  .right-panel { padding: 12px 16px; }
+  .search-box {
+    position: sticky;
+    top: 12px;
+    background: #15202b;
+    padding-bottom: 12px;
+    z-index: 5;
+  }
+  .search-input {
+    width: 100%;
+    background: #202e3a;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 12px 16px 12px 44px;
+    color: #e7e9ea;
+    outline: none;
+    font-size: 15px;
+  }
+  .search-input:focus { background: #15202b; border-color: #1d9bf0; }
+  .search-wrap { position: relative; }
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #71767b;
+  }
+  .widget {
+    background: #192734;
+    border-radius: 16px;
+    padding: 12px 0;
+    margin-bottom: 16px;
+  }
+  .widget-title {
+    font-size: 20px;
+    font-weight: 800;
+    padding: 4px 16px 12px;
+  }
+  .trend, .suggest {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .trend:hover, .suggest:hover { background: rgba(231,233,234,0.05); }
+  .trend-cat { color: #71767b; font-size: 13px; }
+  .trend-name { font-weight: 700; font-size: 15px; margin: 2px 0; }
+  .trend-count { color: #71767b; font-size: 13px; }
+  .suggest {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .suggest-info { flex: 1; }
+  .suggest-name { font-weight: 700; font-size: 15px; }
+  .suggest-handle { color: #71767b; font-size: 13px; }
+  .follow-btn {
+    padding: 6px 16px;
+    background: #e7e9ea;
+    color: #0f1419;
+    border: none;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .follow-btn:hover { background: #d3d4d5; }
+  .follow-btn.following {
+    background: transparent;
+    color: #e7e9ea;
+    border: 1px solid #536471;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1d9bf0;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    opacity: 1; /* fixed: was 0 */
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 1000px) {
+    .app { grid-template-columns: 80px 1fr; }
+    .right-panel { display: none; }
+    .nav-item span.label, .logo span.label, .user-profile-info { display: none; }
+    .tweet-btn { font-size: 0; padding: 14px; }
+    .tweet-btn::before { content: '✎'; font-size: 20px; }
+  }
+  @media (max-width: 600px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🐦</div>
+      <span class="label">Chirp</span>
+    </div>
+    <div class="nav-item active"><span class="icon">🏠</span><span class="label">首页</span></div>
+    <div class="nav-item"><span class="icon">🔍</span><span class="label">探索</span></div>
+    <div class="nav-item"><span class="icon">🔔</span><span class="label">通知</span></div>
+    <div class="nav-item"><span class="icon">✉️</span><span class="label">私信</span></div>
+    <div class="nav-item"><span class="icon">🔖</span><span class="label">书签</span></div>
+    <div class="nav-item"><span class="icon">👤</span><span class="label">个人主页</span></div>
+    <button class="tweet-btn" onclick="document.getElementById('composeInput').focus()">发帖</button>
+    <div class="user-profile">
+      <div class="avatar">我</div>
+      <div class="user-profile-info">
+        <div class="user-profile-name">我</div>
+        <div class="user-profile-handle">@me</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Feed -->
+  <main class="main">
+    <header class="main-header">
+      <h1>首页</h1>
+      <div class="tabs">
+        <div class="tab active" data-tab="forYou">为你推荐</div>
+        <div class="tab" data-tab="following">关注中</div>
+      </div>
+    </header>
+
+    <div class="compose">
+      <div class="avatar">我</div>
+      <div class="compose-content">
+        <textarea id="composeInput" class="compose-input" placeholder="有什么新鲜事？" rows="2"></textarea>
+        <div class="compose-actions">
+          <div class="compose-tools">
+            <button class="tool-btn" title="图片">🖼️</button>
+            <button class="tool-btn" title="GIF">GIF</button>
+            <button class="tool-btn" title="投票">📊</button>
+            <button class="tool-btn" title="表情">😊</button>
+            <button class="tool-btn" title="定位">📍</button>
+          </div>
+          <div style="display:flex;align-items:center">
+            <span id="charCount" class="char-count">280</span>
+            <button id="composeSubmit" class="compose-submit" disabled>发布</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="feed"></div>
+  </main>
+
+  <!-- Right panel -->
+  <aside class="right-panel">
+    <div class="search-box">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" placeholder="搜索">
+      </div>
+    </div>
+    <div class="widget">
+      <div class="widget-title">热门话题</div>
+      <div class="trend">
+        <div class="trend-cat">科技 · 热门</div>
+        <div class="trend-name">#AI编程</div>
+        <div class="trend-count">32.5K 条帖子</div>
+      </div>
+      <div class="trend">
+        <div class="trend-cat">趋势</div>
+        <div class="trend-name">#开源周</div>
+        <div class="trend-count">18.2K 条帖子</div>
+      </div>
+      <div class="trend">
+        <div class="trend-cat">体育 · 热门</div>
+        <div class="trend-name">#世界杯</div>
+        <div class="trend-count">125K 条帖子</div>
+      </div>
+      <div class="trend">
+        <div class="trend-cat">娱乐</div>
+        <div class="trend-name">#周末电影</div>
+        <div class="trend-count">8,420 条帖子</div>
+      </div>
+    </div>
+    <div class="widget">
+      <div class="widget-title">推荐关注</div>
+      <div class="suggest">
+        <div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">设</div>
+        <div class="suggest-info">
+          <div class="suggest-name">设计师小王</div>
+          <div class="suggest-handle">@designer_w</div>
+        </div>
+        <button class="follow-btn" onclick="toggleFollow(this)">关注</button>
+      </div>
+      <div class="suggest">
+        <div class="avatar" style="background:linear-gradient(135deg,#10b981,#06b6d4)">码</div>
+        <div class="suggest-info">
+          <div class="suggest-name">代码狂人</div>
+          <div class="suggest-handle">@code_master</div>
+        </div>
+        <button class="follow-btn" onclick="toggleFollow(this)">关注</button>
+      </div>
+      <div class="suggest">
+        <div class="avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)">旅</div>
+        <div class="suggest-info">
+          <div class="suggest-name">旅行日记</div>
+          <div class="suggest-handle">@travel_diary</div>
+        </div>
+        <button class="follow-btn" onclick="toggleFollow(this)">关注</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const avatarColors = [
+    'linear-gradient(135deg,#1d9bf0,#8b5cf6)',
+    'linear-gradient(135deg,#f59e0b,#ef4444)',
+    'linear-gradient(135deg,#10b981,#06b6d4)',
+    'linear-gradient(135deg,#8b5cf6,#ec4899)',
+    'linear-gradient(135deg,#f97316,#eab308)',
+    'linear-gradient(135deg,#06b6d4,#3b82f6)'
+  ];
+
+  let tweets = [
+    {
+      id: 1, name: '程序员老李', handle: '@laoli_dev', avatar: '李', color: avatarColors[0],
+      text: '今天终于搞定了那个困扰我一周的 bug！原来只是少了一个分号 😅\n\n编程就是这样，有时候答案就在眼前，但你需要一杯咖啡才能看到它 ☕',
+      time: '2小时前', likes: 142, retweets: 23, liked: false, retweeted: false,
+      comments: [
+        { name: '小张', handle: '@zhang_xiao', avatar: '张', color: avatarColors[1], text: '哈哈哈同款经历！' },
+        { name: '小王', handle: '@wang_dev', avatar: '王', color: avatarColors[2], text: '分号杀手再现 😂' }
+      ], commentsOpen: false
+    },
+    {
+      id: 2, name: '设计师小雨', handle: '@rainy_design', avatar: '雨', color: avatarColors[3],
+      text: '分享一下最近的设计灵感：极简主义不是做减法，而是做乘法——用更少的元素表达更多的意义。\n\n少即是多，这句话真的要反复品味 ✨',
+      time: '4小时前', likes: 389, retweets: 67, liked: true, retweeted: false,
+      comments: [
+        { name: '艺术家', handle: '@art_lover', avatar: '艺', color: avatarColors[4], text: '说得太对了！' }
+      ], commentsOpen: false
+    },
+    {
+      id: 3, name: '产品经理阿强', handle: '@pm_aqiang', avatar: '强', color: avatarColors[5],
+      text: '一个好产品的三个标准：\n1. 用户真的需要\n2. 用起来很爽\n3. 愿意推荐给朋友\n\n其他的都是锦上添花。',
+      time: '6小时前', likes: 521, retweets: 128, liked: false, retweeted: true,
+      comments: [], commentsOpen: false
+    },
+    {
+      id: 4, name: '旅行日记', handle: '@travel_diary', avatar: '旅', color: avatarColors[3],
+      text: '清晨六点的山顶，云海翻涌，整个世界都安静了。\n\n有些美景，只留给早起的人 🌄',
+      time: '8小时前', likes: 892, retweets: 215, liked: false, retweeted: false,
+      comments: [
+        { name: '风景爱好者', handle: '@nature_fan', avatar: '风', color: avatarColors[2], text: '在哪里呀？好想去！' },
+        { name: '摄影师', handle: '@photo_pro', avatar: '摄', color: avatarColors[0], text: '这构图绝了 📸' }
+      ], commentsOpen: false
+    },
+    {
+      id: 5, name: 'AI 观察员', handle: '@ai_watcher', avatar: 'AI', color: avatarColors[1],
+      text: '关于 AI 的几点思考：\n\n• 它不会取代你，但会用它的人会\n• 学习提示词工程比学习编程语言更通用\n• 人机协作是未来十年最重要的技能\n\n拥抱变化，而不是恐惧它。',
+      time: '12小时前', likes: 1243, retweets: 456, liked: false, retweeted: false,
+      comments: [], commentsOpen: false
+    }
+  ];
+
+  const me = { name: '我', handle: '@me', avatar: '我', color: avatarColors[0] };
+  const feedEl = document.getElementById('feed');
+  const composeInput = document.getElementById('composeInput');
+  const composeSubmit = document.getElementById('composeSubmit');
+  const charCount = document.getElementById('charCount');
+  const MAX = 280;
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function formatNum(n) {
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return n.toString();
+  }
+
+  function render() {
+    feedEl.innerHTML = tweets.map(t => `
+      <article class="tweet" data-id="${t.id}">
+        <div class="avatar" style="background:${t.color}">${escapeHtml(t.avatar)}</div>
+        <div class="tweet-body">
+          ${t.retweeted ? '<div class="retweet-label">🔁 你已转发</div>' : ''}
+          <div class="tweet-header">
+            <span class="tweet-name">${escapeHtml(t.name)}</span>
+            <span class="tweet-handle">${escapeHtml(t.handle)}</span>
+            <span class="tweet-dot">·</span>
+            <span class="tweet-time">${escapeHtml(t.time)}</span>
+          </div>
+          <div class="tweet-text">${escapeHtml(t.text)}</div>
+          <div class="tweet-actions">
+            <button class="action comment-toggle" data-id="${t.id}">
+              <span class="action-icon">💬</span><span>${formatNum(t.comments.length)}</span>
+            </button>
+            <button class="action retweet ${t.retweeted ? 'active' : ''}" data-id="${t.id}">
+              <span class="action-icon">🔁</span><span>${formatNum(t.retweets)}</span>
+            </button>
+            <button class="action like ${t.liked ? 'active' : ''}" data-id="${t.id}">
+              <span class="action-icon">${t.liked ? '❤️' : '🤍'}</span><span>${formatNum(t.likes)}</span>
+            </button>
+            <button class="action share" data-id="${t.id}">
+              <span class="action-icon">📤</span>
+            </button>
+          </div>
+          <div class="comments ${t.commentsOpen ? 'open' : ''}">
+            ${t.comments.map(c => `
+              <div class="comment">
+                <div class="avatar" style="background:${c.color}">${escapeHtml(c.avatar)}</div>
+                <div class="comment-body">
+                  <div class="comment-header">
+                    <span class="comment-name">${escapeHtml(c.name)}</span>
+                    <span class="comment-handle">${escapeHtml(c.handle)}</span>
+                  </div>
+                  <div class="comment-text">${escapeHtml(c.text)}</div>
+                </div>
+              </div>
+            `).join('')}
+            <form class="comment-form" data-id="${t.id}" onsubmit="return false">
+              <div class="avatar" style="background:${me.color};width:32px;height:32px;font-size:13px">${me.avatar}</div>
+              <input class="comment-input" placeholder="发布你的回复..." maxlength="280">
+              <button class="comment-submit" disabled>回复</button>
+            </form>
+          </div>
+        </div>
+      </article>
+    `).join('');
+    bindTweetEvents();
+  }
+
+  function bindTweetEvents() {
+    document.querySelectorAll('.action.like').forEach(btn => {
+      btn.onclick = e => { e.stopPropagation(); toggleLike(+btn.dataset.id); };
+    });
+    document.querySelectorAll('.action.retweet').forEach(btn => {
+      btn.onclick = e => { e.stopPropagation(); toggleRetweet(+btn.dataset.id); };
+    });
+    document.querySelectorAll('.action.comment-toggle').forEach(btn => {
+      btn.onclick = e => { e.stopPropagation(); toggleComments(+btn.dataset.id); };
+    });
+    document.querySelectorAll('.action.share').forEach(btn => {
+      btn.onclick = e => { e.stopPropagation(); showToast('已复制链接到剪贴板'); };
+    });
+    document.querySelectorAll('.comment-form').forEach(form => {
+      const input = form.querySelector('.comment-input');
+      const submit = form.querySelector('.comment-submit');
+      input.oninput = () => { submit.disabled = !input.value.trim(); };
+      input.onclick = e => e.stopPropagation();
+      submit.onclick = e => {
+        e.stopPropagation();
+        const text = input.value.trim();
+        if (!text) return;
+        addComment(+form.dataset.id, text);
+        input.value = '';
+        submit.disabled = true;
+      };
+      input.onkeydown = e => {
+        if (e.key === 'Enter' && !e.shiftKey && input.value.trim()) {
+          e.preventDefault();
+          submit.click();
+        }
+      };
+    });
+  }
+
+  function toggleLike(id) {
+    const t = tweets.find(x => x.id === id);
+    t.liked = !t.liked;
+    t.likes += t.liked ? 1 : -1;
+    render();
+  }
+
+  function toggleRetweet(id) {
+    const t = tweets.find(x => x.id === id);
+    t.retweeted = !t.retweeted;
+    t.retweets += t.retweeted ? 1 : -1;
+    showToast(t.retweeted ? '已转发' : '已撤销转发');
+    render();
+  }
+
+  function toggleComments(id) {
+    const t = tweets.find(x => x.id === id);
+    t.commentsOpen = !t.commentsOpen;
+    render();
+  }
+
+  function addComment(id, text) {
+    const t = tweets.find(x => x.id === id);
+    t.comments.push({ name: me.name, handle: me.handle, avatar: me.avatar, color: me.color, text });
+    t.commentsOpen = true;
+    render();
+    showToast('回复已发布');
+  }
+
+  function addTweet(text) {
+    tweets.unshift({
+      id: Date.now(),
+      name: me.name, handle: me.handle, avatar: me.avatar, color: me.color,
+      text, time: '刚刚', likes: 0, retweets: 0,
+      liked: false, retweeted: false, comments: [], commentsOpen: false
+    });
+    render();
+    showToast('帖子已发布');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function toggleFollow(btn) {
+    const isFollowing = btn.classList.toggle('following');
+    btn.textContent = isFollowing ? '已关注' : '关注';
+    showToast(isFollowing ? '已关注' : '已取消关注');
+  }
+
+  composeInput.addEventListener('input', () => {
+    const len = composeInput.value.length;
+    const remain = MAX - len;
+    charCount.textContent = remain;
+    charCount.className = 'char-count' + (remain < 0 ? ' over' : remain < 20 ? ' warn' : '');
+    composeSubmit.disabled = !composeInput.value.trim() || remain < 0;
+    composeInput.style.height = 'auto';
+    composeInput.style.height = Math.max(60, composeInput.scrollHeight) + 'px';
+  });
+
+  composeSubmit.addEventListener('click', () => {
+    const text = composeInput.value.trim();
+    if (!text) return;
+    addTweet(text);
+    composeInput.value = '';
+    composeInput.style.height = '60px';
+    charCount.textContent = MAX;
+    charCount.className = 'char-count';
+    composeSubmit.disabled = true;
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    };
+  });
+
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.onclick = () => {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    };
+  });
+
+  render();
+</script>
+</body>
+</html>

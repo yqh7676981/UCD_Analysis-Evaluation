@@ -1,0 +1,33 @@
+{
+  "index": 258,
+  "id": "E005",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个光的折射物理演示动画，可以拖动入射角，实时看到光线在水面发生折射的角度变化，旁边显示折射定律公式。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The dark teal visual system is consistent and appropriate for a physics demo, with unified cards, glow accents, and stable spacing. However, the screen lacks a strong focal visualization: the main demo area appears as a large empty block, so the style does not fully support the requested refraction scenario."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Alignment and component construction are generally clean, with consistent rounded cards and readable numeric emphasis. But several labels and helper texts have weak contrast, text hierarchy is limited, and the large empty canvas feels unfinished rather than intentionally framed."
+      },
+      "easy_to_perceive": {
+        "score": 5,
+        "reason": "Users can quickly spot the title, angle values, slider, and formula section. The main weakness is that the core content—the refraction demonstration itself—is not visible in the screenshot, so the most important information and visual feedback are not immediately perceivable."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Labels such as '入射角' and '折射角' are clear, the slider affordance is familiar, and the Snell's law formula matches the educational purpose. However, the hint about dragging the light ray is doing extra explanatory work because the main interactive area does not visually communicate the ray, water surface, or expected manipulation clearly."
+      }
+    },
+    "summary": "This is a usable but only moderately complete mobile physics demo. It has a coherent color system and understandable controls, but the core experience is capped by the missing or visually invisible refraction animation in the main canvas. Users can understand the concept and adjust a value, yet the primary task—seeing real-time light refraction behavior—is not strongly delivered in the visible interface."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E005_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:16:26.236184"
+}

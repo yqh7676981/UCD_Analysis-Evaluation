@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火星天气 - 实时报告</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(ellipse at bottom, #0b0e1a 0%, #1a1f2e 40%, #2c1e1e 100%);
+            padding: 20px;
+            color: #e8e6df;
+        }
+
+        .card {
+            max-width: 480px;
+            width: 100%;
+            background: linear-gradient(145deg, rgba(200, 80, 50, 0.15), rgba(60, 40, 30, 0.5));
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 30px 28px 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), inset 0 1px 2px rgba(255, 180, 130, 0.3);
+            border: 1px solid rgba(220, 140, 80, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.9), inset 0 0 0 1px rgba(255, 150, 80, 0.2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(200, 150, 100, 0.2);
+            padding-bottom: 12px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #f7d49a, #f09b6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .title span {
+            -webkit-text-fill-color: initial;
+            color: #f6b17a;
+            font-size: 2rem;
+        }
+
+        .sol-date {
+            font-size: 1rem;
+            color: #c9b097;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 6px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(240, 180, 120, 0.15);
+            backdrop-filter: blur(4px);
+            white-space: nowrap;
+        }
+
+        .main-info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 18px;
+            margin: 18px 0 22px;
+        }
+
+        .temp-section {
+            flex: 1 1 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .temp-value {
+            font-size: 4.2rem;
+            font-weight: 300;
+            line-height: 1;
+            color: #fad6b3;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .temp-value .degree {
+            font-size: 1.8rem;
+            margin-top: 8px;
+        }
+
+        .temp-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #b28d72;
+            margin-top: 4px;
+        }
+
+        .conditions {
+            flex: 1 1 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .condition-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1rem;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border-left: 3px solid rgba(200, 120, 60, 0.5);
+        }
+
+        .condition-item .label {
+            color: #b59278;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .condition-item .value {
+            font-weight: 600;
+            color: #f0d5bc;
+        }
+
+        .atmosphere-block {
+            margin: 18px 0 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .atmo-card {
+            flex: 1;
+            min-width: 100px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            padding: 14px 12px;
+            text-align: center;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(200, 140, 80, 0.1);
+        }
+
+        .atmo-card .atmo-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a88266;
+        }
+
+        .atmo-card .atmo-value {
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: #edd6c1;
+            margin-top: 4px;
+        }
+
+        .atmo-card .atmo-unit {
+            font-size: 0.8rem;
+            color: #b28d72;
+        }
+
+        .weather-icon {
+            font-size: 3.2rem;
+            text-align: center;
+            margin: 8px 0 4px;
+            filter: drop-shadow(0 0 12px rgba(255, 150, 80, 0.3));
+        }
+
+        .description {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #dfc9b0;
+            letter-spacing: 1px;
+            padding: 8px 0;
+            border-top: 1px solid rgba(200, 150, 100, 0.15);
+            border-bottom: 1px solid rgba(200, 150, 100, 0.15);
+            margin: 12px 0 20px;
+            font-style: italic;
+        }
+
+        .refresh-btn {
+            display: block;
+            margin: 12px auto 0;
+            background: linear-gradient(135deg, rgba(215, 130, 60, 0.3), rgba(180, 100, 50, 0.2));
+            border: 1px solid rgba(255, 180, 120, 0.25);
+            color: #f0dac8;
+            font-size: 1rem;
+            padding: 12px 30px;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.25s ease;
+            letter-spacing: 2px;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        .refresh-btn:hover {
+            background: linear-gradient(135deg, rgba(235, 150, 70, 0.4), rgba(200, 110, 50, 0.3));
+            border-color: rgba(255, 180, 120, 0.5);
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(255, 150, 80, 0.2);
+        }
+
+        .refresh-btn:active {
+            transform: scale(0.97);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #6e5a4b;
+            margin-top: 22px;
+            letter-spacing: 1px;
+        }
+
+        /* 数值更新动画 */
+        .update-flash {
+            animation: flashBlink 0.3s ease;
+        }
+
+        @keyframes flashBlink {
+            0% { opacity: 0.6; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 420px) {
+            .card { padding: 20px 16px; }
+            .title { font-size: 1.5rem; }
+            .temp-value { font-size: 3.2rem; }
+            .sol-date { font-size: 0.85rem; padding: 4px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card" id="weatherCard">
+    <div class="header">
+        <div class="title">
+            <span>🔴</span> 火星天气
+        </div>
+        <div class="sol-date" id="solDisplay">Sol 3412</div>
+    </div>
+
+    <div class="weather-icon" id="weatherIcon">☀️</div>
+
+    <div class="main-info">
+        <div class="temp-section">
+            <div class="temp-value" id="tempValue">-63<span class="degree">°C</span></div>
+            <div class="temp-label">地表温度</div>
+        </div>
+        <div class="conditions">
+            <div class="condition-item">
+                <span class="label">💨 风速</span>
+                <span class="value" id="windValue">7.2 m/s</span>
+            </div>
+            <div class="condition-item">
+                <span class="label">🌪️ 风向</span>
+                <span class="value" id="windDir">NE</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="atmosphere-block">
+        <div class="atmo-card">
+            <div class="atmo-label">大气压</div>
+            <div class="atmo-value" id="pressureValue">6.9</div>
+            <div class="atmo-unit">hPa</div>
+        </div>
+        <div class="atmo-card">
+            <div class="atmo-label">大气密度</div>
+            <div class="atmo-value" id="densityValue">0.020</div>
+            <div class="atmo-unit">kg/m³</div>
+        </div>
+        <div class="atmo-card">
+            <div class="atmo-label">日照</div>
+            <div class="atmo-value" id="sunlightValue">78</div>
+            <div class="atmo-unit">%</div>
+        </div>
+    </div>
+
+    <div class="description" id="descriptionText">☀️ 晴朗 · 沙尘轻微</div>
+
+    <button class="refresh-btn" id="refreshBtn">⟳ 更新数据</button>
+
+    <div class="footer-note">基于洞察号气象数据模拟 · 实时火星时</div>
+</div>
+
+<script>
+    (function() {
+        // ---------- 火星天气模拟数据生成 ----------
+        const card = document.getElementById('weatherCard');
+
+        // 获取显示元素
+        const solDisplay = document.getElementById('solDisplay');
+        const tempValue = document.getElementById('tempValue');
+        const windValue = document.getElementById('windValue');
+        const windDir = document.getElementById('windDir');
+        const pressureValue = document.getElementById('pressureValue');
+        const densityValue = document.getElementById('densityValue');
+        const sunlightValue = document.getElementById('sunlightValue');
+        const descriptionText = document.getElementById('descriptionText');
+        const weatherIcon = document.getElementById('weatherIcon');
+
+        // 风向数组
+        const windDirections = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+        // 天气状况描述 & 对应图标
+        const weatherStates = [
+            { icon: '☀️', desc: '晴朗 · 无尘' },
+            { icon: '🌤️', desc: '少云 · 微风' },
+            { icon: '⛅', desc: '多云 · 沙尘飘动' },
+            { icon: '🌪️', desc: '沙尘暴 · 能见度低' },
+            { icon: '🌫️', desc: '薄雾 · 低温' },
+            { icon: '🌬️', desc: '大风 · 沙尘弥漫' }
+        ];
+
+        // 生成随机整数 [min, max]
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // 生成随机小数，保留位数
+        function randFloat(min, max, decimals = 1) {
+            const val = Math.random() * (max - min) + min;
+            return parseFloat(val.toFixed(decimals));
+        }
+
+        // 更新所有数据
+        function refreshWeather() {
+            // 模拟火星Sol (日) 递增，基于当前日期随机偏置
+            const baseSol = 3412;
+            const solOffset = randInt(0, 120);
+            const currentSol = baseSol + solOffset;
+            solDisplay.textContent = `Sol ${currentSol}`;
+
+            // 温度: 火星平均-63°C，范围 -90 ~ -20
+            const temp = randInt(-90, -20);
+            tempValue.innerHTML = `${temp}<span class="degree">°C</span>`;
+
+            // 风速: 0.5 ~ 30 m/s
+            const windSpeed = randFloat(0.5, 30, 1);
+            windValue.textContent = `${windSpeed} m/s`;
+
+            // 风向随机
+            const dirIndex = randInt(0, windDirections.length - 1);
+            windDir.textContent = windDirections[dirIndex];
+
+            // 大气压: 火星 4~10 hPa
+            const pressure = randFloat(4.0, 10.0, 1);
+            pressureValue.textContent = pressure;
+
+            // 大气密度: 0.010 ~ 0.030 kg/m³
+            const density = randFloat(0.010, 0.030, 3);
+            densityValue.textContent = density.toFixed(3);
+
+            // 日照百分比 (取决于沙尘) 20% ~ 100%
+            const sunlight = randInt(20, 100);
+            sunlightValue.textContent = sunlight;
+
+            // 根据条件选择天气状态：风速大或沙尘暴倾向
+            let stateIndex;
+            if (windSpeed > 20) {
+                stateIndex = 3; // 沙尘暴
+            } else if (windSpeed > 10) {
+                stateIndex = 5; // 大风沙尘
+            } else if (windSpeed > 5) {
+                stateIndex = 2; // 多云沙尘
+            } else if (sunlight < 40) {
+                stateIndex = 4; // 薄雾
+            } else if (temp < -70) {
+                stateIndex = 1; // 少云
+            } else {
+                stateIndex = 0; // 晴朗
+            }
+            // 加一点随机
+            if (Math.random() < 0.15) stateIndex = randInt(0, weatherStates.length - 1);
+
+            const weather = weatherStates[stateIndex];
+            weatherIcon.textContent = weather.icon;
+            descriptionText.textContent = `${weather.icon} ${weather.desc}`;
+
+            // 给数值元素添加一个快速闪烁动画
+            const elementsToAnimate = [tempValue, windValue, windDir, pressureValue, densityValue, sunlightValue, descriptionText, weatherIcon];
+            elementsToAnimate.forEach(el => {
+                el.classList.remove('update-flash');
+                // 强制回流触发动画
+                void el.offsetWidth;
+                el.classList.add('update-flash');
+            });
+        }
+
+        // 绑定刷新按钮
+        document.getElementById('refreshBtn').addEventListener('click', refreshWeather);
+
+        // 页面加载后立即刷新一次（初始数据）
+        refreshWeather();
+
+        // 可选：自动每15秒刷新一次（但为了不强制，由用户点击为主）
+        // setInterval(refreshWeather, 15000);
+
+    })();
+</script>
+
+</body>
+</html>

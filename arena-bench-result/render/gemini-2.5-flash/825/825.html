@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>篮球中心 - 篮球新闻、比分和球员统计数据</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF4500' d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z'/%3E%3Cpath fill='%23FF4500' d='M10 8h4v8h-4z'/%3E%3C/svg%3E" type="image/svg+xml">
+    <style>
+        /* CSS Reset and Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: #000000; /* Dark background */
+            color: #ffffff;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #ff4500; /* Bright orange for logo */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+        }
+
+        nav a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.05em;
+            padding: 5px 0;
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: #ff4500;
+            border-bottom: 2px solid #ff4500;
+        }
+
+        /* Main Content */
+        main {
+            flex-grow: 1;
+            padding: 30px 0;
+        }
+
+        section {
+            background-color: #ffffff;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #000000;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #ff4500;
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        /* Hero Section */
+        #hero {
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://picsum.photos/1200/500?random=1&blur=2');
+            background-size: cover;
+            background-position: center;
+            color: #ffffff;
+            text-align: center;
+            padding: 80px 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        #hero h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        }
+
+        #hero p {
+            font-size: 1.4em;
+            max-width: 800px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #ff4500;
+            color: #ffffff;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #e63900;
+            transform: translateY(-2px);
+        }
+
+        /* News Section */
+        #news .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .article-card {
+            background-color: #fcfcfc;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .article-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .article-content {
+            padding: 20px;
+        }
+
+        .article-content h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #000000;
+        }
+
+        .article-content p {
+            font-size: 0.95em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .article-content .read-more {
+            color: #ff4500;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .article-content .read-more:hover {
+            color: #e63900;
+        }
+
+        /* Scores Section */
+        #scores .games-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .game-card {
+            background-color: #fcfcfc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-info h3 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: #000000;
+        }
+
+        .teams {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+
+        .team img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .team-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff4500;
+        }
+
+        .separator {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #888;
+        }
+
+        .game-status {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .status-live {
+            background-color: #ff0000;
+            color: #ffffff;
+        }
+
+        .status-final {
+            background-color: #5cb85c;
+            color: #ffffff;
+        }
+
+        .status-upcoming {
+            background-color: #f0ad4e;
+            color: #ffffff;
+        }
+
+        #load-more-scores {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        /* Player Stats Section */
+        #player-stats .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .player-card {
+            background-color: #fcfcfc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .player-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .player-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border: 3px solid #ff4500;
+        }
+
+        .player-card h3 {
+            font-size: 1.6em;
+            margin-bottom: 10px;
+            color: #000000;
+        }
+
+        .player-card .team-name-small {
+            font-size: 0.9em;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .player-stats-list {
+            list-style: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .player-stats-list li {
+            background-color: #eef2f5;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .player-stats-list li strong {
+            color: #000000;
+        }
+
+
+        /* Footer */
+        footer {
+            background-color: #000000;
+            color: #ffffff;
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 30px;
+            font-size: 0.9em;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav ul {
+                justify-content: center;
+                gap: 15px;
+            }
+
+            #hero h1 {
+                font-size: 2.5em;
+            }
+
+            #hero p {
+                font-size: 1.1em;
+            }
+
+            h2 {
+                font-size: 1.7em;
+                margin-bottom: 20px;
+            }
+
+            .game-card {
+                max-width: none; /* Allow game cards to fill more width on small screens */
+            }
+
+            .player-card img {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.5em;
+            }
+
+            nav a {
+                font-size: 0.95em;
+                padding: 3px 0;
+            }
+
+            #hero {
+                padding: 50px 15px;
+                min-height: 300px;
+            }
+
+            #hero h1 {
+                font-size: 2em;
+            }
+
+            #hero p {
+                font-size: 1em;
+            }
+
+            .cta-button {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+
+            .article-content h3 {
+                font-size: 1.3em;
+            }
+
+            .team img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .score {
+                font-size: 1.8em;
+            }
+
+            .player-card h3 {
+                font-size: 1.4em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">篮球中心</div>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">新闻</a></li>
+                    <li><a href="#scores-section">比分</a></li>
+                    <li><a href="#player-stats-section">球员</a></li>
+                    <li><a href="#">球队</a></li>
+                    <li><a href="#">统计</a></li>
+                    <li><a href="#">视频</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="container">
+            <h1>湖人队在季后赛揭幕战中以压倒性优势取胜！</h1>
+            <p>勒布朗·詹姆斯拿下三双，带领球队轻松击败对手，展现了冠军实力。</p>
+            <a href="#" class="cta-button">阅读完整报道</a>
+        </section>
+
+        <section id="news" class="container">
+            <h2>最新篮球新闻</h2>
+            <div class="articles-grid">
+                <div class="article-card">
+                    <img src="https://picsum.photos/400/250?random=2" alt="新闻图片1">
+                    <div class="article-content">
+                        <h3>勇士队新秀表现抢眼，未来可期</h3>
+                        <p>一名未经选秀的新秀在夏季联赛中大放异彩，震惊了整个联盟...</p>
+                        <a href="#" class="read-more">阅读更多</a>
+                    </div>
+                </div>
+                <div class="article-card">
+                    <img src="https://picsum.photos/400/250?random=3" alt="新闻图片2">
+                    <div class="article-content">
+                        <h3>东部强队交易流言四起，或引爆休赛期</h3>
+                        <p>多支东部顶级球队正在积极寻求补强，涉及多名全明星球员...</p>
+                        <a href="#" class="read-more">阅读更多</a>
+                    </div>
+                </div>
+                <div class="article-card">
+                    <img src="https://picsum.photos/400/250?random=4" alt="新闻图片3">
+                    <div class="article-content">
+                        <h3>传奇教练退役，回顾其辉煌执教生涯</h3>
+                        <p>一位执教超过30年的传奇教练宣布退役，他的影响深远...</p>
+                        <a href="#" class="read-more">阅读更多</a>
+                    </div>
+                </div>
+                <div class="article-card">
+                    <img src="https://picsum.photos/400/250?random=5" alt="新闻图片4">
+                    <div class="article-content">
+                        <h3>国际球员崛起，欧洲篮球联赛人才辈出</h3>
+                        <p>越来越多来自欧洲的年轻天才球员在NBA崭露头角，改变了联盟格局...</p>
+                        <a href="#" class="read-more">阅读更多</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="scores-section" class="container">
+            <h2>实时比分与赛程</h2>
+            <div class="games-list" id="live-scores">
+                <!-- Game Card 1 -->
+                <div class="game-card">
+                    <div class="game-info">
+                        <h3>常规赛</h3>
+                        <div class="teams">
+                            <div class="team">
+                                <img src="https://picsum.photos/60/60?random=teams1" alt="湖人队Logo">
+                                <span class="team-name">湖人队</span>
+                            </div>
+                            <div class="scores">
+                                <span class="score" data-score="112">112</span>
+                                <span class="separator">-</span>
+                                <span class="score" data-score="105">105</span>
+                            </div>
+                            <div class="team">
+                                <img src="https://picsum.photos/60/60?random=teams2" alt="掘金队Logo">
+                                <span class="team-name">掘金队</span>
+                            </div>
+                        </div>
+                        <span class="game-status status-final">终场</span>
+                    </div>
+                </div>
+                <!-- Game Card 2 -->
+                <div class="game-card">
+                    <div class="game-info">
+                        <h3>季后赛首轮</h3>
+                        <div class="teams">
+                            <div class="team">
+                                <img src="https://picsum.photos/60/60?random=teams3" alt="凯尔特人队Logo">
+                                <span class="team-name">凯尔特人</span>
+                            </div>
+                            <div class="scores">
+                                <span class="score" data-score="88">88</span>
+                                <span class="separator">-</span>
+                                <span class="score" data-score="85">85</span>
+                            </div>
+                            <div class="team">
+                                <img src="https://picsum.photos/60/60?random=teams4" alt="热火队Logo">
+                                <span class="team-name">热火队</span>
+                            </div>
+                        </div>
+                        <span class="game-status status-live">Live - Q3 5:32</span>
+                    </div>
+                </div>
+                <!-- Game Card 3 -->
+                <div class="game-card">
+                    <div class="game-info">
+                        <h3>常规赛</h3>
+                        <div class="teams">
+                            <div class="team">
+                                <img src="https://picsum.photos/60/60?random=teams5" alt="雄鹿队Logo">
+                                <span class="team-name">雄鹿队</span>
+                            </div>
+                            <div class="scores">
+                                <span class="score">即将开始</span>
+                            </div>
+                            <div class="team">
+                                <img src="https://picsum.photos/60/60?random=teams6" alt="快船队Logo">
+                                <span class="team-name">快船队</span>
+                            </div>
+                        </div>
+                        <span class="game-status status-upcoming">明日 08:00 AM CST</span>
+                    </div>
+                </div>
+            </div>
+            <div id="load-more-scores">
+                <button class="cta-button">加载更多比赛</button>
+            </div>
+        </section>
+
+        <section id="player-stats-section" class="container">
+            <h2>顶级球员统计</h2>
+            <div class="stats-grid">
+                <div class="player-card">
+                    <img src="https://picsum.photos/120/120?random=player1" alt="勒布朗·詹姆斯">
+                    <h3>勒布朗·詹姆斯</h3>
+                    <p class="team-name-small">洛杉矶湖人</p>
+                    <ul class="player-stats-list">
+                        <li><span>得分:</span> <strong>27.5</strong></li>
+                        <li><span>篮板:</span> <strong>7.3</strong></li>
+                        <li><span>助攻:</span> <strong>8.0</strong></li>
+                    </ul>
+                </div>
+                <div class="player-card">
+                    <img src="https://picsum.photos/120/120?random=player2" alt="扬尼斯·阿德托昆博">
+                    <h3>扬尼斯·阿德托昆博</h3>
+                    <p class="team-name-small">密尔沃基雄鹿</p>
+                    <ul class="player-stats-list">
+                        <li><span>得分:</span> <strong>31.1</strong></li>
+                        <li><span>篮板:</span> <strong>11.8</strong></li>
+                        <li><span>助攻:</span> <strong>5.7</strong></li>
+                    </ul>
+                </div>
+                <div class="player-card">
+                    <img src="https://picsum.photos/120/120?random=player3" alt="斯蒂芬·库里">
+                    <h3>斯蒂芬·库里</h3>
+                    <p class="team-name-small">金州勇士</p>
+                    <ul class="player-stats-list">
+                        <li><span>得分:</span> <strong>29.4</strong></li>
+                        <li><span>篮板:</span> <strong>6.1</strong></li>
+                        <li><span>助攻:</span> <strong>6.3</strong></li>
+                    </ul>
+                </div>
+                <div class="player-card">
+                    <img src="https://picsum.photos/120/120?random=player4" alt="凯文·杜兰特">
+                    <h3>凯文·杜兰特</h3>
+                    <p class="team-name-small">菲尼克斯太阳</p>
+                    <ul class="player-stats-list">
+                        <li><span>得分:</span> <strong>29.1</strong></li>
+                        <li><span>篮板:</span> <strong>6.7</strong></li>
+                        <li><span>助攻:</span> <strong>5.0</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 篮球中心. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('nav ul li a');
+            const liveScoresContainer = document.getElementById('live-scores');
+            const loadMoreButton = document.querySelector('#load-more-scores .cta-button');
+
+            // --- Navigation Active State ---
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    navLinks.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    // For demo, prevent default anchor jump for '#' links, but allow for actual sections
+                    if (this.getAttribute('href') === '#') {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // Set initial active state based on current scroll position or default
+            function updateActiveNavOnScroll() {
+                let currentActive = null;
+                const sections = document.querySelectorAll('main section');
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - header.offsetHeight - 50; // Adjust for header height and padding
+                    const sectionBottom = sectionTop + section.offsetHeight;
+                    if (window.scrollY >= sectionTop && window.scrollY < sectionBottom) {
+                        if (section.id === 'scores-section') {
+                            currentActive = document.querySelector('nav a[href="#scores-section"]');
+                        } else if (section.id === 'player-stats-section') {
+                            currentActive = document.querySelector('nav a[href="#player-stats-section"]');
+                        } else if (section.id === 'hero' || section.id === 'news') {
+                            currentActive = document.querySelector('nav a[href="#"]'); // Assuming 'News' is the default active
+                        }
+                    }
+                });
+
+                navLinks.forEach(link => link.classList.remove('active'));
+                if (currentActive) {
+                    currentActive.classList.add('active');
+                } else {
+                    // Fallback to default active if no section is in view
+                    document.querySelector('nav a[href="#"]').classList.add('active');
+                }
+            }
+
+            const header = document.querySelector('header');
+            window.addEventListener('scroll', updateActiveNavOnScroll);
+            updateActiveNavOnScroll(); // Call on load
+
+            // --- Simulate Live Score Updates (simple, for demo purposes) ---
+            setInterval(() => {
+                document.querySelectorAll('.game-card .status-live').forEach(gameStatusElement => {
+                    // Randomly update quarter and time
+                    const quarter = parseInt(gameStatusElement.textContent.match(/Q(\d)/)[1]);
+                    let time = gameStatusElement.textContent.match(/(\d+:\d+)/)[1];
+                    let [minutes, seconds] = time.split(':').map(Number);
+
+                    // Decrement time or advance quarter
+                    if (seconds > 0) {
+                        seconds--;
+                    } else if (minutes > 0) {
+                        minutes--;
+                        seconds = 59;
+                    } else if (quarter < 4) { // Max Q4
+                        minutes = 12; // Start of next quarter (assuming 12 min quarters)
+                        seconds = 0;
+                        gameStatusElement.textContent = `Live - Q${quarter + 1} ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    } else { // Game might be final or OT
+                        gameStatusElement.textContent = "Live - OT"; // Simple for demo
+                    }
+
+                    if (seconds <= 0 && minutes <= 0 && quarter >= 4) {
+                        gameStatusElement.textContent = "Final";
+                        gameStatusElement.classList.remove('status-live');
+                        gameStatusElement.classList.add('status-final');
+                        return; // Stop updating this game if it's final
+                    }
+
+                    gameStatusElement.textContent = `Live - Q${quarter} ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                    // Randomly update scores slightly
+                    const scores = gameStatusElement.closest('.game-card').querySelectorAll('.score[data-score]');
+                    scores.forEach(scoreElement => {
+                        let currentScore = parseInt(scoreElement.dataset.score);
+                        if (Math.random() > 0.8) { // 20% chance to increment a score
+                            currentScore += Math.floor(Math.random() * 3) + 1; // Add 1-3 points
+                            scoreElement.dataset.score = currentScore;
+                            scoreElement.textContent = currentScore;
+                        }
+                    });
+                });
+            }, 5000); // Update every 5 seconds
+
+
+            // --- Load More Scores Feature ---
+            let gameCount = 3; // Initial number of games
+            const totalMockGames = 7; // Total mock games available for loading
+
+            const mockGamesData = [
+                {
+                    status: 'status-final',
+                    statusText: '终场',
+                    h3: '常规赛',
+                    team1Name: '尼克斯队', team1Img: 'https://picsum.photos/60/60?random=teams7', team1Score: 98,
+                    team2Name: '76人队', team2Img: 'https://picsum.photos/60/60?random=teams8', team2Score: 95
+                },
+                {
+                    status: 'status-upcoming',
+                    statusText: '今日 10:30 PM CST',
+                    h3: '季前赛',
+                    team1Name: '火箭队', team1Img: 'https://picsum.photos/60/60?random=teams9', team1Score: '即将开始',
+                    team2Name: '独行侠队', team2Img: 'https://picsum.photos/60/60?random=teams10', team2Score: ''
+                },
+                {
+                    status: 'status-live',
+                    statusText: 'Live - Q2 7:15',
+                    h3: '常规赛',
+                    team1Name: '太阳队', team1Img: 'https://picsum.photos/60/60?random=teams11', team1Score: 55,
+                    team2Name: '爵士队', team2Img: 'https://picsum.photos/60/60?random=teams12', team2Score: 48
+                },
+                {
+                    status: 'status-final',
+                    statusText: '终场',
+                    h3: '常规赛',
+                    team1Name: '猛龙队', team1Img: 'https://picsum.photos/60/60?random=teams13', team1Score: 103,
+                    team2Name: '步行者队', team2Img: 'https://picsum.photos/60/60?random=teams14', team2Score: 100
+                }
+            ];
+
+            loadMoreButton.addEventListener('click', function() {
+                const gamesToAdd = Math.min(2, totalMockGames - gameCount); // Load 2 more games, or fewer if remaining
+                if (gamesToAdd > 0) {
+                    for (let i = 0; i < gamesToAdd; i++) {
+                        if (gameCount < totalMockGames + mockGamesData.length) { // Ensure we don't go beyond mock data length
+                            const gameData = mockGamesData[gameCount - 3]; // Adjust index for mockData
+                            if (gameData) {
+                                const newGameCard = document.createElement('div');
+                                newGameCard.classList.add('game-card');
+                                newGameCard.innerHTML = `
+                                    <div class="game-info">
+                                        <h3>${gameData.h3}</h3>
+                                        <div class="teams">
+                                            <div class="team">
+                                                <img src="${gameData.team1Img}" alt="${gameData.team1Name}Logo">
+                                                <span class="team-name">${gameData.team1Name}</span>
+                                            </div>
+                                            <div class="scores">
+                                                ${gameData.team1Score !== '即将开始' ? `<span class="score" data-score="${gameData.team1Score}">${gameData.team1Score}</span>` : `<span class="score">${gameData.team1Score}</span>`}
+                                                ${gameData.team2Score !== '' && gameData.team2Score !== '即将开始' ? `<span class="separator">-</span>` : ''}
+                                                ${gameData.team2Score !== '' && gameData.team2Score !== '即将开始' ? `<span class="score" data-score="${gameData.team2Score}">${gameData.team2Score}</span>` : ''}
+                                            </div>
+                                            <div class="team">
+                                                <img src="${gameData.team2Img}" alt="${gameData.team2Name}Logo">
+                                                <span class="team-name">${gameData.team2Name}</span>
+                                            </div>
+                                        </div>
+                                        <span class="game-status ${gameData.status}">${gameData.statusText}</span>
+                                    </div>
+                                `;
+                                liveScoresContainer.appendChild(newGameCard);
+                                gameCount++;
+                            }
+                        }
+                    }
+                }
+
+                if (gameCount >= totalMockGames + mockGamesData.length) {
+                    loadMoreButton.style.display = 'none'; // Hide button if no more games to load
+                }
+            });
+        });
+    </script>
+</body>
+</html>

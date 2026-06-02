@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邓稼先研究工作展示 - 两弹元勋</title>
+    <!-- 使用SVG作为favicon，显示一个原子符号，增强科技感 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚛️</text></svg>">
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6; /* 浅灰色背景，柔和舒适 */
+            color: #333; /* 深灰色文本，易于阅读 */
+            line-height: 1.6;
+            scroll-behavior: smooth; /* 启用平滑滚动 */
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #004085; /* 深蓝色，庄重而专业 */
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* 底部阴影，增加立体感 */
+            position: sticky; /* 导航栏固定在顶部 */
+            top: 0;
+            z-index: 1000; /* 确保导航栏在最上层 */
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.8em;
+            letter-spacing: 1.5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 导航菜单样式 */
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0 0;
+            display: flex;
+            justify-content: center;
+            gap: 25px; /* 导航项之间的间距 */
+            flex-wrap: wrap; /* 允许在小屏幕上换行 */
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.7rem 1.2rem;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border-radius: 25px; /* 圆角按钮效果 */
+            font-size: 1.1em;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background-color: #007bff; /* 鼠标悬停和激活时的亮蓝色 */
+            transform: translateY(-3px); /* 悬停时微微上浮效果 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 主要内容区域 */
+        main {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); /* 柔和的整体阴影 */
+        }
+
+        section {
+            padding: 50px 0;
+            border-bottom: 1px solid #e0e0e0; /* 分隔线 */
+            margin-bottom: 25px;
+        }
+
+        section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            color: #004085;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            border-bottom: 4px solid #007bff; /* 标题下划线 */
+            display: inline-block;
+            padding-bottom: 8px;
+            font-weight: 600;
+        }
+
+        /* 英雄/介绍部分 */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 25px;
+            padding: 60px 0;
+            background-color: #e9f5ff; /* 极浅蓝色背景 */
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+
+        .hero img {
+            width: 280px;
+            height: 280px;
+            object-fit: cover;
+            border-radius: 50%; /* 圆形图片 */
+            border: 6px solid #007bff; /* 蓝色边框 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25); /* 显著的阴影 */
+            transition: transform 0.3s ease;
+        }
+
+        .hero img:hover {
+            transform: scale(1.03); /* 鼠标悬停时轻微放大 */
+        }
+
+        .hero h2 {
+            font-size: 2.8em;
+            color: #004085;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            border-bottom: none; /* 移除下划线，因为已有大标题 */
+        }
+
+        .hero p {
+            max-width: 900px;
+            font-size: 1.2em;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* 内容列表样式 (出版物, 项目, 贡献) */
+        .content-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .content-list li {
+            background-color: #fcfcfc;
+            margin-bottom: 20px;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* 列表项阴影 */
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 5px solid #007bff; /* 左侧蓝色强调边框 */
+        }
+
+        .content-list li:hover {
+            transform: translateY(-7px); /* 悬停时上浮 */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .content-list h3 {
+            color: #004085;
+            margin-top: 0;
+            font-size: 1.6em;
+            margin-bottom: 10px;
+        }
+
+        .content-list p {
+            margin-bottom: 8px;
+            color: #666;
+            font-size: 1.05em;
+        }
+
+        .content-list span.year, .content-list span.role {
+            font-weight: bold;
+            color: #007bff;
+            margin-right: 12px;
+        }
+
+        /* 底部样式 */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 50px;
+            font-size: 0.9em;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2); /* 顶部阴影 */
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            header h1 {
+                font-size: 2.2em;
+            }
+            nav ul {
+                gap: 15px;
+            }
+            nav ul li a {
+                padding: 0.6rem 1rem;
+                font-size: 1em;
+            }
+            main {
+                margin: 20px auto;
+                padding: 20px;
+            }
+            h2 {
+                font-size: 2em;
+            }
+            .hero img {
+                width: 220px;
+                height: 220px;
+            }
+            .hero h2 {
+                font-size: 2.2em;
+            }
+            .hero p {
+                font-size: 1.1em;
+                padding: 0 15px;
+            }
+            .content-list h3 {
+                font-size: 1.4em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            nav ul li {
+                width: 80%; /* 导航项占据更多宽度 */
+                text-align: center;
+            }
+            nav ul li a {
+                display: block;
+            }
+            main {
+                padding: 15px;
+            }
+            section {
+                padding: 30px 0;
+            }
+            h2 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+            .hero img {
+                width: 180px;
+                height: 180px;
+            }
+            .hero h2 {
+                font-size: 1.8em;
+            }
+            .hero p {
+                font-size: 1em;
+            }
+            .content-list li {
+                padding: 20px;
+            }
+            .content-list h3 {
+                font-size: 1.2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.4em;
+            }
+            nav ul li a {
+                font-size: 0.9em;
+                padding: 0.5rem 0.8rem;
+            }
+            main {
+                padding: 10px;
+            }
+            h2 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+            .hero img {
+                width: 150px;
+                height: 150px;
+            }
+            .hero h2 {
+                font-size: 1.5em;
+            }
+            .hero p {
+                font-size: 0.95em;
+            }
+            .content-list li {
+                padding: 15px;
+            }
+            .content-list h3 {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>邓稼先研究工作展示</h1>
+        <nav>
+            <ul>
+                <li><a href="#home" class="nav-link active">首页</a></li>
+                <li><a href="#publications" class="nav-link">出版物</a></li>
+                <li><a href="#projects" class="nav-link">项目</a></li>
+                <li><a href="#contributions" class="nav-link">贡献</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <!-- 使用邓稼先先生的公开肖像，来源自维基百科 -->
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/%E9%82%93%E7%A8%BC%E5%85%88.jpg/250px-%E9%82%93%E7%A8%BC%E5%85%88.jpg" alt="邓稼先肖像">
+            <h2>中国“两弹元勋”——邓稼先</h2>
+            <p>
+                邓稼先（1924年6月25日－1986年7月29日），安徽怀宁人，是中国著名的核物理学家，中国科学院院士，同时也是中国核武器研制的开拓者和奠基人之一。
+                他曾在美国普渡大学获得博士学位，但在新中国成立后毅然放弃优越的海外条件，投身于祖国的核武器事业。
+                在艰苦卓绝的条件下，他领导或参与了中国第一颗原子弹、第一颗氢弹的理论设计和研制工作，为中国核武器事业和国防现代化建设作出了卓越贡献，因此被誉为“两弹元勋”。
+                本网站旨在集中展示邓稼先先生的科研成果、重要项目及其对中国乃至世界科学界的深远影响，以缅怀这位为国家和民族鞠躬尽瘁的伟大科学家。
+            </p>
+        </section>
+
+        <section id="publications">
+            <h2>主要出版物与研究成果</h2>
+            <ul class="content-list">
+                <li>
+                    <h3>原子弹的理论设计基础与工程实现</h3>
+                    <p><span class="year">1960s初期</span>：作为原子弹理论设计的核心人物，邓稼先领导团队系统阐述了原子弹爆炸的物理原理、裂变材料选择、核装置结构设计以及引爆技术等关键理论。这些研究成果直接指导了中国第一颗原子弹的成功研制。</p>
+                </li>
+                <li>
+                    <h3>氢弹物理原理的突破与构型优化</h3>
+                    <p><span class="year">1960s中期</span>：在原子弹成功后，邓稼先及其团队迅速投入氢弹研制。他们攻克了氢弹热核反应物理机制的难题，并成功设计出符合中国国情的氢弹构型，实现了在极短时间内（2年8个月）由原子弹到氢弹的跨越。</p>
+                </li>
+                <li>
+                    <h3>中子物理与核反应堆理论研究</h3>
+                    <p><span class="year">1970年代</span>：邓稼先在核反应堆中子输运理论、临界物理实验分析等方面也有深入研究。虽然核武器研制是其主要工作，但这些基础核物理研究也为中国核能的和平利用奠定了理论基础。</p>
+                </li>
+                <li>
+                    <h3>核武器小型化与多功能化设计报告</h3>
+                    <p><span class="year">1970s末-1980s初</span>：为满足国防现代化需求，邓稼先领导团队进行核武器小型化和战术化研究，提出了多种核弹头设计方案和技术路线，提升了核武器的实战部署能力。</p>
+                </li>
+            </ul>
+        </section>
+
+        <section id="projects">
+            <h2>重要科研项目</h2>
+            <ul class="content-list">
+                <li>
+                    <h3>中国第一颗原子弹研制项目 (“596”任务)</h3>
+                    <p><span class="role">理论设计负责人 & 核心领导者</span>：自1958年起，邓稼先全程负责原子弹的理论设计、方案论证和关键技术攻关。在苏联撤走专家后，他带领年轻的科研团队，独立完成了原子弹的物理设计和计算，最终促成1964年10月16日中国第一颗原子弹的成功爆炸。</p>
+                </li>
+                <li>
+                    <h3>中国第一颗氢弹研制项目</h3>
+                    <p><span class="role">主要领导者 & 总设计师之一</span>：在原子弹成功后，邓稼先迅速将精力转向氢弹研究。他组织并指导了氢弹的理论探索、物理实验和工程实施，克服了巨大困难，于1967年6月17日成功爆炸中国第一颗氢弹，创造了世界核武器发展史上的奇迹。</p>
+                </li>
+                <li>
+                    <h3>系列地下核试验项目</h3>
+                    <p><span class="role">技术总负责人</span>：在整个核武器发展过程中，邓稼先多次亲临试验现场，领导和参与了多次地下核试验的组织、数据分析与安全评估工作，确保了核装置的可靠性和性能优化。</p>
+                </li>
+                <li>
+                    <h3>新型核弹头理论与设计项目</h3>
+                    <p><span class="role">核心科学家</span>：长期致力于提升中国核武器的整体性能，包括弹头的小型化、多样化以及在不同运载工具上的适应性，为中国构建完善的核威慑体系做出了不可磨灭的贡献。</p>
+                </li>
+            </ul>
+        </section>
+
+        <section id="contributions">
+            <h2>对学术界及国家的深远贡献</h2>
+            <ul class="content-list">
+                <li>
+                    <h3>奠定中国核科学体系基石</h3>
+                    <p>邓稼先先生以其深厚的物理学功底和卓越的组织才能，从零开始，建立了中国完整的核武器理论体系和科研队伍。他不仅是杰出的科学家，更是卓越的管理者和教育家，培养了一大批优秀的核物理和核工程人才，为中国核科学的后续发展奠定了坚实基础。</p>
+                </li>
+                <li>
+                    <h3>实现国防战略性突破与国家安全保障</h3>
+                    <p>他的工作使得中国在极其困难的条件下，自主掌握了原子弹和氢弹技术，打破了少数大国的核垄断，极大地提升了中国的国际地位和国防安全。这对于维护国家主权、抵御外部威胁具有不可替代的战略意义，对维护世界和平格局也产生了深远影响。</p>
+                </li>
+                <li>
+                    <h3>弘扬“两弹一星”伟大精神</h3>
+                    <p>邓稼先是“两弹一星”精神的杰出代表，他放弃个人名利、无私奉献、隐姓埋名、艰苦奋斗、勇攀科学高峰的崇高精神，成为中国科研工作者和全体人民的宝贵精神财富，激励了几代中国人为国家富强而奋斗。</p>
+                </li>
+                <li>
+                    <h3>严谨求实的科学态度与人格魅力</h3>
+                    <p>他在科研工作中始终坚持严谨求实、一丝不苟的态度，任何一个数据、一个结论都要经过反复验证。在个人品德方面，他淡泊名利、平易近人，赢得了同事和学生的普遍尊敬，其高尚的人格魅力也成为后世学习的榜样。</p>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 邓稼先研究工作展示. (此网站为学习目的制作，内容旨在缅怀伟大科学家。)</p>
+        <p>致敬所有为祖国国防科技事业奋斗的科学家们！</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const header = document.querySelector('header');
+            let headerHeight = header.offsetHeight; // 获取头部高度，用于调整滚动位置
+
+            // 监听页面大小变化，更新头部高度
+            window.addEventListener('resize', () => {
+                headerHeight = header.offsetHeight;
+            });
+
+            // 为导航链接添加平滑滚动效果
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // 阻止默认的锚点跳转行为
+                    const targetId = link.getAttribute('href').substring(1); // 获取目标元素的ID
+                    const targetSection = document.getElementById(targetId);
+
+                    if (targetSection) {
+                        // 使用平滑滚动，并考虑固定头部的高度
+                        window.scrollTo({
+                            top: targetSection.offsetTop - headerHeight - 10, // 减去头部高度，并额外留出10px边距
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // 滚动时高亮显示当前所在的导航链接
+            const sections = document.querySelectorAll('section');
+
+            const highlightNavLink = () => {
+                let currentActiveSectionId = 'home'; // 默认首页活跃
+
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - headerHeight - 30; // 调整顶部偏移量
+                    const sectionBottom = sectionTop + section.offsetHeight;
+
+                    // 判断当前滚动位置是否在某个section内
+                    if (window.scrollY >= sectionTop && window.scrollY < sectionBottom) {
+                        currentActiveSectionId = section.id;
+                    }
+                });
+
+                // 移除所有链接的active类
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                // 为当前活跃的链接添加active类
+                const activeLink = document.querySelector(`.nav-link[href="#${currentActiveSectionId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            };
+
+            // 监听滚动事件和页面加载完成事件
+            window.addEventListener('scroll', highlightNavLink);
+            highlightNavLink(); // 页面加载时执行一次，以设置初始活跃链接
+        });
+    </script>
+</body>
+</html>

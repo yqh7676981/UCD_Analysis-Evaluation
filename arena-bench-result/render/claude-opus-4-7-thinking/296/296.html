@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATELIER NOIR — 臻选手工商务鞋</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0f0d0b;
+    --cream: #f5efe6;
+    --brown: #3b2416;
+    --accent: #c9a46a;
+    --muted: #8a7a65;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Georgia", "Source Han Serif SC", serif;
+    background: var(--cream);
+    color: var(--brown);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 60px;
+    background: rgba(15, 13, 11, 0.92);
+    backdrop-filter: blur(10px);
+    transition: padding .3s;
+  }
+  nav.scrolled { padding: 12px 60px; }
+  .logo {
+    color: var(--cream);
+    font-size: 22px; letter-spacing: 4px;
+    font-weight: bold;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    color: var(--cream); text-decoration: none;
+    font-size: 13px; letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color .3s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .cart-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 18px; cursor: pointer;
+    letter-spacing: 2px; font-size: 12px;
+    transition: all .3s;
+  }
+  .cart-btn:hover { background: var(--accent); color: var(--bg); }
+
+  /* HERO */
+  .hero {
+    height: 100vh;
+    background:
+      linear-gradient(135deg, rgba(15,13,11,0.75), rgba(59,36,22,0.55)),
+      url('https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=1600') center/cover;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center; color: var(--cream);
+    position: relative;
+  }
+  .hero-content { max-width: 800px; padding: 0 20px; animation: fadeUp 1.2s ease; }
+  .hero-tag {
+    font-size: 13px; letter-spacing: 6px;
+    color: var(--accent); margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(42px, 6vw, 82px);
+    font-weight: 300; line-height: 1.1;
+    margin-bottom: 30px; letter-spacing: 2px;
+  }
+  .hero h1 em { color: var(--accent); font-style: italic; }
+  .hero p {
+    font-size: 17px; max-width: 560px; margin: 0 auto 40px;
+    color: #d9cfc0; font-style: italic;
+  }
+  .btn-primary {
+    display: inline-block;
+    padding: 16px 44px;
+    background: var(--accent);
+    color: var(--bg);
+    text-decoration: none;
+    letter-spacing: 3px; font-size: 13px;
+    text-transform: uppercase;
+    transition: all .3s;
+    border: 1px solid var(--accent);
+  }
+  .btn-primary:hover {
+    background: transparent; color: var(--accent);
+    transform: translateY(-2px);
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SECTIONS */
+  section { padding: 110px 60px; }
+  .section-head { text-align: center; margin-bottom: 70px; }
+  .section-head .eyebrow {
+    color: var(--accent); font-size: 12px;
+    letter-spacing: 5px; text-transform: uppercase;
+  }
+  .section-head h2 {
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 300; margin-top: 14px;
+    letter-spacing: 1px;
+  }
+  .section-head .divider {
+    width: 60px; height: 1px; background: var(--accent);
+    margin: 20px auto;
+  }
+
+  /* FEATURES */
+  .features { background: var(--cream); }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 50px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .feature {
+    text-align: center;
+    padding: 30px 20px;
+    transition: transform .4s;
+  }
+  .feature:hover { transform: translateY(-6px); }
+  .feature-icon {
+    width: 70px; height: 70px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 28px; color: var(--accent);
+  }
+  .feature h3 {
+    font-size: 18px; letter-spacing: 2px;
+    margin-bottom: 14px; text-transform: uppercase;
+  }
+  .feature p { color: var(--muted); font-size: 15px; }
+
+  /* PRODUCTS */
+  .products { background: #ebe3d6; }
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    max-width: 1300px; margin: 0 auto;
+  }
+  .product {
+    background: var(--cream);
+    border: 1px solid rgba(59,36,22,0.1);
+    overflow: hidden;
+    transition: all .4s;
+    cursor: pointer;
+  }
+  .product:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 50px rgba(59,36,22,0.15);
+  }
+  .product-img {
+    height: 280px;
+    background: linear-gradient(135deg, #2a1a10, #5c3a22);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .product-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,164,106,0.1), transparent);
+  }
+  .shoe-svg { width: 75%; height: auto; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4)); transition: transform .5s; }
+  .product:hover .shoe-svg { transform: scale(1.05) rotate(-2deg); }
+  .product-info { padding: 28px; }
+  .product-info .cat {
+    font-size: 11px; color: var(--accent);
+    letter-spacing: 3px; text-transform: uppercase;
+  }
+  .product-info h3 {
+    font-size: 22px; font-weight: 400;
+    margin: 10px 0 8px;
+  }
+  .product-info .desc {
+    font-size: 14px; color: var(--muted);
+    margin-bottom: 20px; font-style: italic;
+  }
+  .product-info .price-row {
+    display: flex; justify-content: space-between;
+    align-items: center;
+    padding-top: 18px;
+    border-top: 1px solid rgba(59,36,22,0.1);
+  }
+  .price { font-size: 22px; color: var(--brown); }
+  .price span { color: var(--accent); font-size: 14px; }
+  .add-btn {
+    background: var(--brown); color: var(--cream);
+    border: none; padding: 10px 20px;
+    letter-spacing: 2px; font-size: 11px;
+    text-transform: uppercase; cursor: pointer;
+    transition: background .3s;
+  }
+  .add-btn:hover { background: var(--accent); color: var(--bg); }
+
+  /* CRAFT */
+  .craft {
+    background: var(--bg);
+    color: var(--cream);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .craft-text .eyebrow {
+    color: var(--accent); font-size: 12px;
+    letter-spacing: 5px; text-transform: uppercase;
+  }
+  .craft-text h2 {
+    font-size: 44px; font-weight: 300;
+    margin: 20px 0 28px;
+  }
+  .craft-text p {
+    color: #b5a890; margin-bottom: 20px; font-size: 15px;
+  }
+  .craft-steps {
+    list-style: none; margin-top: 30px;
+  }
+  .craft-steps li {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(201,164,106,0.2);
+    display: flex; gap: 20px; align-items: center;
+  }
+  .craft-steps .num {
+    color: var(--accent); font-size: 20px;
+    min-width: 40px; font-style: italic;
+  }
+  .craft-image {
+    height: 520px;
+    background:
+      linear-gradient(135deg, rgba(201,164,106,0.15), transparent),
+      url('https://images.unsplash.com/photo-1449505278894-297fdb3edbc1?w=1200') center/cover;
+    border: 1px solid var(--accent);
+    position: relative;
+  }
+  .craft-badge {
+    position: absolute;
+    bottom: -30px; right: -30px;
+    background: var(--accent);
+    color: var(--bg);
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    text-align: center;
+    font-size: 11px; letter-spacing: 2px;
+  }
+  .craft-badge strong { font-size: 28px; display: block; }
+
+  /* TESTIMONIALS */
+  .testimonials { background: var(--cream); text-align: center; }
+  .quote-box {
+    max-width: 800px; margin: 0 auto;
+    padding: 50px;
+    border-top: 1px solid var(--accent);
+    border-bottom: 1px solid var(--accent);
+  }
+  .quote-box blockquote {
+    font-size: 24px; font-style: italic;
+    color: var(--brown); line-height: 1.5;
+    margin-bottom: 24px;
+  }
+  .quote-box .author {
+    letter-spacing: 3px; font-size: 12px;
+    color: var(--accent); text-transform: uppercase;
+  }
+  .dots { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
+  .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(59,36,22,0.2); cursor: pointer;
+    transition: background .3s;
+  }
+  .dot.active { background: var(--accent); }
+
+  /* CTA */
+  .cta {
+    background: linear-gradient(135deg, var(--brown), #1a0f08);
+    color: var(--cream); text-align: center;
+  }
+  .cta h2 {
+    font-size: 44px; font-weight: 300;
+    margin-bottom: 20px;
+  }
+  .cta p {
+    color: #c7b89f; max-width: 500px;
+    margin: 0 auto 40px; font-style: italic;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg);
+    color: #8a7a65;
+    padding: 60px; text-align: center;
+    border-top: 1px solid rgba(201,164,106,0.2);
+  }
+  footer .logo { margin-bottom: 20px; display: inline-block; }
+  .social { display: flex; justify-content: center; gap: 20px; margin: 24px 0; }
+  .social a {
+    color: var(--accent); text-decoration: none;
+    font-size: 13px; letter-spacing: 2px;
+  }
+  footer .copy { font-size: 12px; letter-spacing: 2px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: var(--brown); color: var(--cream);
+    padding: 16px 26px; letter-spacing: 2px;
+    font-size: 13px;
+    transform: translateY(120%); transition: transform .4s;
+    z-index: 200; border-left: 3px solid var(--accent);
+  }
+  .toast.show { transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section { padding: 70px 20px; }
+    .craft { grid-template-columns: 1fr; gap: 40px; }
+    .craft-image { height: 360px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo">ATELIER<span>·</span>NOIR</div>
+  <ul class="nav-links">
+    <li><a href="#features">工艺</a></li>
+    <li><a href="#products">系列</a></li>
+    <li><a href="#craft">匠心</a></li>
+    <li><a href="#contact">联系</a></li>
+  </ul>
+  <button class="cart-btn" onclick="toggleCart()">购物车 (<span id="cartCount">0</span>)</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">Since 1952 · Handcrafted in Italy</div>
+    <h1>一步之间<br>尽显<em>绅士风范</em></h1>
+    <p>每一双鞋，都是由工匠以百余道工序精心打造，承载着三代人的匠心传承。</p>
+    <a href="#products" class="btn-primary">探索系列</a>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="section-head">
+    <div class="eyebrow">Our Promise</div>
+    <h2>品质承诺</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">❖</div>
+      <h3>意大利小牛皮</h3>
+      <p>精选托斯卡纳顶级植鞣小牛皮，柔软细腻，愈穿愈显岁月温润。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">✦</div>
+      <h3>固特异缝制</h3>
+      <p>传承百年的 Goodyear Welt 工艺，鞋底可反复更换，陪伴数十年。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">✧</div>
+      <h3>纯手工打造</h3>
+      <p>每双需经 190 道工序，由资深鞋匠历时 8 周独立完成。</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">◈</div>
+      <h3>终身养护</h3>
+      <p>提供终身维修与翻新服务，让您的挚爱相伴一生。</p>
+    </div>
+  </div>
+</section>
+
+<section class="products" id="products">
+  <div class="section-head">
+    <div class="eyebrow">Collection</div>
+    <h2>经典系列</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="product-grid" id="productGrid"></div>
+</section>
+
+<section class="craft" id="craft">
+  <div class="craft-text">
+    <div class="eyebrow">Craftsmanship</div>
+    <h2>匠心之作</h2>
+    <p>在 ATELIER NOIR 的工坊里，时间仿佛凝固。每一位鞋匠都至少拥有十五年经验，他们以手工缝制每一条线，以匠心雕琢每一处细节。</p>
+    <ul class="craft-steps">
+      <li><span class="num">01</span> 精选皮料 · 三代传承的原料网络</li>
+      <li><span class="num">02</span> 手工裁剪 · 顺纹理精准下料</li>
+      <li><span class="num">03</span> 固特异缝制 · 手工上线 280 针</li>
+      <li><span class="num">04</span> 打磨上蜡 · 七层手工抛光</li>
+    </ul>
+  </div>
+  <div class="craft-image">
+    <div class="craft-badge">
+      <strong>70+</strong>
+      YEARS OF<br>HERITAGE
+    </div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="section-head">
+    <div class="eyebrow">Testimonials</div>
+    <h2>绅士之选</h2>
+    <div class="divider"></div>
+  </div>
+  <div class="quote-box">
+    <blockquote id="quoteText">"穿上 ATELIER NOIR 的那一刻，我终于明白了什么叫做 '一双鞋，一段人生'。"</blockquote>
+    <div class="author" id="quoteAuthor">— 张先生，投资银行家</div>
+  </div>
+  <div class="dots" id="dots"></div>
+</section>
+
+<section class="cta" id="contact">
+  <h2>寻觅一双属于您的传世之作</h2>
+  <p>预约私人定制体验，由资深鞋履顾问为您量足定鞋。</p>
+  <a href="#" class="btn-primary" onclick="alert('感谢您的关注，顾问将尽快与您联系。'); return false;">立即预约</a>
+</section>
+
+<footer>
+  <div class="logo">ATELIER<span>·</span>NOIR</div>
+  <div class="social">
+    <a href="#">INSTAGRAM</a>
+    <a href="#">WECHAT</a>
+    <a href="#">WEIBO</a>
+  </div>
+  <div class="copy">© 2025 ATELIER NOIR · HANDCRAFTED IN ITALY</div>
+</footer>
+
+<div class="toast" id="toast">已加入购物车</div>
+
+<script>
+  // Nav scroll effect
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // Product data
+  const shoeSvg = (color1, color2) => `
+    <svg class="shoe-svg" viewBox="0 0 300 180" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="g-${color1}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${color1}"/>
+          <stop offset="100%" stop-color="${color2}"/>
+        </linearGradient>
+      </defs>
+      <path d="M20,120 Q30,70 90,60 L200,55 Q270,55 280,95 Q285,125 260,135 L50,140 Q25,140 20,120 Z"
+            fill="url(#g-${color1})" stroke="#1a0f08" stroke-width="1.5"/>
+      <path d="M90,60 Q120,50 155,52 L195,54 L200,70 L95,75 Z" fill="rgba(255,255,255,0.08)"/>
+      <path d="M140,58 L145,95 M160,57 L165,95 M180,56 L185,95" stroke="rgba(0,0,0,0.3)" stroke-width="1" fill="none"/>
+      <ellipse cx="240" cy="90" rx="25" ry="18" fill="rgba(255,255,255,0.1)"/>
+      <rect x="20" y="135" width="260" height="12" rx="3" fill="#1a0f08"/>
+      <rect x="20" y="140" width="260" height="6" fill="#c9a46a" opacity="0.3"/>
+    </svg>`;
+
+  const products = [
+    { cat: 'Oxford', name: 'Il Classico', desc: '经典黑色牛津鞋 · 三接头', price: '¥4,880', c1: '#1a0f08', c2: '#3b2416' },
+    { cat: 'Derby', name: 'Il Nobile', desc: '棕色德比鞋 · 手染工艺', price: '¥5,280', c1: '#5c3a22', c2: '#8b5a2b' },
+    { cat: 'Loafer', name: 'Il Dandy', desc: '乐福鞋 · 马衔扣饰', price: '¥4,580', c1: '#2a1a10', c2: '#4a2a18' },
+    { cat: 'Monk', name: 'Il Gentiluomo', desc: '双扣孟克鞋 · 酒红', price: '¥5,680', c1: '#4a1818', c2: '#7a2828' }
+  ];
+
+  const grid = document.getElementById('productGrid');
+  products.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    div.innerHTML = `
+      <div class="product-img">${shoeSvg(p.c1, p.c2)}</div>
+      <div class="product-info">
+        <div class="cat">${p.cat}</div>
+        <h3>${p.name}</h3>
+        <div class="desc">${p.desc}</div>
+        <div class="price-row">
+          <div class="price">${p.price} <span>起</span></div>
+          <button class="add-btn" onclick="addToCart(event, '${p.name}')">加入</button>
+        </div>
+      </div>`;
+    grid.appendChild(div);
+  });
+
+  // Cart
+  let cartCount = 0;
+  function addToCart(e, name) {
+    e.stopPropagation();
+    cartCount++;
+    document.getElementById('cartCount').textContent = cartCount;
+    showToast(`${name} 已加入购物车`);
+  }
+  function toggleCart() {
+    if (cartCount === 0) showToast('购物车暂时空空如也');
+    else showToast(`购物车中有 ${cartCount} 件商品`);
+  }
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  // Testimonials carousel
+  const quotes = [
+    { text: '"穿上 ATELIER NOIR 的那一刻，我终于明白了什么叫做 \'一双鞋，一段人生\'。"', author: '— 张先生，投资银行家' },
+    { text: '"做工、细节、皮质无可挑剔。这是我衣橱里最值得的投资。"', author: '— 李先生，律师事务所合伙人' },
+    { text: '"八年过去，它依然如新。传承，是对品质最好的证明。"', author: '— 王先生，企业家' }
+  ];
+  const dotsWrap = document.getElementById('dots');
+  quotes.forEach((_, i) => {
+    const d = document.createElement('span');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => setQuote(i);
+    dotsWrap.appendChild(d);
+  });
+  let qIdx = 0;
+  function setQuote(i) {
+    qIdx = i;
+    document.getElementById('quoteText').textContent = quotes[i].text;
+    document.getElementById('quoteAuthor').textContent = quotes[i].author;
+    document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+  }
+  setInterval(() => setQuote((qIdx + 1) % quotes.length), 5000);
+</script>
+</body>
+</html>

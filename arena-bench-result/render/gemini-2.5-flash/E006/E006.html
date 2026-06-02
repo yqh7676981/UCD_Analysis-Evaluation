@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PM 模拟面试</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Adjust alignment for content to start at top */
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* 容器样式 */
+        .container {
+            width: 100%;
+            max-width: 500px; /* 限制最大宽度，适配平板和桌面 */
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px;
+            box-sizing: border-box;
+        }
+
+        /* 标题样式 */
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 1.8rem; /* 适合移动端的大标题 */
+        }
+
+        /* 面试卡片样式 */
+        .interview-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-number {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-height: 150px; /* 足够的输入空间 */
+            resize: vertical; /* 允许垂直调整大小 */
+            box-sizing: border-box;
+            font-family: inherit; /* 继承父元素的字体 */
+        }
+
+        /* 按钮样式 */
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%; /* 按钮宽度占满 */
+            box-sizing: border-box;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn:disabled {
+            background-color: #a0cffc;
+            cursor: not-allowed;
+        }
+
+        /* 结果页面样式 */
+        .results-card {
+            display: none; /* 初始隐藏 */
+            padding: 20px 0;
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.6rem;
+        }
+
+        .answer-summary {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .summary-question {
+            font-weight: bold;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .summary-answer {
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.4;
+            white-space: pre-wrap; /* 保留换行符和空格 */
+        }
+
+        .evaluation {
+            background-color: #e6f7ff;
+            border-left: 5px solid #1890ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .restart-btn {
+            background-color: #6c757d;
+            margin-top: 20px;
+        }
+
+        .restart-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 16px;
+                min-height: 100vh; /* 在小屏幕上让容器占满高度 */
+            }
+            h1 {
+                font-size: 1.6rem;
+            }
+            .question-text {
+                font-size: 1.1rem;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+            textarea {
+                min-height: 120px;
+            }
+            h2 {
+                font-size: 1.4rem;
+            }
+            .summary-question {
+                font-size: 1rem;
+            }
+            .summary-answer, .evaluation {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PM 模拟面试</h1>
+
+        <div id="interviewCard" class="interview-card">
+            <p class="question-number">问题 <span id="currentQuestionNum">1</span> / <span id="totalQuestionsNum">8</span></p>
+            <p id="questionText" class="question-text">加载中...</p>
+            <textarea id="answerInput" placeholder="请输入你的回答..." rows="8"></textarea>
+            <button id="submitBtn" class="btn">下一题</button>
+        </div>
+
+        <div id="resultsCard" class="results-card">
+            <h2>面试总结与评估</h2>
+            <div id="answersSummary">
+                <!-- 答案总结将在这里生成 -->
+            </div>
+            <div class="evaluation">
+                <h3>简单评估：</h3>
+                <p>恭喜你完成了模拟面试！你的回答已经记录。请记住，这只是一个简单的工具，旨在帮助你练习。在真实的面试中，请尝试更深入地阐述你的观点，并结合STAR法则等结构化方法来组织你的回答。</p>
+                <p>持续学习和练习是成为优秀产品经理的关键！</p>
+            </div>
+            <button id="restartBtn" class="btn restart-btn">重新开始</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "1. 你最喜欢的产品是什么？为什么？请从产品经理的角度分析其成功之处。",
+            "2. 如何判断一个产品是否成功？你会关注哪些指标？",
+            "3. 你认为一个优秀的产品经理应该具备哪些特质？请举例说明。",
+            "4. 请描述一下你曾参与的一个项目，你是如何识别用户需求的？使用了哪些方法？",
+            "5. 如果你的产品数据（例如用户活跃度或转化率）下降了，你会如何排查问题并提出解决方案？",
+            "6. 在产品生命周期的哪个阶段你最感兴趣？为什么？",
+            "7. 你是如何处理与开发团队和设计团队之间的冲突的？请分享一个具体案例。",
+            "8. 你对我们公司/产品有什么了解？基于此，你有什么建议或改进思路？"
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        // DOM 元素引用
+        const interviewCard = document.getElementById('interviewCard');
+        const resultsCard = document.getElementById('resultsCard');
+        const currentQuestionNumSpan = document.getElementById('currentQuestionNum');
+        const totalQuestionsNumSpan = document.getElementById('totalQuestionsNum');
+        const questionTextElement = document.getElementById('questionText');
+        const answerInput = document.getElementById('answerInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const answersSummaryDiv = document.getElementById('answersSummary');
+        const restartBtn = document.getElementById('restartBtn');
+
+        // 初始化总问题数
+        totalQuestionsNumSpan.textContent = questions.length;
+
+        function displayQuestion() {
+            // 确保显示面试卡片，隐藏结果卡片
+            interviewCard.style.display = 'flex';
+            resultsCard.style.display = 'none';
+
+            // 更新问题文本和编号
+            questionTextElement.textContent = questions[currentQuestionIndex];
+            currentQuestionNumSpan.textContent = currentQuestionIndex + 1;
+            answerInput.value = userAnswers[currentQuestionIndex] || ''; // 如果有历史答案则填充
+            answerInput.focus(); // 自动聚焦输入框
+
+            // 根据是否是最后一题更新按钮文本
+            if (currentQuestionIndex === questions.length - 1) {
+                submitBtn.textContent = '完成面试';
+            } else {
+                submitBtn.textContent = '下一题';
+            }
+
+            // 检查输入框内容以启用/禁用按钮
+            toggleSubmitButton();
+        }
+
+        function toggleSubmitButton() {
+            submitBtn.disabled = answerInput.value.trim() === '';
+        }
+
+        function submitAnswer() {
+            const answer = answerInput.value.trim();
+            if (answer === '') {
+                alert('请填写你的回答。');
+                return;
+            }
+
+            userAnswers[currentQuestionIndex] = answer; // 存储回答
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                // 所有问题答完，显示结果
+                showResults();
+            }
+        }
+
+        function showResults() {
+            interviewCard.style.display = 'none';
+            resultsCard.style.display = 'block';
+
+            answersSummaryDiv.innerHTML = ''; // 清空之前的总结
+            questions.forEach((q, index) => {
+                const summaryItem = document.createElement('div');
+                summaryItem.classList.add('answer-summary');
+                summaryItem.innerHTML = `
+                    <p class="summary-question">${q}</p>
+                    <p class="summary-answer">${userAnswers[index] || '未作答'}</p>
+                `;
+                answersSummaryDiv.appendChild(summaryItem);
+            });
+            window.scrollTo(0, 0); // 回到页面顶部
+        }
+
+        function restartInterview() {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            displayQuestion();
+        }
+
+        // 事件监听
+        submitBtn.addEventListener('click', submitAnswer);
+        restartBtn.addEventListener('click', restartInterview);
+        answerInput.addEventListener('input', toggleSubmitButton); // 实时检查输入以启用/禁用按钮
+
+        // 页面加载时显示第一个问题
+        document.addEventListener('DOMContentLoaded', displayQuestion);
+    </script>
+</body>
+</html>

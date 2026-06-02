@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动门票销售系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            line-height: 1.6;
+            padding-top: 70px;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .navbar .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .navbar .nav-links li {
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.3s, color 0.3s;
+            font-weight: 500;
+        }
+
+        .navbar .nav-links li:hover,
+        .navbar .nav-links li.active {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .navbar .nav-links li.active {
+            background: #fff;
+            color: #2c3e50;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 视图容器 */
+        .view {
+            display: none;
+        }
+        .view.active {
+            display: block;
+        }
+
+        /* 页面标题 */
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+        }
+
+        /* 活动卡片网格 */
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .event-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .event-card .card-header {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .event-card .card-header h3 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .event-card .card-body {
+            padding: 20px;
+        }
+
+        .event-card .card-body .info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .event-card .card-body .info span {
+            width: 25px;
+            margin-right: 8px;
+        }
+
+        .event-card .card-body .price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 15px 0;
+        }
+
+        .event-card .card-body .ticket-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            color: #777;
+            font-size: 0.95rem;
+        }
+
+        .event-card .card-body .ticket-info .remaining {
+            background: #f1f1f1;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: scale(1.02);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* 门票列表 */
+        .ticket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .ticket-item {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #3498db;
+            transition: box-shadow 0.3s;
+        }
+
+        .ticket-item:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .ticket-item .ticket-info-main {
+            flex: 1;
+        }
+
+        .ticket-item .ticket-info-main h4 {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .ticket-item .ticket-info-main p {
+            color: #777;
+            font-size: 0.95rem;
+            margin: 2px 0;
+        }
+
+        .ticket-item .ticket-actions {
+            margin-left: 20px;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .modal .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal .modal-body .event-detail {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .modal .modal-body .event-detail p {
+            margin: 5px 0;
+        }
+
+        .modal .modal-body .qty-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .modal .modal-body .qty-selector label {
+            font-weight: 500;
+        }
+
+        .modal .modal-body .qty-selector input {
+            width: 70px;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .modal .modal-body .qty-selector input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .modal .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Toast 提示 */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #333;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 0.95rem;
+            animation: slideInFromBottom 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            pointer-events: auto;
+        }
+
+        .toast.success {
+            background: #27ae60;
+        }
+
+        .toast.error {
+            background: #e74c3c;
+        }
+
+        @keyframes slideInFromBottom {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 15px;
+            }
+            .navbar .brand {
+                font-size: 1.2rem;
+            }
+            .event-grid {
+                grid-template-columns: 1fr;
+            }
+            .ticket-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            .modal {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="brand">🎫 票务系统</div>
+        <ul class="nav-links">
+            <li class="active" data-view="events">活动列表</li>
+            <li data-view="tickets">我的门票</li>
+        </ul>
+    </nav>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 活动列表视图 -->
+        <div id="viewEvents" class="view active">
+            <h1 class="page-title">热门活动</h1>
+            <div id="eventGrid" class="event-grid">
+                <!-- 由JavaScript生成 -->
+            </div>
+        </div>
+
+        <!-- 我的门票视图 -->
+        <div id="viewTickets" class="view">
+            <h1 class="page-title">我的门票</h1>
+            <div id="ticketList" class="ticket-list">
+                <!-- 由JavaScript生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 购票模态框 -->
+    <div id="purchaseModal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="modalTitle">购买门票</h2>
+            <div class="modal-body" id="modalBody">
+                <!-- 动态内容 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="modalCancel">取消</button>
+                <button class="btn btn-primary" id="modalConfirm">确认购买</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        // ===== 数据 =====
+        const eventsData = [
+            {
+                id: 1,
+                title: '🎵 夏日音乐节',
+                date: '2025-07-15',
+                address: '上海东方绿舟',
+                price: 388,
+                total: 1000,
+                sold: 0
+            },
+            {
+                id: 2,
+                title: '🎭 经典话剧《雷雨》',
+                date: '2025-08-20',
+                address: '北京人艺剧场',
+                price: 268,
+                total: 600,
+                sold: 0
+            },
+            {
+                id: 3,
+                title: '🎨 印象派艺术展',
+                date: '2025-09-10',
+                address: '广州美术馆',
+                price: 128,
+                total: 2000,
+                sold: 0
+            },
+            {
+                id: 4,
+                title: '🤖 科技峰会2025',
+                date: '2025-10-05',
+                address: '深圳会展中心',
+                price: 588,
+                total: 800,
+                sold: 0
+            },
+            {
+                id: 5,
+                title: '⚽ 国际足球邀请赛',
+                date: '2025-11-22',
+                address: '成都凤凰山体育公园',
+                price: 228,
+                total: 30000,
+                sold: 0
+            }
+        ];
+
+        // 用户的门票：数组对象 { id, eventId, quantity, purchaseDate }
+        let userTickets = [];
+
+        // 当前选择的活动的引用（用于模态框）
+        let currentEvent = null;
+
+        // ===== DOM 引用 =====
+        const viewEvents = document.getElementById('viewEvents');
+        const viewTickets = document.getElementById('viewTickets');
+        const eventGrid = document.getElementById('eventGrid');
+        const ticketList = document.getElementById('ticketList');
+        const navLinks = document.querySelectorAll('.nav-links li');
+        const purchaseModal = document.getElementById('purchaseModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // ===== 工具函数 =====
+
+        // 显示Toast消息
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            // 3秒后移除
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // 获取活动的剩余票数
+        function getRemaining(event) {
+            return event.total - event.sold;
+        }
+
+        // 生成唯一ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
+
+        // ===== 渲染函数 =====
+
+        // 渲染活动列表
+        function renderEvents() {
+            if (eventsData.length === 0) {
+                eventGrid.innerHTML = '<div class="empty-state"><h3>暂无活动</h3><p>敬请期待更多精彩活动</p></div>';
+                return;
+            }
+            let html = '';
+            eventsData.forEach(event => {
+                const remaining = getRemaining(event);
+                const soldOut = remaining <= 0;
+                html += `
+                    <div class="event-card">
+                        <div class="card-header">
+                            <h3>${event.title}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="info"><span>📅</span> ${event.date}</div>
+                            <div class="info"><span>📍</span> ${event.address}</div>
+                            <div class="price">¥${event.price}</div>
+                            <div class="ticket-info">
+                                <span>已售 ${event.sold} / 共 ${event.total}</span>
+                                <span class="remaining">剩余 ${remaining} 张</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="openPurchaseModal(${event.id})" ${soldOut ? 'disabled' : ''}>
+                                ${soldOut ? '已售罄' : '立即购买'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            eventGrid.innerHTML = html;
+        }
+
+        // 渲染我的门票
+        function renderTickets() {
+            if (userTickets.length === 0) {
+                ticketList.innerHTML = '<div class="empty-state"><h3>暂无门票</h3><p>去活动列表购买门票吧！</p></div>';
+                return;
+            }
+            let html = '';
+            userTickets.forEach(ticket => {
+                const event = eventsData.find(e => e.id === ticket.eventId);
+                if (!event) return;
+                html += `
+                    <div class="ticket-item">
+                        <div class="ticket-info-main">
+                            <h4>${event.title}</h4>
+                            <p>📅 ${event.date} | 📍 ${event.address}</p>
+                            <p>数量：${ticket.quantity} 张 | 总价：¥${event.price * ticket.quantity}</p>
+                            <p style="font-size:0.85rem; color:#aaa;">购买日期：${ticket.purchaseDate}</p>
+                        </div>
+                        <div class="ticket-actions">
+                            <button class="btn btn-danger" onclick="cancelTicket('${ticket.id}')">取消订单</button>
+                        </div>
+                    </div>
+                `;
+            });
+            ticketList.innerHTML = html;
+        }
+
+        // ===== 导航切换 =====
+        function switchView(viewName) {
+            // 更新导航高亮
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.view === viewName) {
+                    link.classList.add('active');
+                }
+            });
+            // 显示对应视图
+            viewEvents.classList.toggle('active', viewName === 'events');
+            viewTickets.classList.toggle('active', viewName === 'tickets');
+
+            // 如果切换到门票视图，重新渲染（确保数据最新）
+            if (viewName === 'tickets') {
+                renderTickets();
+            }
+        }
+
+        // 为导航添加事件
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                const viewName = this.dataset.view;
+                switchView(viewName);
+            });
+        });
+
+        // ===== 购买模态框 =====
+        function openPurchaseModal(eventId) {
+            const event = eventsData.find(e => e.id === eventId);
+            if (!event) return;
+            currentEvent = event;
+            const remaining = getRemaining(event);
+            if (remaining <= 0) {
+                showToast('该活动已售罄', 'error');
+                return;
+            }
+
+            modalTitle.textContent = `购买 - ${event.title}`;
+            modalBody.innerHTML = `
+                <div class="event-detail">
+                    <p><strong>活动：</strong>${event.title}</p>
+                    <p><strong>日期：</strong>${event.date}</p>
+                    <p><strong>地点：</strong>${event.address}</p>
+                    <p><strong>单价：</strong>¥${event.price}</p>
+                    <p><strong>剩余票数：</strong>${remaining} 张</p>
+                </div>
+                <div class="qty-selector">
+                    <label for="qtyInput">购买数量：</label>
+                    <input type="number" id="qtyInput" value="1" min="1" max="${remaining}" step="1">
+                    <span style="color:#777; font-size:0.9rem;">（最多 ${remaining} 张）</span>
+                </div>
+            `;
+
+            // 重置输入
+            const qtyInput = document.getElementById('qtyInput');
+            if (qtyInput) qtyInput.value = 1;
+
+            purchaseModal.classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            purchaseModal.classList.remove('active');
+            currentEvent = null;
+        }
+
+        // 确认购买
+        function confirmPurchase() {
+            if (!currentEvent) return;
+            const qtyInput = document.getElementById('qtyInput');
+            let qty = parseInt(qtyInput.value);
+            if (isNaN(qty) || qty < 1) {
+                showToast('请输入有效的数量', 'error');
+                return;
+            }
+            const remaining = getRemaining(currentEvent);
+            if (qty > remaining) {
+                showToast(`购买数量超过剩余票数（${remaining} 张）`, 'error');
+                return;
+            }
+
+            // 更新活动已售
+            currentEvent.sold += qty;
+
+            // 添加门票记录
+            const ticket = {
+                id: generateId(),
+                eventId: currentEvent.id,
+                quantity: qty,
+                purchaseDate: new Date().toLocaleDateString('zh-CN')
+            };
+            userTickets.push(ticket);
+
+            // 关闭模态框
+            closeModal();
+
+            // 重新渲染活动列表
+            renderEvents();
+            // 如果当前在门票视图，立即更新门票列表
+            if (viewTickets.classList.contains('active')) {
+                renderTickets();
+            }
+
+            showToast(`成功购买 ${qty} 张「${currentEvent.title}」门票！`, 'success');
+        }
+
+        // 模态框事件
+        modalCancel.addEventListener('click', closeModal);
+        modalConfirm.addEventListener('click', confirmPurchase);
+        // 点击背景关闭
+        purchaseModal.addEventListener('click', function(e) {
+            if (e.target === purchaseModal) {
+                closeModal();
+            }
+        });
+
+        // ===== 取消门票 =====
+        function cancelTicket(ticketId) {
+            const ticket = userTickets.find(t => t.id === ticketId);
+            if (!ticket) return;
+            const event = eventsData.find(e => e.id === ticket.eventId);
+            if (!event) return;
+
+            if (!confirm(`确定要取消「${event.title}」的 ${ticket.quantity} 张门票吗？`)) return;
+
+            // 从用户门票中移除
+            userTickets = userTickets.filter(t => t.id !== ticketId);
+            // 恢复活动已售数量
+            event.sold -= ticket.quantity;
+
+            // 重新渲染
+            renderEvents();
+            if (viewTickets.classList.contains('active')) {
+                renderTickets();
+            }
+
+            showToast(`已取消「${event.title}」的 ${ticket.quantity} 张门票`, 'success');
+        }
+
+        // ===== 初始化 =====
+        renderEvents();
+        // 默认显示活动列表
+        switchView('events');
+
+        // 暴露函数使全局可用（因为内联onclick）
+        window.openPurchaseModal = openPurchaseModal;
+        window.cancelTicket = cancelTicket;
+    </script>
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HoopZone - NBA News, Scores & Stats</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: #0a0a0a;
+    color: #e5e5e5;
+    line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    background: #000;
+    border-bottom: 1px solid #1a1a1a;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; padding: 14px 24px;
+    gap: 32px;
+  }
+  .logo {
+    font-weight: 900; font-size: 24px; letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo-badge {
+    background: linear-gradient(135deg, #c8102e, #1d428a);
+    color: #fff; padding: 4px 10px; border-radius: 4px;
+    font-size: 18px;
+  }
+  .logo-text { color: #fff; }
+  nav ul { display: flex; list-style: none; gap: 4px; }
+  nav a {
+    padding: 10px 16px; font-size: 14px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: #bbb; border-radius: 4px; transition: all 0.2s;
+  }
+  nav a:hover { color: #fff; background: #1a1a1a; }
+  nav a.active { color: #fff; border-bottom: 2px solid #c8102e; }
+  .top-actions { margin-left: auto; display: flex; gap: 12px; align-items: center; }
+  .search-btn, .signin-btn {
+    background: transparent; border: 1px solid #333; color: #fff;
+    padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: all 0.2s;
+  }
+  .signin-btn { background: #c8102e; border-color: #c8102e; }
+  .signin-btn:hover { background: #a00d24; }
+  .search-btn:hover { border-color: #fff; }
+
+  /* ===== SCORES TICKER ===== */
+  .scores-strip {
+    background: #111; border-bottom: 1px solid #222;
+    overflow: hidden;
+  }
+  .scores-strip-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; gap: 0; overflow-x: auto; padding: 12px 24px;
+    scrollbar-width: thin;
+  }
+  .scores-strip-inner::-webkit-scrollbar { height: 4px; }
+  .scores-strip-inner::-webkit-scrollbar-thumb { background: #333; }
+  .game-chip {
+    min-width: 200px; padding: 10px 16px; border-right: 1px solid #222;
+    display: flex; flex-direction: column; gap: 4px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .game-chip:hover { background: #1a1a1a; }
+  .game-status {
+    font-size: 10px; font-weight: 700; color: #c8102e;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .game-status.final { color: #888; }
+  .game-status.live::before {
+    content: "●"; margin-right: 4px; animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.3; } }
+  .team-row { display: flex; justify-content: space-between; font-size: 14px; }
+  .team-row.winner { font-weight: 700; color: #fff; }
+  .team-row:not(.winner) { color: #999; }
+
+  /* ===== HERO ===== */
+  .hero {
+    max-width: 1400px; margin: 32px auto; padding: 0 24px;
+    display: grid; grid-template-columns: 2fr 1fr; gap: 16px;
+  }
+  .hero-main {
+    position: relative; border-radius: 8px; overflow: hidden;
+    background: linear-gradient(135deg, #1d428a 0%, #0a1d4a 100%);
+    min-height: 480px;
+    display: flex; align-items: flex-end;
+    cursor: pointer; transition: transform 0.3s;
+  }
+  .hero-main:hover { transform: translateY(-4px); }
+  .hero-main::before {
+    content: ""; position: absolute; inset: 0;
+    background: 
+      radial-gradient(circle at 80% 20%, rgba(200,16,46,0.4), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(29,66,138,0.6), transparent 50%);
+  }
+  .hero-main::after {
+    content: "🏀"; position: absolute;
+    right: -40px; top: -40px; font-size: 400px; opacity: 0.08;
+    transform: rotate(15deg);
+  }
+  .hero-content {
+    position: relative; padding: 40px; z-index: 1;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    width: 100%;
+  }
+  .tag {
+    display: inline-block; background: #c8102e; color: #fff;
+    padding: 4px 10px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; border-radius: 3px;
+    margin-bottom: 12px;
+  }
+  .hero-title {
+    font-size: 38px; font-weight: 900; line-height: 1.1;
+    color: #fff; margin-bottom: 12px;
+  }
+  .hero-meta { color: #bbb; font-size: 13px; }
+
+  .hero-side { display: flex; flex-direction: column; gap: 16px; }
+  .hero-card {
+    background: #151515; border-radius: 8px; padding: 20px;
+    cursor: pointer; transition: background 0.2s;
+    border: 1px solid #222;
+  }
+  .hero-card:hover { background: #1c1c1c; }
+  .hero-card .tag { background: #1d428a; margin-bottom: 10px; }
+  .hero-card h3 {
+    font-size: 17px; color: #fff; margin-bottom: 8px; line-height: 1.3;
+  }
+  .hero-card p { font-size: 13px; color: #888; }
+
+  /* ===== SECTIONS ===== */
+  section { max-width: 1400px; margin: 48px auto; padding: 0 24px; }
+  .section-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 20px; border-bottom: 2px solid #c8102e;
+    padding-bottom: 12px;
+  }
+  .section-head h2 {
+    font-size: 24px; font-weight: 900; color: #fff;
+    text-transform: uppercase; letter-spacing: -0.5px;
+  }
+  .section-head a {
+    color: #c8102e; font-size: 13px; font-weight: 700;
+    text-transform: uppercase;
+  }
+  .section-head a:hover { color: #fff; }
+
+  /* ===== NEWS GRID ===== */
+  .news-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  }
+  .news-card {
+    background: #151515; border-radius: 8px; overflow: hidden;
+    cursor: pointer; transition: transform 0.2s;
+    border: 1px solid #222;
+  }
+  .news-card:hover { transform: translateY(-4px); border-color: #333; }
+  .news-thumb {
+    height: 160px;
+    background: linear-gradient(135deg, #444, #222);
+    position: relative; display: flex; align-items: center; justify-content: center;
+    font-size: 60px;
+  }
+  .news-thumb.t1 { background: linear-gradient(135deg, #c8102e, #7a0a1c); }
+  .news-thumb.t2 { background: linear-gradient(135deg, #1d428a, #0a1d4a); }
+  .news-thumb.t3 { background: linear-gradient(135deg, #552583, #2c0d47); }
+  .news-thumb.t4 { background: linear-gradient(135deg, #006bb6, #003d66); }
+  .news-body { padding: 16px; }
+  .news-body h4 {
+    font-size: 15px; color: #fff; margin-bottom: 8px; line-height: 1.3;
+    min-height: 40px;
+  }
+  .news-body .meta { font-size: 12px; color: #777; }
+
+  /* ===== STATS ===== */
+  .stats-wrapper {
+    background: #151515; border-radius: 8px; padding: 24px;
+    border: 1px solid #222;
+  }
+  .stats-tabs {
+    display: flex; gap: 4px; margin-bottom: 20px;
+    border-bottom: 1px solid #222;
+  }
+  .stats-tab {
+    background: transparent; border: none; color: #888;
+    padding: 12px 20px; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.2s;
+  }
+  .stats-tab:hover { color: #fff; }
+  .stats-tab.active { color: #fff; border-bottom-color: #c8102e; }
+  .stats-table { width: 100%; border-collapse: collapse; }
+  .stats-table th {
+    text-align: left; padding: 12px; font-size: 11px;
+    color: #888; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid #222; font-weight: 700;
+  }
+  .stats-table td {
+    padding: 14px 12px; border-bottom: 1px solid #1a1a1a;
+    font-size: 14px;
+  }
+  .stats-table tr:hover { background: #1a1a1a; }
+  .rank {
+    display: inline-block; width: 28px; height: 28px;
+    background: #222; border-radius: 50%; text-align: center;
+    line-height: 28px; font-weight: 700; font-size: 12px; color: #fff;
+  }
+  .rank.gold { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; }
+  .rank.silver { background: linear-gradient(135deg, #c0c0c0, #888); color: #000; }
+  .rank.bronze { background: linear-gradient(135deg, #cd7f32, #8b4513); color: #fff; }
+  .player-cell { display: flex; align-items: center; gap: 12px; }
+  .player-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #1d428a, #c8102e);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 14px;
+  }
+  .player-name { font-weight: 700; color: #fff; }
+  .player-team { font-size: 12px; color: #888; }
+  .stat-value {
+    font-weight: 900; color: #c8102e; font-size: 16px;
+  }
+
+  /* ===== STANDINGS ===== */
+  .standings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .conf-card {
+    background: #151515; border-radius: 8px; padding: 20px;
+    border: 1px solid #222;
+  }
+  .conf-card h3 {
+    font-size: 14px; color: #fff; font-weight: 900;
+    text-transform: uppercase; letter-spacing: 1px;
+    padding-bottom: 12px; margin-bottom: 12px;
+    border-bottom: 1px solid #222;
+  }
+  .standings-row {
+    display: grid; grid-template-columns: 30px 1fr 60px 60px 60px;
+    padding: 10px 0; font-size: 13px; align-items: center;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .standings-row.head { color: #666; font-size: 11px; text-transform: uppercase; }
+  .standings-row:last-child { border-bottom: none; }
+  .team-logo-sm {
+    display: inline-block; width: 24px; height: 24px;
+    border-radius: 50%; margin-right: 8px; vertical-align: middle;
+    background: #c8102e; text-align: center; line-height: 24px;
+    font-size: 10px; font-weight: 700; color: #fff;
+  }
+  .team-name { color: #fff; font-weight: 600; }
+  .wl-pct { color: #c8102e; font-weight: 700; text-align: right; }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: #000; margin-top: 64px; padding: 48px 24px 24px;
+    border-top: 1px solid #1a1a1a;
+  }
+  .footer-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+  }
+  .footer-col h4 {
+    color: #fff; font-size: 13px; text-transform: uppercase;
+    margin-bottom: 16px; letter-spacing: 1px;
+  }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 8px; }
+  .footer-col a { color: #888; font-size: 13px; }
+  .footer-col a:hover { color: #fff; }
+  .footer-bottom {
+    max-width: 1400px; margin: 32px auto 0; padding-top: 24px;
+    border-top: 1px solid #1a1a1a; color: #555; font-size: 12px;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .hero, .news-grid, .standings-grid, .footer-inner { grid-template-columns: 1fr; }
+    nav ul { display: none; }
+    .hero-title { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo">
+      <span class="logo-badge">HZ</span>
+      <span class="logo-text">HoopZone</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#" class="active">Home</a></li>
+        <li><a href="#">News</a></li>
+        <li><a href="#">Scores</a></li>
+        <li><a href="#">Schedule</a></li>
+        <li><a href="#">Stats</a></li>
+        <li><a href="#">Standings</a></li>
+        <li><a href="#">Teams</a></li>
+        <li><a href="#">Players</a></li>
+      </ul>
+    </nav>
+    <div class="top-actions">
+      <button class="search-btn">🔍 Search</button>
+      <button class="signin-btn">Sign In</button>
+    </div>
+  </div>
+</header>
+
+<!-- LIVE SCORES TICKER -->
+<div class="scores-strip">
+  <div class="scores-strip-inner" id="scoresStrip"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-main">
+    <div class="hero-content">
+      <span class="tag">Breaking</span>
+      <h1 class="hero-title">Luka Drops 61 as Mavericks Outlast Lakers in Double OT Thriller</h1>
+      <p class="hero-meta">By Marcus Hill · 2 hours ago · 8 min read</p>
+    </div>
+  </div>
+  <div class="hero-side">
+    <div class="hero-card">
+      <span class="tag">Trade Rumors</span>
+      <h3>Warriors Eyeing Veteran Center Before Deadline</h3>
+      <p>Sources say Golden State is exploring the market for frontcourt depth.</p>
+    </div>
+    <div class="hero-card">
+      <span class="tag">Injury Report</span>
+      <h3>Embiid Expected to Return Friday vs Celtics</h3>
+      <p>The reigning MVP has been cleared for full contact practice.</p>
+    </div>
+    <div class="hero-card">
+      <span class="tag">Power Rankings</span>
+      <h3>Week 12: Nuggets Reclaim Top Spot After Four-Game Streak</h3>
+      <p>Denver surges past Boston in this week's rankings.</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOP STORIES -->
+<section>
+  <div class="section-head">
+    <h2>Top Stories</h2>
+    <a href="#">View All →</a>
+  </div>
+  <div class="news-grid" id="newsGrid"></div>
+</section>
+
+<!-- PLAYER STATS LEADERS -->
+<section>
+  <div class="section-head">
+    <h2>Stat Leaders</h2>
+    <a href="#">Full Leaderboard →</a>
+  </div>
+  <div class="stats-wrapper">
+    <div class="stats-tabs">
+      <button class="stats-tab active" data-cat="pts">Points</button>
+      <button class="stats-tab" data-cat="reb">Rebounds</button>
+      <button class="stats-tab" data-cat="ast">Assists</button>
+      <button class="stats-tab" data-cat="stl">Steals</button>
+      <button class="stats-tab" data-cat="blk">Blocks</button>
+    </div>
+    <table class="stats-table">
+      <thead>
+        <tr>
+          <th style="width:60px">Rank</th>
+          <th>Player</th>
+          <th style="width:80px">GP</th>
+          <th style="width:80px">MIN</th>
+          <th style="width:100px" id="statHeader">PTS</th>
+          <th style="width:80px">FG%</th>
+        </tr>
+      </thead>
+      <tbody id="statsBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- STANDINGS -->
+<section>
+  <div class="section-head">
+    <h2>League Standings</h2>
+    <a href="#">Full Standings →</a>
+  </div>
+  <div class="standings-grid">
+    <div class="conf-card">
+      <h3>🏆 Eastern Conference</h3>
+      <div class="standings-row head">
+        <span></span><span>Team</span><span>W</span><span>L</span><span>PCT</span>
+      </div>
+      <div id="eastStand"></div>
+    </div>
+    <div class="conf-card">
+      <h3>🏆 Western Conference</h3>
+      <div class="standings-row head">
+        <span></span><span>Team</span><span>W</span><span>L</span><span>PCT</span>
+      </div>
+      <div id="westStand"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-col">
+      <div class="logo" style="margin-bottom:16px">
+        <span class="logo-badge">HZ</span>
+        <span class="logo-text">HoopZone</span>
+      </div>
+      <p style="color:#777; font-size:13px; max-width:320px">
+        Your ultimate destination for NBA news, scores, player stats, and everything basketball.
+      </p>
+    </div>
+    <div class="footer-col">
+      <h4>Explore</h4>
+      <ul>
+        <li><a href="#">News</a></li>
+        <li><a href="#">Scores</a></li>
+        <li><a href="#">Teams</a></li>
+        <li><a href="#">Players</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Stats</h4>
+      <ul>
+        <li><a href="#">Leaders</a></li>
+        <li><a href="#">Standings</a></li>
+        <li><a href="#">Advanced</a></li>
+        <li><a href="#">Historical</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow Us</h4>
+      <ul>
+        <li><a href="#">Twitter</a></li>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">YouTube</a></li>
+        <li><a href="#">Newsletter</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2025 HoopZone. All rights reserved. Not affiliated with the NBA.
+  </div>
+</footer>
+
+<script>
+  // ===== LIVE SCORES DATA =====
+  const games = [
+    { status: 'live', q: 'Q3 4:22', away: 'LAL', aScore: 78, home: 'DAL', hScore: 92, winner: 'h' },
+    { status: 'live', q: 'Q4 1:15', away: 'BOS', aScore: 105, home: 'MIA', hScore: 98, winner: 'a' },
+    { status: 'final', q: 'Final', away: 'DEN', aScore: 118, home: 'GSW', hScore: 112, winner: 'a' },
+    { status: 'final', q: 'Final/OT', away: 'PHI', aScore: 124, home: 'MIL', hScore: 127, winner: 'h' },
+    { status: 'live', q: 'Q2 8:45', away: 'NYK', aScore: 42, home: 'BKN', hScore: 38, winner: 'a' },
+    { status: 'final', q: 'Final', away: 'PHX', aScore: 108, home: 'OKC', hScore: 115, winner: 'h' },
+    { status: 'live', q: 'Q1 3:30', away: 'MIN', aScore: 22, home: 'SAC', hScore: 19, winner: 'a' },
+  ];
+  const scoresStrip = document.getElementById('scoresStrip');
+  scoresStrip.innerHTML = games.map(g => `
+    <div class="game-chip">
+      <div class="game-status ${g.status}">${g.status === 'live' ? 'LIVE · ' + g.q : g.q}</div>
+      <div class="team-row ${g.winner === 'a' ? 'winner' : ''}">
+        <span>${g.away}</span><span>${g.aScore}</span>
+      </div>
+      <div class="team-row ${g.winner === 'h' ? 'winner' : ''}">
+        <span>${g.home}</span><span>${g.hScore}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // ===== NEWS =====
+  const news = [
+    { tag: 't1', emoji: '🏆', title: 'SGA Named Western Conference Player of the Week', meta: 'Mike Torres · 4h ago' },
+    { tag: 't2', emoji: '🔥', title: 'Wembanyama Records Historic 5x5 Stat Line in Spurs Win', meta: 'Sarah Chen · 6h ago' },
+    { tag: 't3', emoji: '💪', title: 'LeBron Passes Another Milestone in 22nd Season', meta: 'David Park · 8h ago' },
+    { tag: 't4', emoji: '🎯', title: 'Curry Drains 11 Threes to Set Season High Against Kings', meta: 'Lisa Wang · 12h ago' },
+    { tag: 't2', emoji: '📊', title: 'Rookie Rankings: Top 10 First-Years Making an Impact', meta: 'James Ford · 1d ago' },
+    { tag: 't1', emoji: '🎤', title: 'Coach of the Month: Rick Carlisle on Pacers Surge', meta: 'Amy Rios · 1d ago' },
+    { tag: 't3', emoji: '🏀', title: 'All-Star Voting Update: Tatum Leads East Forwards', meta: 'Kevin Lee · 1d ago' },
+    { tag: 't4', emoji: '💥', title: 'Trade Deadline Preview: 5 Players Most Likely to Move', meta: 'Rachel Kim · 2d ago' },
+  ];
+  document.getElementById('newsGrid').innerHTML = news.map(n => `
+    <article class="news-card">
+      <div class="news-thumb ${n.tag}">${n.emoji}</div>
+      <div class="news-body">
+        <h4>${n.title}</h4>
+        <div class="meta">${n.meta}</div>
+      </div>
+    </article>
+  `).join('');
+
+  // ===== STATS =====
+  const statsData = {
+    pts: [
+      { name: 'Luka Dončić', team: 'DAL', init: 'LD', gp: 42, min: 37.2, val: 34.8, fg: 48.5 },
+      { name: 'Shai G. Alexander', team: 'OKC', init: 'SG', gp: 45, min: 34.1, val: 32.4, fg: 53.9 },
+      { name: 'Giannis A.', team: 'MIL', init: 'GA', gp: 41, min: 35.8, val: 31.1, fg: 61.2 },
+      { name: 'Jayson Tatum', team: 'BOS', init: 'JT', gp: 44, min: 36.5, val: 28.7, fg: 46.8 },
+      { name: 'Nikola Jokić', team: 'DEN', init: 'NJ', gp: 43, min: 34.9, val: 28.2, fg: 58.3 },
+      { name: 'Kevin Durant', team: 'PHX', init: 'KD', gp: 40, min: 36.1, val: 27.9, fg: 52.4 },
+      { name: 'Anthony Edwards', team: 'MIN', init: 'AE', gp: 45, min: 35.7, val: 27.3, fg: 45.1 },
+      { name: 'Devin Booker', team: 'PHX', init: 'DB', gp: 39, min: 36.8, val: 26.8, fg: 47.2 },
+    ],
+    reb: [
+      { name: 'Domantas Sabonis', team: 'SAC', init: 'DS', gp: 44, min: 35.4, val: 13.8, fg: 60.1 },
+      { name: 'Nikola Jokić', team: 'DEN', init: 'NJ', gp: 43, min: 34.9, val: 13.4, fg: 58.3 },
+      { name: 'Rudy Gobert', team: 'MIN', init: 'RG', gp: 45, min: 32.1, val: 12.9, fg: 66.4 },
+      { name: 'Anthony Davis', team: 'LAL', init: 'AD', gp: 41, min: 35.6, val: 12.4, fg: 55.8 },
+      { name: 'Giannis A.', team: 'MIL', init: 'GA', gp: 41, min: 35.8, val: 11.8, fg: 61.2 },
+      { name: 'Karl-Anthony Towns', team: 'NYK', init: 'KT', gp: 42, min: 34.2, val: 11.2, fg: 52.7 },
+      { name: 'Alperen Şengün', team: 'HOU', init: 'AŞ', gp: 43, min: 32.5, val: 10.9, fg: 54.3 },
+      { name: 'Bam Adebayo', team: 'MIA', init: 'BA', gp: 44, min: 34.8, val: 10.5, fg: 51.9 },
+    ],
+    ast: [
+      { name: 'Trae Young', team: 'ATL', init: 'TY', gp: 42, min: 35.6, val: 11.8, fg: 41.2 },
+      { name: 'Tyrese Haliburton', team: 'IND', init: 'TH', gp: 41, min: 34.2, val: 10.7, fg: 46.9 },
+      { name: 'Luka Dončić', team: 'DAL', init: 'LD', gp: 42, min: 37.2, val: 9.8, fg: 48.5 },
+      { name: 'Nikola Jokić', team: 'DEN', init: 'NJ', gp: 43, min: 34.9, val: 9.5, fg: 58.3 },
+      { name: 'LeBron James', team: 'LAL', init: 'LJ', gp: 40, min: 35.1, val: 9.1, fg: 52.6 },
+      { name: 'James Harden', team: 'LAC', init: 'JH', gp: 43, min: 34.5, val: 8.9, fg: 44.1 },
+      { name: 'Cade Cunningham', team: 'DET', init: 'CC', gp: 42, min: 35.3, val: 8.6, fg: 45.7 },
+      { name: 'Jalen Brunson', team: 'NYK', init: 'JB', gp: 44, min: 36.1, val: 7.8, fg: 48.3 },
+    ],
+    stl: [
+      { name: 'Dyson Daniels', team: 'ATL', init: 'DD', gp: 45, min: 32.8, val: 3.1, fg: 47.2 },
+      { name: 'De Aaron Fox', team: 'SAC', init: 'DF', gp: 42, min: 35.5, val: 2.2, fg: 46.8 },
+      { name: 'Herb Jones', team: 'NOP', init: 'HJ', gp: 41, min: 32.9, val: 2.0, fg: 44.5 },
+      { name: 'Matisse Thybulle', team: 'POR', init: 'MT', gp: 40, min: 28.4, val: 1.9, fg: 42.1 },
+      { name: 'OG Anunoby', team: 'NYK', init: 'OA', gp: 43, min: 33.7, val: 1.8, fg: 48.7 },
+      { name: 'Jrue Holiday', team: 'BOS', init: 'JH', gp: 42, min: 32.1, val: 1.7, fg: 44.3 },
+      { name: 'Fred VanVleet', team: 'HOU', init: 'FV', gp: 43, min: 34.2, val: 1.6, fg: 40.9 },
+      { name: 'Shai G. Alexander', team: 'OKC', init: 'SG', gp: 45, min: 34.1, val: 1.6, fg: 53.9 },
+    ],
+    blk: [
+      { name: 'Victor Wembanyama', team: 'SAS', init: 'VW', gp: 43, min: 30.8, val: 4.1, fg: 48.3 },
+      { name: 'Walker Kessler', team: 'UTA', init: 'WK', gp: 42, min: 28.5, val: 2.6, fg: 67.4 },
+      { name: 'Rudy Gobert', team: 'MIN', init: 'RG', gp: 45, min: 32.1, val: 2.1, fg: 66.4 },
+      { name: 'Anthony Davis', team: 'LAL', init: 'AD', gp: 41, min: 35.6, val: 2.1, fg: 55.8 },
+      { name: 'Chet Holmgren', team: 'OKC', init: 'CH', gp: 38, min: 30.2, val: 2.0, fg: 54.7 },
+      { name: 'Evan Mobley', team: 'CLE', init: 'EM', gp: 43, min: 32.8, val: 1.8, fg: 57.2 },
+      { name: 'Jaren Jackson Jr', team: 'MEM', init: 'JJ', gp: 40, min: 31.5, val: 1.7, fg: 46.9 },
+      { name: 'Brook Lopez', team: 'MIL', init: 'BL', gp: 44, min: 30.1, val: 1.7, fg: 51.8 },
+    ]
+  };
+  const statLabels = { pts: 'PTS', reb: 'REB', ast: 'AST', stl: 'STL', blk: 'BLK' };
+
+  function renderStats(cat) {
+    const rows = statsData[cat];
+    const tbody = document.getElementById('statsBody');
+    document.getElementById('statHeader').textContent = statLabels[cat];
+    tbody.innerHTML = rows.map((p, i) => {
+      const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+      return `
+        <tr>
+          <td><span class="rank ${rankClass}">${i+1}</span></td>
+          <td>
+            <div class="player-cell">
+              <div class="player-avatar">${p.init}</div>
+              <div>
+                <div class="player-name">${p.name}</div>
+                <div class="player-team">${p.team}</div>
+              </div>
+            </div>
+          </td>
+          <td>${p.gp}</td>
+          <td>${p.min}</td>
+          <td><span class="stat-value">${p.val}</span></td>
+          <td>${p.fg}%</td>
+        </tr>`;
+    }).join('');
+  }
+  renderStats('pts');
+  document.querySelectorAll('.stats-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stats-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderStats(btn.dataset.cat);
+    });
+  });
+
+  // ===== STANDINGS =====
+  const east = [
+    { abbr: 'BOS', name: 'Celtics', w: 34, l: 12 },
+    { abbr: 'CLE', name: 'Cavaliers', w: 33, l: 13 },
+    { abbr: 'NYK', name: 'Knicks', w: 30, l: 16 },
+    { abbr: 'MIL', name: 'Bucks', w: 27, l: 18 },
+    { abbr: 'ORL', name: 'Magic', w: 26, l: 20 },
+    { abbr: 'IND', name: 'Pacers', w: 24, l: 21 },
+    { abbr: 'MIA', name: 'Heat', w: 23, l: 22 },
+    { abbr: 'ATL', name: 'Hawks', w: 22, l: 23 },
+  ];
+  const west = [
+    { abbr: 'OKC', name: 'Thunder', w: 37, l: 8 },
+    { abbr: 'DEN', name: 'Nuggets', w: 32, l: 14 },
+    { abbr: 'MEM', name: 'Grizzlies', w: 31, l: 15 },
+    { abbr: 'HOU', name: 'Rockets', w: 29, l: 17 },
+    { abbr: 'LAL', name: 'Lakers', w: 27, l: 18 },
+    { abbr: 'DAL', name: 'Mavericks', w: 26, l: 20 },
+    { abbr: 'LAC', name: 'Clippers', w: 25, l: 20 },
+    { abbr: 'MIN', name: 'Timberwolves', w: 24, l: 21 },
+  ];
+  function renderStand(data, id) {
+    document.getElementById(id).innerHTML = data.map((t, i) => `
+      <div class="standings-row">
+        <span style="color:#888;font-weight:700">${i+1}</span>
+        <span><span class="team-logo-sm">${t.abbr.slice(0,1)}</span><span class="team-name">${t.name}</span></span>
+        <span>${t.w}</span>
+        <span>${t.l}</span>
+        <span class="wl-pct">${(t.w / (t.w + t.l)).toFixed(3).substring(1)}</span>
+      </div>
+    `).join('');
+  }
+  renderStand(east, 'eastStand');
+  renderStand(west, 'westStand');
+</script>
+
+</body>
+</html>

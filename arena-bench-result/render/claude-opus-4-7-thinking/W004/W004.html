@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#4f46e5">
+<title>会议纪要整理工具</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html, body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #1f2937;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 16px 14px 100px;
+  }
+  .header {
+    text-align: center;
+    color: #fff;
+    padding: 12px 0 20px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .header p {
+    font-size: 13px;
+    opacity: 0.85;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .field {
+    margin-bottom: 14px;
+  }
+  .field:last-child {
+    margin-bottom: 0;
+  }
+  .label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+  }
+  .label .icon {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    font-size: 13px;
+  }
+  .input, .textarea {
+    width: 100%;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    background: #f9fafb;
+    color: #1f2937;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+  }
+  .input:focus, .textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+  .textarea {
+    min-height: 90px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+  .hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 6px;
+  }
+  .row {
+    display: flex;
+    gap: 10px;
+  }
+  .row .field {
+    flex: 1;
+  }
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .btn {
+    flex: 1;
+    border: none;
+    border-radius: 12px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  }
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #4b5563;
+  }
+  .preview-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    display: none;
+  }
+  .preview-card.show {
+    display: block;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .preview-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    text-align: center;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #6366f1;
+    margin-bottom: 14px;
+  }
+  .preview-meta {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #4b5563;
+  }
+  .preview-meta div {
+    margin-bottom: 4px;
+  }
+  .preview-meta div:last-child {
+    margin-bottom: 0;
+  }
+  .preview-meta strong {
+    color: #1f2937;
+    margin-right: 6px;
+  }
+  .section {
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+    padding-left: 10px;
+    border-left: 4px solid #6366f1;
+    margin-bottom: 8px;
+  }
+  .section-content {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.75;
+    padding-left: 4px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .section-content .item {
+    display: flex;
+    margin-bottom: 4px;
+  }
+  .section-content .num {
+    color: #6366f1;
+    font-weight: 600;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .todo-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 10px;
+    background: #fef3c7;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .todo-item .check {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #d97706;
+    border-radius: 4px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .todo-item .text {
+    color: #78350f;
+    flex: 1;
+    word-break: break-word;
+  }
+  .copy-bar {
+    position: sticky;
+    bottom: 14px;
+    margin-top: 14px;
+  }
+  .copy-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+  }
+  .copy-btn:active {
+    transform: scale(0.98);
+  }
+  .toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(17, 24, 39, 0.92);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    z-index: 999;
+    opacity: 1; /* fixed: was 0 */
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .toast.show {
+    opacity: 1;
+  }
+  .empty {
+    color: #9ca3af;
+    font-style: italic;
+    font-size: 13px;
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>📝 会议纪要整理</h1>
+    <p>快速生成格式整齐的会议纪要</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <div class="label"><span class="icon">📌</span>会议主题</div>
+      <input type="text" class="input" id="topic" placeholder="例如：Q4 产品规划会议">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <div class="label"><span class="icon">📅</span>日期</div>
+        <input type="date" class="input" id="date">
+      </div>
+      <div class="field">
+        <div class="label"><span class="icon">📍</span>地点</div>
+        <input type="text" class="input" id="place" placeholder="如 会议室A">
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="icon">👥</span>参会人员</div>
+      <textarea class="textarea" id="members" placeholder="多个人员用、或逗号分隔&#10;如：张三、李四、王五" style="min-height:60px"></textarea>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="icon">💬</span>讨论要点</div>
+      <textarea class="textarea" id="points" placeholder="每行一条要点&#10;如：&#10;明确产品方向&#10;讨论功能优先级"></textarea>
+      <div class="hint">每行一条，自动编号</div>
+    </div>
+
+    <div class="field">
+      <div class="label"><span class="icon">✅</span>待办事项</div>
+      <textarea class="textarea" id="todos" placeholder="格式：内容 @负责人 截止日期&#10;如：&#10;完成原型设计 @张三 12-20&#10;输出测试报告 @李四 12-25"></textarea>
+      <div class="hint">每行一条，建议含负责人和时间</div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="clearBtn">清空</button>
+      <button class="btn btn-primary" id="genBtn">生成纪要</button>
+    </div>
+  </div>
+
+  <div class="preview-card" id="preview">
+    <div class="preview-title" id="pTitle">会议纪要</div>
+    <div class="preview-meta" id="pMeta"></div>
+
+    <div class="section">
+      <div class="section-title">一、讨论要点</div>
+      <div class="section-content" id="pPoints"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">二、待办事项</div>
+      <div class="section-content" id="pTodos"></div>
+    </div>
+
+    <div class="copy-bar">
+      <button class="copy-btn" id="copyBtn">
+        <span>📋</span><span>一键复制纪要</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">已复制到剪贴板</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  
+  // 默认填今天
+  const today = new Date();
+  $('date').value = today.toISOString().slice(0,10);
+
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  function splitLines(text) {
+    return text.split(/\n+/).map(s => s.trim()).filter(Boolean);
+  }
+
+  function formatDate(d) {
+    if (!d) return '';
+    const parts = d.split('-');
+    if (parts.length === 3) return `${parts[0]}年${parts[1]}月${parts[2]}日`;
+    return d;
+  }
+
+  function generate() {
+    const topic = $('topic').value.trim() || '会议纪要';
+    const date = $('date').value;
+    const place = $('place').value.trim();
+    const members = $('members').value.trim();
+    const points = splitLines($('points').value);
+    const todos = splitLines($('todos').value);
+
+    if (!points.length && !todos.length && !members) {
+      showToast('请先填写内容');
+      return;
+    }
+
+    $('pTitle').textContent = topic;
+
+    // meta
+    let metaHtml = '';
+    if (date) metaHtml += `<div><strong>日期：</strong>${formatDate(date)}</div>`;
+    if (place) metaHtml += `<div><strong>地点：</strong>${escapeHtml(place)}</div>`;
+    if (members) metaHtml += `<div><strong>参会人员：</strong>${escapeHtml(members)}</div>`;
+    $('pMeta').innerHTML = metaHtml || '<div class="empty">未填写基本信息</div>';
+
+    // points
+    if (points.length) {
+      $('pPoints').innerHTML = points.map((p,i) =>
+        `<div class="item"><span class="num">${i+1}.</span><span>${escapeHtml(p)}</span></div>`
+      ).join('');
+    } else {
+      $('pPoints').innerHTML = '<span class="empty">暂无讨论要点</span>';
+    }
+
+    // todos
+    if (todos.length) {
+      $('pTodos').innerHTML = todos.map(t =>
+        `<div class="todo-item"><span class="check"></span><span class="text">${escapeHtml(t)}</span></div>`
+      ).join('');
+    } else {
+      $('pTodos').innerHTML = '<span class="empty">暂无待办事项</span>';
+    }
+
+    $('preview').classList.add('show');
+    setTimeout(() => {
+      $('preview').scrollIntoView({behavior:'smooth', block:'start'});
+    }, 100);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  function buildPlainText() {
+    const topic = $('topic').value.trim() || '会议纪要';
+    const date = $('date').value;
+    const place = $('place').value.trim();
+    const members = $('members').value.trim();
+    const points = splitLines($('points').value);
+    const todos = splitLines($('todos').value);
+
+    let txt = `【${topic}】\n`;
+    txt += '═══════════════════\n';
+    if (date) txt += `📅 日期：${formatDate(date)}\n`;
+    if (place) txt += `📍 地点：${place}\n`;
+    if (members) txt += `👥 参会人员：${members}\n`;
+    txt += '\n';
+
+    txt += '一、讨论要点\n';
+    if (points.length) {
+      points.forEach((p,i) => txt += `  ${i+1}. ${p}\n`);
+    } else {
+      txt += '  （无）\n';
+    }
+    txt += '\n';
+
+    txt += '二、待办事项\n';
+    if (todos.length) {
+      todos.forEach(t => txt += `  ☐ ${t}\n`);
+    } else {
+      txt += '  （无）\n';
+    }
+    return txt;
+  }
+
+  async function copyText() {
+    const text = buildPlainText();
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      }
+      showToast('✓ 已复制到剪贴板');
+    } catch(e) {
+      showToast('复制失败，请手动选择');
+    }
+  }
+
+  $('genBtn').addEventListener('click', generate);
+  $('copyBtn').addEventListener('click', copyText);
+  $('clearBtn').addEventListener('click', () => {
+    if (!confirm('确定要清空所有内容吗？')) return;
+    ['topic','place','members','points','todos'].forEach(id => $(id).value = '');
+    $('date').value = today.toISOString().slice(0,10);
+    $('preview').classList.remove('show');
+    showToast('已清空');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+</script>
+</body>
+</html>

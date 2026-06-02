@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>心情日记本</title>
+    <style>
+        /* 全局重置和基础样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px; /* 页面内边距 */
+        }
+
+        #app {
+            max-width: 600px; /* 移动端最大宽度 */
+            margin: 0 auto; /* 居中显示 */
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* 确保圆角效果 */
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #6a90a4;
+            color: #fff;
+            padding: 20px 15px;
+            text-align: center;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        header h1 {
+            font-size: 28px; /* 适合移动端的标题大小 */
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        header #current-date {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* 主要内容区域 */
+        main {
+            padding: 15px;
+        }
+
+        section {
+            background-color: #fcfcfc;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+        }
+
+        section h2 {
+            font-size: 20px; /* 适合移动端的小标题 */
+            color: #4a6572;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e6e8;
+            padding-bottom: 8px;
+            text-align: center;
+        }
+
+        /* 心情选择 */
+        .mood-tags {
+            display: flex;
+            flex-wrap: wrap; /* 允许换行 */
+            justify-content: space-around; /* 均匀分布 */
+            gap: 10px; /* 按钮之间的间距 */
+            margin-bottom: 15px;
+        }
+
+        .mood-tag-button {
+            flex: 1 1 45%; /* 允许按钮在一行显示两个，并在需要时换行 */
+            min-width: 120px; /* 最小宽度，确保按钮不会过窄 */
+            padding: 14px 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            font-size: 16px; /* 适合移动端的按钮字体大小 */
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            touch-action: manipulation; /* 提高触摸响应性 */
+        }
+
+        .mood-tag-button:hover:not(.selected) {
+            background-color: #e6e6e6;
+            border-color: #aaa;
+        }
+
+        /* 选中心情的样式 */
+        .mood-tag-button.selected {
+            color: #fff;
+            font-weight: bold;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            border-color: transparent; /* 选中时隐藏边框，让背景色更突出 */
+        }
+
+        .mood-tag-button[data-mood="开心"].selected { background-color: #4CAF50; } /* 绿色 */
+        .mood-tag-button[data-mood="平静"].selected { background-color: #2196F3; } /* 蓝色 */
+        .mood-tag-button[data-mood="焦虑"].selected { background-color: #FF9800; } /* 橙色 */
+        .mood-tag-button[data-mood="低落"].selected { background-color: #F44336; } /* 红色 */
+
+        #selected-mood-display {
+            text-align: center;
+            font-size: 16px;
+            color: #777;
+            margin-top: 10px;
+            min-height: 20px; /* 保持空间稳定 */
+        }
+
+        /* 日记输入框 */
+        textarea {
+            width: 100%;
+            height: 150px; /* 适合移动端的高度 */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical; /* 允许垂直方向调整大小 */
+            margin-bottom: 15px;
+            line-height: 1.5;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #6a90a4;
+            box-shadow: 0 0 0 2px rgba(106, 144, 164, 0.2);
+        }
+
+        /* 保存按钮 */
+        #save-entry {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            background-color: #6a90a4;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px; /* 适合移动端的大按钮 */
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            touch-action: manipulation;
+        }
+
+        #save-entry:hover {
+            background-color: #557e93;
+        }
+
+        #save-entry:active {
+            transform: translateY(1px);
+        }
+
+        /* 心情分布图 */
+        .mood-distribution #distribution-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .mood-distribution #distribution-chart div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #f7f9fa;
+            border-radius: 6px;
+            border: 1px solid #eef1f2;
+            font-size: 16px;
+        }
+
+        .mood-distribution #distribution-chart div span:first-child {
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 400px) {
+            .mood-tag-button {
+                flex: 1 1 100%; /* 在非常小的屏幕上，每个按钮占一行 */
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>心情日记本</h1>
+            <p id="current-date"></p>
+        </header>
+
+        <main>
+            <section class="mood-selection">
+                <h2>今天的心情</h2>
+                <div class="mood-tags">
+                    <button class="mood-tag-button" data-mood="开心">😊 开心</button>
+                    <button class="mood-tag-button" data-mood="平静">😌 平静</button>
+                    <button class="mood-tag-button" data-mood="焦虑">😟 焦虑</button>
+                    <button class="mood-tag-button" data-mood="低落">😔 低落</button>
+                </div>
+                <p id="selected-mood-display">请选择今天的心情</p>
+            </section>
+
+            <section class="diary-entry">
+                <h2>我的日记</h2>
+                <textarea id="diary-text" placeholder="写下今天的心情和故事..."></textarea>
+                <button id="save-entry">保存日记</button>
+            </section>
+
+            <section class="mood-distribution">
+                <h2>本月心情分布</h2>
+                <div id="distribution-chart">
+                    <div><span>😊 开心:</span> <span id="dist-开心">0</span></div>
+                    <div><span>😌 平静:</span> <span id="dist-平静">0</span></div>
+                    <div><span>😟 焦虑:</span> <span id="dist-焦虑">0</span></div>
+                    <div><span>😔 低落:</span> <span id="dist-低落">0</span></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const DATE_KEY_PREFIX = 'moodDiary_';
+        let selectedMood = null;
+
+        // DOM 元素引用
+        const currentDateElement = document.getElementById('current-date');
+        const moodTagButtons = document.querySelectorAll('.mood-tag-button');
+        const selectedMoodDisplay = document.getElementById('selected-mood-display');
+        const diaryTextarea = document.getElementById('diary-text');
+        const saveEntryButton = document.getElementById('save-entry');
+        const dist开心 = document.getElementById('dist-开心');
+        const dist平静 = document.getElementById('dist-平静');
+        const dist焦虑 = document.getElementById('dist-焦虑');
+        const dist低落 = document.getElementById('dist-低落');
+
+        /**
+         * 获取今天的日期字符串 (YYYY-MM-DD)
+         */
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从0开始
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        /**
+         * 获取当前月份的字符串 (YYYY-MM)
+         */
+        function getCurrentMonthString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
+        }
+
+        /**
+         * 显示当前日期
+         */
+        function displayCurrentDate() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            currentDateElement.textContent = today.toLocaleDateString('zh-CN', options);
+        }
+
+        /**
+         * 加载并显示今天已保存的日记
+         */
+        function loadEntryForToday() {
+            const todayKey = DATE_KEY_PREFIX + getTodayDateString();
+            const savedEntry = localStorage.getItem(todayKey);
+
+            if (savedEntry) {
+                const entry = JSON.parse(savedEntry);
+                diaryTextarea.value = entry.text;
+                selectMoodButton(entry.mood); // 选中对应的心情按钮
+                selectedMood = entry.mood; // 更新 selectedMood 变量
+                selectedMoodDisplay.textContent = `今天的心情是：${entry.mood}`;
+            } else {
+                diaryTextarea.value = '';
+                resetMoodSelection();
+                selectedMoodDisplay.textContent = '请选择今天的心情';
+            }
+        }
+
+        /**
+         * 选中指定心情按钮，并取消其他按钮的选中状态
+         * @param {string} mood - 要选中的心情 (e.g., '开心')
+         */
+        function selectMoodButton(mood) {
+            moodTagButtons.forEach(button => {
+                if (button.dataset.mood === mood) {
+                    button.classList.add('selected');
+                } else {
+                    button.classList.remove('selected');
+                }
+            });
+        }
+
+        /**
+         * 重置心情按钮的选中状态
+         */
+        function resetMoodSelection() {
+            moodTagButtons.forEach(button => {
+                button.classList.remove('selected');
+            });
+            selectedMood = null;
+        }
+
+        /**
+         * 计算并显示本月的心情分布
+         */
+        function calculateMonthlyDistribution() {
+            const currentMonth = getCurrentMonthString();
+            const moodCounts = { '开心': 0, '平静': 0, '焦虑': 0, '低落': 0 };
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith(DATE_KEY_PREFIX) && key.includes(currentMonth)) {
+                    const entryString = localStorage.getItem(key);
+                    try {
+                        const entry = JSON.parse(entryString);
+                        if (moodCounts.hasOwnProperty(entry.mood)) {
+                            moodCounts[entry.mood]++;
+                        }
+                    } catch (e) {
+                        console.error("Error parsing localStorage item:", key, entryString, e);
+                    }
+                }
+            }
+
+            dist开心.textContent = moodCounts['开心'];
+            dist平静.textContent = moodCounts['平静'];
+            dist焦虑.textContent = moodCounts['焦虑'];
+            dist低落.textContent = moodCounts['低落'];
+        }
+
+        /**
+         * 保存日记条目
+         */
+        function saveEntry() {
+            if (!selectedMood) {
+                alert('请选择今天的心情！');
+                return;
+            }
+
+            const text = diaryTextarea.value.trim();
+            if (!text) {
+                alert('日记内容不能为空！');
+                return;
+            }
+
+            const todayDate = getTodayDateString();
+            const entryKey = DATE_KEY_PREFIX + todayDate;
+            const entryData = {
+                date: todayDate,
+                mood: selectedMood,
+                text: text,
+                timestamp: new Date().toISOString() // 记录保存时间
+            };
+
+            try {
+                localStorage.setItem(entryKey, JSON.stringify(entryData));
+                alert('日记保存成功！');
+                calculateMonthlyDistribution(); // 重新计算分布
+                // 可以选择清空输入，但考虑到用户可能想继续编辑，这里不清空
+                // diaryTextarea.value = '';
+                // resetMoodSelection();
+                // selectedMoodDisplay.textContent = '请选择今天的心情';
+            } catch (e) {
+                console.error("保存日记失败:", e);
+                alert('保存日记失败，请检查浏览器存储空间。');
+            }
+        }
+
+        /**
+         * 初始化函数
+         */
+        function init() {
+            displayCurrentDate();
+            loadEntryForToday();
+            calculateMonthlyDistribution();
+
+            // 事件监听器
+            moodTagButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const mood = button.dataset.mood;
+                    selectMoodButton(mood);
+                    selectedMood = mood;
+                    selectedMoodDisplay.textContent = `今天的心情是：${mood}`;
+                });
+            });
+
+            saveEntryButton.addEventListener('click', saveEntry);
+        }
+
+        // 页面加载完成后执行初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

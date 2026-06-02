@@ -1,0 +1,11 @@
+{
+  "index": 72,
+  "id": "E002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个给小朋友学自然拼读的页面，把字母组合(如 sh、th、ai)和对应的常用词配在一起，点击能听到读音(用 Web Speech API)。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/E002_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:30:01.901128"
+}

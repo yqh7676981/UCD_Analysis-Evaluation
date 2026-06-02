@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>雅思核心词汇打卡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            padding: 16px;
+            touch-action: manipulation;
+        }
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        /* header */
+        .header {
+            background: #fff;
+            border-radius: 16px;
+            padding: 18px 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-left h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a2e;
+            letter-spacing: -0.3px;
+        }
+        .header-left .date {
+            font-size: 13px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .header-right {
+            background: #eafaf1;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #27ae60;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .header-right .progress {
+            display: inline;
+        }
+        /* card list */
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        /* card flip */
+        .card-wrapper {
+            perspective: 1000px;
+            -webkit-perspective: 1000px;
+        }
+        .card {
+            position: relative;
+            width: 100%;
+            height: 260px;
+            transition: transform 0.5s cubic-bezier(.4,.22,.35,.99);
+            transform-style: preserve-3d;
+            -webkit-transform-style: preserve-3d;
+            cursor: pointer;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            touch-action: manipulation;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        .card-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 16px;
+            background: #fff;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);
+            overflow-y: auto;
+        }
+        .card-front {
+            background: #ffffff;
+        }
+        .card-back {
+            background: #ffffff;
+            transform: rotateY(180deg);
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .card-front .word {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        .card-front .part-of-speech {
+            font-size: 16px;
+            color: #7f8c8d;
+            letter-spacing: 0.5px;
+        }
+        .card-front .mastered-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #27ae60;
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        .card-back .content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-back .word-head {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        .card-back .word-head span {
+            font-weight: 400;
+            font-size: 15px;
+            color: #999;
+        }
+        .card-back .meaning {
+            font-size: 18px;
+            color: #555;
+            margin: 8px 0 10px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+        .card-back .example {
+            font-size: 15px;
+            color: #777;
+            font-style: italic;
+            line-height: 1.6;
+            background: #f9f9f9;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin: 8px 0 12px;
+            border-left: 4px solid #3498db;
+            flex-shrink: 0;
+        }
+        .card-back .btn-master {
+            display: block;
+            width: 100%;
+            margin-top: auto;
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 40px;
+            background: #27ae60;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+        .card-back .btn-master:active {
+            transform: scale(0.97);
+        }
+        .card-back .btn-master.mastered {
+            background: #bdc3c7;
+            color: #777;
+            cursor: default;
+        }
+        .card-back .btn-master.mastered:active {
+            transform: none;
+        }
+        /* footer */
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #aaa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .footer a {
+            color: #aaa;
+            text-decoration: underline;
+            font-size: 13px;
+        }
+        /* responsive */
+        @media (max-width: 400px) {
+            .card {
+                height: 220px;
+            }
+            .card-front .word {
+                font-size: 28px;
+            }
+            .card-back .meaning {
+                font-size: 16px;
+            }
+            .card-back .word-head {
+                font-size: 20px;
+            }
+            .header-left h1 {
+                font-size: 18px;
+            }
+            .header-right {
+                font-size: 14px;
+                padding: 8px 14px;
+            }
+            .header {
+                padding: 14px 18px;
+            }
+            body {
+                padding: 12px;
+            }
+        }
+        @media (max-width: 350px) {
+            .card {
+                height: 200px;
+            }
+            .card-front .word {
+                font-size: 24px;
+            }
+            .card-back .meaning {
+                font-size: 14px;
+            }
+            .card-back .example {
+                font-size: 13px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <h1>📚 核心词汇</h1>
+                <div class="date" id="currentDate"></div>
+            </div>
+            <div class="header-right">
+                <span class="progress" id="progress">0/20</span>
+            </div>
+        </header>
+
+        <div class="card-list" id="cardList"></div>
+
+        <div class="footer">
+            <span>点击卡片翻转 · 标记掌握来记录进度</span>
+            <a href="#" id="resetProgress">重置进度</a>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ===== 单词数据 =====
+            const words = [
+                { id: 1, word: 'abandon', pos: 'v.', meaning: '放弃，遗弃', example: 'They had to abandon the project due to lack of funds.' },
+                { id: 2, word: 'beneficial', pos: 'adj.', meaning: '有益的，有利的', example: 'Regular exercise is beneficial to health.' },
+                { id: 3, word: 'consequence', pos: 'n.', meaning: '结果，后果', example: 'He suffered the consequences of his actions.' },
+                { id: 4, word: 'demonstrate', pos: 'v.', meaning: '证明，展示', example: 'The experiment demonstrates the principle clearly.' },
+                { id: 5, word: 'environment', pos: 'n.', meaning: '环境', example: 'We must protect the environment for future generations.' },
+                { id: 6, word: 'frequent', pos: 'adj.', meaning: '频繁的', example: 'There are frequent flights to the city.' },
+                { id: 7, word: 'generate', pos: 'v.', meaning: '产生，生成', example: 'The new system will generate more electricity.' },
+                { id: 8, word: 'hypothesis', pos: 'n.', meaning: '假设，假说', example: 'The scientist proposed a hypothesis to explain the phenomenon.' },
+                { id: 9, word: 'impact', pos: 'n./v.', meaning: '影响，冲击', example: 'The new policy had a positive impact on the economy.' },
+                { id: 10, word: 'investigate', pos: 'v.', meaning: '调查，研究', example: 'The police are investigating the case.' },
+                { id: 11, word: 'legitimate', pos: 'adj.', meaning: '合法的，正当的', example: 'Is that a legitimate excuse?' },
+                { id: 12, word: 'maintain', pos: 'v.', meaning: '维持，保持', example: 'It is important to maintain a healthy diet.' },
+                { id: 13, word: 'negotiate', pos: 'v.', meaning: '谈判，协商', example: 'They are negotiating a new contract.' },
+                { id: 14, word: 'obtain', pos: 'v.', meaning: '获得，得到', example: 'She managed to obtain a visa.' },
+                { id: 15, word: 'participate', pos: 'v.', meaning: '参与，参加', example: 'Everyone is encouraged to participate in the discussion.' },
+                { id: 16, word: 'relevant', pos: 'adj.', meaning: '相关的，切题的', example: 'The information is relevant to the case.' },
+                { id: 17, word: 'significant', pos: 'adj.', meaning: '重要的，显著的', example: 'There has been a significant increase in sales.' },
+                { id: 18, word: 'tradition', pos: 'n.', meaning: '传统，惯例', example: 'It is a tradition to have turkey at Thanksgiving.' },
+                { id: 19, word: 'unique', pos: 'adj.', meaning: '独特的，唯一的', example: 'Each person has a unique fingerprint.' },
+                { id: 20, word: 'volunteer', pos: 'n./v.', meaning: '志愿者，自愿', example: 'She volunteered to help with the event.' }
+            ];
+
+            // ===== 存储 =====
+            const STORAGE_KEY = 'ielts_words_progress';
+
+            function loadProgress() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) return JSON.parse(stored);
+                } catch (e) { /* ignore */ }
+                return {};
+            }
+
+            function saveProgress(p) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+            }
+
+            let progress = loadProgress();
+
+            // ===== DOM 引用 =====
+            const cardListEl = document.getElementById('cardList');
+            const progressEl = document.getElementById('progress');
+            const dateEl = document.getElementById('currentDate');
+
+            // ===== 显示日期 =====
+            const now = new Date();
+            dateEl.textContent = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
+
+            // ===== 更新进度显示 =====
+            function updateProgress() {
+                const count = words.filter(w => progress[w.id] === true).length;
+                if (count === words.length) {
+                    progressEl.innerHTML = count + '/20 🎉 全掌握';
+                } else {
+                    progressEl.textContent = count + '/20';
+                }
+            }
+
+            // ===== 更新单个卡片的掌握状态（不重建 DOM） =====
+            function updateCardMastery(card, wordId) {
+                const mastered = progress[wordId] === true;
+
+                // 正面标记
+                const front = card.querySelector('.card-front');
+                let badge = front.querySelector('.mastered-badge');
+                if (mastered) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'mastered-badge';
+                        badge.textContent = '✅已掌握';
+                        front.appendChild(badge);
+                    }
+                } else {
+                    if (badge) badge.remove();
+                }
+
+                // 背面按钮
+                const btn = card.querySelector('.btn-master');
+                if (mastered) {
+                    btn.textContent = '✅ 已掌握';
+                    btn.classList.add('mastered');
+                } else {
+                    btn.textContent = '📌 标记掌握';
+                    btn.classList.remove('mastered');
+                }
+
+                updateProgress();
+            }
+
+            // ===== 处理掌握切换（由按钮触发） =====
+            function toggleMasteryForCard(card, wordId) {
+                if (progress[wordId] === true) {
+                    delete progress[wordId];
+                } else {
+                    progress[wordId] = true;
+                }
+                saveProgress(progress);
+                updateCardMastery(card, wordId);
+            }
+
+            // ===== 创建单个卡片 DOM =====
+            function createCard(word) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'card-wrapper';
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.id = word.id;
+
+                const isMastered = progress[word.id] === true;
+
+                // --- 正面 ---
+                const front = document.createElement('div');
+                front.className = 'card-face card-front';
+                front.innerHTML = '<span class="word">' + word.word + '</span>' +
+                    '<span class="part-of-speech">' + word.pos + '</span>';
+                if (isMastered) {
+                    const badge = document.createElement('span');
+                    badge.className = 'mastered-badge';
+                    badge.textContent = '✅已掌握';
+                    front.appendChild(badge);
+                }
+
+                // --- 背面 ---
+                const back = document.createElement('div');
+                back.className = 'card-face card-back';
+                back.innerHTML =
+                    '<div class="content">' +
+                    '<div class="word-head">' + word.word + ' <span>' + word.pos + '</span></div>' +
+                    '<div class="meaning">' + word.meaning + '</div>' +
+                    '<div class="example">"' + word.example + '"</div>' +
+                    '<button class="btn-master' + (isMastered ? ' mastered' : '') + '" data-id="' + word.id + '">' +
+                    (isMastered ? '✅ 已掌握' : '📌 标记掌握') +
+                    '</button>' +
+                    '</div>';
+
+                card.appendChild(front);
+                card.appendChild(back);
+
+                // --- 事件：点击卡片翻转 ---
+                card.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'BUTTON') return;
+                    this.classList.toggle('flipped');
+                });
+
+                // --- 事件：点击标记按钮 ---
+                const btn = back.querySelector('.btn-master');
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = parseInt(this.dataset.id);
+                    toggleMasteryForCard(card, id);
+                });
+
+                wrapper.appendChild(card);
+                return wrapper;
+            }
+
+            // ===== 渲染所有卡片 =====
+            function renderCards() {
+                cardListEl.innerHTML = '';
+                words.forEach(w => {
+                    cardListEl.appendChild(createCard(w));
+                });
+            }
+
+            // ===== 重置进度 =====
+            document.getElementById('resetProgress').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('确定要重置所有进度吗？')) {
+                    localStorage.removeItem(STORAGE_KEY);
+                    progress = {};
+                    renderCards();
+                    updateProgress();
+                }
+            });
+
+            // ===== 初始化 =====
+            renderCards();
+            updateProgress();
+        })();
+    </script>
+</body>
+</html>

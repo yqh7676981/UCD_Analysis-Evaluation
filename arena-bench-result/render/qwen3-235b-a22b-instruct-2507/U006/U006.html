@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>今晚吃啥？</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      touch-action: manipulation;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #e74c3c;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 280px;
+      height: 280px;
+      margin: 20px auto;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 0deg,
+        #ff9a9a, #ffb677, #ffe066, #b2d87f,
+        #66cdaa, #7ec0ee, #c084fc, #f9a8d4
+      );
+      border: 8px solid #ddd;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      transition: transform 3s cubic-bezier(0.17, 0.67, 0.21, 0.99);
+      transform: rotate(0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 30px solid #e74c3c;
+      z-index: 10;
+    }
+
+    .result {
+      font-size: 1.6rem;
+      font-weight: bold;
+      margin: 20px 0;
+      text-align: center;
+      min-height: 2.5rem;
+      color: #e74c3c;
+    }
+
+    .controls {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 10px;
+    }
+
+    input {
+      width: 70%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 12px;
+      font-size: 1rem;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      transition: background-color 0.2s;
+    }
+
+    button:active {
+      background-color: #c0392b;
+    }
+
+    .add-btn {
+      background-color: #3498db;
+      margin-bottom: 15px;
+    }
+
+    .add-btn:active {
+      background-color: #2980b9;
+    }
+
+    ul {
+      list-style: none;
+      margin-top: 10px;
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    li {
+      padding: 8px 12px;
+      background-color: #f0f0f0;
+      margin: 6px 0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .delete-btn:active {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <h1>今晚吃啥？</h1>
+
+  <div class="wheel-container">
+    <div class="wheel"></div>
+  </div>
+
+  <div class="result">点击下方按钮开始抽签</div>
+
+  <div class="controls">
+    <div style="display: flex; gap: 10px;">
+      <input type="text" id="itemInput" placeholder="添加餐厅或菜品" />
+      <button class="add-btn" id="addItem">添加</button>
+    </div>
+
+    <ul id="itemList"></ul>
+
+    <button id="spinBtn">转一转</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const itemInput = document.getElementById('itemInput');
+      const addItemBtn = document.getElementById('addItem');
+      const itemList = document.getElementById('itemList');
+      const spinBtn = document.getElementById('spinBtn');
+      const wheel = document.querySelector('.wheel');
+      const resultDisplay = document.querySelector('.result');
+
+      let items = JSON.parse(localStorage.getItem('dinnerItems')) || ['火锅', '烧烤', '寿司', '披萨', '炸鸡', '拉面', '汉堡'];
+      let spinning = false;
+      let currentRotation = 0;
+
+      function saveItems() {
+        localStorage.setItem('dinnerItems', JSON.stringify(items));
+      }
+
+      function renderList() {
+        itemList.innerHTML = '';
+        items.forEach((item, index) => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span>${item}</span>
+            <button class="delete-btn" data-index="${index}">删除</button>
+          `;
+          itemList.appendChild(li);
+        });
+
+        // 添加删除事件
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            items.splice(index, 1);
+            saveItems();
+            renderList();
+          });
+        });
+      }
+
+      function addNewItem() {
+        const value = itemInput.value.trim();
+        if (value && !items.includes(value)) {
+          items.push(value);
+          itemInput.value = '';
+          saveItems();
+          renderList();
+        } else if (items.includes(value)) {
+          alert('该项已存在！');
+        }
+      }
+
+      addItemBtn.addEventListener('click', addNewItem);
+      itemInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addNewItem();
+      });
+
+      spinBtn.addEventListener('click', () => {
+        if (spinning || items.length === 0) return;
+        if (items.length === 1) {
+          resultDisplay.textContent = items[0];
+          return;
+        }
+
+        spinning = true;
+        spinBtn.disabled = true;
+        resultDisplay.textContent = '正在转动...';
+
+        // 至少转5圈，再根据随机角度停止
+        const spins = 5;
+        const anglePerItem = 360 / items.length;
+        const randomIndex = Math.floor(Math.random() * items.length);
+        const targetAngle = 360 * spins + (360 - randomIndex * anglePerItem);
+
+        currentRotation += targetAngle;
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
+
+        setTimeout(() => {
+          resultDisplay.textContent = `今晚吃：${items[randomIndex]}`;
+          spinning = false;
+          spinBtn.disabled = false;
+        }, 3000);
+      });
+
+      // 初始化
+      renderList();
+    });
+  </script>
+</body>
+</html>

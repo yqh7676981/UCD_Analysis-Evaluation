@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未来之核 | 预组装电脑 - 极致性能，即刻拥有</title>
+    <!-- 引入 Font Awesome 图标库，用于产品功能部分的图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary-color: #007bff; /* 主色调 */
+            --secondary-color: #6c757d; /* 次要色调 */
+            --accent-color: #28a745; /* 强调色，例如购买按钮 */
+            --text-color: #333;
+            --light-bg: #f8f9fa; /* 浅背景色 */
+            --dark-bg: #343a40; /* 深背景色 */
+            --white: #fff;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: darken(var(--primary-color), 10%); /* 模拟深色 */
+            background-color: #0056b3;
+            text-decoration: none;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+        }
+
+        .accent-btn {
+            background-color: var(--accent-color);
+        }
+
+        .accent-btn:hover {
+            background-color: darken(var(--accent-color), 10%);
+            background-color: #218838;
+        }
+
+        /* 头部导航 */
+        header {
+            background-color: var(--dark-bg);
+            color: var(--white);
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--white);
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: var(--white);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        /* Hero 主视觉区 */
+        #hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://via.placeholder.com/1920x800/2c3e50/ffffff?text=POWER+YOUR+FUTURE') no-repeat center center/cover;
+            color: var(--white);
+            text-align: center;
+            padding: 100px 0;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        #hero p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 通用区块样式 */
+        section {
+            padding: 60px 0;
+            text-align: center;
+        }
+
+        section:nth-of-type(even) {
+            background-color: var(--white);
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: var(--dark-bg);
+            position: relative;
+            display: inline-block;
+        }
+        h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: var(--primary-color);
+            margin: 10px auto 0;
+        }
+
+        /* 产品功能 */
+        #features .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .feature-item {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .feature-item i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .feature-item h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark-bg);
+        }
+
+        .feature-item p {
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+
+        /* 产品列表 */
+        #products {
+            background-color: var(--light-bg);
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .product-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-card h3 {
+            font-size: 1.4rem;
+            margin: 20px 20px 10px;
+            color: var(--dark-bg);
+        }
+
+        .product-card .specs {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            margin: 0 20px 15px;
+            min-height: 40px; /* 保证高度一致 */
+        }
+
+        .product-card .price {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin: 0 20px 20px;
+        }
+
+        .product-card .buy-btn {
+            width: calc(100% - 40px);
+            margin: 0 20px 20px;
+            background-color: var(--accent-color);
+        }
+
+        .product-card .buy-btn:hover {
+            background-color: #218838;
+        }
+
+        /* 客户评价 */
+        #reviews {
+            background-color: var(--white);
+        }
+
+        .review-carousel {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            background-color: var(--white);
+            padding: 30px;
+            min-height: 200px; /* 确保有足够高度 */
+            display: flex;
+            align-items: center;
+        }
+
+        .review-item {
+            width: 100%;
+            text-align: center;
+            position: absolute; /* 使评价项重叠 */
+            opacity: 1; /* fixed: was 0 */
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .review-item.active {
+            opacity: 1;
+            position: relative; /* 激活项显示 */
+        }
+
+        .review-item .quote {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 20px;
+            color: var(--text-color);
+        }
+
+        .review-item .author {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .carousel-nav {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .dot {
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: var(--border-color);
+            border-radius: 50%;
+            display: inline-block;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .dot.active,
+        .dot:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* 联系我们 */
+        #contact {
+            background-color: var(--light-bg);
+            padding-bottom: 80px;
+        }
+
+        #contact p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        .secondary-btn {
+            background-color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .secondary-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* 底部 */
+        footer {
+            background-color: var(--dark-bg);
+            color: var(--white);
+            text-align: center;
+            padding: 30px 0;
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            nav ul {
+                margin-top: 15px;
+            }
+
+            nav ul li {
+                margin: 0 10px;
+            }
+
+            #hero h1 {
+                font-size: 2.5rem;
+            }
+
+            #hero p {
+                font-size: 1rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .feature-grid, .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-card {
+                margin: 0 auto;
+                max-width: 350px;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">未来之核</div>
+            <nav>
+                <ul>
+                    <li><a href="#features">产品功能</a></li>
+                    <li><a href="#products">产品列表</a></li>
+                    <li><a href="#reviews">客户评价</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="container">
+                <h1>未来之核 | 预组装电脑</h1>
+                <p>极致性能，即刻拥有。专业级配置，专为玩家与创作者打造。</p>
+                <a href="#products" class="btn primary-btn">立即选购</a>
+            </div>
+        </section>
+
+        <section id="features">
+            <div class="container">
+                <h2>核心优势</h2>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h3><i class="fas fa-microchip"></i> 顶级组件</h3>
+                        <p>精选一线品牌硬件，确保稳定与卓越性能。</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3><i class="fas fa-cogs"></i> 精心组装</h3>
+                        <p>专业技术团队手工组装，布线整洁，散热优化。</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3><i class="fas fa-shield-alt"></i> 严格测试</h3>
+                        <p>出厂前经过多重压力测试，保证系统稳定运行。</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3><i class="fas fa-headset"></i> 贴心服务</h3>
+                        <p>24/7在线客服支持，完善的售后保障。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="products">
+            <div class="container">
+                <h2>我们的产品</h2>
+                <div class="product-grid">
+                    <!-- 产品卡片 1 -->
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Gaming+PC+Pro" alt="电竞利器 Pro">
+                        <h3>电竞利器 Pro</h3>
+                        <p class="specs">CPU: i9-13900K | GPU: RTX 4090 | RAM: 32GB DDR5 | SSD: 2TB NVMe</p>
+                        <p class="price">¥ 24,999</p>
+                        <button class="btn buy-btn accent-btn" data-product-name="电竞利器 Pro">立即购买</button>
+                    </div>
+                    <!-- 产品卡片 2 -->
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Creator+Workstation" alt="创意工作站 Max">
+                        <h3>创意工作站 Max</h3>
+                        <p class="specs">CPU: Ryzen 9 7950X | GPU: RTX 4080 | RAM: 64GB DDR5 | SSD: 4TB NVMe</p>
+                        <p class="price">¥ 19,999</p>
+                        <button class="btn buy-btn accent-btn" data-product-name="创意工作站 Max">立即购买</button>
+                    </div>
+                    <!-- 产品卡片 3 -->
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Compact+Gaming" alt="紧凑小钢炮">
+                        <h3>紧凑小钢炮</h3>
+                        <p class="specs">CPU: i7-13700F | GPU: RX 7800 XT | RAM: 16GB DDR4 | SSD: 1TB NVMe</p>
+                        <p class="price">¥ 12,999</p>
+                        <button class="btn buy-btn accent-btn" data-product-name="紧凑小钢炮">立即购买</button>
+                    </div>
+                    <!-- 产品卡片 4 -->
+                    <div class="product-card">
+                        <img src="https://via.placeholder.com/300x200?text=Entry+Level+PC" alt="入门探索者">
+                        <h3>入门探索者</h3>
+                        <p class="specs">CPU: i5-12400 | GPU: GTX 1660 Super | RAM: 16GB DDR4 | SSD: 512GB NVMe</p>
+                        <p class="price">¥ 6,999</p>
+                        <button class="btn buy-btn accent-btn" data-product-name="入门探索者">立即购买</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reviews">
+            <div class="container">
+                <h2>客户评价</h2>
+                <div class="review-carousel">
+                    <div class="review-item active">
+                        <p class="quote">"未来之核的电脑性能超乎想象，游戏体验流畅无比，客服响应也很快！强烈推荐！"</p>
+                        <p class="author">- 张先生，资深玩家</p>
+                    </div>
+                    <div class="review-item">
+                        <p class="quote">"我是一名设计师，对电脑性能要求很高。这台工作站完美满足了我的需求，渲染速度飞快！"</p>
+                        <p class="author">- 李女士，自由设计师</p>
+                    </div>
+                    <div class="review-item">
+                        <p class="quote">"性价比很高，开箱即用，省去了自己组装的麻烦。机器运行稳定，非常满意！"</p>
+                        <p class="author">- 王同学，大学生</p>
+                    </div>
+                </div>
+                <div class="carousel-nav">
+                    <span class="dot active" data-slide="0"></span>
+                    <span class="dot" data-slide="1"></span>
+                    <span class="dot" data-slide="2"></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container">
+                <h2>联系我们</h2>
+                <p>有任何疑问或需要定制服务？请随时联系我们，我们的专业团队将竭诚为您服务。</p>
+                <a href="mailto:info@futurecore.com" class="btn secondary-btn">发送邮件</a>
+                <p>客服热线: 400-123-4567 (周一至周五 9:00 - 18:00)</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 未来之核. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript for "Buy Now" button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const buyButtons = document.querySelectorAll('.buy-btn');
+            buyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const productName = this.dataset.productName;
+                    alert(`您已选择购买 ${productName}！\n我们将尽快联系您完成订单。`);
+                    // 在实际应用中，这里会跳转到购物车页面或订单提交页面
+                });
+            });
+
+            // JavaScript for Customer Reviews Carousel
+            const reviewItems = document.querySelectorAll('.review-item');
+            const dots = document.querySelectorAll('.dot');
+            let currentReviewIndex = 0;
+
+            function showReview(index) {
+                reviewItems.forEach((item, i) => {
+                    item.classList.remove('active');
+                    if (i === index) {
+                        item.classList.add('active');
+                    }
+                });
+
+                dots.forEach((dot, i) => {
+                    dot.classList.remove('active');
+                    if (i === index) {
+                        dot.classList.add('active');
+                    }
+                });
+            }
+
+            dots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const slideIndex = parseInt(this.dataset.slide);
+                    currentReviewIndex = slideIndex;
+                    showReview(currentReviewIndex);
+                });
+            });
+
+            // Optional: Auto-slide feature
+            function nextReview() {
+                currentReviewIndex = (currentReviewIndex + 1) % reviewItems.length;
+                showReview(currentReviewIndex);
+            }
+
+            // Change review every 5 seconds
+            setInterval(nextReview, 5000);
+
+            // Initial display
+            showReview(currentReviewIndex);
+        });
+    </script>
+</body>
+</html>

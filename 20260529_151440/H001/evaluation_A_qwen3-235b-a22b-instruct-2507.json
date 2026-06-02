@@ -1,0 +1,11 @@
+{
+  "index": 21,
+  "id": "H001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个每日热量记录工具，可以从常见食物库里选择，自动累加今天摄入的卡路里，对比每日目标显示进度条。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/H001_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:19:17.684630"
+}

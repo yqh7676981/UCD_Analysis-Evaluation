@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>今晚吃啥 - 选择困难终结者</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      touch-action: manipulation;
+    }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 28px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.13);
+      padding: 24px 16px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 2px;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #95a5a6;
+      margin-bottom: 18px;
+      letter-spacing: 1px;
+    }
+    .wheel-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 280px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto 16px;
+    }
+    .wheel-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    #wheelSpinner {
+      width: 100%;
+      height: 100%;
+      transform-origin: center center;
+      transition: transform 2.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+      will-change: transform;
+    }
+    #wheelCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+    }
+    .pointer {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-top: 24px solid #e74c3c;
+      filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+      z-index: 10;
+    }
+    .wheel-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%;
+      height: 30%;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #e74c3c;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+      z-index: 5;
+      pointer-events: none;
+      padding: 4px;
+      word-break: break-all;
+      line-height: 1.2;
+      transition: all 0.3s;
+    }
+    .input-area {
+      display: flex;
+      width: 100%;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 0 16px;
+      height: 48px;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      font-size: 16px;
+      outline: none;
+      background: #fafafa;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .input-area input:focus {
+      border-color: #e74c3c;
+      background: #fff;
+    }
+    .input-area button {
+      width: 56px;
+      height: 48px;
+      border: none;
+      border-radius: 14px;
+      background: #e74c3c;
+      color: #fff;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .input-area button:active {
+      transform: scale(0.92);
+      background: #c0392b;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      width: 100%;
+      min-height: 30px;
+    }
+    .tag {
+      display: flex;
+      align-items: center;
+      background: #f0f0f0;
+      border-radius: 20px;
+      padding: 5px 10px 5px 14px;
+      font-size: 14px;
+      color: #2c3e50;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+    .tag .del {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #ccc;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    .tag .del:active {
+      background: #e74c3c;
+    }
+    .btn-spin {
+      width: 100%;
+      height: 56px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #e74c3c, #c0392b);
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(231, 76, 60, 0.4);
+      transition: transform 0.1s, box-shadow 0.2s, opacity 0.2s;
+      margin-top: 4px;
+    }
+    .btn-spin:active {
+      transform: scale(0.96);
+    }
+    .btn-spin:disabled {
+      opacity: 0.5;
+      transform: none !important;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .result-text {
+      margin-top: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #e74c3c;
+      min-height: 30px;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 360px) {
+      .container { padding: 20px 12px 24px; }
+      h1 { font-size: 24px; }
+      .wheel-wrapper { max-width: 240px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍜 今晚吃啥</h1>
+    <div class="subtitle">选择困难终结者 · 摇一摇</div>
+
+    <div class="wheel-wrapper">
+      <div class="wheel-container">
+        <div class="pointer"></div>
+        <div id="wheelSpinner">
+          <canvas id="wheelCanvas"></canvas>
+        </div>
+        <div class="wheel-center" id="centerText">抽一签</div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="itemInput" placeholder="输入餐厅或菜品" maxlength="20" autocomplete="off">
+      <button id="addBtn">+</button>
+    </div>
+
+    <div class="tags" id="tagsContainer"></div>
+
+    <button class="btn-spin" id="spinBtn">🎲 抽一签</button>
+    <div class="result-text" id="resultText"></div>
+  </div>
+
+  <script>
+    // ---------- 数据 ----------
+    let items = ['火锅', '烧烤', '中餐', '日料', '西餐'];
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+      '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#F1948A',
+      '#82E0AA', '#F8C471', '#73C6B6', '#E59866', '#A569BD'
+    ];
+
+    // 状态
+    let currentAngle = 0;          // 累计旋转角度（度）
+    let spinning = false;
+
+    // DOM 引用
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const spinner = document.getElementById('wheelSpinner');
+    const centerText = document.getElementById('centerText');
+    const tagsContainer = document.getElementById('tagsContainer');
+    const input = document.getElementById('itemInput');
+    const addBtn = document.getElementById('addBtn');
+    const spinBtn = document.getElementById('spinBtn');
+    const resultText = document.getElementById('resultText');
+
+    // ---------- 画布尺寸 ----------
+    function initCanvas() {
+      const container = spinner;
+      const size = container.clientWidth || 280;
+      // 考虑设备像素比（可选）
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      canvas.style.width = size + 'px';
+      canvas.style.height = size + 'px';
+      ctx.scale(dpr, dpr);
+      // 保存逻辑尺寸供绘图使用
+      canvas._logicalSize = size;
+    }
+
+    // ---------- 绘制转盘 ----------
+    function drawWheel() {
+      const n = items.length;
+      const size = canvas._logicalSize || canvas.width;
+      const cx = size / 2;
+      const cy = size / 2;
+      const radius = Math.min(cx, cy) - 6;
+
+      ctx.clearRect(0, 0, size, size);
+
+      if (n === 0) {
+        // 空状态
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#f5f5f5';
+        ctx.fill();
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.font = '18px sans-serif';
+        ctx.fillStyle = '#bbb';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('➕ 添加选项', cx, cy);
+        return;
+      }
+
+      const sectorRad = (2 * Math.PI) / n;
+
+      for (let i = 0; i < n; i++) {
+        // 每个扇区中心线在顶部
+        const startAngle = (i - 0.5) * sectorRad - Math.PI / 2;
+        const endAngle = (i + 0.5) * sectorRad - Math.PI / 2;
+
+        // 画扇形
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 画文字
+        const midAngle = startAngle + sectorRad / 2;
+        const textRadius = radius * 0.62;
+        const fontSize = Math.max(12, Math.min(18, radius * 0.22));
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(midAngle);
+
+        // 文字方向：始终正向可读
+        let normalized = midAngle % (2 * Math.PI);
+        if (normalized < 0) normalized += 2 * Math.PI;
+        let adjustedRadius = textRadius;
+        let extraRotate = 0;
+        if (normalized > Math.PI / 2 && normalized < 3 * Math.PI / 2) {
+          extraRotate = Math.PI;
+          adjustedRadius = -textRadius;
+        }
+        ctx.rotate(extraRotate);
+        ctx.font = `bold ${fontSize}px "PingFang SC", "Microsoft YaHei", sans-serif`;
+        ctx.fillStyle = '#2c3e50';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(items[i], adjustedRadius, 0);
+        ctx.restore();
+      }
+
+      // 外圈装饰
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius - 1, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+    }
+
+    // ---------- 更新标签列表 ----------
+    function updateTags() {
+      tagsContainer.innerHTML = '';
+      items.forEach((item, index) => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerHTML = `<span>${item}</span><span class="del" data-index="${index}">×</span>`;
+        tagsContainer.appendChild(tag);
+      });
+      // 绑定删除事件
+      document.querySelectorAll('.tag .del').forEach(el => {
+        el.addEventListener('click', function(e) {
+          if (spinning) {
+            alert('转盘旋转中，请稍后操作');
+            return;
+          }
+          const idx = parseInt(this.dataset.index);
+          if (!isNaN(idx) && idx >= 0 && idx < items.length) {
+            items.splice(idx, 1);
+            resetAndUpdate();
+          }
+        });
+      });
+    }
+
+    // ---------- 重置并刷新全部 UI ----------
+    function resetAndUpdate() {
+      if (spinning) return;
+      currentAngle = 0;
+      spinner.style.transition = 'none';
+      spinner.style.transform = 'rotate(0deg)';
+      // 强制回流，避免过渡干扰
+      void spinner.offsetHeight;
+
+      drawWheel();
+      updateTags();
+      centerText.textContent = '抽一签';
+      resultText.textContent = '';
+      spinBtn.disabled = (items.length < 2);
+    }
+
+    // ---------- 添加选项 ----------
+    function addItem() {
+      if (spinning) {
+        alert('转盘旋转中，请稍后');
+        return;
+      }
+      const val = input.value.trim();
+      if (!val) {
+        alert('请输入餐厅或菜品');
+        return;
+      }
+      if (items.includes(val)) {
+        alert('该项已存在');
+        return;
+      }
+      items.push(val);
+      input.value = '';
+      input.blur();
+      resetAndUpdate();
+    }
+
+    // ---------- 抽签 ----------
+    function spin() {
+      if (spinning) return;
+      if (items.length < 2) {
+        alert('至少添加两个选项才能抽签');
+        return;
+      }
+
+      spinning = true;
+      spinBtn.disabled = true;
+      resultText.textContent = '';
+
+      // 随机选择一项
+      const index = Math.floor(Math.random() * items.length);
+      const sector = 360 / items.length;
+      const targetAngle = index * sector; // 目标扇区中心（度）
+
+      // 计算需要旋转的总角度（保证正向旋转多圈）
+      const remainder = ((currentAngle % 360) + 360) % 360; // 0~360
+      let diff = targetAngle - remainder;
+      if (diff < 0) diff += 360;
+      const rounds = 5 + Math.floor(Math.random() * 4); // 5~8 圈
+      const newAngle = currentAngle + rounds * 360 + diff;
+
+      // 应用旋转动画
+      spinner.style.transition = 'transform 2.8s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+      spinner.style.transform = `rotate(${newAngle}deg)`;
+      currentAngle = newAngle;
+
+      // 动画结束回调
+      const onTransitionEnd = () => {
+        spinner.removeEventListener('transitionend', onTransitionEnd);
+        const result = items[index];
+        centerText.textContent = result;
+        resultText.textContent = `✅ 今晚吃：${result}`;
+        spinning = false;
+        spinBtn.disabled = false;
+      };
+      spinner.addEventListener('transitionend', onTransitionEnd);
+    }
+
+    // ---------- 窗口尺寸变化 ----------
+    function handleResize() {
+      initCanvas();
+      drawWheel();
+    }
+
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(handleResize, 200);
+    });
+
+    // ---------- 初始化 ----------
+    function init() {
+      initCanvas();
+      resetAndUpdate();
+
+      // 事件绑定
+      addBtn.addEventListener('click', addItem);
+      input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addItem();
+      });
+      spinBtn.addEventListener('click', spin);
+
+      // 确保加载完成后重绘（避免尺寸问题）
+      window.addEventListener('load', () => {
+        initCanvas();
+        drawWheel();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

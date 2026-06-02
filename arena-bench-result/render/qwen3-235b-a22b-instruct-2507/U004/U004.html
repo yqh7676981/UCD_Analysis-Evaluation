@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>旅行行程规划手册</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 16px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 24px;
+      color: #2c3e50;
+    }
+
+    .intro {
+      text-align: center;
+      margin-bottom: 24px;
+      font-size: 1rem;
+      color: #666;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-weight: bold;
+      margin-top: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .day-input {
+      background-color: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .remove-day {
+      background-color: #dc3545;
+      margin-top: 8px;
+    }
+
+    .remove-day:hover {
+      background-color: #c82333;
+    }
+
+    .add-day-btn {
+      background-color: #28a745;
+      margin-bottom: 24px;
+    }
+
+    .add-day-btn:hover {
+      background-color: #218838;
+    }
+
+    .generate-btn {
+      background-color: #17a2b8;
+      font-size: 1.1rem;
+      padding: 14px;
+      margin-bottom: 24px;
+    }
+
+    .generate-btn:hover {
+      background-color: #138496;
+    }
+
+    .itinerary-output {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      display: none;
+    }
+
+    .day-block {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed #eee;
+    }
+
+    .day-title {
+      font-size: 1.4rem;
+      color: #007bff;
+      margin-bottom: 12px;
+    }
+
+    .item {
+      margin-bottom: 10px;
+    }
+
+    .item-label {
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .item-content {
+      margin-left: 10px;
+      color: #666;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      input, textarea, button {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>📅 旅行行程规划</h1>
+  <p class="intro">填写每天的安排，生成属于你的旅行手册！</p>
+
+  <div id="days-container">
+    <!-- 动态添加天数 -->
+  </div>
+
+  <button type="button" id="add-day-btn" class="add-day-btn">➕ 添加一天</button>
+  <button type="button" id="generate-btn" class="generate-btn">✅ 生成旅行手册</button>
+
+  <div id="itinerary-output" class="itinerary-output">
+    <!-- 生成的行程将插入这里 -->
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const daysContainer = document.getElementById('days-container');
+      const addDayBtn = document.getElementById('add-day-btn');
+      const generateBtn = document.getElementById('generate-btn');
+      const itineraryOutput = document.getElementById('itinerary-output');
+
+      let dayCount = 0;
+
+      // 添加新的一天
+      function addNewDay() {
+        dayCount++;
+        const dayElement = document.createElement('div');
+        dayElement.className = 'day-input';
+        dayElement.innerHTML = `
+          <h3>第 ${dayCount} 天</h3>
+          <div class="form-group">
+            <label>景点安排</label>
+            <textarea placeholder="例如：上午参观故宫，下午游览颐和园" rows="2" data-field="attractions"></textarea>
+          </div>
+          <div class="form-group">
+            <label>交通方式</label>
+            <textarea placeholder="例如：地铁+步行" rows="2" data-field="transport"></textarea>
+          </div>
+          <div class="form-group">
+            <label>餐厅推荐</label>
+            <textarea placeholder="例如：午餐在全聚德吃烤鸭，晚餐尝试胡同小吃" rows="2" data-field="dining"></textarea>
+          </div>
+          <button type="button" class="remove-day" data-day="${dayCount}">🗑️ 删除这一天</button>
+        `;
+        daysContainer.appendChild(dayElement);
+
+        // 绑定删除事件
+        dayElement.querySelector('.remove-day').addEventListener('click', function () {
+          const targetDay = this.getAttribute('data-day');
+          if (confirm(`确定要删除第 ${targetDay} 天吗？`)) {
+            dayElement.remove();
+          }
+        });
+      }
+
+      // 生成行程手册
+      generateBtn.addEventListener('click', function () {
+        const days = daysContainer.querySelectorAll('.day-input');
+        if (days.length === 0) {
+          alert('请至少添加一天行程！');
+          return;
+        }
+
+        let outputHTML = '<h2>🎒 我的旅行手册</h2>';
+        
+        days.forEach((day, index) => {
+          const attractions = day.querySelector('[data-field="attractions"]').value.trim() || '未填写';
+          const transport = day.querySelector('[data-field="transport"]').value.trim() || '未填写';
+          const dining = day.querySelector('[data-field="dining"]').value.trim() || '未填写';
+
+          outputHTML += `
+            <div class="day-block">
+              <div class="day-title">第 ${index + 1} 天</div>
+              <div class="item">
+                <span class="item-label">📍 景点：</span>
+                <span class="item-content">${attractions}</span>
+              </div>
+              <div class="item">
+                <span class="item-label">🚗 交通：</span>
+                <span class="item-content">${transport}</span>
+              </div>
+              <div class="item">
+                <span class="item-label">🍽️ 餐厅：</span>
+                <span class="item-content">${dining}</span>
+              </div>
+            </div>
+          `;
+        });
+
+        itineraryOutput.innerHTML = outputHTML;
+        itineraryOutput.style.display = 'block';
+        itineraryOutput.scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // 初始添加第一天
+      addDayBtn.addEventListener('click', addNewDay);
+      addNewDay(); // 默认显示一天
+    });
+  </script>
+</body>
+</html>

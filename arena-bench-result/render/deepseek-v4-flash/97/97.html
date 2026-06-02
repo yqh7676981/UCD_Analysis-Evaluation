@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字银行 · 我的账户</title>
+    <style>
+        /* ===== Reset & Base ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f4f9;
+            color: #1a2b3f;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ===== Custom Properties ===== */
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --primary-light: #e8f0fe;
+            --success: #0f9d58;
+            --danger: #d93025;
+            --warning: #f9ab00;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-500: #64748b;
+            --gray-700: #334155;
+            --gray-900: #0f172a;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.08);
+            --transition: all 0.25s ease;
+        }
+
+        /* ===== Header ===== */
+        header {
+            background: linear-gradient(135deg, #0b2b5c, #1a73e8);
+            color: white;
+            padding: 0 2rem;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: currentColor;
+        }
+
+        .user-area {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+
+        .user-area .greeting {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .user-area .avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(4px);
+            cursor: pointer;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.3rem;
+            opacity: 0.85;
+            transition: var(--transition);
+        }
+        .notification-bell:hover {
+            opacity: 1;
+        }
+        .notification-bell .badge {
+            position: absolute;
+            top: -6px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.6rem;
+            font-weight: 700;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #1a73e8;
+        }
+
+        /* ===== Main Container ===== */
+        main {
+            flex: 1;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            width: 100%;
+        }
+
+        /* ===== Dashboard Grid ===== */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+            align-items: start;
+        }
+
+        @media (max-width: 920px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== Cards ===== */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.8rem 2rem;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .card-header .badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+        }
+
+        /* ===== Account Card ===== */
+        .account-card {
+            background: linear-gradient(145deg, #ffffff, #f8fcff);
+        }
+
+        .account-type {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+
+        .account-number {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .account-number .mask-toggle {
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--gray-500);
+            transition: var(--transition);
+            background: none;
+            border: none;
+            padding: 0.2rem;
+        }
+        .account-number .mask-toggle:hover {
+            color: var(--primary);
+        }
+
+        .balance-area {
+            display: flex;
+            align-items: baseline;
+            gap: 0.6rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .balance-amount {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .balance-currency {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--gray-500);
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            color: var(--gray-500);
+            margin-bottom: 1.8rem;
+        }
+
+        .account-holder {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .account-holder .holder-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .account-holder .holder-detail .name {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .account-holder .holder-detail .small {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        /* quick stats */
+        .quick-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .quick-stats .stat {
+            flex: 1;
+        }
+
+        .quick-stats .stat .label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--gray-500);
+            letter-spacing: 0.4px;
+        }
+
+        .quick-stats .stat .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        /* ===== Transaction List ===== */
+        .transaction-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .transaction-filters button {
+            padding: 0.35rem 1.2rem;
+            border-radius: 30px;
+            border: 1px solid var(--gray-200);
+            background: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .transaction-filters button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .transaction-filters button:hover:not(.active) {
+            background: var(--gray-100);
+        }
+
+        .transaction-list {
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .transaction-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .transaction-list::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: 20px;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0.4rem;
+            border-bottom: 1px solid var(--gray-100);
+            transition: var(--transition);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-item:hover {
+            background: var(--gray-50);
+            border-radius: var(--radius-sm);
+            padding-left: 0.8rem;
+            padding-right: 0.8rem;
+        }
+
+        .transaction-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .transaction-icon.credit {
+            background: #e6f7ec;
+            color: var(--success);
+        }
+
+        .transaction-icon.debit {
+            background: #fde7e5;
+            color: var(--danger);
+        }
+
+        .transaction-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .transaction-info .description {
+            font-weight: 500;
+            color: var(--gray-900);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-info .meta {
+            font-size: 0.8rem;
+            color: var(--gray-500);
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.05rem;
+            white-space: nowrap;
+        }
+
+        .transaction-amount.credit {
+            color: var(--success);
+        }
+
+        .transaction-amount.debit {
+            color: var(--danger);
+        }
+
+        /* ===== Transfer Form ===== */
+        .transfer-form {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.8rem 2rem;
+            margin-top: 1.8rem;
+        }
+
+        .transfer-form h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin-bottom: 1.2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            transition: var(--transition);
+            background: var(--gray-50);
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+            background: white;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.2rem;
+        }
+
+        .btn {
+            padding: 0.7rem 2rem;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--gray-100);
+            color: var(--gray-700);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-200);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: 0 4px 12px rgba(15, 157, 88, 0.3);
+        }
+
+        .btn-success:hover {
+            background: #0b8043;
+            transform: translateY(-2px);
+        }
+
+        /* ===== Toast / Notification ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .toast {
+            background: var(--gray-900);
+            color: white;
+            padding: 1rem 1.6rem;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            animation: slideIn 0.35s ease;
+            max-width: 360px;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+        .toast.error {
+            background: var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== Empty state ===== */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--gray-500);
+        }
+
+        .empty-state .emoji {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 600px) {
+            header {
+                padding: 0 1rem;
+            }
+            .logo span {
+                display: none;
+            }
+            .user-area .greeting {
+                display: none;
+            }
+            .card {
+                padding: 1.2rem 1rem;
+            }
+            .transfer-form {
+                padding: 1.2rem 1rem;
+            }
+            .balance-amount {
+                font-size: 2.2rem;
+            }
+            .quick-stats {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* ===== Accessibility ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* small extra */
+        .text-center {
+            text-align: center;
+        }
+        .mt-1 {
+            margin-top: 0.5rem;
+        }
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HEADER ===== -->
+    <header>
+        <div class="logo">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                <line x1="1" y1="10" x2="23" y2="10" />
+            </svg>
+            <span>数字银行</span>
+        </div>
+        <div class="user-area">
+            <span class="greeting">欢迎回来，<strong>王小明</strong></span>
+            <div class="notification-bell" aria-label="通知">
+                🔔
+                <span class="badge" id="notifBadge">2</span>
+            </div>
+            <div class="avatar" title="个人中心">王</div>
+        </div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main>
+        <div class="dashboard">
+            <!-- 左侧：账户卡片 -->
+            <section class="card account-card" aria-label="账户概览">
+                <div class="card-header">
+                    <h2>活期账户</h2>
+                    <span class="badge">主账户</span>
+                </div>
+                <div class="account-type">个人账户</div>
+                <div class="account-number">
+                    <span id="accountNumberDisplay">**** **** **** 4829</span>
+                    <button class="mask-toggle" id="toggleMaskBtn" aria-label="切换显示完整账号">👁️</button>
+                </div>
+
+                <div class="balance-area">
+                    <span class="balance-amount" id="balanceDisplay">18,750.40</span>
+                    <span class="balance-currency">CNY</span>
+                </div>
+                <div class="balance-label">当前可用余额</div>
+
+                <div class="quick-stats">
+                    <div class="stat">
+                        <div class="label">今日收入</div>
+                        <div class="value" style="color:var(--success);">+¥1,230</div>
+                    </div>
+                    <div class="stat">
+                        <div class="label">今日支出</div>
+                        <div class="value" style="color:var(--danger);">-¥485</div>
+                    </div>
+                </div>
+
+                <div class="account-holder">
+                    <div class="holder-icon">👤</div>
+                    <div class="holder-detail">
+                        <div class="name">王小明</div>
+                        <div class="small">账户持有人 · 开户 2022-03-15</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 右侧：交易列表 -->
+            <section class="card" aria-label="交易记录">
+                <div class="card-header">
+                    <h2>最近交易</h2>
+                    <span class="badge" id="txCountBadge">6 笔</span>
+                </div>
+                <div class="transaction-filters" role="tablist" aria-label="交易过滤">
+                    <button class="active" data-filter="all" role="tab">全部</button>
+                    <button data-filter="credit" role="tab">收入</button>
+                    <button data-filter="debit" role="tab">支出</button>
+                </div>
+                <div class="transaction-list" id="transactionList" role="list">
+                    <!-- 由 JavaScript 渲染 -->
+                </div>
+            </section>
+        </div>
+
+        <!-- ===== 转账表单 ===== -->
+        <div class="transfer-form" id="transferSection">
+            <h2>💸 发起转账</h2>
+            <form id="transferForm" autocomplete="off">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="recipient">收款人</label>
+                        <input type="text" id="recipient" placeholder="姓名或账号" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">金额 (CNY)</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">交易类型</label>
+                        <select id="category">
+                            <option value="转账">转账</option>
+                            <option value="消费">消费</option>
+                            <option value="生活缴费">生活缴费</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">备注 (可选)</label>
+                        <input type="text" id="description" placeholder="例如：房租">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-secondary">重置</button>
+                    <button type="submit" class="btn btn-primary">确认转账</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- ===== Toast Container ===== -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <script>
+        // ============================================================
+        //  数据状态
+        // ============================================================
+        const state = {
+            balance: 18750.40,
+            accountNumber: '6222 0200 1888 4829',
+            masked: true,
+            transactions: [
+                { id: 'tx1', type: 'credit', amount: 5200.00, description: '工资入账', counterparty: 'XX科技有限公司',
+                    category: '薪资', date: '2025-02-01' },
+                { id: 'tx2', type: 'debit', amount: 128.50, description: '星巴克咖啡', counterparty: '星巴克(陆家嘴店)',
+                    category: '消费', date: '2025-02-02' },
+                { id: 'tx3', type: 'debit', amount: 2450.00, description: '房租转账', counterparty: '张莉', category: '转账',
+                    date: '2025-02-03' },
+                { id: 'tx4', type: 'credit', amount: 880.00, description: '项目奖金', counterparty: 'XX科技有限公司',
+                    category: '薪资', date: '2025-02-05' },
+                { id: 'tx5', type: 'debit', amount: 35.90, description: '全家便利店', counterparty: '全家(南京路店)',
+                    category: '消费', date: '2025-02-06' },
+                { id: 'tx6', type: 'debit', amount: 699.00, description: '京东购物', counterparty: '京东商城', category: '消费',
+                    date: '2025-02-07' },
+                { id: 'tx7', type: 'credit', amount: 1200.00, description: '兼职收入', counterparty: '自由职业平台',
+                    category: '其他', date: '2025-02-08' },
+            ]
+        };
+
+        // ============================================================
+        //  DOM 引用
+        // ============================================================
+        const balanceDisplay = document.getElementById('balanceDisplay');
+        const accountNumberDisplay = document.getElementById('accountNumberDisplay');
+        const toggleMaskBtn = document.getElementById('toggleMaskBtn');
+        const transactionListEl = document.getElementById('transactionList');
+        const txCountBadge = document.getElementById('txCountBadge');
+        const filterBtns = document.querySelectorAll('.transaction-filters button');
+        const transferForm = document.getElementById('transferForm');
+        const toastContainer = document.getElementById('toastContainer');
+        const notifBadge = document.getElementById('notifBadge');
+
+        let currentFilter = 'all';
+
+        // ============================================================
+        //  辅助函数
+        // ============================================================
+        function formatCurrency(amount) {
+            return amount.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function maskAccount(num) {
+            const parts = num.split(' ');
+            const last = parts[parts.length - 1];
+            return `**** **** **** ${last}`;
+        }
+
+        function unmaskAccount(num) {
+            return num;
+        }
+
+        function updateAccountDisplay() {
+            const display = state.masked ? maskAccount(state.accountNumber) : state.accountNumber;
+            accountNumberDisplay.textContent = display;
+            toggleMaskBtn.textContent = state.masked ? '👁️' : '👁️‍🗨️';
+        }
+
+        function updateBalanceDisplay() {
+            balanceDisplay.textContent = formatCurrency(state.balance);
+        }
+
+        // ============================================================
+        //  交易渲染
+        // ============================================================
+        function getFilteredTransactions() {
+            if (currentFilter === 'all') return state.transactions;
+            return state.transactions.filter(tx => tx.type === currentFilter);
+        }
+
+        function renderTransactions() {
+            const filtered = getFilteredTransactions();
+            transactionListEl.innerHTML = '';
+
+            if (filtered.length === 0) {
+                transactionListEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">📭</div>
+                            <p>暂无匹配的交易记录</p>
+                        </div>
+                    `;
+                txCountBadge.textContent = '0 笔';
+                return;
+            }
+
+            filtered.forEach(tx => {
+                const isCredit = tx.type === 'credit';
+                const icon = isCredit ? '📈' : '📉';
+                const amountClass = isCredit ? 'credit' : 'debit';
+                const sign = isCredit ? '+' : '-';
+
+                const dateObj = new Date(tx.date);
+                const dateStr = `${dateObj.getMonth()+1}/${dateObj.getDate()}`;
+
+                const div = document.createElement('div');
+                div.className = 'transaction-item';
+                div.setAttribute('role', 'listitem');
+                div.innerHTML = `
+                        <div class="transaction-icon ${tx.type}">${icon}</div>
+                        <div class="transaction-info">
+                            <div class="description">${tx.description}</div>
+                            <div class="meta">
+                                <span>${tx.counterparty}</span>
+                                <span>·</span>
+                                <span>${dateStr}</span>
+                                <span>·</span>
+                                <span>${tx.category || '一般'}</span>
+                            </div>
+                        </div>
+                        <div class="transaction-amount ${amountClass}">${sign}¥${formatCurrency(tx.amount)}</div>
+                    `;
+                transactionListEl.appendChild(div);
+            });
+
+            txCountBadge.textContent = `${filtered.length} 笔`;
+        }
+
+        // ============================================================
+        //  添加交易 (转账)
+        // ============================================================
+        function addTransaction(recipient, amount, category, description) {
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const newTx = {
+                id: 'tx' + Date.now(),
+                type: 'debit',
+                amount: amount,
+                description: description || `转账给 ${recipient}`,
+                counterparty: recipient,
+                category: category || '转账',
+                date: dateStr,
+            };
+
+            // 更新余额
+            state.balance -= amount;
+            if (state.balance < 0) {
+                // 允许透支但显示负数
+            }
+            updateBalanceDisplay();
+
+            // 添加到列表头部
+            state.transactions.unshift(newTx);
+            renderTransactions();
+
+            // 显示成功消息
+            showToast(`成功向 ${recipient} 转账 ¥${formatCurrency(amount)}`, 'success');
+
+            // 更新通知徽标 (假装有通知)
+            const currentBadge = parseInt(notifBadge.textContent, 10) || 0;
+            notifBadge.textContent = currentBadge + 1;
+        }
+
+        // ============================================================
+        //  Toast 通知
+        // ============================================================
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                    <span>${type === 'success' ? '✅' : '❌'}</span>
+                    <span>${message}</span>
+                `;
+            toastContainer.appendChild(toast);
+
+            // 3.5秒后移除
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(30px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // ============================================================
+        //  事件绑定
+        // ============================================================
+
+        // 1. 切换账号掩码
+        toggleMaskBtn.addEventListener('click', () => {
+            state.masked = !state.masked;
+            updateAccountDisplay();
+        });
+
+        // 2. 过滤交易
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderTransactions();
+            });
+        });
+
+        // 3. 转账表单提交
+        transferForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const recipient = document.getElementById('recipient').value.trim();
+            const amountStr = document.getElementById('amount').value.trim();
+            const category = document.getElementById('category').value;
+            const description = document.getElementById('description').value.trim();
+
+            if (!recipient) {
+                showToast('请输入收款人', 'error');
+                return;
+            }
+            const amount = parseFloat(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                showToast('请输入有效的转账金额', 'error');
+                return;
+            }
+            if (amount > state.balance) {
+                showToast('余额不足，无法完成转账', 'error');
+                return;
+            }
+
+            addTransaction(recipient, amount, category, description);
+
+            // 重置表单
+            transferForm.reset();
+        });
+
+        // 4. 重置按钮默认行为保留
+        // 额外：重置时清空，不需要额外处理
+
+        // ============================================================
+        //  初始化
+        // ============================================================
+        updateAccountDisplay();
+        updateBalanceDisplay();
+        renderTransactions();
+
+        // 模拟通知更新
+        setInterval(() => {
+            // 随机增加通知数量 (模拟)
+            // 但为了安静，不做频繁变化
+        }, 10000);
+
+        // 额外小功能：点击头像消息（演示）
+        document.querySelector('.avatar').addEventListener('click', () => {
+            showToast('个人中心开发中...', 'success');
+        });
+
+        console.log('🏦 数字银行界面已加载');
+    </script>
+</body>
+</html>

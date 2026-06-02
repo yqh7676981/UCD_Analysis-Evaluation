@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>探索杭州 - 人间天堂</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1a15;
+            --bg-light: #1a2e26;
+            --fg: #f5f2eb;
+            --muted: #a8b5a0;
+            --accent: #d4a855;
+            --accent-light: #e8c577;
+            --card: #1e3530;
+            --border: #2d4a42;
+            --water: #3d6b7a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+        }
+
+        .font-serif {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        /* Background Pattern */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            backdrop-filter: blur(20px);
+            background: rgba(15, 26, 21, 0.8);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .nav.scrolled {
+            padding: 0.75rem 2rem;
+            background: rgba(15, 26, 21, 0.95);
+        }
+
+        .nav-link {
+            position: relative;
+            color: var(--muted);
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(61, 107, 122, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212, 168, 85, 0.15) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg) 0%, var(--bg-light) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 12vw, 8rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--fg) 0%, var(--muted) 50%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--muted);
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            margin-bottom: 3rem;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--muted);
+            animation: float 2s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Sections */
+        .section {
+            position: relative;
+            padding: 6rem 2rem;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 60px rgba(212, 168, 85, 0.1);
+        }
+
+        .card-image {
+            height: 220px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, var(--card) 100%);
+        }
+
+        .card-image::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .card:hover .card-image::after {
+            opacity: 0.1;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .card-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(212, 168, 85, 0.15);
+            color: var(--accent);
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 20px;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* Activity Cards */
+        .activity-card {
+            background: linear-gradient(135deg, var(--card) 0%, var(--bg-light) 100%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: var(--accent);
+            transition: height 0.4s ease;
+        }
+
+        .activity-card:hover::before {
+            height: 100%;
+        }
+
+        .activity-card:hover {
+            transform: scale(1.02);
+            border-color: var(--accent);
+        }
+
+        .activity-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(212, 168, 85, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .activity-card:hover .activity-icon {
+            background: var(--accent);
+            transform: rotate(10deg);
+        }
+
+        /* Culture Section */
+        .culture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .culture-item {
+            position: relative;
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        .culture-item:hover {
+            background: var(--bg-light);
+            transform: translateX(10px);
+        }
+
+        .culture-number {
+            position: absolute;
+            top: -1rem;
+            left: 1.5rem;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--accent);
+            opacity: 0.2;
+            line-height: 1;
+        }
+
+        /* Button */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: var(--accent);
+            color: var(--bg);
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(212, 168, 85, 0.3);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: var(--fg);
+            font-weight: 500;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg);
+            border-top: 1px solid var(--border);
+            padding: 4rem 2rem 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            pointer-events: none;
+        }
+
+        /* Stats */
+        .stat-item {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        /* Tab System */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 4rem 1rem;
+            }
+
+            .hero-content {
+                padding: 1rem;
+            }
+
+            .card-image {
+                height: 180px;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- Background Pattern -->
+    <svg class="bg-pattern" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(61, 107, 122, 0.08)" stroke-width="1"/>
+            </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+    </svg>
+
+    <!-- Floating Elements -->
+    <div class="floating-element" style="width: 400px; height: 400px; background: rgba(61, 107, 122, 0.2); top: 20%; left: -10%;"></div>
+    <div class="floating-element" style="width: 300px; height: 300px; background: rgba(212, 168, 85, 0.1); top: 60%; right: -5%;"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="font-serif text-xl font-bold" style="color: var(--accent);">杭韵</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#attractions" class="nav-link">景点</a>
+                <a href="#activities" class="nav-link">活动</a>
+                <a href="#culture" class="nav-link">文化</a>
+                <a href="#stats" class="nav-link">数据</a>
+            </div>
+            <button class="btn-secondary" onclick="scrollToSection('attractions')">开始探索</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <p class="hero-subtitle reveal">江南忆，最忆是杭州</p>
+            <h1 class="hero-title font-serif reveal reveal-delay-1">探索杭州</h1>
+            <p class="text-lg mb-8 reveal reveal-delay-2" style="color: var(--muted); max-width: 600px; margin: 0 auto 2rem;">
+                千年古都，人间天堂。漫步西湖畔，品味龙井香，感受这座城市独有的诗意与风雅。
+            </p>
+            <div class="flex flex-wrap justify-center gap-4 reveal reveal-delay-3">
+                <a href="#attractions" class="btn-primary">
+                    探索景点
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+                <a href="#culture" class="btn-secondary">了解文化</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span class="text-sm" style="letter-spacing: 0.1em;">向下滚动</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Attractions Section -->
+    <section class="section" id="attractions">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="section-title font-serif reveal">风景名胜</h2>
+                <p class="mt-6 reveal reveal-delay-1" style="color: var(--muted); max-width: 600px; margin: 1.5rem auto 0;">
+                    杭州拥有众多世界级景点，每一处都承载着千年的历史与传说
+                </p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs reveal reveal-delay-2">
+                <button class="tab-btn active" data-tab="all">全部景点</button>
+                <button class="tab-btn" data-tab="nature">自然风光</button>
+                <button class="tab-btn" data-tab="history">历史古迹</button>
+                <button class="tab-btn" data-tab="culture">文化地标</button>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 reveal reveal-delay-3" id="attractions-grid">
+                <!-- Cards will be rendered by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Activities Section -->
+    <section class="section" id="activities" style="background: linear-gradient(180deg, transparent 0%, var(--bg-light) 50%, transparent 100%);">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="section-title font-serif reveal">特色活动</h2>
+                <p class="mt-6 reveal reveal-delay-1" style="color: var(--muted); max-width: 600px; margin: 1.5rem auto 0;">
+                    四季更迭，杭州总有不同的精彩等你发现
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="activity-card reveal reveal-delay-1">
+                    <div class="activity-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-serif text-xl font-bold mb-2">春季采茶体验</h3>
+                    <p style="color: var(--muted); margin-bottom: 1rem;">
+                        三四月间，龙井茶园迎来采摘季。亲手采摘明前茶，学习传统制茶工艺，品尝最新鲜的春茶。
+                    </p>
+                    <div class="flex items-center gap-4 text-sm" style="color: var(--accent);">
+                        <span>3月-4月</span>
+                        <span>|</span>
+                        <span>龙井村</span>
+                    </div>
+                </div>
+
+                <div class="activity-card reveal reveal-delay-2">
+                    <div class="activity-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                            <line x1="9" y1="9" x2="9.01" y2="9"/>
+                            <line x1="15" y1="9" x2="15.01" y2="9"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-serif text-xl font-bold mb-2">夏季荷文化节</h3>
+                    <p style="color: var(--muted); margin-bottom: 1rem;">
+                        曲院风荷，十里飘香。每年夏季举办荷文化节，赏荷、品荷、画荷，感受夏日清凉。
+                    </p>
+                    <div class="flex items-center gap-4 text-sm" style="color: var(--accent);">
+                        <span>6月-8月</span>
+                        <span>|</span>
+                        <span>曲院风荷</span>
+                    </div>
+                </div>
+
+                <div class="activity-card reveal reveal-delay-3">
+                    <div class="activity-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-serif text-xl font-bold mb-2">秋季钱塘观潮</h3>
+                    <p style="color: var(--muted); margin-bottom: 1rem;">
+                        八月十八潮，壮观天下无。钱塘江大潮举世闻名，可近距离感受大自然的磅礴气势。
+                    </p>
+                    <div class="flex items-center gap-4 text-sm" style="color: var(--accent);">
+                        <span>9月-10月</span>
+                        <span>|</span>
+                        <span>钱塘江</span>
+                    </div>
+                </div>
+
+                <div class="activity-card reveal reveal-delay-4">
+                    <div class="activity-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent);">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-serif text-xl font-bold mb-2">冬季断桥赏雪</h3>
+                    <p style="color: var(--muted); margin-bottom: 1rem;">
+                        断桥残雪是西湖十景之一。冬日雪后，漫步白堤，欣赏银装素裹的西湖美景。
+                    </p>
+                    <div class="flex items-center gap-4 text-sm" style="color: var(--accent);">
+                        <span>12月-2月</span>
+                        <span>|</span>
+                        <span>断桥</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Culture Section -->
+    <section class="section" id="culture">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <h2 class="section-title font-serif">杭州文化</h2>
+                    <p class="mt-6 mb-8" style="color: var(--muted); line-height: 1.8;">
+                        杭州是国家历史文化名城，拥有深厚的文化底蕴。从南宋皇城到现代都市，
+                        这座城市始终保持着独特的文化魅力与人文精神。
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="culture-item">
+                            <span class="culture-number font-serif">01</span>
+                            <h3 class="font-serif text-lg font-bold mb-2">丝绸文化</h3>
+                            <p style="color: var(--muted);">杭州素有"丝绸之府"美誉，丝绸织造技艺列入非遗名录，杭罗、杭纺享誉海内外。</p>
+                        </div>
+                        
+                        <div class="culture-item">
+                            <span class="culture-number font-serif">02</span>
+                            <h3 class="font-serif text-lg font-bold mb-2">茶文化</h3>
+                            <p style="color: var(--muted);">龙井茶源于杭州，是中国十大名茶之首。茶道、茶艺、茶宴构成独特的杭州茶文化。</p>
+                        </div>
+                        
+                        <div class="culture-item">
+                            <span class="culture-number font-serif">03</span>
+                            <h3 class="font-serif text-lg font-bold mb-2">南宋文化</h3>
+                            <p style="color: var(--muted);">南宋定都杭州，留下丰富的历史遗存。官窑、园林、建筑无不彰显皇家气派。</p>
+                        </div>
+                        
+                        <div class="culture-item">
+                            <span class="culture-number font-serif">04</span>
+                            <h3 class="font-serif text-lg font-bold mb-2">越剧艺术</h3>
+                            <p style="color: var(--muted);">越剧发源于浙江，杭州是重要传播地。婉转的唱腔、唯美的表演深受喜爱。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative reveal reveal-delay-2">
+                    <div class="aspect-square rounded-3xl overflow-hidden" style="background: linear-gradient(135deg, var(--card) 0%, var(--bg-light) 100%); border: 1px solid var(--border);">
+                        <div class="h-full flex flex-col items-center justify-center p-8 text-center">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color: var(--accent); opacity: 0.5;">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <h3 class="font-serif text-2xl font-bold mt-6 mb-4">非遗传承</h3>
+                            <p style="color: var(--muted);">杭州拥有国家级非遗项目<span style="color: var(--accent); font-weight: 600;"> 7 </span>项，省级<span style="color: var(--accent); font-weight: 600;"> 44 </span>项</p>
+                            <p class="text-sm mt-2" style="color: var(--muted); opacity: 0.7;">涵盖传统技艺、戏剧、医药等多个领域</p>
+                        </div>
+                    </div>
+                    <div class="absolute -top-4 -right-4 w-24 h-24 rounded-full" style="background: var(--accent); opacity: 0.1;"></div>
+                    <div class="absolute -bottom-4 -left-4 w-32 h-32 rounded-full" style="background: var(--water); opacity: 0.1;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="section" id="stats" style="background: linear-gradient(180deg, transparent 0%, var(--card) 50%, transparent 100%);">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="stat-item reveal">
+                    <div class="stat-number font-serif" data-count="3000">0</div>
+                    <p style="color: var(--muted); margin-top: 0.5rem;">年建城史</p>
+                </div>
+                <div class="stat-item reveal reveal-delay-1">
+                    <div class="stat-number font-serif" data-count="684">0</div>
+                    <p style="color: var(--muted); margin-top: 0.5rem;">平方公里市区</p>
+                </div>
+                <div class="stat-item reveal reveal-delay-2">
+                    <div class="stat-number font-serif" data-count="1200">0</div>
+                    <p style="color: var(--muted); margin-top: 0.5rem;">万常住人口</p>
+                </div>
+                <div class="stat-item reveal reveal-delay-3">
+                    <div class="stat-number font-serif" data-count="45">0</div>
+                    <p style="color: var(--muted); margin-top: 0.5rem;">A级以上景区</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h3 class="font-serif text-xl font-bold mb-4" style="color: var(--accent);">杭韵</h3>
+                    <p style="color: var(--muted);">探索杭州之美，感受江南风雅。我们致力于为您提供最全面的杭州旅游资讯。</p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">快速导航</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#attractions" style="color: var(--muted); transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">景点推荐</a></li>
+                        <li><a href="#activities" style="color: var(--muted); transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">活动安排</a></li>
+                        <li><a href="#culture" style="color: var(--muted); transition: color 0.3s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">文化探索</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">热门景点</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" style="color: var(--muted);">西湖风景区</a></li>
+                        <li><a href="#" style="color: var(--muted);">灵隐寺</a></li>
+                        <li><a href="#" style="color: var(--muted);">千岛湖</a></li>
+                        <li><a href="#" style="color: var(--muted);">西溪湿地</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">联系我们</h4>
+                    <p style="color: var(--muted);">杭州市西湖区<br>风景区游客中心</p>
+                    <p class="mt-2" style="color: var(--accent);">tourism@hangzhou.cn</p>
+                </div>
+            </div>
+            <div class="pt-8 border-t" style="border-color: var(--border); text-align: center;">
+                <p style="color: var(--muted);">探索杭州 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data
+        const attractions = [
+            {
+                name: '西湖',
+                desc: '世界文化遗产，中国十大风景名胜之一，湖光山色，四季皆美。',
+                category: 'nature',
+                tag: '世界遗产',
+                image: 'linear-gradient(135deg, #3d6b7a 0%, #1a2e26 100%)'
+            },
+            {
+                name: '灵隐寺',
+                desc: '江南著名古刹，始建于东晋，佛教禅宗十大古刹之一。',
+                category: 'history',
+                tag: '千年古刹',
+                image: 'linear-gradient(135deg, #d4a855 0%, #1e3530 100%)'
+            },
+            {
+                name: '雷峰塔',
+                desc: '西湖标志性建筑，因白娘子传说闻名天下，登塔可俯瞰西湖全景。',
+                category: 'history',
+                tag: '传说故地',
+                image: 'linear-gradient(135deg, #a8b5a0 0%, #0f1a15 100%)'
+            },
+            {
+                name: '西溪湿地',
+                desc: '国家湿地公园，城市绿肺，乘摇橹船穿行于芦苇丛中。',
+                category: 'nature',
+                tag: '生态湿地',
+                image: 'linear-gradient(135deg, #2d4a42 0%, #1a2e26 100%)'
+            },
+            {
+                name: '宋城',
+                desc: '大型主题公园，再现宋代市井风貌，有"给我一天，还你千年"之称。',
+                category: 'culture',
+                tag: '主题乐园',
+                image: 'linear-gradient(135deg, #d4a855 0%, #3d6b7a 100%)'
+            },
+            {
+                name: '中国丝绸博物馆',
+                desc: '国家级博物馆，展示中国丝绸历史与技艺，感受丝绸之府魅力。',
+                category: 'culture',
+                tag: '丝绸文化',
+                image: 'linear-gradient(135deg, #e8c577 0%, #1e3530 100%)'
+            }
+        ];
+
+        // Render attractions
+        function renderAttractions(filter = 'all') {
+            const grid = document.getElementById('attractions-grid');
+            const filtered = filter === 'all' 
+                ? attractions 
+                : attractions.filter(a => a.category === filter);
+            
+            grid.innerHTML = filtered.map((item, index) => `
+                <div class="card" style="animation: fadeIn 0.5s ease ${index * 0.1}s both;">
+                    <div class="card-image" style="background: ${item.image};">
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <span class="card-tag">${item.tag}</span>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="font-serif text-xl font-bold mb-2">${item.name}</h3>
+                        <p style="color: var(--muted); font-size: 0.9rem; line-height: 1.6;">${item.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Tab functionality
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderAttractions(btn.dataset.tab);
+            });
+        });
+
+        // Scroll reveal
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('[data-count]');
+            counters.forEach(counter => {
+                const target = parseInt(counter.dataset.count);
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) {
+                        counter.textContent = target.toLocaleString();
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current).toLocaleString();
+                    }
+                }, 16);
+            });
+        }
+
+        // Observe stats section
+        const statsSection = document.getElementById('stats');
+        const statsObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                animateCounters();
+                statsObserver.disconnect();
+            }
+        }, { threshold: 0.5 });
+        statsObserver.observe(statsSection);
+
+        // Navigation scroll effect
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('nav');
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+            
+            lastScroll = currentScroll;
+        });
+
+        // Scroll to section
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initialize
+        renderAttractions();
+    </script>
+</body>
+</html>

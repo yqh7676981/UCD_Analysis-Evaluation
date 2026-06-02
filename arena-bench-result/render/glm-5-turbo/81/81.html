@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parlez - 法语学习助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0f0d0b;
+            --bg2: #1a1714;
+            --card: #221e19;
+            --card-hover: #2c2620;
+            --accent: #c8a44e;
+            --accent-light: #e0c572;
+            --accent-dim: #8a7030;
+            --fg: #f0e8d8;
+            --fg-dim: #a89a82;
+            --muted: #6b5f4f;
+            --border: #3a3228;
+            --success: #5cb85c;
+            --error: #d9534f;
+            --info: #5bc0de;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-display { font-family: 'Playfair Display', serif; }
+
+        /* 背景装饰 */
+        .bg-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-glow-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(200,164,78,0.08), transparent 70%);
+            top: -100px; right: -100px;
+        }
+        .bg-glow-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(200,164,78,0.05), transparent 70%);
+            bottom: -50px; left: -100px;
+        }
+        .bg-glow-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(140,100,40,0.06), transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* 导航栏 */
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem;
+            color: var(--fg-dim);
+            transition: color 0.3s;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: none;
+            background: none;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--accent-light); }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 50%; transform: translateX(-50%);
+            width: 24px; height: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+
+        /* 卡片 */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            background: var(--card-hover);
+            border-color: var(--accent-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(200,164,78,0.06);
+        }
+
+        /* 翻转卡片 */
+        .flip-card { perspective: 1000px; cursor: pointer; }
+        .flip-card-inner {
+            position: relative;
+            width: 100%; height: 100%;
+            transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%; height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .flip-card-front {
+            background: linear-gradient(145deg, var(--card), #2a2418);
+            border: 1px solid var(--border);
+        }
+        .flip-card-back {
+            background: linear-gradient(145deg, #2a2418, var(--card));
+            border: 1px solid var(--accent-dim);
+            transform: rotateY(180deg);
+        }
+
+        /* 按钮 */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            color: #1a1714;
+            font-weight: 700;
+            padding: 0.75rem 2rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-light), var(--accent));
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(200,164,78,0.3);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent-dim);
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        .btn-secondary:hover {
+            background: rgba(200,164,78,0.1);
+            border-color: var(--accent);
+        }
+
+        /* 选项按钮 */
+        .option-btn {
+            background: var(--card);
+            border: 2px solid var(--border);
+            color: var(--fg);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            text-align: left;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .option-btn:hover:not(.disabled) {
+            border-color: var(--accent);
+            background: rgba(200,164,78,0.08);
+        }
+        .option-btn.correct {
+            border-color: var(--success);
+            background: rgba(92,184,92,0.15);
+            color: var(--success);
+        }
+        .option-btn.wrong {
+            border-color: var(--error);
+            background: rgba(217,83,79,0.15);
+            color: var(--error);
+        }
+        .option-btn.disabled { pointer-events: none; opacity: 0.7; }
+
+        /* 进度条 */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+
+        /* 分类标签 */
+        .category-tag {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        .category-tag.active {
+            background: rgba(200,164,78,0.2);
+            color: var(--accent-light);
+            border-color: var(--accent-dim);
+        }
+        .category-tag:not(.active) {
+            background: rgba(107,95,79,0.2);
+            color: var(--fg-dim);
+        }
+        .category-tag:hover:not(.active) {
+            background: rgba(107,95,79,0.35);
+        }
+
+        /* Toast通知 */
+        .toast-container {
+            position: fixed;
+            top: 80px; right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 250px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .toast-success { background: rgba(92,184,92,0.9); color: #fff; }
+        .toast-error { background: rgba(217,83,79,0.9); color: #fff; }
+        .toast-info { background: rgba(200,164,78,0.9); color: #1a1714; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* 输入框 */
+        .input-field {
+            background: var(--bg2);
+            border: 2px solid var(--border);
+            color: var(--fg);
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 100%;
+            transition: border-color 0.3s;
+            outline: none;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        .input-field:focus { border-color: var(--accent); }
+        .input-field.correct { border-color: var(--success); }
+        .input-field.wrong { border-color: var(--error); }
+
+        /* 统计卡片 */
+        .stat-card {
+            background: linear-gradient(145deg, var(--card), rgba(200,164,78,0.05));
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--accent-light);
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 语法规则卡 */
+        .grammar-rule {
+            background: var(--card);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 12px 12px 0;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 例句高亮 */
+        .highlight { color: var(--accent-light); font-weight: 600; }
+        .highlight-green { color: var(--success); font-weight: 600; }
+        .highlight-red { color: var(--error); font-weight: 600; }
+
+        /* 页面切换动画 */
+        .page { display: none; animation: pageIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 浮动粒子 */
+        .particle {
+            position: fixed;
+            width: 3px; height: 3px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 0;
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .nav-link { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+            .stat-number { font-size: 1.5rem; }
+        }
+
+        /* 减少动画偏好 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* 填空题下划线 */
+        .blank-line {
+            display: inline-block;
+            min-width: 80px;
+            border-bottom: 2px dashed var(--accent-dim);
+            padding: 0 4px;
+            color: var(--accent-light);
+            font-weight: 600;
+        }
+
+        /* 连击效果 */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            background: linear-gradient(135deg, rgba(200,164,78,0.2), rgba(200,164,78,0.05));
+            border: 1px solid var(--accent-dim);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--accent-light);
+        }
+
+        .conjugation-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .conjugation-table th {
+            background: rgba(200,164,78,0.15);
+            color: var(--accent-light);
+            padding: 0.7rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .conjugation-table td {
+            padding: 0.6rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        .conjugation-table tr:last-child td { border-bottom: none; }
+        .conjugation-table tr:hover td { background: rgba(200,164,78,0.04); }
+    </style>
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 导航栏 -->
+    <header style="position:sticky;top:0;z-index:100;background:rgba(15,13,11,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);">
+        <div style="max-width:1200px;margin:0 auto;padding:0.8rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+                <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent-dim));border-radius:10px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-language" style="color:#1a1714;font-size:1rem;"></i>
+                </div>
+                <span class="font-display" style="font-size:1.4rem;font-weight:700;color:var(--accent-light);">Parlez</span>
+            </div>
+            <nav style="display:flex;gap:0.25rem;align-items:center;" id="mainNav">
+                <button class="nav-link active" data-page="vocab" aria-label="词汇学习">
+                    <i class="fas fa-book-open" style="margin-right:4px;"></i>词汇
+                </button>
+                <button class="nav-link" data-page="grammar" aria-label="语法练习">
+                    <i class="fas fa-pen-nib" style="margin-right:4px;"></i>语法
+                </button>
+                <button class="nav-link" data-page="quiz" aria-label="互动测验">
+                    <i class="fas fa-gamepad" style="margin-right:4px;"></i>测验
+                </button>
+                <button class="nav-link" data-page="stats" aria-label="学习统计">
+                    <i class="fas fa-chart-line" style="margin-right:4px;"></i>统计
+                </button>
+            </nav>
+            <div class="streak-badge" id="streakBadge">
+                <i class="fas fa-fire"></i>
+                <span id="streakCount">0</span> 连击
+            </div>
+        </div>
+    </header>
+
+    <main style="max-width:1200px;margin:0 auto;padding:2rem 1.5rem;position:relative;z-index:1;">
+
+        <!-- ========== 词汇学习页 ========== -->
+        <section class="page active" id="pageVocab">
+            <div style="margin-bottom:2rem;">
+                <h1 class="font-display" style="font-size:2.5rem;font-weight:900;color:var(--fg);margin-bottom:0.5rem;">
+                    Vocabulaire <span style="color:var(--accent);">词汇</span>
+                </h1>
+                <p style="color:var(--fg-dim);font-size:1.05rem;">点击卡片翻转查看释义，掌握日常法语词汇</p>
+            </div>
+
+            <!-- 分类筛选 -->
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1.5rem;" id="vocabCategories">
+                <span class="category-tag active" data-cat="all">全部</span>
+                <span class="category-tag" data-cat="greetings">问候</span>
+                <span class="category-tag" data-cat="food">食物</span>
+                <span class="category-tag" data-cat="travel">旅行</span>
+                <span class="category-tag" data-cat="daily">日常</span>
+                <span class="category-tag" data-cat="nature">自然</span>
+            </div>
+
+            <!-- 词汇卡片网格 -->
+            <div id="vocabGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;"></div>
+
+            <!-- 词汇量统计 -->
+            <div style="margin-top:2rem;display:flex;align-items:center;gap:1rem;">
+                <div class="progress-bar" style="flex:1;">
+                    <div class="progress-fill" id="vocabProgress" style="width:0%;"></div>
+                </div>
+                <span style="color:var(--fg-dim);font-size:0.85rem;" id="vocabProgressText">0 / 0 已学习</span>
+            </div>
+        </section>
+
+        <!-- ========== 语法练习页 ========== -->
+        <section class="page" id="pageGrammar">
+            <div style="margin-bottom:2rem;">
+                <h1 class="font-display" style="font-size:2.5rem;font-weight:900;color:var(--fg);margin-bottom:0.5rem;">
+                    Grammaire <span style="color:var(--accent);">语法</span>
+                </h1>
+                <p style="color:var(--fg-dim);font-size:1.05rem;">通过填空和选择练习巩固法语语法规则</p>
+            </div>
+
+            <!-- 语法规则速查 -->
+            <div style="margin-bottom:2rem;">
+                <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+                    <i class="fas fa-lightbulb" style="color:var(--accent);"></i> 语法速查
+                </h2>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem;" id="grammarRefGrid"></div>
+            </div>
+
+            <!-- 语法练习题 -->
+            <div>
+                <h2 style="font-size:1.2rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+                    <i class="fas fa-pencil-alt" style="color:var(--accent);"></i> 语法练习
+                </h2>
+                <div id="grammarExercise"></div>
+            </div>
+        </section>
+
+        <!-- ========== 互动测验页 ========== -->
+        <section class="page" id="pageQuiz">
+            <div style="margin-bottom:2rem;">
+                <h1 class="font-display" style="font-size:2.5rem;font-weight:900;color:var(--fg);margin-bottom:0.5rem;">
+                    Quiz <span style="color:var(--accent);">测验</span>
+                </h1>
+                <p style="color:var(--fg-dim);font-size:1.05rem;">挑战自己，看看你对法语掌握了多少</p>
+            </div>
+
+            <!-- 测验模式选择 -->
+            <div id="quizStart" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;">
+                <div class="card" style="cursor:pointer;text-align:center;" onclick="startQuiz('fr2zh')">
+                    <div style="font-size:2.5rem;margin-bottom:0.8rem;">🇫🇷 → 🇨🇳</div>
+                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">法译中</h3>
+                    <p style="color:var(--fg-dim);font-size:0.85rem;">看法语单词，选择正确的中文释义</p>
+                </div>
+                <div class="card" style="cursor:pointer;text-align:center;" onclick="startQuiz('zh2fr')">
+                    <div style="font-size:2.5rem;margin-bottom:0.8rem;">🇨🇳 → 🇫🇷</div>
+                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">中译法</h3>
+                    <p style="color:var(--fg-dim);font-size:0.85rem;">看中文释义，选择正确的法语单词</p>
+                </div>
+                <div class="card" style="cursor:pointer;text-align:center;" onclick="startQuiz('listening')">
+                    <div style="font-size:2.5rem;margin-bottom:0.8rem;">🎧 ✏️</div>
+                    <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem;">听写模式</h3>
+                    <p style="color:var(--fg-dim);font-size:0.85rem;">听法语发音，拼写出正确的单词</p>
+                </div>
+            </div>
+
+            <!-- 测验进行中 -->
+            <div id="quizPlay" style="display:none;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <span style="color:var(--fg-dim);font-size:0.9rem;" id="quizCounter">1 / 10</span>
+                        <div class="progress-bar" style="width:200px;">
+                            <div class="progress-fill" id="quizProgress" style="width:10%;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <span style="color:var(--success);font-size:0.9rem;" id="quizScore"><i class="fas fa-check"></i> 0</span>
+                        <button class="btn-secondary" onclick="endQuiz()" style="padding:0.4rem 1rem;font-size:0.85rem;">
+                            <i class="fas fa-times"></i> 退出
+                        </button>
+                    </div>
+                </div>
+                <div class="card" style="padding:2.5rem;text-align:center;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;" id="quizCard"></div>
+            </div>
+
+            <!-- 测验结果 -->
+            <div id="quizResult" style="display:none;text-align:center;">
+                <div class="card" style="padding:3rem;max-width:500px;margin:0 auto;">
+                    <div style="font-size:4rem;margin-bottom:1rem;" id="resultEmoji"></div>
+                    <h2 class="font-display" style="font-size:2rem;font-weight:900;margin-bottom:0.5rem;" id="resultTitle"></h2>
+                    <p style="color:var(--fg-dim);margin-bottom:1.5rem;" id="resultDesc"></p>
+                    <div style="display:flex;justify-content:center;gap:2rem;margin-bottom:2rem;">
+                        <div>
+                            <div class="stat-number" id="resultCorrect">0</div>
+                            <div style="color:var(--fg-dim);font-size:0.85rem;">正确</div>
+                        </div>
+                        <div>
+                            <div class="stat-number" style="color:var(--error);" id="resultWrong">0</div>
+                            <div style="color:var(--fg-dim);font-size:0.85rem;">错误</div>
+                        </div>
+                        <div>
+                            <div class="stat-number" style="color:var(--info);" id="resultAccuracy">0%</div>
+                            <div style="color:var(--fg-dim);font-size:0.85rem;">正确率</div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="resetQuiz()">再来一次</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== 学习统计页 ========== -->
+        <section class="page" id="pageStats">
+            <div style="margin-bottom:2rem;">
+                <h1 class="font-display" style="font-size:2.5rem;font-weight:900;color:var(--fg);margin-bottom:0.5rem;">
+                    Progres <span style="color:var(--accent);">进度</span>
+                </h1>
+                <p style="color:var(--fg-dim);font-size:1.05rem;">追踪你的法语学习之旅</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:2rem;">
+                <div class="stat-card">
+                    <div style="color:var(--fg-dim);font-size:0.8rem;margin-bottom:0.3rem;">已学词汇</div>
+                    <div class="stat-number" id="statVocab">0</div>
+                </div>
+                <div class="stat-card">
+                    <div style="color:var(--fg-dim);font-size:0.8rem;margin-bottom:0.3rem;">语法练习</div>
+                    <div class="stat-number" id="statGrammar">0</div>
+                </div>
+                <div class="stat-card">
+                    <div style="color:var(--fg-dim);font-size:0.8rem;margin-bottom:0.3rem;">测验次数</div>
+                    <div class="stat-number" id="statQuiz">0</div>
+                </div>
+                <div class="stat-card">
+                    <div style="color:var(--fg-dim);font-size:0.8rem;margin-bottom:0.3rem;">最高连击</div>
+                    <div class="stat-number" id="statStreak">0</div>
+                </div>
+            </div>
+
+            <!-- 正确率图表 -->
+            <div class="card" style="margin-bottom:2rem;">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">
+                    <i class="fas fa-chart-bar" style="color:var(--accent);margin-right:0.5rem;"></i>最近测验正确率
+                </h3>
+                <canvas id="accuracyChart" height="200"></canvas>
+                <p id="noChartData" style="color:var(--fg-dim);text-align:center;padding:2rem;display:none;">完成测验后这里会显示你的成绩趋势</p>
+            </div>
+
+            <!-- 词汇掌握度 -->
+            <div class="card">
+                <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;">
+                    <i class="fas fa-brain" style="color:var(--accent);margin-right:0.5rem;"></i>词汇掌握度
+                </h3>
+                <div id="masteryList"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="text-align:center;padding:2rem;color:var(--muted);font-size:0.8rem;border-top:1px solid var(--border);margin-top:3rem;position:relative;z-index:1;">
+        Parlez - 法语学习助手 | Bonne chance pour votre apprentissage
+    </footer>
+
+    <script>
+    // ==================== 数据 ====================
+
+    // 词汇数据
+    const vocabulary = [
+        // 问候
+        { fr: "Bonjour", zh: "你好", pron: "bɔ̃ʒuʁ", cat: "greetings", example: "Bonjour, comment allez-vous?" },
+        { fr: "Bonsoir", zh: "晚上好", pron: "bɔ̃swaʁ", cat: "greetings", example: "Bonsoir, madame." },
+        { fr: "Salut", zh: "嗨", pron: "saly", cat: "greetings", example: "Salut, ça va?" },
+        { fr: "Merci", zh: "谢谢", pron: "mɛʁsi", cat: "greetings", example: "Merci beaucoup!" },
+        { fr: "Au revoir", zh: "再见", pron: "oʁəvwaʁ", cat: "greetings", example: "Au revoir et bonne journée!" },
+        { fr: "S'il vous plaît", zh: "请", pron: "silvuplɛ", cat: "greetings", example: "Un café, s'il vous plaît." },
+        { fr: "Excusez-moi", zh: "对不起/打扰了", pron: "ɛkskyzemu̯a", cat: "greetings", example: "Excusez-moi, où est la gare?" },
+        { fr: "Bienvenue", zh: "欢迎", pron: "bjɛ̃vəny", cat: "greetings", example: "Bienvenue en France!" },
+        // 食物
+        { fr: "Le pain", zh: "面包", pron: "lə pɛ̃", cat: "food", example: "Je voudrais du pain." },
+        { fr: "Le fromage", zh: "奶酪", pron: "lə fʁɔmaʒ", cat: "food", example: "Le fromage français est délicieux." },
+        { fr: "Le vin", zh: "葡萄酒", pron: "lə vɛ̃", cat: "food", example: "Un verre de vin rouge, s'il vous plaît." },
+        { fr: "L'eau", zh: "水", pron: "lo", cat: "food", example: "Une bouteille d'eau minérale." },
+        { fr: "Le café", zh: "咖啡", pron: "lə kafe", cat: "food", example: "Je prends un café le matin." },
+        { fr: "La croissant", zh: "牛角面包", pron: "la kʁwasɑ̃", cat: "food", example: "Un croissant au beurre." },
+        { fr: "La pomme", zh: "苹果", pron: "la pɔm", cat: "food", example: "Je mange une pomme." },
+        { fr: "Le poulet", zh: "鸡肉", pron: "lə pulɛ", cat: "food", example: "Le poulet rôti est prêt." },
+        // 旅行
+        { fr: "La gare", zh: "火车站", pron: "la ɡaʁ", cat: "travel", example: "La gare est loin d'ici." },
+        { fr: "L'aéroport", zh: "机场", pron: "laeʁɔpɔʁ", cat: "travel", example: "Allons à l'aéroport." },
+        { fr: "L'hôtel", zh: "酒店", pron: "lotɛl", cat: "travel", example: "J'ai réservé un hôtel." },
+        { fr: "Le billet", zh: "票", pron: "lə bijɛ", cat: "travel", example: "Un billet aller-retour." },
+        { fr: "La rue", zh: "街道", pron: "la ʁy", cat: "travel", example: "La rue est très animée." },
+        { fr: "Le musée", zh: "博物馆", pron: "lə myze", cat: "travel", example: "Le musée est fermé le lundi." },
+        { fr: "La plage", zh: "海滩", pron: "la plaʒ", cat: "travel", example: "Allons à la plage!" },
+        { fr: "Le voyage", zh: "旅行", pron: "lə vɔajaʒ", cat: "travel", example: "Bon voyage!" },
+        // 日常
+        { fr: "La maison", zh: "房子/家", pron: "la mɛzɔ̃", cat: "daily", example: "Ma maison est grande." },
+        { fr: "Le travail", zh: "工作", pron: "lə tʁavaj", cat: "daily", example: "Je vais au travail." },
+        { fr: "L'amour", zh: "爱", pron: "lamuʁ", cat: "daily", example: "L'amour est beau." },
+        { fr: "Le livre", zh: "书", pron: "lə livʁ", cat: "daily", example: "Je lis un livre." },
+        { fr: "L'ami", zh: "朋友", pron: "lami", cat: "daily", example: "C'est mon meilleur ami." },
+        { fr: "La famille", zh: "家庭", pron: "la famij", cat: "daily", example: "J'aime ma famille." },
+        { fr: "Le temps", zh: "时间/天气", pron: "lə tɑ̃", cat: "daily", example: "Quel temps fait-il?" },
+        { fr: "Le jour", zh: "天/日", pron: "lə ʒuʁ", cat: "daily", example: "C'est un beau jour." },
+        // 自然
+        { fr: "Le soleil", zh: "太阳", pron: "lə sɔlɛj", cat: "nature", example: "Le soleil brille." },
+        { fr: "La lune", zh: "月亮", pron: "la lyn", cat: "nature", example: "La lune est pleine." },
+        { fr: "La mer", zh: "海", pron: "la mɛʁ", cat: "nature", example: "La mer est calme." },
+        { fr: "La montagne", zh: "山", pron: "la mɔ̃taɲ", cat: "nature", example: "La montagne est haute." },
+        { fr: "La fleur", zh: "花", pron: "la flœʁ", cat: "nature", example: "Cette fleur est belle." },
+        { fr: "L'arbre", zh: "树", pron: "laʁbʁ", cat: "nature", example: "L'arbre est très vieux." },
+        { fr: "Le ciel", zh: "天空", pron: "lə sjɛl", cat: "nature", example: "Le ciel est bleu." },
+        { fr: "La rivière", zh: "河流", pron: "la ʁivjɛʁ", cat: "nature", example: "La rivière coule doucement." },
+    ];
+
+    // 语法参考数据
+    const grammarRef = [
+        {
+            title: "冠词 Articles",
+            rules: [
+                { label: "定冠词", content: "le / la / les (the)", note: "表示特定事物" },
+                { label: "不定冠词", content: "un / une / des (a/some)", note: "表示泛指事物" },
+                { label: "部分冠词", content: "du / de la / de l' / des (some)", note: "表示不可数的一部分" },
+            ],
+            example: "Le chat mange <span class='highlight'>du</span> poisson. (猫吃<span class='highlight'>一些</span>鱼。)"
+        },
+        {
+            title: "名词性别 Genre",
+            rules: [
+                { label: "阳性", content: "le / un", note: "如: le livre (书)" },
+                { label: "阴性", content: "la / une", note: "如: la pomme (苹果)" },
+                { label: "词尾提示", content: "-tion, -ment(阳), -eur(阳), -esse(阴)", note: "有例外，需记忆" },
+            ],
+            example: "<span class='highlight'>La</span> maison est grande. <span class='highlight'>Le</span> jardin est petit."
+        },
+        {
+            title: "动词变位 Conjugaison",
+            rules: [
+                { label: "-er动词", content: "je -e, tu -es, il -e, nous -ons, vous -ez, ils -ent", note: "最大类动词" },
+                { label: "-ir动词", content: "je -is, tu -is, il -it, nous -issons, vous -issez, ils -issent", note: "如: finir" },
+                { label: "-re动词", content: "je -s, tu -s, il -, nous -ons, vous -ez, ils -ent", note: "如: vendre" },
+            ],
+            example: "Je <span class='highlight'>parle</span>, tu <span class='highlight'>parles</span>, il <span class='highlight'>parle</span>, nous <span class='highlight'>parlons</span>"
+        },
+        {
+            title: "形容词配合 Accord",
+            rules: [
+                { label: "阳性→阴性", content: "一般加-e", note: "petit → petite" },
+                { label: "单数→复数", content: "一般加-s", note: "petit → petits" },
+                { label: "特殊变化", content: "-eur→-euse, -eux→-euse", note: "heureux → heureuse" },
+            ],
+            example: "Un garçon <span class='highlight'>petit</span> → Une fille <span class='highlight'>petite</span>"
+        }
+    ];
+
+    // 语法练习题
+    const grammarExercises = [
+        {
+            type: "fill",
+            question: "选择正确的冠词：___ maison est grande.",
+            options: ["Le", "La", "Les", "Un"],
+            answer: 1,
+            explanation: "maison 是阴性名词，所以用 La。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的冠词：Je voudrais ___ café.",
+            options: ["le", "la", "un", "une"],
+            answer: 2,
+            explanation: "café 是阳性名词，这里表示\"一杯咖啡\"，用不定冠词 un。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的形容词：Marie est très ___ (heureux).",
+            options: ["heureux", "heureuse", "heureuses", "heureuxs"],
+            answer: 1,
+            explanation: "Marie 是女性，heureux 的阴性形式是 heureuse。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的动词形式：Nous ___ français. (parler)",
+            options: ["parle", "parles", "parlons", "parlent"],
+            answer: 2,
+            explanation: "nous 后面用动词第一人称复数形式 parlons。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的动词形式：Il ___ au travail. (aller)",
+            options: ["va", "vas", "vont", "allez"],
+            answer: 0,
+            explanation: "il 后面用 aller 的第三人称单数形式 va。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的冠词：Il y a ___ fleurs dans le jardin.",
+            options: ["les", "des", "un", "la"],
+            answer: 1,
+            explanation: "复数不定冠词 des 表示\"一些花\"。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的形容词：Les ___ (petit) chats sont mignons.",
+            options: ["petit", "petite", "petits", "petites"],
+            answer: 2,
+            explanation: "chats 是阳性复数，所以 petits 加 -s。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的动词形式：Tu ___ un livre. (lire)",
+            options: ["lis", "lit", "lisons", "lisez"],
+            answer: 0,
+            explanation: "tu 后面用 lire 的第二人称单数形式 lis。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的代词：___ est mon amie. (she)",
+            options: ["Il", "Elle", "On", "Nous"],
+            answer: 1,
+            explanation: "她 对应的法语主语代词是 Elle。"
+        },
+        {
+            type: "fill",
+            question: "选择正确的否定形式：Je ___ anglais. (不说)",
+            options: ["ne parle pas", "parle ne pas", "ne pas parle", "pas parle ne"],
+            answer: 0,
+            explanation: "法语否定结构：ne + 动词 + pas。"
+        }
+    ];
+
+    // ==================== 状态管理 ====================
+
+    let state = {
+        currentPage: 'vocab',
+        vocabFilter: 'all',
+        learnedVocab: new Set(),
+        grammarCompleted: new Set(),
+        quizHistory: [],
+        streak: 0,
+        maxStreak: 0,
+        // 测验状态
+        quizMode: null,
+        quizQuestions: [],
+        quizIndex: 0,
+        quizCorrect: 0,
+        quizWrong: 0,
+        quizAnswered: false,
+    };
+
+    // 从localStorage恢复
+    function loadState() {
+        try {
+            const saved = localStorage.getItem('parlez_state');
+            if (saved) {
+                const s = JSON.parse(saved);
+                state.learnedVocab = new Set(s.learnedVocab || []);
+                state.grammarCompleted = new Set(s.grammarCompleted || []);
+                state.quizHistory = s.quizHistory || [];
+                state.maxStreak = s.maxStreak || 0;
+            }
+        } catch(e) {}
+    }
+
+    function saveState() {
+        try {
+            localStorage.setItem('parlez_state', JSON.stringify({
+                learnedVocab: [...state.learnedVocab],
+                grammarCompleted: [...state.grammarCompleted],
+                quizHistory: state.quizHistory,
+                maxStreak: state.maxStreak,
+            }));
+        } catch(e) {}
+    }
+
+    // ==================== 工具函数 ====================
+
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+        toast.innerHTML = `<i class="fas ${icons[type]}"></i> ${message}`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    // ==================== 导航 ====================
+
+    document.querySelectorAll('.nav-link').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const page = btn.dataset.page;
+            switchPage(page);
+        });
+    });
+
+    function switchPage(page) {
+        state.currentPage = page;
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+        document.querySelectorAll('.page').forEach(p => {
+            p.classList.remove('active');
+        });
+        const pageMap = { vocab: 'pageVocab', grammar: 'pageGrammar', quiz: 'pageQuiz', stats: 'pageStats' };
+        const el = document.getElementById(pageMap[page]);
+        if (el) {
+            el.classList.add('active');
+        }
+        if (page === 'stats') renderStats();
+        if (page === 'grammar') renderGrammar();
+    }
+
+    // ==================== 词汇模块 ====================
+
+    function renderVocab() {
+        const grid = document.getElementById('vocabGrid');
+        const filtered = state.vocabFilter === 'all' ? vocabulary : vocabulary.filter(v => v.cat === state.vocabFilter);
+
+        grid.innerHTML = filtered.map((v, i) => {
+            const learned = state.learnedVocab.has(v.fr);
+            return `
+                <div class="flip-card ${learned ? 'flipped' : ''}" data-fr="${v.fr}" style="height:200px;" onclick="flipCard(this, '${v.fr}')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div style="font-size:0.7rem;color:var(--accent-dim);margin-bottom:0.3rem;text-transform:uppercase;">${getCatLabel(v.cat)}</div>
+                            <div class="font-display" style="font-size:1.5rem;font-weight:700;margin-bottom:0.4rem;">${v.fr}</div>
+                            <div style="color:var(--fg-dim);font-size:0.85rem;">[${v.pron}]</div>
+                            <div style="margin-top:auto;font-size:0.75rem;color:var(--muted);">点击翻转</div>
+                        </div>
+                        <div class="flip-card-back">
+                            <div style="font-size:0.7rem;color:var(--accent-dim);margin-bottom:0.3rem;">释义</div>
+                            <div style="font-size:1.3rem;font-weight:700;margin-bottom:0.6rem;">${v.zh}</div>
+                            <div style="color:var(--fg-dim);font-size:0.8rem;font-style:italic;line-height:1.4;">${v.example}</div>
+                            <div style="margin-top:auto;display:flex;gap:0.5rem;">
+                                <button class="btn-secondary" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="event.stopPropagation();speakFrench('${v.fr}')">
+                                    <i class="fas fa-volume-up"></i> 发音
+                                </button>
+                                ${learned ? '<span style="color:var(--success);font-size:0.8rem;display:flex;align-items:center;gap:0.3rem;"><i class="fas fa-check-circle"></i>已学</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        updateVocabProgress();
+    }
+
+    function getCatLabel(cat) {
+        const labels = { greetings: '问候', food: '食物', travel: '旅行', daily: '日常', nature: '自然' };
+        return labels[cat] || cat;
+    }
+
+    function flipCard(el, fr) {
+        el.classList.toggle('flipped');
+        if (el.classList.contains('flipped')) {
+            state.learnedVocab.add(fr);
+            saveState();
+            updateVocabProgress();
+            // 更新卡片上的"已学"标记
+            const back = el.querySelector('.flip-card-back');
+            const btnArea = back.querySelector('div:last-child');
+            if (!btnArea.querySelector('.fa-check-circle')) {
+                const span = document.createElement('span');
+                span.style.cssText = 'color:var(--success);font-size:0.8rem;display:flex;align-items:center;gap:0.3rem;';
+                span.innerHTML = '<i class="fas fa-check-circle"></i>已学';
+                btnArea.appendChild(span);
+            }
+        }
+    }
+
+    function speakFrench(text) {
+        if ('speechSynthesis' in window) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'fr-FR';
+            u.rate = 0.85;
+            speechSynthesis.speak(u);
+        } else {
+            showToast('您的浏览器不支持语音合成', 'error');
+        }
+    }
+
+    function updateVocabProgress() {
+        const total = vocabulary.length;
+        const learned = state.learnedVocab.size;
+        const pct = Math.round((learned / total) * 100);
+        document.getElementById('vocabProgress').style.width = pct + '%';
+        document.getElementById('vocabProgressText').textContent = `${learned} / ${total} 已学习`;
+    }
+
+    // 分类筛选
+    document.getElementById('vocabCategories').addEventListener('click', (e) => {
+        const tag = e.target.closest('.category-tag');
+        if (!tag) return;
+        state.vocabFilter = tag.dataset.cat;
+        document.querySelectorAll('#vocabCategories .category-tag').forEach(t => t.classList.toggle('active', t === tag));
+        renderVocab();
+    });
+
+    // ==================== 语法模块 ====================
+
+    function renderGrammar() {
+        // 渲染语法参考
+        const refGrid = document.getElementById('grammarRefGrid');
+        refGrid.innerHTML = grammarRef.map((g, gi) => `
+            <div class="card">
+                <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.8rem;color:var(--accent-light);">
+                    <i class="fas fa-book" style="margin-right:0.4rem;"></i>${g.title}
+                </h3>
+                ${g.rules.map(r => `
+                    <div class="grammar-rule">
+                        <div style="font-weight:600;font-size:0.9rem;">${r.label}</div>
+                        <div style="color:var(--fg-dim);font-size:0.85rem;margin-top:0.2rem;">${r.content}</div>
+                        <div style="color:var(--muted);font-size:0.75rem;margin-top:0.2rem;">${r.note}</div>
+                    </div>
+                `).join('')}
+                <div style="margin-top:0.8rem;padding:0.6rem 0.8rem;background:rgba(200,164,78,0.06);border-radius:8px;font-size:0.85rem;">
+                    ${g.example}
+                </div>
+            </div>
+        `).join('');
+
+        // 渲染练习题
+        renderGrammarExercises();
+    }
+
+    function renderGrammarExercises() {
+        const container = document.getElementById('grammarExercise');
+        container.innerHTML = grammarExercises.map((ex, i) => {
+            const completed = state.grammarCompleted.has(i);
+            return `
+                <div class="card" style="margin-bottom:1rem;" id="grammarEx${i}">
+                    <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;">
+                        <span style="background:${completed ? 'var(--success)' : 'var(--accent-dim)'};color:${completed ? '#fff' : 'var(--bg)'};width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;">${i + 1}</span>
+                        <span style="font-size:0.95rem;">${ex.question}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+                        ${ex.options.map((opt, oi) => `
+                            <button class="option-btn ${completed ? (oi === ex.answer ? 'correct' : 'disabled') : ''}" 
+                                    onclick="answerGrammar(${i}, ${oi})" 
+                                    ${completed ? 'disabled' : ''} 
+                                    id="gOpt${i}_${oi}">
+                                <span style="width:24px;height:24px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.75rem;flex-shrink:0;">${String.fromCharCode(65 + oi)}</span>
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="gExplanation${i}" style="margin-top:0.8rem;display:${completed ? 'block' : 'none'};padding:0.8rem;background:rgba(200,164,78,0.06);border-radius:8px;font-size:0.85rem;color:var(--fg-dim);">
+                        <i class="fas fa-lightbulb" style="color:var(--accent);margin-right:0.3rem;"></i>${ex.explanation}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function answerGrammar(qIndex, optIndex) {
+        if (state.grammarCompleted.has(qIndex)) return;
+        const ex = grammarExercises[qIndex];
+        const correct = optIndex === ex.answer;
+
+        // 标记选项
+        ex.options.forEach((_, oi) => {
+            const btn = document.getElementById(`gOpt${qIndex}_${oi}`);
+            btn.disabled = true;
+            btn.classList.add('disabled');
+            if (oi === ex.answer) btn.classList.add('correct');
+            else if (oi === optIndex && !correct) btn.classList.add('wrong');
+        });
+
+        // 显示解释
+        document.getElementById(`gExplanation${qIndex}`).style.display = 'block';
+
+        // 更新题号标记
+        const numBadge = document.querySelector(`#grammarEx${qIndex} span[style*="border-radius:50%"]`);
+        if (numBadge) {
+            numBadge.style.background = correct ? 'var(--success)' : 'var(--error)';
+            numBadge.style.color = '#fff';
+        }
+
+        if (correct) {
+            state.grammarCompleted.add(qIndex);
+            state.streak++;
+            if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+            showToast('回答正确！', 'success');
+        } else {
+            state.streak = 0;
+            showToast('回答错误，查看解析', 'error');
+        }
+        updateStreakBadge();
+        saveState();
+    }
+
+    // ==================== 测验模块 ====================
+
+    function startQuiz(mode) {
+        state.quizMode = mode;
+        state.quizIndex = 0;
+        state.quizCorrect = 0;
+        state.quizWrong = 0;
+        state.quizAnswered = false;
+
+        // 生成10道题
+        const pool = shuffle(vocabulary).slice(0, 10);
+        state.quizQuestions = pool.map(v => {
+            const wrongPool = vocabulary.filter(w => w.fr !== v.fr);
+            const wrongs = shuffle(wrongPool).slice(0, 3);
+            return { ...v, wrongs };
+        });
+
+        document.getElementById('quizStart').style.display = 'none';
+        document.getElementById('quizPlay').style.display = 'block';
+        document.getElementById('quizResult').style.display = 'none';
+
+        renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+        const q = state.quizQuestions[state.quizIndex];
+        const card = document.getElementById('quizCard');
+        state.quizAnswered = false;
+
+        // 更新进度
+        document.getElementById('quizCounter').textContent = `${state.quizIndex + 1} / ${state.quizQuestions.length}`;
+        document.getElementById('quizProgress').style.width = ((state.quizIndex + 1) / state.quizQuestions.length * 100) + '%';
+        document.getElementById('quizScore').innerHTML = `<i class="fas fa-check"></i> ${state.quizCorrect}`;
+
+        if (state.quizMode === 'fr2zh') {
+            // 法译中：看法语选中文
+            const options = shuffle([q.zh, ...q.wrongs.map(w => w.zh)]);
+            card.innerHTML = `
+                <div style="font-size:0.8rem;color:var(--accent-dim);margin-bottom:0.5rem;">选择正确的中文释义</div>
+                <div class="font-display" style="font-size:2.5rem;font-weight:900;margin-bottom:0.3rem;">${q.fr}</div>
+                <div style="color:var(--fg-dim);font-size:0.9rem;margin-bottom:2rem;">[${q.pron}]</div>
+                <div style="width:100%;max-width:500px;display:grid;gap:0.6rem;">
+                    ${options.map((opt, i) => `
+                        <button class="option-btn" onclick="answerQuiz(this, '${opt.replace(/'/g, "\\'")}' === '${q.zh.replace(/'/g, "\\'")}', '${q.zh.replace(/'/g, "\\'")}')">
+                            <span style="width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;">${String.fromCharCode(65 + i)}</span>
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        } else if (state.quizMode === 'zh2fr') {
+            // 中译法：看中文选法语
+            const options = shuffle([q.fr, ...q.wrongs.map(w => w.fr)]);
+            card.innerHTML = `
+                <div style="font-size:0.8rem;color:var(--accent-dim);margin-bottom:0.5rem;">选择正确的法语单词</div>
+                <div style="font-size:2rem;font-weight:700;margin-bottom:2rem;">${q.zh}</div>
+                <div style="width:100%;max-width:500px;display:grid;gap:0.6rem;">
+                    ${options.map((opt, i) => `
+                        <button class="option-btn" onclick="answerQuiz(this, '${opt.replace(/'/g, "\\'")}' === '${q.fr.replace(/'/g, "\\'")}', '${q.fr.replace(/'/g, "\\'")}')">
+                            <span style="width:28px;height:28px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:0.8rem;flex-shrink:0;">${String.fromCharCode(65 + i)}</span>
+                            ${opt}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        } else if (state.quizMode === 'listening') {
+            // 听写模式
+            card.innerHTML = `
+                <div style="font-size:0.8rem;color:var(--accent-dim);margin-bottom:0.5rem;">听发音，拼写法语单词</div>
+                <button class="btn-primary" style="margin-bottom:1.5rem;padding:1rem 2rem;border-radius:50%;width:80px;height:80px;display:flex;align-items:center;justify-content:center;" onclick="speakFrench('${q.fr}')">
+                    <i class="fas fa-volume-up" style="font-size:1.5rem;"></i>
+                </button>
+                <div style="width:100%;max-width:400px;">
+                    <input type="text" class="input-field" id="listeningInput" placeholder="输入法语单词..." 
+                           onkeydown="if(event.key==='Enter')checkListening('${q.fr.replace(/'/g, "\\'")}')" autocomplete="off" style="text-align:center;font-size:1.2rem;">
+                    <button class="btn-primary" style="margin-top:1rem;width:100%;" onclick="checkListening('${q.fr.replace(/'/g, "\\'")}')">
+                        确认答案
+                    </button>
+                </div>
+            `;
+            // 自动播放发音
+            setTimeout(() => speakFrench(q.fr), 300);
+        }
+    }
+
+    function answerQuiz(btn, isCorrect, correctAnswer) {
+        if (state.quizAnswered) return;
+        state.quizAnswered = true;
+
+        // 禁用所有选项
+        const allBtns = btn.parentElement.querySelectorAll('.option-btn');
+        allBtns.forEach(b => {
+            b.classList.add('disabled');
+            if (b.textContent.trim().includes(correctAnswer) || b.innerHTML.includes(correctAnswer)) {
+                // 找到正确答案并标记
+            }
+        });
+
+        if (isCorrect) {
+            btn.classList.add('correct');
+            state.quizCorrect++;
+            state.streak++;
+            if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+            showToast('正确！', 'success');
+        } else {
+            btn.classList.add('wrong');
+            state.quizWrong++;
+            state.streak = 0;
+            // 标出正确答案
+            allBtns.forEach(b => {
+                const text = b.textContent.trim().substring(1).trim();
+                if (text === correctAnswer) b.classList.add('correct');
+            });
+            showToast(`正确答案：${correctAnswer}`, 'error');
+        }
+
+        updateStreakBadge();
+
+        // 延迟进入下一题
+        setTimeout(() => {
+            state.quizIndex++;
+            if (state.quizIndex < state.quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                finishQuiz();
+            }
+        }, 1200);
+    }
+
+    function checkListening(correctFr) {
+        if (state.quizAnswered) return;
+        const input = document.getElementById('listeningInput');
+        const userAnswer = input.value.trim();
+
+        if (!userAnswer) {
+            showToast('请输入答案', 'info');
+            return;
+        }
+
+        state.quizAnswered = true;
+        const isCorrect = userAnswer.toLowerCase() === correctFr.toLowerCase();
+
+        if (isCorrect) {
+            input.classList.add('correct');
+            state.quizCorrect++;
+            state.streak++;
+            if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+            showToast('拼写正确！', 'success');
+        } else {
+            input.classList.add('wrong');
+            state.quizWrong++;
+            state.streak = 0;
+            showToast(`正确拼写：${correctFr}`, 'error');
+            // 显示正确答案
+            const hint = document.createElement('div');
+            hint.style.cssText = 'margin-top:0.8rem;color:var(--accent-light);font-size:1.1rem;font-weight:600;';
+            hint.textContent = correctFr;
+            input.parentElement.appendChild(hint);
+        }
+
+        updateStreakBadge();
+
+        setTimeout(() => {
+            state.quizIndex++;
+            if (state.quizIndex < state.quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                finishQuiz();
+            }
+        }, 1500);
+    }
+
+    function finishQuiz() {
+        const accuracy = Math.round((state.quizCorrect / state.quizQuestions.length) * 100);
+
+        // 保存历史
+        state.quizHistory.push({
+            mode: state.quizMode,
+            correct: state.quizCorrect,
+            total: state.quizQuestions.length,
+            accuracy: accuracy,
+            date: new Date().toLocaleDateString('zh-CN'),
+        });
+        saveState();
+
+        // 显示结果
+        document.getElementById('quizPlay').style.display = 'none';
+        document.getElementById('quizResult').style.display = 'block';
+
+        document.getElementById('resultCorrect').textContent = state.quizCorrect;
+        document.getElementById('resultWrong').textContent = state.quizWrong;
+        document.getElementById('resultAccuracy').textContent = accuracy + '%';
+
+        if (accuracy >= 90) {
+            document.getElementById('resultEmoji').textContent = '🏆';
+            document.getElementById('resultTitle').textContent = 'Tres bien!';
+            document.getElementById('resultDesc').textContent = '非常出色！你的法语水平令人印象深刻！';
+        } else if (accuracy >= 70) {
+            document.getElementById('resultEmoji').textContent = '🌟';
+            document.getElementById('resultTitle').textContent = 'Bien joue!';
+            document.getElementById('resultDesc').textContent = '做得不错！继续努力会更好！';
+        } else if (accuracy >= 50) {
+            document.getElementById('resultEmoji').textContent = '💪';
+            document.getElementById('resultTitle').textContent = 'Pas mal!';
+            document.getElementById('resultDesc').textContent = '还可以！多复习一下词汇吧。';
+        } else {
+            document.getElementById('resultEmoji').textContent = '📚';
+            document.getElementById('resultTitle').textContent = 'Continue!';
+            document.getElementById('resultDesc').textContent = '别灰心，多练习就会进步的！';
+        }
+    }
+
+    function endQuiz() {
+        resetQuiz();
+    }
+
+    function resetQuiz() {
+        document.getElementById('quizStart').style.display = 'grid';
+        document.getElementById('quizPlay').style.display = 'none';
+        document.getElementById('quizResult').style.display = 'none';
+    }
+
+    // ==================== 统计模块 ====================
+
+    function renderStats() {
+        document.getElementById('statVocab').textContent = state.learnedVocab.size;
+        document.getElementById('statGrammar').textContent = state.grammarCompleted.size;
+        document.getElementById('statQuiz').textContent = state.quizHistory.length;
+        document.getElementById('statStreak').textContent = state.maxStreak;
+
+        // 正确率图表
+        renderAccuracyChart();
+
+        // 词汇掌握度
+        renderMastery();
+    }
+
+    function renderAccuracyChart() {
+        const canvas = document.getElementById('accuracyChart');
+        const noData = document.getElementById('noChartData');
+
+        if (state.quizHistory.length === 0) {
+            canvas.style.display = 'none';
+            noData.style.display = 'block';
+            return;
+        }
+        canvas.style.display = 'block';
+        noData.style.display = 'none';
+
+        const ctx = canvas.getContext('2d');
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width - 48;
+        canvas.height = 200;
+
+        const data = state.quizHistory.slice(-10);
+        const w = canvas.width;
+        const h = canvas.height;
+        const padding = { top: 20, right: 20, bottom: 30, left: 40 };
+        const chartW = w - padding.left - padding.right;
+        const chartH = h - padding.top - padding.bottom;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // 网格线
+        ctx.strokeStyle = 'rgba(58,50,40,0.5)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i <= 4; i++) {
+            const y = padding.top + (chartH / 4) * i;
+            ctx.beginPath();
+            ctx.moveTo(padding.left, y);
+            ctx.lineTo(w - padding.right, y);
+            ctx.stroke();
+
+            // Y轴标签
+            ctx.fillStyle = '#6b5f4f';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'right';
+            ctx.fillText((100 - i * 25) + '%', padding.left - 8, y + 4);
+        }
+
+        // 绘制柱状图
+        const barWidth = Math.min(40, chartW / data.length - 10);
+        const gap = (chartW - barWidth * data.length) / (data.length + 1);
+
+        data.forEach((d, i) => {
+            const x = padding.left + gap + (barWidth + gap) * i;
+            const barH = (d.accuracy / 100) * chartH;
+            const y = padding.top + chartH - barH;
+
+            // 渐变柱
+            const grad = ctx.createLinearGradient(x, y, x, y + barH);
+            grad.addColorStop(0, '#e0c572');
+            grad.addColorStop(1, '#8a7030');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(x, y, barWidth, barH, [4, 4, 0, 0]);
+            ctx.fill();
+
+            // 数值
+            ctx.fillStyle = '#e0c572';
+            ctx.font = 'bold 11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(d.accuracy + '%', x + barWidth / 2, y - 6);
+
+            // X轴标签
+            ctx.fillStyle = '#6b5f4f';
+            ctx.font = '10px sans-serif';
+            ctx.fillText(d.date.slice(5), x + barWidth / 2, h - 8);
+        });
+    }
+
+    function renderMastery() {
+        const list = document.getElementById('masteryList');
+        const cats = ['greetings', 'food', 'travel', 'daily', 'nature'];
+
+        list.innerHTML = cats.map(cat => {
+            const catVocab = vocabulary.filter(v => v.cat === cat);
+            const learned = catVocab.filter(v => state.learnedVocab.has(v.fr)).length;
+            const pct = Math.round((learned / catVocab.length) * 100);
+            return `
+                <div style="display:flex;align-items:center;gap:1rem;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+                    <span style="min-width:60px;font-weight:600;font-size:0.9rem;">${getCatLabel(cat)}</span>
+                    <div class="progress-bar" style="flex:1;">
+                        <div class="progress-fill" style="width:${pct}%;background:${pct === 100 ? 'var(--success)' : pct > 50 ? 'var(--accent)' : 'var(--accent-dim)'};"></div>
+                    </div>
+                    <span style="color:var(--fg-dim);font-size:0.85rem;min-width:60px;text-align:right;">${learned}/${catVocab.length}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ==================== 连击系统 ====================
+
+    function updateStreakBadge() {
+        document.getElementById('streakCount').textContent = state.streak;
+        const badge = document.getElementById('streakBadge');
+        if (state.streak >= 5) {
+            badge.style.borderColor = 'var(--accent-light)';
+            badge.style.background = 'linear-gradient(135deg, rgba(200,164,78,0.3), rgba(200,164,78,0.1))';
+        } else {
+            badge.style.borderColor = 'var(--accent-dim)';
+            badge.style.background = 'linear-gradient(135deg, rgba(200,164,78,0.2), rgba(200,164,78,0.05))';
+        }
+    }
+
+    // ==================== 背景粒子 ====================
+
+    function createParticles() {
+        const count = 15;
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = Math.random() * 100 + 'vh';
+            p.style.width = (2 + Math.random() * 3) + 'px';
+            p.style.height = p.style.width;
+            p.style.opacity = (0.1 + Math.random() * 0.2).toString();
+            document.body.appendChild(p);
+
+            animateParticle(p);
+        }
+    }
+
+    function animateParticle(p) {
+        const duration = 8000 + Math.random() * 12000;
+        const startX = parseFloat(p.style.left);
+        const startY = parseFloat(p.style.top);
+        const endX = startX + (Math.random() - 0.5) * 20;
+        const endY = startY - 10 - Math.random() * 20;
+
+        p.animate([
+            { transform: 'translate(0, 0)', opacity: p.style.opacity },
+            { transform: `translate(${endX - startX}vw, ${endY - startY}vh)`, opacity: '0' }
+        ], {
+            duration: duration,
+            easing: 'ease-out',
+        }).onfinish = () => {
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = (80 + Math.random() * 20) + 'vh';
+            p.style.opacity = (0.1 + Math.random() * 0.2).toString();
+            animateParticle(p);
+        };
+    }
+
+    // ==================== 初始化 ====================
+
+    loadState();
+    renderVocab();
+    updateStreakBadge();
+    createParticles();
+
+    // Canvas roundRect polyfill
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+        CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+            const r = Array.isArray(radii) ? radii[0] : (radii || 0);
+            this.moveTo(x + r, y);
+            this.lineTo(x + w - r, y);
+            this.quadraticCurveTo(x + w, y, x + w, y + r);
+            this.lineTo(x + w, y + h - (Array.isArray(radii) && radii[2] ? radii[2] : 0));
+            this.quadraticCurveTo(x + w, y + h, x + w - (Array.isArray(radii) && radii[2] ? radii[2] : 0), y + h);
+            this.lineTo(x + (Array.isArray(radii) && radii[3] ? radii[3] : 0), y + h);
+            this.quadraticCurveTo(x, y + h, x, y + h - (Array.isArray(radii) && radii[3] ? radii[3] : 0));
+            this.lineTo(x, y + r);
+            this.quadraticCurveTo(x, y, x + r, y);
+            this.closePath();
+            return this;
+        };
+    }
+    </script>
+</body>
+</html>

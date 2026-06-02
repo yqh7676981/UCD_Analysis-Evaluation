@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>家庭账本</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --fg-primary: #f0f6fc;
+            --fg-secondary: #8b949e;
+            --fg-muted: #484f58;
+            --accent: #f0883e;
+            --accent-soft: rgba(240, 136, 62, 0.15);
+            --border: #30363d;
+            --success: #3fb950;
+            --water: #58a6ff;
+            --electric: #f0883e;
+            --gas: #a371f7;
+            --internet: #3fb950;
+            --other: #8b949e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 20px 16px;
+            background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--fg-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .month-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--fg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .month-btn:active {
+            transform: scale(0.95);
+            background: var(--accent-soft);
+        }
+
+        .month-display {
+            font-size: 15px;
+            font-weight: 500;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            margin: 0 20px 24px;
+            background: linear-gradient(135deg, var(--bg-card) 0%, #2d333b 100%);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--fg-secondary);
+            margin-bottom: 8px;
+        }
+
+        .summary-amount {
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+        }
+
+        .summary-amount::before {
+            content: '¥';
+            font-size: 20px;
+            font-weight: 400;
+            margin-right: 4px;
+            color: var(--fg-secondary);
+        }
+
+        .summary-stats {
+            display: flex;
+            gap: 16px;
+        }
+
+        .stat-item {
+            flex: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--fg-muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .stat-value.up {
+            color: var(--success);
+        }
+
+        .stat-value.down {
+            color: var(--accent);
+        }
+
+        /* Chart Section */
+        .chart-section {
+            margin: 0 20px 24px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--fg-secondary);
+            margin-bottom: 16px;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .donut-chart {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 20px;
+        }
+
+        .donut-chart svg {
+            transform: rotate(-90deg);
+        }
+
+        .donut-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-center-label {
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .donut-center-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chart-legend {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:active {
+            transform: scale(0.98);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .legend-name {
+            font-size: 12px;
+            color: var(--fg-secondary);
+        }
+
+        .legend-value {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .legend-percent {
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        /* Bills List */
+        .bills-section {
+            margin: 0 20px 100px;
+        }
+
+        .bills-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .bills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bill-card {
+            background: var(--bg-card);
+            border-radius: 14px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s ease;
+            animation: slideUp 0.4s ease backwards;
+        }
+
+        .bill-card:nth-child(1) { animation-delay: 0.05s; }
+        .bill-card:nth-child(2) { animation-delay: 0.1s; }
+        .bill-card:nth-child(3) { animation-delay: 0.15s; }
+        .bill-card:nth-child(4) { animation-delay: 0.2s; }
+        .bill-card:nth-child(5) { animation-delay: 0.25s; }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bill-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bill-icon.water {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--water);
+        }
+
+        .bill-icon.electric {
+            background: rgba(240, 136, 62, 0.15);
+            color: var(--electric);
+        }
+
+        .bill-icon.gas {
+            background: rgba(163, 113, 247, 0.15);
+            color: var(--gas);
+        }
+
+        .bill-icon.internet {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--internet);
+        }
+
+        .bill-icon.other {
+            background: rgba(139, 148, 158, 0.15);
+            color: var(--other);
+        }
+
+        .bill-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .bill-name {
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .bill-date {
+            font-size: 12px;
+            color: var(--fg-muted);
+        }
+
+        .bill-right {
+            text-align: right;
+        }
+
+        .bill-amount {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .bill-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .bill-status.paid {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+        }
+
+        .bill-status.unpaid {
+            background: rgba(240, 136, 62, 0.15);
+            color: var(--accent);
+        }
+
+        /* Add Button */
+        .add-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            box-shadow: 0 4px 20px rgba(240, 136, 62, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 100;
+        }
+
+        .add-btn:active {
+            transform: scale(0.95);
+        }
+
+        .add-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 430px;
+            background: var(--bg-secondary);
+            border-radius: 24px 24px 0 0;
+            padding: 24px 20px 40px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-card);
+            color: var(--fg-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: var(--fg-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--fg-primary);
+            font-size: 16px;
+            padding: 0 16px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .category-btn {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--fg-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .category-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .category-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 52px;
+            border-radius: 14px;
+            border: none;
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--fg-muted);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Animations */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">家庭<span>账本</span></div>
+            </div>
+            <div class="month-selector">
+                <button class="month-btn" id="prevMonth">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <div class="month-display" id="monthDisplay">2024年12月</div>
+                <button class="month-btn" id="nextMonth">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <div class="summary-card">
+            <div class="summary-label">本月总支出</div>
+            <div class="summary-amount" id="totalAmount">0.00</div>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <div class="stat-label">较上月</div>
+                    <div class="stat-value" id="monthCompare">--</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">账单数</div>
+                    <div class="stat-value" id="billCount">0笔</div>
+                </div>
+            </div>
+        </div>
+
+        <section class="chart-section">
+            <div class="section-title">分类占比</div>
+            <div class="chart-container">
+                <div class="donut-chart">
+                    <svg width="160" height="160" viewBox="0 0 160 160" id="donutChart">
+                        <circle cx="80" cy="80" r="60" fill="none" stroke="var(--bg-secondary)" stroke-width="20"/>
+                    </svg>
+                    <div class="donut-center">
+                        <div class="donut-center-label">账单</div>
+                        <div class="donut-center-value" id="donutCount">0笔</div>
+                    </div>
+                </div>
+                <div class="chart-legend" id="chartLegend"></div>
+            </div>
+        </section>
+
+        <section class="bills-section">
+            <div class="bills-header">
+                <div class="section-title">账单明细</div>
+            </div>
+            <div class="bills-list" id="billsList"></div>
+        </section>
+
+        <button class="add-btn" id="addBtn">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12h14"/>
+            </svg>
+        </button>
+
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title">添加账单</div>
+                    <button class="modal-close" id="modalClose">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <form id="billForm">
+                    <div class="form-group">
+                        <label class="form-label">分类</label>
+                        <div class="category-grid" id="categoryGrid"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">金额</label>
+                        <input type="number" class="form-input" id="amountInput" placeholder="输入金额" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">日期</label>
+                        <input type="date" class="form-input" id="dateInput" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <input type="text" class="form-input" id="noteInput" placeholder="可选备注">
+                    </div>
+                    <button type="submit" class="submit-btn">保存账单</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const categories = [
+            { id: 'water', name: '水费', color: '#58a6ff', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>' },
+            { id: 'electric', name: '电费', color: '#f0883e', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>' },
+            { id: 'gas', name: '燃气', color: '#a371f7', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12c-1.5-2-4-3-4-6a4 4 0 1 1 8 0c0 3-2.5 4-4 6zm0 0v10"/><circle cx="12" cy="22" r="1"/></svg>' },
+            { id: 'internet', name: '网费', color: '#3fb950', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="12" rx="2"/><path d="M6 20h12M8 16v4M16 16v4"/></svg>' },
+            { id: 'other', name: '其他', color: '#8b949e', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>' }
+        ];
+
+        let bills = JSON.parse(localStorage.getItem('familyBills') || '[]');
+        let currentDate = new Date();
+        let selectedCategory = 'electric';
+
+        const categoryGrid = document.getElementById('categoryGrid');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const addBtn = document.getElementById('addBtn');
+        const modalClose = document.getElementById('modalClose');
+        const billForm = document.getElementById('billForm');
+        const prevMonth = document.getElementById('prevMonth');
+        const nextMonth = document.getElementById('nextMonth');
+        const monthDisplay = document.getElementById('monthDisplay');
+
+        function initCategoryGrid() {
+            categoryGrid.innerHTML = categories.map(cat => `
+                <button type="button" class="category-btn ${cat.id === selectedCategory ? 'active' : ''}" data-category="${cat.id}">
+                    ${cat.icon}
+                    <span>${cat.name}</span>
+                </button>
+            `).join('');
+
+            categoryGrid.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    selectedCategory = btn.dataset.category;
+                    categoryGrid.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        function updateMonthDisplay() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            monthDisplay.textContent = `${year}年${month}月`;
+        }
+
+        function getMonthBills() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            return bills.filter(bill => {
+                const billDate = new Date(bill.date);
+                return billDate.getFullYear() === year && billDate.getMonth() === month;
+            });
+        }
+
+        function getPrevMonthBills() {
+            const prevDate = new Date(currentDate);
+            prevDate.setMonth(prevDate.getMonth() - 1);
+            const year = prevDate.getFullYear();
+            const month = prevDate.getMonth();
+            return bills.filter(bill => {
+                const billDate = new Date(bill.date);
+                return billDate.getFullYear() === year && billDate.getMonth() === month;
+            });
+        }
+
+        function calculateTotal(billsList) {
+            return billsList.reduce((sum, bill) => sum + bill.amount, 0);
+        }
+
+        function calculateCategoryTotals(billsList) {
+            const totals = {};
+            categories.forEach(cat => totals[cat.id] = 0);
+            billsList.forEach(bill => {
+                totals[bill.category] = (totals[bill.category] || 0) + bill.amount;
+            });
+            return totals;
+        }
+
+        function renderSummary() {
+            const monthBills = getMonthBills();
+            const prevBills = getPrevMonthBills();
+            const total = calculateTotal(monthBills);
+            const prevTotal = calculateTotal(prevBills);
+
+            document.getElementById('totalAmount').textContent = total.toFixed(2);
+            document.getElementById('billCount').textContent = `${monthBills.length}笔`;
+            document.getElementById('donutCount').textContent = `${monthBills.length}笔`;
+
+            if (prevTotal > 0) {
+                const diff = total - prevTotal;
+                const percent = ((diff / prevTotal) * 100).toFixed(1);
+                const compareEl = document.getElementById('monthCompare');
+                if (diff > 0) {
+                    compareEl.textContent = `+${percent}%`;
+                    compareEl.className = 'stat-value up';
+                } else {
+                    compareEl.textContent = `${percent}%`;
+                    compareEl.className = 'stat-value down';
+                }
+            } else {
+                document.getElementById('monthCompare').textContent = '--';
+            }
+        }
+
+        function renderChart() {
+            const monthBills = getMonthBills();
+            const totals = calculateCategoryTotals(monthBills);
+            const total = calculateTotal(monthBills);
+            const chart = document.getElementById('donutChart');
+            const legend = document.getElementById('chartLegend');
+
+            let chartHTML = '<circle cx="80" cy="80" r="60" fill="none" stroke="var(--bg-secondary)" stroke-width="20"/>';
+            let legendHTML = '';
+
+            if (total > 0) {
+                let offset = 0;
+                const circumference = 2 * Math.PI * 60;
+
+                categories.forEach(cat => {
+                    const value = totals[cat.id];
+                    if (value > 0) {
+                        const percent = value / total;
+                        const dashLength = percent * circumference;
+                        const dashGap = circumference - dashLength;
+
+                        chartHTML += `
+                            <circle cx="80" cy="80" r="60" fill="none" 
+                                stroke="${cat.color}" stroke-width="20"
+                                stroke-dasharray="${dashLength} ${dashGap}"
+                                stroke-dashoffset="${-offset}"
+                                style="transition: stroke-dasharray 0.5s ease"/>
+                        `;
+                        offset += dashLength;
+
+                        legendHTML += `
+                            <div class="legend-item">
+                                <div class="legend-dot" style="background: ${cat.color}"></div>
+                                <div class="legend-info">
+                                    <div class="legend-name">${cat.name}</div>
+                                    <div class="legend-value">¥${value.toFixed(2)}</div>
+                                </div>
+                                <div class="legend-percent">${(percent * 100).toFixed(1)}%</div>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            chart.innerHTML = chartHTML;
+            legend.innerHTML = legendHTML || '<div class="empty-state">暂无数据</div>';
+        }
+
+        function renderBills() {
+            const monthBills = getMonthBills();
+            const billsList = document.getElementById('billsList');
+
+            if (monthBills.length === 0) {
+                billsList.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        <p>本月暂无账单记录</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sortedBills = [...monthBills].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            billsList.innerHTML = sortedBills.map(bill => {
+                const cat = categories.find(c => c.id === bill.category);
+                const billDate = new Date(bill.date);
+                const dateStr = `${billDate.getMonth() + 1}月${billDate.getDate()}日`;
+
+                return `
+                    <div class="bill-card" data-id="${bill.id}">
+                        <div class="bill-icon ${bill.category}" style="color: ${cat.color}">
+                            ${cat.icon}
+                        </div>
+                        <div class="bill-info">
+                            <div class="bill-name">${cat.name}${bill.note ? ' · ' + bill.note : ''}</div>
+                            <div class="bill-date">${dateStr}</div>
+                        </div>
+                        <div class="bill-right">
+                            <div class="bill-amount">¥${bill.amount.toFixed(2)}</div>
+                            <span class="bill-status ${bill.paid ? 'paid' : 'unpaid'}">${bill.paid ? '已缴费' : '待缴费'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.querySelectorAll('.bill-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const billId = card.dataset.id;
+                    toggleBillStatus(billId);
+                });
+            });
+        }
+
+        function toggleBillStatus(billId) {
+            const bill = bills.find(b => b.id === billId);
+            if (bill) {
+                bill.paid = !bill.paid;
+                saveBills();
+                renderBills();
+            }
+        }
+
+        function saveBills() {
+            localStorage.setItem('familyBills', JSON.stringify(bills));
+        }
+
+        function openModal() {
+            modalOverlay.classList.add('active');
+            document.getElementById('amountInput').value = '';
+            document.getElementById('noteInput').value = '';
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+            selectedCategory = 'electric';
+            initCategoryGrid();
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        billForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const date = document.getElementById('dateInput').value;
+            const note = document.getElementById('noteInput').value;
+
+            if (amount <= 0 || !date) return;
+
+            const newBill = {
+                id: Date.now().toString(),
+                category: selectedCategory,
+                amount,
+                date,
+                note,
+                paid: false
+            };
+
+            bills.push(newBill);
+            saveBills();
+            closeModal();
+            renderAll();
+        });
+
+        addBtn.addEventListener('click', openModal);
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+
+        prevMonth.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateMonthDisplay();
+            renderAll();
+        });
+
+        nextMonth.addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateMonthDisplay();
+            renderAll();
+        });
+
+        function renderAll() {
+            renderSummary();
+            renderChart();
+            renderBills();
+        }
+
+        // 初始化
+        initCategoryGrid();
+        updateMonthDisplay();
+        renderAll();
+    </script>
+</body>
+</html>

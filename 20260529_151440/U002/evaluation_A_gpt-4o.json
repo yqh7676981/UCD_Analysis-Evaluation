@@ -1,0 +1,33 @@
+{
+  "index": 77,
+  "id": "U002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个朋友聚餐 AA 记账小工具，可以添加参与人、记录每笔消费和付款人，最后自动算出谁该给谁转多少钱。",
+  "evaluation": {
+    "total_score": 41,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 4,
+        "reason": "Style is clean and consistent but extremely generic: plain white cards on gray background, default-looking inputs, and a single green action color. There is little visual identity or scenario-specific tone, and the page feels more like a rough form than a finished mobile product."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Basic spacing, rounded corners, and shadows are consistent, and text is readable. However, the typography hierarchy is blunt, controls look close to browser defaults, card interiors are mostly empty, and the large blank panels make the interface feel unfinished rather than polished."
+      },
+      "easy_to_perceive": {
+        "score": 4,
+        "reason": "The form order is simple, but visual hierarchy is weak: participant input, expense input, and result sections all receive similar weight. Empty cards dominate the screen, so users see placeholders more than actionable information, and the main task flow is not strongly guided."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "Labels such as 添加参与人, 消费金额, and 选择付款人 are straightforward, so core functions are understandable. But the requested scenario is only partially supported in the visible UI: there is no clear way to name each expense, edit/delete entries, split unevenly, or understand how final settlement will be calculated and displayed."
+      }
+    },
+    "summary": "This is a usable but immature mobile AA bookkeeping interface. It succeeds at basic readability and simple labeling, but the experience is capped by generic styling, placeholder-heavy empty states, weak hierarchy, and incomplete task support for real group dining settlement. Users can infer the intended flow, but the product does not yet feel complete or confidently self-explanatory."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U002_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:30:58.135176"
+}

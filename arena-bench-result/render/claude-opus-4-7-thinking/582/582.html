@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>邓稼先 · 两弹元勋 | 研究工作与学术贡献</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+    background: #f5f1e8;
+    color: #2c2416;
+    line-height: 1.8;
+  }
+  /* Navigation */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(139, 21, 28, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+  }
+  nav .logo {
+    color: #f5d486;
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 3px;
+  }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+  }
+  nav ul a {
+    color: #f5ebd6;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+    position: relative;
+  }
+  nav ul a:hover { color: #f5d486; }
+  nav ul a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px; left: 0;
+    width: 0; height: 2px;
+    background: #f5d486;
+    transition: width 0.3s;
+  }
+  nav ul a:hover::after { width: 100%; }
+
+  /* Hero */
+  .hero {
+    height: 100vh;
+    background:
+      linear-gradient(135deg, rgba(20,20,30,0.85), rgba(80,15,20,0.75)),
+      radial-gradient(circle at 30% 40%, #3a2820 0%, #1a1410 60%);
+    color: #f5ebd6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '兩彈';
+    position: absolute;
+    font-size: 40rem;
+    color: rgba(245, 212, 134, 0.04);
+    font-weight: bold;
+    user-select: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    letter-spacing: -30px;
+  }
+  .hero-content { position: relative; z-index: 2; max-width: 900px; padding: 0 30px; }
+  .hero h1 {
+    font-size: 5rem;
+    letter-spacing: 15px;
+    margin-bottom: 20px;
+    color: #f5d486;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .hero .subtitle {
+    font-size: 1.4rem;
+    letter-spacing: 8px;
+    opacity: 0.9;
+    margin-bottom: 30px;
+  }
+  .hero .dates {
+    font-size: 1.1rem;
+    opacity: 0.7;
+    letter-spacing: 3px;
+    border-top: 1px solid rgba(245,212,134,0.3);
+    border-bottom: 1px solid rgba(245,212,134,0.3);
+    padding: 15px 0;
+    display: inline-block;
+    margin-top: 20px;
+  }
+  .hero .quote {
+    margin-top: 50px;
+    font-style: italic;
+    font-size: 1.15rem;
+    color: #e8d8a8;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Sections */
+  section { padding: 90px 40px; max-width: 1200px; margin: 0 auto; }
+  .section-title {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+  .section-title h2 {
+    font-size: 2.5rem;
+    color: #8b151c;
+    letter-spacing: 8px;
+    margin-bottom: 15px;
+  }
+  .section-title p {
+    color: #8a7a5e;
+    letter-spacing: 3px;
+    font-size: 1rem;
+  }
+  .section-title::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #c9a84d;
+    margin: 20px auto 0;
+  }
+
+  /* Bio */
+  .bio {
+    background: #fff;
+    padding: 50px;
+    border-left: 5px solid #8b151c;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+    align-items: center;
+  }
+  .bio-avatar {
+    width: 100%;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #8b151c, #c9a84d);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 4rem;
+    letter-spacing: 5px;
+    box-shadow: 0 10px 30px rgba(139,21,28,0.3);
+  }
+  .bio-text p { margin-bottom: 15px; font-size: 1.05rem; }
+  .bio-text strong { color: #8b151c; }
+
+  /* Publications */
+  .publications { background: #ede4cf; }
+  .pub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+  }
+  .pub-card {
+    background: #fff;
+    padding: 30px;
+    border-radius: 4px;
+    border-top: 4px solid #8b151c;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+  }
+  .pub-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+  }
+  .pub-year {
+    position: absolute;
+    top: 15px; right: 20px;
+    color: #c9a84d;
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+  .pub-card h3 {
+    color: #2c2416;
+    margin-bottom: 15px;
+    font-size: 1.15rem;
+    line-height: 1.5;
+    padding-right: 60px;
+  }
+  .pub-card .journal {
+    color: #8b151c;
+    font-style: italic;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+  }
+  .pub-card .desc { color: #5a4e35; font-size: 0.92rem; }
+  .pub-card .tag {
+    display: inline-block;
+    background: #f5ebd6;
+    color: #8b151c;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 0.8rem;
+    margin-top: 12px;
+  }
+
+  /* Projects */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+  }
+  .project-card {
+    background: linear-gradient(135deg, #fff, #f9f2de);
+    padding: 35px;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+    border-bottom: 4px solid #c9a84d;
+    cursor: pointer;
+    transition: all 0.4s;
+  }
+  .project-card:hover {
+    border-bottom-color: #8b151c;
+    transform: scale(1.02);
+  }
+  .project-icon {
+    width: 60px; height: 60px;
+    background: #8b151c;
+    color: #f5d486;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+  }
+  .project-card h3 {
+    color: #8b151c;
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+  }
+  .project-card .period {
+    color: #8a7a5e;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+  }
+
+  /* Timeline */
+  .timeline-section { background: #2c2416; color: #f5ebd6; }
+  .timeline-section .section-title h2 { color: #f5d486; }
+  .timeline-section .section-title p { color: #c9a84d; }
+  .timeline {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: #c9a84d;
+    transform: translateX(-50%);
+  }
+  .timeline-item {
+    position: relative;
+    width: 50%;
+    padding: 20px 40px;
+    margin-bottom: 20px;
+  }
+  .timeline-item:nth-child(odd) { left: 0; text-align: right; }
+  .timeline-item:nth-child(even) { left: 50%; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    top: 30px;
+    width: 16px; height: 16px;
+    background: #c9a84d;
+    border: 3px solid #2c2416;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px #c9a84d;
+  }
+  .timeline-item:nth-child(odd)::before { right: -8px; }
+  .timeline-item:nth-child(even)::before { left: -8px; }
+  .timeline-item .year {
+    color: #f5d486;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .timeline-item .event {
+    background: rgba(245,212,134,0.08);
+    padding: 15px 20px;
+    border-radius: 4px;
+    border-left: 3px solid #c9a84d;
+  }
+  .timeline-item:nth-child(odd) .event { border-left: none; border-right: 3px solid #c9a84d; }
+
+  /* Contributions */
+  .contrib-section { background: #f5f1e8; }
+  .contrib-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+  }
+  .contrib-card {
+    background: #fff;
+    padding: 30px 25px;
+    text-align: center;
+    border-radius: 6px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: transform 0.3s;
+  }
+  .contrib-card:hover { transform: translateY(-5px); }
+  .contrib-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #8b151c;
+    margin-bottom: 10px;
+  }
+  .contrib-card h4 {
+    color: #2c2416;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+  }
+  .contrib-card p { color: #6b5d42; font-size: 0.92rem; }
+
+  /* Footer */
+  footer {
+    background: #1a1410;
+    color: #c9a84d;
+    text-align: center;
+    padding: 40px 20px;
+    letter-spacing: 2px;
+  }
+  footer .quote-final {
+    font-style: italic;
+    max-width: 700px;
+    margin: 0 auto 20px;
+    color: #f5ebd6;
+    font-size: 1.1rem;
+    line-height: 2;
+  }
+  footer small { color: #8a7a5e; letter-spacing: 1px; }
+
+  @media (max-width: 768px) {
+    nav { padding: 12px 15px; flex-direction: column; gap: 10px; }
+    nav ul { gap: 15px; flex-wrap: wrap; justify-content: center; }
+    .hero h1 { font-size: 3rem; letter-spacing: 8px; }
+    .bio { grid-template-columns: 1fr; padding: 30px; }
+    .timeline::before { left: 20px; }
+    .timeline-item, .timeline-item:nth-child(even) {
+      width: 100%; left: 0; text-align: left; padding-left: 50px;
+    }
+    .timeline-item::before, .timeline-item:nth-child(odd)::before { left: 12px; right: auto; }
+    .timeline-item:nth-child(odd) .event { border-right: none; border-left: 3px solid #c9a84d; }
+    section { padding: 60px 20px; }
+  }
+
+  /* Scroll animation */
+  .fade-in {
+    opacity: 1; /* fixed: was 0 */
+    transform: translateY(0); /* fixed */
+    transition: opacity 0.8s, transform 0.8s;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<nav>
+  <div class="logo">邓稼先 · 学术档案</div>
+  <ul>
+    <li><a href="#bio">生平</a></li>
+    <li><a href="#publications">出版物</a></li>
+    <li><a href="#projects">科研项目</a></li>
+    <li><a href="#timeline">年表</a></li>
+    <li><a href="#contributions">学术贡献</a></li>
+  </ul>
+</nav>
+
+<header class="hero">
+  <div class="hero-content">
+    <h1>邓稼先</h1>
+    <p class="subtitle">两弹元勋 · 中国核物理事业的奠基人</p>
+    <div class="dates">1924 年 6 月 25 日 — 1986 年 7 月 29 日</div>
+    <p class="quote">"我不能走。" —— 在戈壁滩深处，为了国家的核事业奉献一生。</p>
+  </div>
+</header>
+
+<section id="bio" class="fade-in">
+  <div class="section-title">
+    <h2>生 平 简 介</h2>
+    <p>A Life Devoted to Science and Nation</p>
+  </div>
+  <div class="bio">
+    <div class="bio-avatar">邓</div>
+    <div class="bio-text">
+      <p><strong>邓稼先</strong>，中国杰出的理论物理学家、核物理学家，中国科学院院士，中国核武器研制工作的开拓者和奠基人之一。</p>
+      <p>1945 年毕业于西南联合大学物理系，1948 年赴美国普渡大学研究生院学习理论物理，1950 年获物理学博士学位后毅然回国，投身于新中国的核物理研究事业。</p>
+      <p>他领导完成了中国第一颗原子弹的理论方案设计，并参与指导核试验的爆轰模拟试验。此后，他又在氢弹原理突破中发挥了关键作用，为中国"两弹"事业作出了不可磨灭的贡献。</p>
+      <p>1999 年，被追授"<strong>两弹一星功勋奖章</strong>"。他的精神与成就，是中华民族科学脊梁的象征。</p>
+    </div>
+  </div>
+</section>
+
+<section id="publications" class="publications fade-in">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="section-title">
+      <h2>代 表 出 版 物</h2>
+      <p>Selected Publications & Theoretical Works</p>
+    </div>
+    <div class="pub-grid">
+      <div class="pub-card">
+        <span class="pub-year">1950</span>
+        <h3>《氘核的光致蜕变》</h3>
+        <p class="journal">Purdue University, Doctoral Dissertation</p>
+        <p class="desc">博士论文，系统研究氘核在高能光子作用下的蜕变机制，为其后核理论研究奠定了坚实基础。</p>
+        <span class="tag">核物理 · 博士论文</span>
+      </div>
+      <div class="pub-card">
+        <span class="pub-year">1958</span>
+        <h3>《β衰变的角关联》</h3>
+        <p class="journal">中国物理学报 · 合作论文</p>
+        <p class="desc">与于敏等合作，深入探讨了弱相互作用下 β 衰变过程中的粒子角分布规律。</p>
+        <span class="tag">理论物理</span>
+      </div>
+      <div class="pub-card">
+        <span class="pub-year">1960</span>
+        <h3>《原子核理论中的若干问题》</h3>
+        <p class="journal">中国科学院物理研究所 · 内部报告</p>
+        <p class="desc">对中国早期原子核理论研究方向进行了系统梳理，成为后续核武器研制的重要理论参考。</p>
+        <span class="tag">核理论</span>
+      </div>
+      <div class="pub-card">
+        <span class="pub-year">1964</span>
+        <h3>《原子弹理论设计总结》</h3>
+        <p class="journal">九院 · 绝密技术报告</p>
+        <p class="desc">作为总负责人主持撰写，首次完整阐释了中国自主设计原子弹的理论模型，被誉为"新中国核武理论奠基之作"。</p>
+        <span class="tag">国防尖端</span>
+      </div>
+      <div class="pub-card">
+        <span class="pub-year">1967</span>
+        <h3>《氢弹原理突破关键技术报告》</h3>
+        <p class="journal">九院 · 合作专著</p>
+        <p class="desc">与于敏等共同攻关，阐述了中国氢弹独特构型的理论依据与物理机制，使中国成为世界上从原子弹到氢弹跨越最快的国家。</p>
+        <span class="tag">氢弹理论</span>
+      </div>
+      <div class="pub-card">
+        <span class="pub-year">1982</span>
+        <h3>《群论在原子核结构中的应用》</h3>
+        <p class="journal">高等教育出版社</p>
+        <p class="desc">系统介绍群论方法在核结构研究中的应用，是该领域中文文献中的经典教材。</p>
+        <span class="tag">教材 · 群论</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects" class="fade-in">
+  <div class="section-title">
+    <h2>重 大 科 研 项 目</h2>
+    <p>Major Research Projects</p>
+  </div>
+  <div class="projects-grid">
+    <div class="project-card">
+      <div class="project-icon">核</div>
+      <h3>中国第一颗原子弹</h3>
+      <p class="period">1958 — 1964</p>
+      <p>担任理论部主任，主持原子弹理论方案设计。1964 年 10 月 16 日，中国第一颗原子弹在罗布

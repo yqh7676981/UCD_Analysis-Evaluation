@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>法语学习助手</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            margin: 30px auto;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            letter-spacing: 0.5px;
+        }
+
+        /* 导航样式 */
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+        }
+
+        .nav-button {
+            background-color: #e9ecef;
+            color: #495057;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            outline: none;
+            flex-grow: 1;
+            max-width: 200px;
+        }
+
+        .nav-button:hover {
+            background-color: #ced4da;
+            color: #343a40;
+            transform: translateY(-2px);
+        }
+
+        .nav-button.active {
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        .nav-button.active:hover {
+            background-color: #0056b3;
+            transform: none;
+        }
+
+        /* 内容区通用样式 */
+        .section {
+            display: none; /* 默认隐藏所有区域 */
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fcfcfc;
+        }
+
+        .section.active {
+            display: block; /* 激活的区域显示 */
+        }
+
+        h2 {
+            color: #34495e;
+            margin-top: 0;
+            font-size: 1.8em;
+            border-bottom: 1px dashed #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .practice-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .question-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-left: 5px solid #007bff;
+            padding: 20px 25px;
+            border-radius: 8px;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #212529;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-sizing: border-box;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .instruction {
+            font-size: 1em;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 12px 15px;
+            font-size: 1.1em;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            outline: none;
+        }
+
+        .button.check { background-color: #007bff; }
+        .button.check:hover { background-color: #0056b3; transform: translateY(-1px); }
+        .button.next { background-color: #6c757d; }
+        .button.next:hover { background-color: #5a6268; transform: translateY(-1px); }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            min-height: 25px; /* Prevent layout shift */
+        }
+
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* 语法练习特定样式 */
+        .grammar-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 10px;
+        }
+
+        .grammar-option-button {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            text-align: left;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .grammar-option-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .grammar-option-button.selected {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .grammar-option-button.correct-answer {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .grammar-option-button.incorrect-selected {
+            background-color: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        /* 交互式练习 - 句子构建 */
+        .sentence-input {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 80px;
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            align-items: flex-start;
+        }
+
+        .word-chip {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: grab;
+            font-size: 1em;
+            transition: background-color 0.2s ease;
+            user-select: none; /* Prevent text selection */
+        }
+
+        .word-chip:hover {
+            background-color: #0056b3;
+        }
+
+        .available-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px dashed #dee2e6;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            justify-content: center;
+        }
+
+        .available-words .word-chip {
+            background-color: #6c757d;
+            cursor: pointer;
+        }
+
+        .available-words .word-chip:hover {
+            background-color: #5a6268;
+        }
+
+        .reset-button {
+            background-color: #ffc107;
+            color: #333;
+            margin-left: 10px;
+        }
+        .reset-button:hover {
+            background-color: #e0a800;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .navigation {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-button {
+                padding: 10px 15px;
+                font-size: 1em;
+                max-width: none;
+            }
+
+            .question-display {
+                font-size: 1.2em;
+                padding: 15px;
+            }
+
+            input[type="text"] {
+                font-size: 1em;
+                padding: 10px 12px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .feedback {
+                font-size: 1em;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🇫🇷 法语学习助手 🇫🇷</h1>
+
+        <div class="navigation">
+            <button class="nav-button active" onclick="showSection('vocabulary')">词汇练习</button>
+            <button class="nav-button" onclick="showSection('grammar')">语法练习</button>
+            <button class="nav-button" onclick="showSection('interactive')">交互式练习</button>
+        </div>
+
+        <!-- 词汇练习区 -->
+        <div id="vocabulary" class="section active">
+            <h2>词汇练习</h2>
+            <div class="practice-area">
+                <div class="instruction">请翻译以下法语单词为中文：</div>
+                <div id="vocab-word" class="question-display">Bonjour</div>
+                <input type="text" id="vocab-input" placeholder="输入中文翻译" autofocus>
+                <div class="controls">
+                    <button class="button check" onclick="checkVocabulary()">检查</button>
+                    <button class="button next" onclick="nextVocabulary()">下一个</button>
+                </div>
+                <div id="vocab-feedback" class="feedback"></div>
+            </div>
+        </div>
+
+        <!-- 语法练习区 -->
+        <div id="grammar" class="section">
+            <h2>语法练习</h2>
+            <div class="practice-area">
+                <div class="instruction">请选择正确的答案来完成句子：</div>
+                <div id="grammar-question" class="question-display"></div>
+                <div id="grammar-options" class="grammar-options">
+                    <!-- Options will be loaded here by JavaScript -->
+                </div>
+                <div class="controls">
+                    <button class="button check" onclick="checkGrammar()" disabled>检查</button>
+                    <button class="button next" onclick="nextGrammar()">下一个</button>
+                </div>
+                <div id="grammar-feedback" class="feedback"></div>
+            </div>
+        </div>
+
+        <!-- 交互式语言练习区 -->
+        <div id="interactive" class="section">
+            <h2>交互式语言练习 (句子构建)</h2>
+            <div class="practice-area">
+                <div class="instruction">请拖动或点击下面的单词，按正确顺序构建法语句子：</div>
+                <div id="interactive-prompt" class="question-display"></div>
+                <div id="sentence-builder" class="sentence-input">
+                    <!-- Dropped words will appear here -->
+                </div>
+                <div id="available-words" class="available-words">
+                    <!-- Available words will be loaded here -->
+                </div>
+                <div class="controls">
+                    <button class="button reset-button" onclick="resetSentenceBuilder()">重置</button>
+                    <button class="button check" onclick="checkInteractive()">检查</button>
+                    <button class="button next" onclick="nextInteractive()">下一个</button>
+                </div>
+                <div id="interactive-feedback" class="feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 全局变量 ---
+        let currentSection = 'vocabulary';
+
+        // --- 词汇数据 ---
+        const vocabularyWords = [
+            { french: "Bonjour", chinese: "你好" },
+            { french: "Merci", chinese: "谢谢" },
+            { french: "Au revoir", chinese: "再见" },
+            { french: "Oui", chinese: "是" },
+            { french: "Non", chinese: "不" },
+            { french: "Excusez-moi", chinese: "打扰一下" },
+            { french: "S'il vous plaît", chinese: "请" },
+            { french: "Je t'aime", chinese: "我爱你" },
+            { french: "Comment allez-vous?", chinese: "您好吗？" },
+            { french: "Bien sûr", chinese: "当然" }
+        ];
+        let currentVocabIndex = 0;
+
+        // --- 语法数据 ---
+        const grammarQuestions = [
+            {
+                question: "Je ____ (être) étudiant.",
+                options: ["suis", "es", "est", "sommes"],
+                answer: "suis",
+                feedback: "这是动词 'être' (是) 在第一人称单数 (Je) 的变位。"
+            },
+            {
+                question: "Elle ____ (parler) français.",
+                options: ["parle", "parles", "parlent", "parlons"],
+                answer: "parle",
+                feedback: "以 '-er' 结尾的动词在第三人称单数 (Elle) 变位时词尾为 '-e'。"
+            },
+            {
+                question: "Nous ____ (avoir) un chat.",
+                options: ["avez", "avons", "ont", "a"],
+                answer: "avons",
+                feedback: "这是动词 'avoir' (有) 在第一人称复数 (Nous) 的变位。"
+            },
+            {
+                question: "____ est ton nom?",
+                options: ["Quel", "Quelle", "Quels", "Quelles"],
+                answer: "Quel",
+                feedback: "'Nom' 是阳性单数名词，所以用 'Quel'。"
+            },
+            {
+                question: "____ pommes sont délicieuses.",
+                options: ["Les", "La", "Le", "L'"],
+                answer: "Les",
+                feedback: "'Pommes' 是复数名词，所以使用定冠词 'Les'。"
+            }
+        ];
+        let currentGrammarIndex = 0;
+        let selectedGrammarOption = null;
+
+        // --- 交互式练习数据 (句子构建) ---
+        const interactiveSentences = [
+            {
+                english: "I like French.",
+                frenchWords: ["J'aime", "le", "français", "."],
+                correctOrder: ["J'aime", "le", "français", "."]
+            },
+            {
+                english: "The cat is on the table.",
+                frenchWords: ["Le", "chat", "est", "sur", "la", "table", "."],
+                correctOrder: ["Le", "chat", "est", "sur", "la", "table", "."]
+            },
+            {
+                english: "We are going to Paris.",
+                frenchWords: ["Nous", "allons", "à", "Paris", "."],
+                correctOrder: ["Nous", "allons", "à", "Paris", "."]
+            },
+            {
+                english: "She has a beautiful dress.",
+                frenchWords: ["Elle", "a", "une", "belle", "robe", "."],
+                correctOrder: ["Elle", "a", "une", "belle", "robe", "."]
+            }
+        ];
+        let currentInteractiveIndex = 0;
+        let droppedWords = []; // For interactive sentence builder
+
+        // --- 通用函数 ---
+        function showSection(sectionId) {
+            // 隐藏所有区域
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            // 移除所有导航按钮的激活状态
+            document.querySelectorAll('.nav-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // 显示指定区域
+            document.getElementById(sectionId).classList.add('active');
+            // 激活对应的导航按钮
+            document.querySelector(`.nav-button[onclick="showSection('${sectionId}')"]`).classList.add('active');
+            currentSection = sectionId;
+
+            // 根据切换的区域，初始化内容
+            if (sectionId === 'vocabulary') {
+                loadVocabulary();
+            } else if (sectionId === 'grammar') {
+                loadGrammar();
+            } else if (sectionId === 'interactive') {
+                loadInteractive();
+            }
+        }
+
+        function clearFeedback(id) {
+            const feedbackElement = document.getElementById(id);
+            if (feedbackElement) {
+                feedbackElement.textContent = '';
+                feedbackElement.className = 'feedback';
+            }
+        }
+
+        function setFeedback(id, message, type) {
+            const feedbackElement = document.getElementById(id);
+            feedbackElement.textContent = message;
+            feedbackElement.className = `feedback ${type}`;
+        }
+
+        // --- 词汇练习逻辑 ---
+        function loadVocabulary() {
+            clearFeedback('vocab-feedback');
+            document.getElementById('vocab-input').value = '';
+            document.getElementById('vocab-word').textContent = vocabularyWords[currentVocabIndex].french;
+            document.getElementById('vocab-input').focus();
+        }
+
+        function checkVocabulary() {
+            const userInput = document.getElementById('vocab-input').value.trim();
+            const correctAnswer = vocabularyWords[currentVocabIndex].chinese.toLowerCase();
+
+            if (userInput.toLowerCase() === correctAnswer) {
+                setFeedback('vocab-feedback', '正确！', 'correct');
+            } else {
+                setFeedback('vocab-feedback', `不正确。正确答案是: ${vocabularyWords[currentVocabIndex].chinese}`, 'incorrect');
+            }
+        }
+
+        function nextVocabulary() {
+            currentVocabIndex = (currentVocabIndex + 1) % vocabularyWords.length;
+            loadVocabulary();
+        }
+
+        // --- 语法练习逻辑 ---
+        function loadGrammar() {
+            clearFeedback('grammar-feedback');
+            selectedGrammarOption = null; // Reset selection
+            const questionData = grammarQuestions[currentGrammarIndex];
+
+            document.getElementById('grammar-question').textContent = questionData.question;
+            const optionsContainer = document.getElementById('grammar-options');
+            optionsContainer.innerHTML = ''; // Clear previous options
+
+            questionData.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.classList.add('grammar-option-button');
+                button.textContent = option;
+                button.onclick = () => selectGrammarOption(button, option);
+                optionsContainer.appendChild(button);
+            });
+            // 启用检查按钮
+            document.querySelector('#grammar .button.check').disabled = true;
+        }
+
+        function selectGrammarOption(button, option) {
+            // Remove 'selected' from all buttons first
+            document.querySelectorAll('#grammar-options .grammar-option-button').forEach(btn => {
+                btn.classList.remove('selected', 'correct-answer', 'incorrect-selected');
+            });
+            // Add 'selected' to the clicked button
+            button.classList.add('selected');
+            selectedGrammarOption = option;
+            // 启用检查按钮
+            document.querySelector('#grammar .button.check').disabled = false;
+            clearFeedback('grammar-feedback'); // Clear feedback on new selection
+        }
+
+        function checkGrammar() {
+            if (!selectedGrammarOption) {
+                setFeedback('grammar-feedback', '请选择一个答案！', 'incorrect');
+                return;
+            }
+
+            const questionData = grammarQuestions[currentGrammarIndex];
+            const optionButtons = document.querySelectorAll('#grammar-options .grammar-option-button');
+
+            optionButtons.forEach(button => {
+                if (button.textContent === questionData.answer) {
+                    button.classList.add('correct-answer'); // Highlight correct answer
+                } else if (button.classList.contains('selected') && button.textContent !== questionData.answer) {
+                    button.classList.add('incorrect-selected'); // Highlight user's incorrect choice
+                }
+                button.disabled = true; // Disable buttons after checking
+            });
+
+            if (selectedGrammarOption === questionData.answer) {
+                setFeedback('grammar-feedback', `正确！${questionData.feedback}`, 'correct');
+            } else {
+                setFeedback('grammar-feedback', `不正确。正确答案是 "${questionData.answer}"。${questionData.feedback}`, 'incorrect');
+            }
+            document.querySelector('#grammar .button.check').disabled = true; // Disable check button after checking
+        }
+
+        function nextGrammar() {
+            currentGrammarIndex = (currentGrammarIndex + 1) % grammarQuestions.length;
+            loadGrammar();
+        }
+
+        // --- 交互式语言练习逻辑 (句子构建) ---
+        function loadInteractive() {
+            clearFeedback('interactive-feedback');
+            document.querySelector('#interactive .button.check').disabled = false; // Enable check button
+            const sentenceData = interactiveSentences[currentInteractiveIndex];
+
+            document.getElementById('interactive-prompt').textContent = `翻译: "${sentenceData.english}"`;
+            document.getElementById('sentence-builder').innerHTML = ''; // Clear built sentence
+            document.getElementById('available-words').innerHTML = ''; // Clear available words
+
+            droppedWords = []; // Reset dropped words array
+
+            // Shuffle available words
+            const shuffledWords = [...sentenceData.frenchWords].sort(() => Math.random() - 0.5);
+
+            shuffledWords.forEach(word => {
+                const wordChip = document.createElement('span');
+                wordChip.classList.add('word-chip');
+                wordChip.textContent = word;
+                wordChip.setAttribute('draggable', true);
+                wordChip.ondragstart = (event) => {
+                    event.dataTransfer.setData('text/plain', word);
+                    // Add a class to indicate it's being dragged (optional, for visual feedback)
+                    setTimeout(() => wordChip.style.opacity = '0.5', 0);
+                };
+                wordChip.ondragend = (event) => {
+                    wordChip.style.opacity = '1';
+                };
+                wordChip.onclick = () => addWordToBuilder(wordChip, word);
+                document.getElementById('available-words').appendChild(wordChip);
+            });
+
+            // Set up drag and drop for sentence builder
+            const sentenceBuilder = document.getElementById('sentence-builder');
+            sentenceBuilder.ondragover = (event) => event.preventDefault();
+            sentenceBuilder.ondrop = (event) => {
+                event.preventDefault();
+                const word = event.dataTransfer.getData('text/plain');
+                addWordToBuilder(null, word); // Pass null for chip if dragging from outside
+            };
+        }
+
+        function addWordToBuilder(chipElement, word) {
+            // If the word chip already exists in 'available-words', remove it
+            if (chipElement) {
+                chipElement.remove();
+            } else {
+                // If dragging, we need to find and remove the original chip
+                const availableWordsDiv = document.getElementById('available-words');
+                const existingChip = Array.from(availableWordsDiv.children).find(c => c.textContent === word);
+                if (existingChip) {
+                    existingChip.remove();
+                }
+            }
+
+            const newChip = document.createElement('span');
+            newChip.classList.add('word-chip');
+            newChip.textContent = word;
+            newChip.onclick = () => removeWordFromBuilder(newChip, word); // Click to remove from builder
+            document.getElementById('sentence-builder').appendChild(newChip);
+            droppedWords.push(word);
+        }
+
+        function removeWordFromBuilder(chipElement, word) {
+            chipElement.remove();
+            droppedWords = droppedWords.filter(w => w !== word); // Remove from our array
+
+            // Add back to available words
+            const availableWordsDiv = document.getElementById('available-words');
+            const newChip = document.createElement('span');
+            newChip.classList.add('word-chip');
+            newChip.textContent = word;
+            newChip.setAttribute('draggable', true);
+            newChip.ondragstart = (event) => {
+                event.dataTransfer.setData('text/plain', word);
+                setTimeout(() => newChip.style.opacity = '0.5', 0);
+            };
+            newChip.ondragend = (event) => {
+                newChip.style.opacity = '1';
+            };
+            newChip.onclick = () => addWordToBuilder(newChip, word); // Click to add back to builder
+            availableWordsDiv.appendChild(newChip);
+        }
+
+        function resetSentenceBuilder() {
+            loadInteractive(); // Simply reload to reset everything
+        }
+
+        function checkInteractive() {
+            const sentenceData = interactiveSentences[currentInteractiveIndex];
+            const constructedSentence = droppedWords.join(" ");
+            const correctSentence = sentenceData.correctOrder.join(" ");
+
+            if (constructedSentence === correctSentence) {
+                setFeedback('interactive-feedback', '太棒了！你的句子是正确的！', 'correct');
+            } else {
+                setFeedback('interactive-feedback', `不正确。你的句子是: "${constructedSentence}"。正确答案是: "${correctSentence}"`, 'incorrect');
+            }
+            document.querySelector('#interactive .button.check').disabled = true; // Disable check button after checking
+        }
+
+        function nextInteractive() {
+            currentInteractiveIndex = (currentInteractiveIndex + 1) % interactiveSentences.length;
+            loadInteractive();
+        }
+
+        // --- 初始化 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 确保页面加载时默认显示词汇练习
+            showSection('vocabulary');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AA记账</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f0f2f5;
+            color: #333;
+            padding: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        h1 {
+            font-size: 26px;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #1a1a2e;
+            letter-spacing: 2px;
+        }
+        h2 {
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            color: #2c3e50;
+        }
+        h3 {
+            font-size: 16px;
+            margin: 16px 0 8px 0;
+            color: #2c3e50;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .form-row input,
+        .form-row select {
+            flex: 1;
+            padding: 12px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: #fafafa;
+            min-width: 0;
+            transition: border 0.2s;
+        }
+        .form-row input:focus,
+        .form-row select:focus {
+            border-color: #3498db;
+            outline: none;
+            background: #fff;
+        }
+        .form-row button {
+            padding: 12px 20px;
+            background: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: opacity 0.15s;
+        }
+        .form-row button:active {
+            opacity: 0.75;
+        }
+        .form-row button.secondary {
+            background: #95a5a6;
+        }
+        .btn-full {
+            width: 100%;
+            padding: 14px;
+            background: #27ae60;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: opacity 0.15s;
+        }
+        .btn-full:active {
+            opacity: 0.8;
+        }
+        .btn-full.orange {
+            background: #e67e22;
+        }
+        .tag {
+            display: inline-block;
+            padding: 6px 14px 6px 16px;
+            background: #ecf0f1;
+            border-radius: 24px;
+            margin: 4px 8px 4px 0;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .tag .remove {
+            margin-left: 10px;
+            color: #e74c3c;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            vertical-align: middle;
+        }
+        .participant-list {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            min-height: 32px;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0 14px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 24px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s, color 0.15s;
+        }
+        .checkbox-group label.checked {
+            background: #3498db;
+            color: #fff;
+        }
+        .checkbox-group label input[type="checkbox"] {
+            display: none;
+        }
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .expense-item:last-child {
+            border-bottom: none;
+        }
+        .expense-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .expense-amount {
+            font-weight: 700;
+            font-size: 17px;
+        }
+        .expense-payer {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        .expense-actions button {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px 12px;
+            touch-action: manipulation;
+        }
+        .result-section {
+            background: #ecf9f3;
+            border-radius: 16px;
+            padding: 18px 16px;
+            display: none;
+        }
+        .result-section.visible {
+            display: block;
+        }
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #d5e8dd;
+        }
+        .balance-item:last-child {
+            border-bottom: none;
+        }
+        .balance-item .positive {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        .balance-item .negative {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        .settle-item {
+            padding: 10px 0;
+            font-size: 16px;
+            border-bottom: 1px solid #d5e8dd;
+            display: flex;
+            justify-content: space-between;
+        }
+        .settle-item:last-child {
+            border-bottom: none;
+        }
+        .settle-item strong {
+            color: #2c3e50;
+        }
+        .empty-state {
+            text-align: center;
+            color: #b0bec5;
+            padding: 20px 10px;
+            font-size: 15px;
+        }
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #b0bec5;
+            font-size: 13px;
+        }
+        @media (max-width: 360px) {
+            body {
+                padding: 12px;
+            }
+            .form-row input,
+            .form-row select {
+                padding: 10px 12px;
+            }
+            .form-row button {
+                padding: 10px 14px;
+            }
+            .tag {
+                font-size: 14px;
+                padding: 4px 12px 4px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🍽 AA记账</h1>
+
+    <!-- 参与人 -->
+    <div class="card">
+        <h2>👥 参与人</h2>
+        <div class="form-row">
+            <input type="text" id="participantName" placeholder="输入名字" autocomplete="off">
+            <button id="addParticipantBtn">添加</button>
+        </div>
+        <div id="participantList" class="participant-list"></div>
+    </div>
+
+    <!-- 添加消费 -->
+    <div class="card">
+        <h2>💳 记录消费</h2>
+        <div class="form-row">
+            <input type="number" id="expenseAmount" placeholder="金额" min="0.01" step="0.01" inputmode="decimal">
+            <select id="expensePayer">
+                <option value="">付款人</option>
+            </select>
+        </div>
+        <div style="font-size:14px;color:#555;margin-bottom:4px;">参与分摊的人：</div>
+        <div id="involvedCheckboxGroup" class="checkbox-group"></div>
+        <button id="addExpenseBtn" class="btn-full orange">添加消费</button>
+    </div>
+
+    <!-- 消费记录 -->
+    <div class="card">
+        <h2>📋 消费记录</h2>
+        <div id="expenseList"></div>
+    </div>
+
+    <!-- 结算 -->
+    <button id="calculateBtn" class="btn-full">🧮 算账</button>
+
+    <!-- 结果 -->
+    <div id="resultCard" class="card result-section">
+        <h2>💰 结算结果</h2>
+        <div id="balanceList"></div>
+        <h3>📤 转账方案</h3>
+        <div id="settleList"></div>
+    </div>
+
+    <div class="footer">点击 × 可删除</div>
+
+    <script>
+        // ---------- 数据 ----------
+        let participants = [];
+        let expenses = [];
+        let nextId = 1;
+
+        // ---------- DOM ----------
+        const participantNameInput = document.getElementById('participantName');
+        const addParticipantBtn = document.getElementById('addParticipantBtn');
+        const participantListDiv = document.getElementById('participantList');
+
+        const expenseAmountInput = document.getElementById('expenseAmount');
+        const expensePayerSelect = document.getElementById('expensePayer');
+        const involvedCheckboxGroup = document.getElementById('involvedCheckboxGroup');
+        const addExpenseBtn = document.getElementById('addExpenseBtn');
+
+        const expenseListDiv = document.getElementById('expenseList');
+
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultCard = document.getElementById('resultCard');
+        const balanceListDiv = document.getElementById('balanceList');
+        const settleListDiv = document.getElementById('settleList');
+
+        // ---------- 辅助函数 ----------
+        function hideResult() {
+            resultCard.classList.remove('visible');
+        }
+
+        // ---------- 渲染参与人 ----------
+        function renderParticipants() {
+            participantListDiv.innerHTML = '';
+            if (participants.length === 0) {
+                participantListDiv.innerHTML = '<div class="empty-state">暂无参与人，请添加</div>';
+            } else {
+                participants.forEach(p => {
+                    const span = document.createElement('span');
+                    span.className = 'tag';
+                    span.innerHTML = `${p.name} <span class="remove" data-id="${p.id}">×</span>`;
+                    participantListDiv.appendChild(span);
+                });
+                document.querySelectorAll('.remove').forEach(el => {
+                    el.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = parseInt(this.dataset.id);
+                        removeParticipant(id);
+                    });
+                });
+            }
+            updatePayerSelect();
+            updateInvolvedCheckboxes();
+            hideResult();
+        }
+
+        // ---------- 更新付款人选择器 ----------
+        function updatePayerSelect() {
+            expensePayerSelect.innerHTML = '<option value="">付款人</option>';
+            participants.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                expensePayerSelect.appendChild(opt);
+            });
+        }
+
+        // ---------- 更新参与人复选框 ----------
+        function updateInvolvedCheckboxes() {
+            involvedCheckboxGroup.innerHTML = '';
+            if (participants.length === 0) {
+                involvedCheckboxGroup.innerHTML = '<div class="empty-state">请先添加参与人</div>';
+                return;
+            }
+            participants.forEach(p => {
+                const label = document.createElement('label');
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.value = p.id;
+                cb.checked = true;
+                cb.dataset.name = p.name;
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(p.name));
+                label.classList.add('checked');
+                involvedCheckboxGroup.appendChild(label);
+
+                cb.addEventListener('change', function() {
+                    label.classList.toggle('checked', this.checked);
+                });
+                // 点击 label 切换
+                label.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'INPUT') return;
+                    const checkbox = this.querySelector('input[type=checkbox]');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        }
+
+        // ---------- 添加参与人 ----------
+        addParticipantBtn.addEventListener('click', function() {
+            const name = participantNameInput.value.trim();
+            if (!name) { alert('请输入名字'); return; }
+            if (participants.some(p => p.name === name)) { alert('该名字已存在'); return; }
+            participants.push({ id: nextId++, name });
+            participantNameInput.value = '';
+            participantNameInput.focus();
+            renderParticipants();
+        });
+
+        // 回车添加
+        participantNameInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addParticipantBtn.click();
+        });
+
+        // ---------- 删除参与人 ----------
+        function removeParticipant(id) {
+            const p = participants.find(p => p.id === id);
+            if (!p) return;
+            if (!confirm(`确定要删除「${p.name}」及其相关消费记录吗？`)) return;
+            participants = participants.filter(p => p.id !== id);
+            // 移除相关消费（付款人或参与人涉及）
+            expenses = expenses.filter(e => e.payerId !== id && !e.involvedIds.includes(id));
+            renderParticipants();
+            renderExpenses();
+        }
+
+        // ---------- 渲染消费记录 ----------
+        function renderExpenses() {
+            expenseListDiv.innerHTML = '';
+            if (expenses.length === 0) {
+                expenseListDiv.innerHTML = '<div class="empty-state">暂无消费记录</div>';
+            } else {
+                // 显示最新的在前
+                [...expenses].reverse().forEach(e => {
+                    const payer = participants.find(p => p.id === e.payerId);
+                    const payerName = payer ? payer.name : '未知';
+                    const count = e.involvedIds.length;
+                    const div = document.createElement('div');
+                    div.className = 'expense-item';
+                    div.innerHTML = `
+                        <div class="expense-info">
+                            <div class="expense-amount">¥ ${e.amount.toFixed(2)}</div>
+                            <div class="expense-payer">付款人: ${payerName} · ${count}人分摊</div>
+                        </div>
+                        <div class="expense-actions">
+                            <button class="delete-expense" data-id="${e.id}">×</button>
+                        </div>
+                    `;
+                    expenseListDiv.appendChild(div);
+                });
+                document.querySelectorAll('.delete-expense').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const id = parseInt(this.dataset.id);
+                        if (!confirm('确定删除该消费记录吗？')) return;
+                        expenses = expenses.filter(e => e.id !== id);
+                        renderExpenses();
+                        hideResult();
+                    });
+                });
+            }
+            hideResult();
+        }
+
+        // ---------- 添加消费 ----------
+        addExpenseBtn.addEventListener('click', function() {
+            const amount = parseFloat(expenseAmountInput.value);
+            if (isNaN(amount) || amount <= 0) { alert('请输入有效金额'); return; }
+            const payerId = parseInt(expensePayerSelect.value);
+            if (!payerId) { alert('请选择付款人'); return; }
+            const checkboxes = involvedCheckboxGroup.querySelectorAll('input[type=checkbox]');
+            const involvedIds = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) involvedIds.push(parseInt(cb.value));
+            });
+            if (involvedIds.length === 0) { alert('请至少选择一位参与分摊的人'); return; }
+
+            expenses.push({
+                id: nextId++,
+                amount: Math.round(amount * 100) / 100,
+                payerId,
+                involvedIds
+            });
+
+            expenseAmountInput.value = '';
+            expenseAmountInput.focus();
+            renderExpenses();
+        });
+
+        // 回车添加消费
+        expenseAmountInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addExpenseBtn.click();
+        });
+
+        // ---------- 结算 ----------
+        calculateBtn.addEventListener('click', function() {
+            if (participants.length === 0) { alert('请先添加参与人'); return; }
+            if (expenses.length === 0) { alert('请先添加消费记录'); return; }
+
+            // 计算净余额
+            const balance = {};
+            participants.forEach(p => balance[p.id] = 0);
+
+            expenses.forEach(e => {
+                const perPerson = e.amount / e.involvedIds.length;
+                // 付款人获得 credit
+                balance[e.payerId] += e.amount;
+                // 参与人分摊
+                e.involvedIds.forEach(id => {
+                    balance[id] -= perPerson;
+                });
+            });
+
+            // 显示余额
+            balanceListDiv.innerHTML = '';
+            participants.forEach(p => {
+                const bal = balance[p.id];
+                const div = document.createElement('div');
+                div.className = 'balance-item';
+                const sign = bal >= 0 ? 'positive' : 'negative';
+                const formatted = bal >= 0 ? `+ ¥${bal.toFixed(2)}` : `- ¥${Math.abs(bal).toFixed(2)}`;
+                div.innerHTML = `<span>${p.name}</span><span class="${sign}">${formatted}</span>`;
+                balanceListDiv.appendChild(div);
+            });
+
+            // 债务简化（贪心）
+            let creditors = participants
+                .filter(p => balance[p.id] > 0.005)
+                .map(p => ({ id: p.id, name: p.name, amount: balance[p.id] }))
+                .sort((a, b) => b.amount - a.amount);
+
+            let debtors = participants
+                .filter(p => balance[p.id] < -0.005)
+                .map(p => ({ id: p.id, name: p.name, amount: -balance[p.id] }))
+                .sort((a, b) => b.amount - a.amount);
+
+            const transfers = [];
+            let i = 0, j = 0;
+            while (i < creditors.length && j < debtors.length) {
+                const transfer = Math.min(creditors[i].amount, debtors[j].amount);
+                if (transfer > 0.005) {
+                    transfers.push({
+                        from: debtors[j].name,
+                        to: creditors[i].name,
+                        amount: transfer
+                    });
+                }
+                creditors[i].amount -= transfer;
+                debtors[j].amount -= transfer;
+                if (creditors[i].amount < 0.005) i++;
+                if (debtors[j].amount < 0.005) j++;
+            }
+
+            settleListDiv.innerHTML = '';
+            if (transfers.length === 0) {
+                settleListDiv.innerHTML = '<div class="empty-state">账已平，无需转账</div>';
+            } else {
+                transfers.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = 'settle-item';
+                    div.innerHTML = `<span>${t.from} → ${t.to}</span><strong>¥ ${t.amount.toFixed(2)}</strong>`;
+                    settleListDiv.appendChild(div);
+                });
+            }
+
+            resultCard.classList.add('visible');
+        });
+
+        // ---------- 初始化 ----------
+        renderParticipants();
+        renderExpenses();
+
+        // 示例数据（便于测试，可删除）
+        (function seedDemo() {
+            if (localStorage.getItem('aa_demo_seeded')) return;
+            // 添加示例参与人
+            const names = ['小明', '小红', '小刚'];
+            names.forEach(name => {
+                participants.push({ id: nextId++, name });
+            });
+            // 示例消费
+            expenses.push({
+                id: nextId++,
+                amount: 180,
+                payerId: 1,
+                involvedIds: [1, 2, 3]
+            });
+            expenses.push({
+                id: nextId++,
+                amount: 96,
+                payerId: 2,
+                involvedIds: [2, 3]
+            });
+            renderParticipants();
+            renderExpenses();
+            localStorage.setItem('aa_demo_seeded', 'true');
+        })();
+    </script>
+</body>
+</html>

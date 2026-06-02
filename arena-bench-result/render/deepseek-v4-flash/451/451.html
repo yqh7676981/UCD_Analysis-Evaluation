@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>艾尚造型 · 美发沙龙</title>
+    <style>
+        /* ==================== 全局重置 & 字体 ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', Roboto, sans-serif;
+            background: #faf7f5;
+            color: #3a2e2a;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ==================== 颜色变量 ==================== */
+        :root {
+            --primary: #a0806a;
+            --primary-dark: #7d6250;
+            --primary-light: #d9c8bb;
+            --accent: #c9a88c;
+            --bg-light: #faf7f5;
+            --bg-white: #ffffff;
+            --text-dark: #3a2e2a;
+            --text-muted: #7a6a5e;
+            --shadow: 0 8px 30px rgba(60, 45, 35, 0.08);
+            --radius: 18px;
+            --radius-sm: 10px;
+        }
+
+        /* ==================== 导航 ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 2px 20px rgba(60, 45, 35, 0.06);
+            z-index: 1000;
+            padding: 0 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 72px;
+            transition: background 0.3s;
+        }
+
+        .navbar .logo {
+            font-size: 26px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar .logo span {
+            font-weight: 300;
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 36px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-dark);
+            transition: color 0.25s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-dark);
+        }
+
+        .nav-cta {
+            background: var(--primary);
+            color: #fff !important;
+            padding: 10px 26px;
+            border-radius: 60px;
+            font-weight: 500;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .nav-cta:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .nav-cta::after {
+            display: none !important;
+        }
+
+        /* 汉堡菜单（移动端） */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+
+        .hamburger span {
+            width: 28px;
+            height: 2.5px;
+            background: var(--text-dark);
+            border-radius: 4px;
+            transition: 0.3s;
+        }
+
+        /* ==================== Hero ==================== */
+        .hero {
+            margin-top: 72px;
+            min-height: 92vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #f5efe9 0%, #e8ddd4 100%);
+            padding: 0 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(201, 168, 140, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(160, 128, 106, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            max-width: 1280px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text h1 {
+            font-size: 52px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .hero-text h1 .highlight {
+            color: var(--primary);
+            font-style: italic;
+            font-weight: 300;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            max-width: 480px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            padding: 14px 38px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-dark);
+            padding: 14px 38px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 16px;
+            border: 2px solid var(--primary-light);
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(160, 128, 106, 0.06);
+        }
+
+        .hero-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image-placeholder {
+            width: 100%;
+            max-width: 520px;
+            aspect-ratio: 4/5;
+            background: linear-gradient(145deg, #d9c8bb, #c9a88c);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 20px 20px 60px rgba(60, 45, 35, 0.12);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-image-placeholder::after {
+            content: '✂︎';
+            font-size: 120px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 300;
+        }
+
+        /* ==================== 通用 Section ==================== */
+        section {
+            padding: 90px 5%;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 38px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 12px;
+        }
+
+        .section-title p {
+            font-size: 17px;
+            color: var(--text-muted);
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .section-title .accent-line {
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            margin: 16px auto 0;
+            border-radius: 4px;
+        }
+
+        /* ==================== 服务 ==================== */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 36px 28px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: default;
+            border: 1px solid rgba(201, 168, 140, 0.08);
+        }
+
+        .service-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(60, 45, 35, 0.12);
+        }
+
+        .service-icon {
+            font-size: 44px;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .service-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .service-card p {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        .service-card .price {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        /* ==================== 造型师 ==================== */
+        .stylist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 32px;
+        }
+
+        .stylist-card {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 32px 20px 26px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+            border: 1px solid rgba(201, 168, 140, 0.08);
+        }
+
+        .stylist-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stylist-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d9c8bb, #c9a88c);
+            margin: 0 auto 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 52px;
+            color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 8px 24px rgba(160, 128, 106, 0.2);
+        }
+
+        .stylist-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .stylist-card .title {
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .stylist-card p {
+            color: var(--text-muted);
+            font-size: 14px;
+            max-width: 220px;
+            margin: 0 auto;
+        }
+
+        .stylist-card .stars {
+            color: #e8b84b;
+            font-size: 18px;
+            letter-spacing: 2px;
+            margin-top: 12px;
+        }
+
+        /* ==================== 预订 ==================== */
+        .booking-section {
+            background: linear-gradient(145deg, #f5efe9, #ede4db);
+            border-radius: var(--radius);
+            padding: 60px 6%;
+            margin: 0 5% 90px;
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .booking-inner {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .booking-info h2 {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .booking-info p {
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 24px;
+            max-width: 400px;
+        }
+
+        .booking-info .contact-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        .booking-info .contact-row span {
+            font-size: 22px;
+        }
+
+        .booking-form {
+            background: var(--bg-white);
+            padding: 36px 32px 32px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .booking-form .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .booking-form input,
+        .booking-form select,
+        .booking-form textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1.5px solid #e8ddd4;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-family: inherit;
+            background: var(--bg-light);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            color: var(--text-dark);
+        }
+
+        .booking-form input:focus,
+        .booking-form select:focus,
+        .booking-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(160, 128, 106, 0.12);
+        }
+
+        .booking-form textarea {
+            resize: vertical;
+            min-height: 90px;
+            margin-bottom: 16px;
+        }
+
+        .booking-form .btn-primary {
+            width: 100%;
+            justify-content: center;
+            padding: 16px;
+            font-size: 17px;
+        }
+
+        .form-message {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 15px;
+            min-height: 28px;
+            color: var(--primary-dark);
+        }
+
+        /* ==================== 客户评论 ==================== */
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 28px;
+        }
+
+        .review-card {
+            background: var(--bg-white);
+            border-radius: var(--radius);
+            padding: 32px 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(201, 168, 140, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .review-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .review-card .review-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .review-card .review-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d9c8bb, #c9a88c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .review-card .review-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        .review-card .review-stars {
+            color: #e8b84b;
+            font-size: 16px;
+            letter-spacing: 1px;
+        }
+
+        .review-card .review-text {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.7;
+            font-style: italic;
+        }
+
+        .review-card .review-service {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+            background: rgba(160, 128, 106, 0.08);
+            padding: 4px 16px;
+            border-radius: 40px;
+        }
+
+        /* ==================== 页脚 ==================== */
+        footer {
+            background: #2f2622;
+            color: #d9c8bb;
+            padding: 50px 5% 32px;
+            margin-top: 40px;
+        }
+
+        .footer-inner {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-col h4 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .footer-col p,
+        .footer-col a {
+            color: #b8a69b;
+            font-size: 14px;
+            line-height: 2;
+            display: block;
+        }
+
+        .footer-col a:hover {
+            color: #d9c8bb;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 24px;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #9a887e;
+        }
+
+        /* ==================== 响应式 ==================== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text p {
+                margin: 0 auto 32px;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-image {
+                order: -1;
+            }
+
+            .hero-image-placeholder {
+                max-width: 380px;
+                aspect-ratio: 4/5;
+            }
+
+            .hero-text h1 {
+                font-size: 40px;
+            }
+
+            .booking-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-info p {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 72px;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(12px);
+                flex-direction: column;
+                padding: 32px 5%;
+                gap: 24px;
+                transform: translateY(-120%);
+                opacity: 1; /* fixed: was 0 */
+                transition: transform 0.4s ease, opacity 0.3s;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+                border-bottom: 1px solid rgba(201, 168, 140, 0.1);
+                pointer-events: none;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: auto;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hamburger.active span:nth-child(1) {
+                transform: translateY(7px) rotate(45deg);
+            }
+            .hamburger.active span:nth-child(2) {
+                opacity: 0;
+            }
+            .hamburger.active span:nth-child(3) {
+                transform: translateY(-7px) rotate(-45deg);
+            }
+
+            .hero-text h1 {
+                font-size: 32px;
+            }
+
+            section {
+                padding: 60px 5%;
+            }
+
+            .section-title h2 {
+                font-size: 30px;
+            }
+
+            .booking-section {
+                padding: 40px 5%;
+                margin-left: 5%;
+                margin-right: 5%;
+            }
+
+            .booking-form .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stylist-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-image-placeholder {
+                max-width: 280px;
+            }
+
+            .hero-text h1 {
+                font-size: 28px;
+            }
+
+            .navbar .logo {
+                font-size: 20px;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <!-- ==================== 导航 ==================== -->
+    <nav class="navbar" id="navbar">
+        <div class="logo">艾尚<span>·造型</span></div>
+        <button class="hamburger" id="hamburger" aria-label="切换菜单">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#services">服务</a></li>
+            <li><a href="#stylists">造型师</a></li>
+            <li><a href="#reviews">口碑</a></li>
+            <li><a href="#booking" class="nav-cta">立即预约</a></li>
+        </ul>
+    </nav>
+
+    <!-- ==================== Hero ==================== -->
+    <header class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>打造属于你的<br><span class="highlight">发型美学</span></h1>
+                <p>专业造型团队 · 日式精剪 · 色彩定制 · 头皮护理<br>用匠心与审美，让每一天都从「头」开始闪耀。</p>
+                <div class="hero-buttons">
+                    <a href="#booking" class="btn-primary">📅 预约体验</a>
+                    <a href="#services" class="btn-secondary">浏览服务</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-image-placeholder"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==================== 服务 ==================== -->
+    <section id="services">
+        <div class="section-title">
+            <h2>✨ 匠心服务</h2>
+            <p>从剪裁到护理，我们用专业宠爱你的每一缕发丝</p>
+            <div class="accent-line"></div>
+        </div>
+        <div class="services-grid">
+            <div class="service-card">
+                <span class="service-icon">✂️</span>
+                <h3>精剪造型</h3>
+                <p>日式 / 韩式剪裁，根据脸型与气质量身设计</p>
+                <div class="price">¥168 起</div>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">🎨</span>
+                <h3>染发·色彩定制</h3>
+                <p>植物染发、渐变、挑染，国际品牌染膏呵护发质</p>
+                <div class="price">¥298 起</div>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">💆‍♀️</span>
+                <h3>头皮护理</h3>
+                <p>深层清洁、控油去屑、滋养强化，还原健康头皮</p>
+                <div class="price">¥228 起</div>
+            </div>
+            <div class="service-card">
+                <span class="service-icon">✨</span>
+                <h3>烫发·塑形</h3>
+                <p>冷烫、热烫、纹理烫，自然卷度持久有型</p>
+                <div class="price">¥398 起</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 造型师 ==================== -->
+    <section id="stylists">
+        <div class="section-title">
+            <h2>✤ 造型师团队</h2>
+            <p>每一位都是深耕美业多年的艺术家</p>
+            <div class="accent-line"></div>
+        </div>
+        <div class="stylist-grid">
+            <div class="stylist-card">
+                <div class="stylist-avatar">💇‍♂️</div>
+                <h3>阿Ken</h3>
+                <span class="title">创意总监</span>
+                <p>15年经验 · 擅长日系、英伦复古剪裁</p>
+                <div class="stars">★★★★★</div>
+            </div>
+            <div class="stylist-card">
+                <div class="stylist-avatar">💇‍♀️</div>
+                <h3>Luna</h3>
+                <span class="title">色彩大师</span>
+                <p>12年经验 · 精通染发、渐变、色彩矫正</p>
+                <div class="stars">★★★★★</div>
+            </div>
+            <div class="stylist-card">
+                <div class="stylist-avatar">🧑‍🎤</div>
+                <h3>小林</h3>
+                <span class="title">烫发专家</span>
+                <p>10年经验 · 日式烫发、造型烫、蓬松处理</p>
+                <div class="stars">★★★★☆</div>
+            </div>
+            <div class="stylist-card">
+                <div class="stylist-avatar">👩‍🦰</div>
+                <h3>Coco</h3>
+                <span class="title">头皮护理师</span>
+                <p>8年经验 · 头皮抗衰、敏感调理、育发指导</p>
+                <div class="stars">★★★★★</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 客户评论 ==================== -->
+    <section id="reviews">
+        <div class="section-title">
+            <h2>💬 真实口碑</h2>
+            <p>来自客人的真诚反馈，是我们前进的动力</p>
+            <div class="accent-line"></div>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">👩</div>
+                    <div>
+                        <div class="review-name">小鹿</div>
+                        <div class="review-stars">★★★★★</div>
+                    </div>
+                </div>
+                <div class="review-text">“第一次来就被阿Ken老师的审美折服了！剪完感觉整个人的气质都提升了，朋友都说像换了个发型师～ 环境也很舒服，会一直来！”</div>
+                <span class="review-service">精剪造型</span>
+            </div>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">🧑</div>
+                    <div>
+                        <div class="review-name">Jason</div>
+                        <div class="review-stars">★★★★★</div>
+                    </div>
+                </div>
+                <div class="review-text">“Luna帮我做的渐变染真的太绝了！颜色过渡非常自然，而且染完头发依然很顺滑。朋友聚会大家都在问在哪做的，强烈推荐！”</div>
+                <span class="review-service">染发·色彩定制</span>
+            </div>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">👩‍🦱</div>
+                    <div>
+                        <div class="review-name">Mia</div>
+                        <div class="review-stars">★★★★★</div>
+                    </div>
+                </div>
+                <div class="review-text">“头皮护理做完真的太舒服了！Coco的手法很专业，做完之后头皮感觉在呼吸，出油也减少了。强烈安利给有头皮困扰的小伙伴！”</div>
+                <span class="review-service">头皮护理</span>
+            </div>
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="review-avatar">👨</div>
+                    <div>
+                        <div class="review-name">大志</div>
+                        <div class="review-stars">★★★★☆</div>
+                    </div>
+                </div>
+                <div class="review-text">“小林的烫发技术一流，给我做的纹理烫非常自然，早上起床随便吹一下就很有型。价格也合理，已经推荐给好几个兄弟了。”</div>
+                <span class="review-service">烫发·塑形</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== 预订 ==================== -->
+    <div class="booking-section" id="booking">
+        <div class="booking-inner">
+            <div class="booking-info">
+                <h2>📅 预约专属时光</h2>
+                <p>留下你的信息，我们将在 30 分钟内致电确认，为你安排最合适的造型师与时段。</p>
+                <div class="contact-row">
+                    <span>📍</span> 杭州市上城区 · 湖滨路88号 艾尚造型
+                </div>
+                <div class="contact-row">
+                    <span>📞</span> 0571-8888-6666
+                </div>
+                <div class="contact-row">
+                    <span>🕐</span> 每日 10:00 – 21:00 (周日 10:00–19:00)
+                </div>
+                <div style="margin-top:20px;font-size:14px;color:var(--text-muted);">
+                    💡 首次体验享 <strong style="color:var(--primary-dark);">8 折</strong> 优惠，赠送头皮检测一次。
+                </div>
+            </div>
+            <div class="booking-form">
+                <form id="bookingForm">
+                    <div class="form-row">
+                        <input type="text" id="name" placeholder="你的姓名 *" required>
+                        <input type="tel" id="phone" placeholder="手机号码 *" required>
+                    </div>
+                    <div class="form-row">
+                        <select id="service" required>
+                            <option value="">选择服务 *</option>
+                            <option value="精剪造型">精剪造型</option>
+                            <option value="染发·色彩定制">染发·色彩定制</option>
+                            <option value="头皮护理">头皮护理</option>
+                            <option value="烫发·塑形">烫发·塑形</option>
+                        </select>
+                        <select id="stylist">
+                            <option value="">选择造型师 (可选)</option>
+                            <option value="阿Ken">阿Ken · 创意总监</option>
+                            <option value="Luna">Luna · 色彩大师</option>
+                            <option value="小林">小林 · 烫发专家</option>
+                            <option value="Coco">Coco · 头皮护理师</option>
+                        </select>
+                    </div>
+                    <input type="date" id="date" required style="margin-bottom:16px;">
+                    <textarea id="message" placeholder="备注：如时间段偏好、特殊需求等 (可选)"></textarea>
+                    <button type="submit" class="btn-primary">✓ 提交预约</button>
+                    <div class="form-message" id="formMessage"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 页脚 ==================== -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>艾尚·造型</h4>
+                <p>用匠心与审美，塑造属于你的独特风格。<br>始于2013，杭城口碑美发品牌。</p>
+            </div>
+            <div class="footer-col">
+                <h4>快速链接</h4>
+                <a href="#services">服务项目</a>
+                <a href="#stylists">造型师团队</a>
+                <a href="#reviews">客户评价</a>
+                <a href="#booking">预约体验</a>
+            </div>
+            <div class="footer-col">
+                <h4>联系信息</h4>
+                <p>📍 杭州市上城区 · 湖滨路88号</p>
+                <p>📞 0571-8888-6666</p>
+                <p>✉️ hello@aishang.com</p>
+            </div>
+            <div class="footer-col">
+                <h4>营业时间</h4>
+                <p>周一至周六：10:00 – 21:00</p>
+                <p>周日：10:00 – 19:00</p>
+                <p>节假日正常营业</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © 2025 艾尚造型 · 美发沙龙 | 用心服务，从「头」开始
+        </div>
+    </footer>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ---------- 汉堡菜单 ----------
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                navLinks.classList.toggle('active');
+            });
+
+            // 点击导航链接后关闭菜单（移动端）
+            navLinks.querySelectorAll('a').forEach(function(link) {
+                link.addEventListener('click', function() {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('active');
+                });
+            });
+
+            // 点击页面其他区域关闭菜单
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.navbar')) {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('active');
+                }
+            });
+
+            // ---------- 预约表单 ----------
+            const form = document.getElementById('bookingForm');
+            const formMessage = document.getElementById('formMessage');
+
+            // 设置日期默认值为明天
+            const dateInput = document.getElementById('date');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const yyyy = tomorrow.getFullYear();
+            const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+            const dd = String(tomorrow.getDate()).padStart(2, '0');
+            dateInput.value = yyyy + '-' + mm + '-' + dd;
+            dateInput.min = yyyy + '-' + mm + '-' + dd;
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const name = document.getElementById('name').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const service = document.getElementById('service').value;
+                const stylist = document.getElementById('stylist').value;
+                const date = document.getElementById('date').value;
+                const message = document.getElementById('message').value.trim();
+
+                // 简单验证
+                if (!name || !phone || !service || !date) {
+                    formMessage.textContent = '⚠️ 请填写所有必填项（姓名、电话、服务、日期）';
+                    formMessage.style.color = '#c0392b';
+                    return;
+                }
+
+                if (!/^1\d{10}$/.test(phone)) {
+                    formMessage.textContent = '⚠️ 请输入正确的11位手机号码';
+                    formMessage.style.color = '#c0392b';
+                    return;
+                }
+
+                // 模拟提交成功
+                const stylistText = stylist ? '造型师 ' + stylist : '由我们为您安排';
+                formMessage.textContent = '✅ ' + name + ' 您好！已收到您的 ' + service + ' 预约（' + date + '），' +
+                    stylistText + '。我们将尽快致电 ' + phone + ' 确认具体时段。';
+                formMessage.style.color = '#5a7c5a';
+
+                // 可选：清空部分字段
+                document.getElementById('name').value = '';
+                document.getElementById('phone').value = '';
+                document.getElementById('service').value = '';
+                document.getElementById('stylist').value = '';
+                document.getElementById('message').value = '';
+                // 日期保留为明天
+                const newTomorrow = new Date();
+                newTomorrow.setDate(newTomorrow.getDate() + 1);
+                const ny = newTomorrow.getFullYear();
+                const nm = String(newTomorrow.getMonth() + 1).padStart(2, '0');
+                const nd = String(newTomorrow.getDate()).padStart(2, '0');
+                document.getElementById('date').value = ny + '-' + nm + '-' + nd;
+
+                // 4秒后清除消息
+                setTimeout(function() {
+                    formMessage.textContent = '';
+                }, 6000);
+            });
+
+            // ---------- 平滑滚动（兼容） ----------
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        e.preventDefault();
+                        const offset = 80;
+                        const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+                        window.scrollTo({ top: top, behavior: 'smooth' });
+                    }
+                });
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

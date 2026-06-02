@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Watch Checkout</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #e8e6e3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            background: #07070b;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #d4af37;
+            letter-spacing: 3px;
+            user-select: none;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a0a0a0;
+            font-size: 14px;
+        }
+
+        .security-badge i {
+            color: #d4af37;
+        }
+
+        /* Main Container */
+        .checkout-container {
+            display: flex;
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 40px;
+            gap: 40px;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Left Column */
+        .checkout-left {
+            flex: 1.2;
+            max-width: 700px;
+        }
+
+        /* Progress Tracker */
+        .progress-tracker {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            margin-bottom: 50px;
+            padding: 10px 0;
+        }
+
+        .progress-line-bg,
+        .progress-line-fill {
+            position: absolute;
+            top: 50%;
+            left: 10%;              /* align with step circles */
+            right: 10%;
+            height: 2px;
+            transform: translateY(-50%);
+            z-index: 0;
+            border-radius: 2px;
+        }
+
+        .progress-line-bg {
+            background: #2a2a35;
+        }
+
+        .progress-line-fill {
+            background: #d4af37;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-step .step-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #2a2a35;
+            background: #0a0a0f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+            transition: all 0.3s;
+            position: relative;
+            color: #aaa;
+        }
+
+        .progress-step.active .step-circle {
+            border-color: #d4af37;
+            background: #d4af37;
+            color: #0a0a0f;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .progress-step.completed .step-circle {
+            border-color: #d4af37;
+            background: #d4af37;
+            color: #0a0a0f;
+        }
+
+        .progress-step .step-label {
+            margin-top: 10px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #555;
+            transition: color 0.3s;
+            text-align: center;
+        }
+
+        .progress-step.active .step-label {
+            color: #d4af37;
+        }
+
+        .progress-step.completed .step-label {
+            color: #d4af37;
+        }
+
+        /* Form Sections */
+        .form-section {
+            display: none;
+            animation: fadeIn 0.45s ease;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(12px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #d4af37;
+        }
+
+        .form-section .subtitle {
+            color: #888;
+            margin-bottom: 28px;
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            color: #aaa;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            transition: border-color 0.3s, background 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-group input::placeholder {
+            color: #444;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.06);
+        }
+
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='%23aaa' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 18px;
+        }
+
+        .form-group select option {
+            background: #1a1a2e;
+            color: #fff;
+        }
+
+        .form-group .input-icon-wrapper {
+            position: relative;
+        }
+
+        .form-group .input-icon-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-group .input-icon-wrapper input {
+            padding-left: 44px;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #d4af37;
+            color: #0a0a0f;
+        }
+
+        .btn-primary:hover {
+            background: #e0b84c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.35);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #bbb;
+        }
+
+        .btn-secondary:hover {
+            border-color: #d4af37;
+            color: #d4af37;
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+        }
+
+        /* Inline review summary in step 3 */
+        .review-card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .review-card h4 {
+            color: #d4af37;
+            margin-bottom: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-card p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 2px;
+        }
+
+        /* Right Column - Order Summary */
+        .order-summary {
+            flex: 0.8;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            border-radius: 18px;
+            padding: 30px 28px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .order-summary h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #d4af37;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .order-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .order-item .item-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 14px;
+            background: #14141e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            color: #d4af37;
+        }
+
+        .order-item .item-info {
+            flex: 1;
+        }
+
+        .order-item .item-info .item-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .order-item .item-info .item-desc {
+            font-size: 13px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .order-item .item-info .item-price {
+            margin-top: 8px;
+            font-weight: 600;
+            color: #d4af37;
+            font-size: 17px;
+        }
+
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        .summary-line.total {
+            font-size: 19px;
+            font-weight: 700;
+            color: #fff;
+            border-top: 1px solid rgba(212, 175, 55, 0.25);
+            padding-top: 16px;
+            margin-top: 12px;
+        }
+
+        .summary-line.total .amount {
+            color: #d4af37;
+        }
+
+        /* Payment Summary inside summary card */
+        .payment-summary-card {
+            margin-top: 22px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(212, 175, 55, 0.15);
+            display: none;
+        }
+
+        .payment-summary-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .payment-summary-card .card-detail {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ccc;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 14px;
+            border-radius: 8px;
+        }
+
+        .payment-summary-card .card-detail i {
+            font-size: 22px;
+            color: #d4af37;
+        }
+
+        .secure-checkout-note {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #777;
+            font-size: 13px;
+            background: rgba(212, 175, 55, 0.05);
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+
+        .secure-checkout-note i {
+            color: #d4af37;
+            font-size: 18px;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 20px 40px;
+            text-align: center;
+            color: #555;
+            font-size: 13px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            background: #07070b;
+            letter-spacing: 0.3px;
+        }
+
+        .footer i {
+            margin: 0 6px;
+            color: #777;
+        }
+
+        /* Responsive */
+        @media (max-width: 920px) {
+            .checkout-container {
+                flex-direction: column;
+                padding: 0 20px;
+                gap: 24px;
+            }
+
+            .checkout-left {
+                max-width: 100%;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .progress-line-bg,
+            .progress-line-fill {
+                left: 5%;
+                right: 5%;
+            }
+
+            .order-summary {
+                position: static;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 16px 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .logo {
+                font-size: 22px;
+            }
+
+            .checkout-container {
+                padding: 0 16px;
+                margin: 16px auto;
+            }
+
+            .progress-step .step-circle {
+                width: 36px;
+                height: 36px;
+                font-size: 15px;
+            }
+
+            .progress-step .step-label {
+                font-size: 9px;
+                letter-spacing: 0.8px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .order-summary {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">HOROLOGIUM</div>
+        <div class="security-badge">
+            <i class="fas fa-lock"></i>
+            <span>Secure Checkout</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="checkout-container">
+
+        <!-- Left Column: Progress + Forms -->
+        <div class="checkout-left">
+
+            <!-- Progress Tracker -->
+            <div class="progress-tracker" id="progressTracker">
+                <div class="progress-line-bg"></div>
+                <div class="progress-line-fill" id="progressLineFill"></div>
+
+                <div class="progress-step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Contact &amp; Shipping</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Payment</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Confirmation</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Contact & Shipping -->
+            <div class="form-section active" id="step1">
+                <h2>Contact &amp; Shipping</h2>
+                <p class="subtitle">Provide your details for delivery.</p>
+                <form id="formStep1">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" placeholder="James Sterling" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" placeholder="james@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" placeholder="42 Bond Street" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" placeholder="New York" required>
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" placeholder="NY" required>
+                        </div>
+                        <div class="form-group">
+                            <label>ZIP Code</label>
+                            <input type="text" placeholder="10012" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <select>
+                            <option>United States</option>
+                            <option>United Kingdom</option>
+                            <option>Switzerland</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </form>
+                <div class="btn-group">
+                    <div></div>
+                    <button class="btn btn-primary" onclick="nextStep()">
+                        Continue to Payment <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Payment -->
+            <div class="form-section" id="step2">
+                <h2>Payment Information</h2>
+                <p class="subtitle">All transactions are secure &amp; encrypted.</p>
+                <form id="formStep2">
+                    <div class="form-group">
+                        <label>Cardholder Name</label>
+                        <input type="text" placeholder="James Sterling" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-credit-card"></i>
+                            <input type="text" placeholder="**** **** **** ****" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="text" placeholder="MM/YY" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CVC</label>
+                            <input type="text" placeholder="***" required>
+                        </div>
+                    </div>
+                    <div class="form-group" style="flex-direction: row; align-items: center; gap: 12px;">
+                        <input type="checkbox" id="sameAddress" checked style="width: auto; height: auto;">
+                        <label for="sameAddress" style="text-transform: none; font-weight: 400; color: #bbb; margin: 0;">
+                            Billing address same as shipping
+                        </label>
+                    </div>
+                </form>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-primary" onclick="nextStep()">
+                        Review Order <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Confirmation -->
+            <div class="form-section" id="step3">
+                <h2>Review &amp; Confirm</h2>
+                <p class="subtitle">Please verify your details before placing the order.</p>
+
+                <div class="review-card">
+                    <h4><i class="fas fa-user"></i> Contact &amp; Shipping</h4>
+                    <p>James Sterling</p>
+                    <p>james@example.com</p>
+                    <p>42 Bond Street, New York, NY 10012, United States</p>
+                </div>
+
+                <div class="review-card">
+                    <h4><i class="fas fa-credit-card"></i> Payment</h4>
+                    <p>Card ending in <strong>4242</strong></p>
+                    <p>Expiry 12/26</p>
+                </div>
+
+                <div class="review-card">
+                    <h4><i class="fas fa-shopping-bag"></i> Order Items</h4>
+                    <p>1× Rolex Submariner Date — $8,500.00</p>
+                    <p>1× Free Express Shipping — $0.00</p>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep()">
+                        <i class="fas fa-arrow-left"></i> Edit
+                    </button>
+                    <button class="btn btn-primary" onclick="placeOrder()">
+                        Place Order <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Order & Payment Summary -->
+        <aside class="order-summary">
+            <h3>Order Summary</h3>
+
+            <div class="order-item">
+                <div class="item-image">
+                    <i class="fas fa-clock"></i> <!-- watch icon -->
+                </div>
+                <div class="item-info">
+                    <div class="item-name">Rolex Submariner Date</div>
+                    <div class="item-desc">Stainless Steel, Black Dial</div>
+                    <div class="item-price">$8,500.00</div>
+                </div>
+            </div>
+
+            <div class="summary-line">
+                <span>Subtotal</span>
+                <span>$8,500.00</span>
+            </div>
+            <div class="summary-line">
+                <span>Shipping</span>
+                <span><span style="color: #2ecc71;">Free</span></span>
+            </div>
+            <div class="summary-line">
+                <span>Tax</span>
+                <span>$0.00</span>
+            </div>
+            <div class="summary-line total">
+                <span>Total</span>
+                <span class="amount">$8,500.00</span>
+            </div>
+
+            <!-- Payment Summary (visible from step 2) -->
+            <div class="payment-summary-card" id="paymentSummary">
+                <h4><i class="fas fa-lock"></i> Payment Summary</h4>
+                <div class="card-detail">
+                    <i class="fab fa-cc-visa"></i>
+                    <span>Visa ending in 4242</span>
+                </div>
+                <div style="margin-top: 8px; font-size: 13px; color: #888;">
+                    Billing: Same as shipping
+                </div>
+            </div>
+
+            <div class="secure-checkout-note">
+                <i class="fas fa-shield-alt"></i>
+                <span>256-bit SSL encryption — your data is safe with us.</span>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <i class="fas fa-lock"></i> Secure Payment &nbsp;·&nbsp;
+        <i class="fas fa-truck"></i> Free Express Shipping &nbsp;·&nbsp;
+        <i class="fas fa-undo-alt"></i> 30-Day Returns
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        let currentStep = 1;
+        const totalSteps = 3;
+        const progressFill = document.getElementById('progressLineFill');
+
+        function updateProgress() {
+            const steps = document.querySelectorAll('.progress-step');
+            steps.forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'completed');
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+
+            // Update fill line width: (currentStep - 1) / (totalSteps - 1) * 100%
+            const percent = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progressFill.style.width = percent + '%';
+        }
+
+        function showStep(step) {
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            currentStep = step;
+            updateProgress();
+
+            // Show payment summary from step 2 onward
+            const paymentCard = document.getElementById('paymentSummary');
+            paymentCard.style.display = step >= 2 ? 'block' : 'none';
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                showStep(currentStep + 1);
+                // Scroll to top of the form section smoothly
+                document.querySelector('.checkout-left').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                showStep(currentStep - 1);
+                document.querySelector('.checkout-left').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function placeOrder() {
+            alert('Your order has been placed successfully!\nThank you for shopping with Horologium.');
+            // Reset to step 1 after order
+            showStep(1);
+        }
+
+        // Initialize
+        showStep(1);
+    </script>
+
+</body>
+</html>

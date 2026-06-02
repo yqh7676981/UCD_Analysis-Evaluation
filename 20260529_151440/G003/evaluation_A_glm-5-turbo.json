@@ -1,0 +1,33 @@
+{
+  "index": 264,
+  "id": "G003",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个 16x16 的像素画板，可以选颜色后点击格子上色，支持橡皮擦和清空,完成后能预览作品。",
+  "evaluation": {
+    "total_score": 62,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark neon arcade style matches a pixel-art tool and is visually cohesive across title, palette, and action buttons. However, the screen is dominated by empty space, the drawing area lacks visual presence, and the composition feels more like a concept mockup than a complete mobile tool."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Buttons, rounded cards, and palette chips are mostly consistent, with acceptable padding and color grouping. But several labels are small and low-contrast, the central canvas handle/icon is visually ambiguous, and the 16x16 grid itself is not clearly legible in the screenshot, which hurts element-level completion."
+      },
+      "easy_to_perceive": {
+        "score": 5,
+        "reason": "Users can find the palette and bottom actions, but the primary task area is not immediately apparent because most of the page is empty and the canvas is visually minimized. The preview entry competes equally with drawing actions, and information hierarchy does not clearly guide users from color selection to painting to preview."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Core functions requested by the prompt are present: color selection, eraser, clear, and preview. Labels help comprehension, but the main drawing surface is unclear at first glance, the center control looks like a floating button rather than a paint canvas, and action semantics rely on interpretation rather than obvious affordance."
+      }
+    },
+    "summary": "The interface has a coherent pixel/neon aesthetic and includes the required functions, so it is directionally usable. The main weakness is task presentation: on mobile, the 16x16 board should be the star, but in the screenshot it is visually buried, leaving large empty space and making the primary interaction unclear. This keeps the experience in the average/qualified range rather than feeling complete or launch-ready."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G003_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:17:35.716128"
+}

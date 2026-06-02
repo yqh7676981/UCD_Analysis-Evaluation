@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学海无涯 - 大学生免费资源平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-100': '#FFFFFF',
+                        'bg-200': '#f5f5f5',
+                        'bg-300': '#cccccc',
+                        'neutral-100': '#333333',
+                        'neutral-200': '#5c5c5c',
+                        'primary-100': '#0072FF',
+                        'primary-200': '#6aa0ff',
+                        'primary-300': '#e1ffff',
+                        'accent-100': '#4D8BFF',
+                        'accent-200': '#003699',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(to right, #0072FF, #003699);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .dot-pattern {
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.2; }
+        }
+        .pulse-slow { animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .resource-card {
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            border-color: #0072FF;
+        }
+        .tab-btn.active {
+            background-color: #0072FF;
+            color: #FFFFFF;
+        }
+        .semester-btn.active {
+            background-color: #0072FF;
+            color: #FFFFFF;
+            box-shadow: 0 10px 15px -3px rgba(0,114,255,0.3);
+        }
+        .subject-card {
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .subject-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+        .toast {
+            animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .search-highlight {
+            background-color: rgba(0, 114, 255, 0.1);
+            border-color: #0072FF !important;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f5f5f5; }
+        ::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="bg-bg-100 text-neutral-100">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.85);">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="text-xl font-semibold tracking-tight">学海无涯</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#resources" class="text-sm text-neutral-200 hover:text-primary-100 transition-colors duration-150">资源中心</a>
+                <a href="#features" class="text-sm text-neutral-200 hover:text-primary-100 transition-colors duration-150">平台特色</a>
+                <a href="#stats" class="text-sm text-neutral-200 hover:text-primary-100 transition-colors duration-150">数据统计</a>
+                <a href="#faq" class="text-sm text-neutral-200 hover:text-primary-100 transition-colors duration-150">常见问题</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="showToast('搜索功能已开启', 'info')" class="p-2 rounded-full hover:bg-bg-200 transition-colors duration-150 md:hidden">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+                <button onclick="showToast('欢迎贡献资源！', 'success')" class="hidden md:inline-flex items-center gap-2 px-5 py-2.5 bg-primary-100 text-white text-sm font-medium rounded-full hover:bg-accent-200 transition-all duration-150" style="box-shadow: 0 10px 15px -3px rgba(0,114,255,0.3);">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                    贡献资源
+                </button>
+                <button id="mobile-menu-btn" class="p-2 rounded-full hover:bg-bg-200 transition-colors duration-150 md:hidden">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-bg-200 px-6 py-4 space-y-3">
+            <a href="#resources" class="block text-sm text-neutral-200 hover:text-primary-100 py-2">资源中心</a>
+            <a href="#features" class="block text-sm text-neutral-200 hover:text-primary-100 py-2">平台特色</a>
+            <a href="#stats" class="block text-sm text-neutral-200 hover:text-primary-100 py-2">数据统计</a>
+            <a href="#faq" class="block text-sm text-neutral-200 hover:text-primary-100 py-2">常见问题</a>
+            <button onclick="showToast('欢迎贡献资源！', 'success')" class="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-100 text-white text-sm font-medium rounded-full">
+                <i data-lucide="upload" class="w-4 h-4"></i>
+                贡献资源
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-20 left-10 w-96 h-96 bg-primary-100 rounded-full opacity-10 blur-[64px] pulse-slow"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-accent-200 rounded-full opacity-10 blur-[64px] pulse-slow" style="animation-delay: 1s;"></div>
+        <div class="absolute inset-0 dot-pattern opacity-30"></div>
+
+        <div class="relative max-w-7xl mx-auto px-6 text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-bg-200 border border-bg-300 rounded-full mb-8">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="text-xs font-medium uppercase tracking-widest text-neutral-200">100% 免费 · 永久开放</span>
+            </div>
+
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight mb-6">
+                大学生<span class="gradient-text">免费资源</span><br>一站式平台
+            </h1>
+
+            <p class="text-lg md:text-xl text-neutral-200 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
+                涵盖学习笔记、视频讲座、历年真题及答案，按学期与科目精心分类，助你高效备考，轻松拿高分
+            </p>
+
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto mb-10">
+                <div class="relative flex items-center bg-white border-2 border-bg-300 rounded-full px-6 py-4 shadow-sm hover:border-primary-100 focus-within:border-primary-100 transition-colors duration-300">
+                    <i data-lucide="search" class="w-5 h-5 text-neutral-200 mr-3 flex-shrink-0"></i>
+                    <input id="hero-search" type="text" placeholder="搜索科目、课程或资源类型..." class="flex-1 bg-transparent outline-none text-neutral-100 placeholder:text-bg-300 text-base" onkeyup="handleSearch(event)">
+                    <button onclick="performSearch()" class="ml-3 px-5 py-2 bg-primary-100 text-white text-sm font-medium rounded-full hover:bg-accent-200 transition-all duration-150 flex-shrink-0">
+                        搜索
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Tags -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <span class="px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium text-neutral-200 hover:border-primary-100 hover:text-primary-100 cursor-pointer transition-all duration-150" onclick="quickSearch('高等数学')">高等数学</span>
+                <span class="px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium text-neutral-200 hover:border-primary-100 hover:text-primary-100 cursor-pointer transition-all duration-150" onclick="quickSearch('线性代数')">线性代数</span>
+                <span class="px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium text-neutral-200 hover:border-primary-100 hover:text-primary-100 cursor-pointer transition-all duration-150" onclick="quickSearch('大学英语')">大学英语</span>
+                <span class="px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium text-neutral-200 hover:border-primary-100 hover:text-primary-100 cursor-pointer transition-all duration-150" onclick="quickSearch('数据结构')">数据结构</span>
+                <span class="px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium text-neutral-200 hover:border-primary-100 hover:text-primary-100 cursor-pointer transition-all duration-150" onclick="quickSearch('概率论')">概率论</span>
+            </div>
+
+            <!-- Stats Mini -->
+            <div class="flex flex-wrap justify-center gap-8 md:gap-16">
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-semibold gradient-text">2,400+</div>
+                    <div class="text-sm text-neutral-200 mt-1">学习笔记</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-semibold gradient-text">860+</div>
+                    <div class="text-sm text-neutral-200 mt-1">视频讲座</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-semibold gradient-text">1,500+</div>
+                    <div class="text-sm text-neutral-200 mt-1">历年真题</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-semibold gradient-text">50,000+</div>
+                    <div class="text-sm text-neutral-200 mt-1">学生用户</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resource Center -->
+    <section id="resources" class="py-24 bg-bg-200 relative">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Section Header -->
+            <div class="text-center mb-12">
+                <span class="inline-block px-4 py-1.5 bg-white border border-bg-300 rounded-full text-xs font-medium uppercase tracking-widest text-neutral-200 mb-4">资源中心</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-4">按学期与科目浏览</h2>
+                <p class="text-lg text-neutral-200 font-light max-w-2xl mx-auto">选择你的学期，找到对应科目的学习资源</p>
+            </div>
+
+            <!-- Semester Tabs -->
+            <div class="flex flex-wrap justify-center gap-3 mb-10">
+                <button class="semester-btn active px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '1')">
+                    大一上学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '2')">
+                    大一下学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '3')">
+                    大二上学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '4')">
+                    大二下学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '5')">
+                    大三上学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '6')">
+                    大三下学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '7')">
+                    大四上学期
+                </button>
+                <button class="semester-btn px-6 py-2.5 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchSemester(this, '8')">
+                    大四下学期
+                </button>
+            </div>
+
+            <!-- Resource Type Tabs -->
+            <div class="flex justify-center gap-2 mb-10">
+                <button class="tab-btn active px-5 py-2 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchTab(this, 'all')">
+                    全部资源
+                </button>
+                <button class="tab-btn px-5 py-2 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchTab(this, 'notes')">
+                    <span class="flex items-center gap-1.5"><i data-lucide="book-open" class="w-3.5 h-3.5"></i> 学习笔记</span>
+                </button>
+                <button class="tab-btn px-5 py-2 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchTab(this, 'videos')">
+                    <span class="flex items-center gap-1.5"><i data-lucide="play-circle" class="w-3.5 h-3.5"></i> 视频讲座</span>
+                </button>
+                <button class="tab-btn px-5 py-2 rounded-full text-sm font-medium border border-bg-300 bg-white text-neutral-200 transition-all duration-300" onclick="switchTab(this, 'exams')">
+                    <span class="flex items-center gap-1.5"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> 历年真题</span>
+                </button>
+            </div>
+
+            <!-- Subjects Grid -->
+            <div id="subjects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16">
+                <div class="w-20 h-20 bg-bg-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="search-x" class="w-10 h-10 text-bg-300"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">未找到匹配资源</h3>
+                <p class="text-neutral-200">试试其他搜索关键词或切换学期</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-24 relative overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-100 rounded-full opacity-5 blur-[100px]"></div>
+        <div class="relative max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium uppercase tracking-widest text-neutral-200 mb-4">平台特色</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-4">为什么选择学海无涯</h2>
+                <p class="text-lg text-neutral-200 font-light max-w-2xl mx-auto">我们致力于为每一位大学生提供最优质、最便捷的学习资源</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="w-14 h-14 bg-primary-100/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="badge-check" class="w-7 h-7 text-primary-100"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 tracking-tight">完全免费</h3>
+                    <p class="text-neutral-200 leading-relaxed">所有资源永久免费开放，无需注册付费，打破知识壁垒，让每位学生都能平等获取优质学习资料</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="w-14 h-14 bg-primary-100/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="folder-tree" class="w-7 h-7 text-primary-100"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 tracking-tight">系统分类</h3>
+                    <p class="text-neutral-200 leading-relaxed">按学期、科目、资源类型三维分类，精准定位所需资料，告别大海捞针式的低效搜索</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="w-14 h-14 bg-primary-100/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="check-circle" class="w-7 h-7 text-primary-100"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 tracking-tight">答案详解</h3>
+                    <p class="text-neutral-200 leading-relaxed">每套真题均配备详细答案与解题思路，不仅知其然，更知其所以然，真正掌握知识点</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="w-14 h-14 bg-primary-100/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="users" class="w-7 h-7 text-primary-100"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 tracking-tight">社区共建</h3>
+                    <p class="text-neutral-200 leading-relaxed">由学长学姐和优秀学生贡献笔记与资料，经过审核确保质量，形成良性循环的学习社区</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="w-14 h-14 bg-primary-100/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="smartphone" class="w-7 h-7 text-primary-100"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 tracking-tight">多端适配</h3>
+                    <p class="text-neutral-200 leading-relaxed">支持电脑、平板、手机多端访问，随时随地查阅资料，图书馆、宿舍、教室无缝切换</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="w-14 h-14 bg-primary-100/10 rounded-2xl flex items-center justify-center mb-6">
+                        <i data-lucide="refresh-cw" class="w-7 h-7 text-primary-100"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3 tracking-tight">持续更新</h3>
+                    <p class="text-neutral-200 leading-relaxed">每学期持续更新最新真题与笔记，紧跟课程大纲变化，确保资源时效性与准确性</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="stats" class="py-24 bg-neutral-100 relative overflow-hidden">
+        <div class="absolute inset-0 dot-pattern opacity-5"></div>
+        <div class="relative max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-xs font-medium uppercase tracking-widest text-white/70 mb-4">数据统计</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-white mb-4">用数据说话</h2>
+                <p class="text-lg text-white/60 font-light max-w-2xl mx-auto">平台自上线以来，已帮助数万名大学生高效备考</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="text-center p-8 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm">
+                    <div class="text-4xl md:text-5xl font-semibold text-white mb-2" id="stat-1">0</div>
+                    <div class="text-white/60 text-sm">学习笔记</div>
+                </div>
+                <div class="text-center p-8 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm">
+                    <div class="text-4xl md:text-5xl font-semibold text-white mb-2" id="stat-2">0</div>
+                    <div class="text-white/60 text-sm">视频讲座</div>
+                </div>
+                <div class="text-center p-8 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm">
+                    <div class="text-4xl md:text-5xl font-semibold text-white mb-2" id="stat-3">0</div>
+                    <div class="text-white/60 text-sm">历年真题</div>
+                </div>
+                <div class="text-center p-8 bg-white/5 border border-white/10 rounded-[2rem] backdrop-blur-sm">
+                    <div class="text-4xl md:text-5xl font-semibold text-white mb-2" id="stat-4">0</div>
+                    <div class="text-white/60 text-sm">注册学生</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-bg-200 border border-bg-300 rounded-full text-xs font-medium uppercase tracking-widest text-neutral-200 mb-4">用户评价</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-4">学长学姐这样说</h2>
+                <p class="text-lg text-neutral-200 font-light max-w-2xl mx-auto">听听使用过平台的同学们的真实反馈</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="text-neutral-200 leading-relaxed mb-6">"高数期末考前一周才发现这个平台，真题刷了三遍，最后考了92分！答案解析特别详细，每一步都有说明，比辅导书好用多了。"</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://picsum.photos/seed/student1/40/40.jpg" class="w-10 h-10 rounded-full object-cover" alt="avatar">
+                        <div>
+                            <div class="text-sm font-semibold">张同学</div>
+                            <div class="text-xs text-neutral-200">计算机科学 · 大二</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="text-neutral-200 leading-relaxed mb-6">"视频讲座质量很高，老师讲得清晰易懂。特别是线性代数那一系列，看完之后豁然开朗，比上课听讲效率还高。"</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://picsum.photos/seed/student2/40/40.jpg" class="w-10 h-10 rounded-full object-cover" alt="avatar">
+                        <div>
+                            <div class="text-sm font-semibold">李同学</div>
+                            <div class="text-xs text-neutral-200">电子信息 · 大三</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-8">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                        <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    </div>
+                    <p class="text-neutral-200 leading-relaxed mb-6">"作为一个经常找不到资料的人，这个平台简直是救星！按学期和科目分类太方便了，再也不用到处翻找笔记了。"</p>
+                    <div class="flex items-center gap-3">
+                        <img src="https://picsum.photos/seed/student3/40/40.jpg" class="w-10 h-10 rounded-full object-cover" alt="avatar">
+                        <div>
+                            <div class="text-sm font-semibold">王同学</div>
+                            <div class="text-xs text-neutral-200">机械工程 · 大一</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-24 bg-bg-200">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-1.5 bg-white border border-bg-300 rounded-full text-xs font-medium uppercase tracking-widest text-neutral-200 mb-4">常见问题</span>
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight mb-4">你可能想知道</h2>
+            </div>
+
+            <div class="space-y-4">
+                <div class="faq-item bg-white border border-bg-300 rounded-2xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-base pr-4">平台资源真的完全免费吗？</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-neutral-200 flex-shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-5">
+                        <p class="text-neutral-200 leading-relaxed">是的，学海无涯平台所有资源完全免费，无需注册即可浏览和下载。我们相信知识应该自由流通，因此不会设置任何付费墙或隐藏收费。平台的运营成本由教育基金和公益赞助支持。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item bg-white border border-bg-300 rounded-2xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-base pr-4">资源的质量如何保证？</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-neutral-200 flex-shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-5">
+                        <p class="text-neutral-200 leading-relaxed">所有上传的资源都经过审核团队的人工审核，确保内容准确、完整。真题答案由专业教师或高分学生编写并交叉校验。笔记资源标注贡献者信息，并设有评分系统供用户反馈。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item bg-white border border-bg-300 rounded-2xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-base pr-4">如何贡献自己的学习资料？</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-neutral-200 flex-shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-5">
+                        <p class="text-neutral-200 leading-relaxed">点击页面右上角的"贡献资源"按钮，选择资源类型（笔记/视频/真题），填写科目和学期信息后上传即可。贡献的资源将在1-3个工作日内完成审核并发布。优质贡献者将获得平台认证徽章。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item bg-white border border-bg-300 rounded-2xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-base pr-4">支持哪些学校和专业的资源？</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-neutral-200 flex-shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-5">
+                        <p class="text-neutral-200 leading-relaxed">目前平台以通用基础课程为主，涵盖高等数学、线性代数、概率论、大学英语、程序设计、数据结构等公共课及部分专业课。我们正在持续扩展专业覆盖范围，也欢迎各校同学贡献特色课程资源。</p>
+                    </div>
+                </div>
+
+                <div class="faq-item bg-white border border-bg-300 rounded-2xl overflow-hidden">
+                    <button class="faq-toggle w-full flex items-center justify-between px-6 py-5 text-left" onclick="toggleFaq(this)">
+                        <span class="font-semibold text-base pr-4">下载的资源格式是什么？</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-neutral-200 flex-shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-content hidden px-6 pb-5">
+                        <p class="text-neutral-200 leading-relaxed">笔记资源主要为 PDF 格式，部分支持 Markdown 在线预览；视频讲座支持在线播放和 MP4 下载；真题及答案均为 PDF 格式，方便打印。所有文件均经过优化，确保清晰可读。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary-100 rounded-full opacity-10 blur-[80px]"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-200 rounded-full opacity-10 blur-[80px]"></div>
+        <div class="relative max-w-4xl mx-auto px-6 text-center">
+            <div class="bg-white border border-bg-300 rounded-[2rem] p-12 md:p-16" style="box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+                <div class="w-16 h-16 bg-primary-100/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="rocket" class="w-8 h-8 text-primary-100"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-semibold tracking-tight mb-4">开始你的高效学习之旅</h2>
+                <p class="text-lg text-neutral-200 font-light max-w-xl mx-auto mb-8">加入 50,000+ 大学生的行列，免费获取优质学习资源，让备考不再焦虑</p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#resources" class="inline-flex items-center gap-2 px-8 py-4 bg-primary-100 text-white text-sm font-medium rounded-full hover:bg-accent-200 transition-all duration-150" style="box-shadow: 0 10px 15px -3px rgba(0,114,255,0.3);">
+                        <i data-lucide="compass" class="w-4 h-4"></i>
+                        浏览资源
+                    </a>
+                    <button onclick="showToast('感谢你的贡献精神！', 'success')" class="inline-flex items-center gap-2 px-8 py-4 bg-transparent border-2 border-bg-300 text-neutral-100 text-sm font-medium rounded-full hover:border-primary-100 hover:text-primary-100 transition-all duration-150">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        贡献资源
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-neutral-100 text-white py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-9 h-9 rounded-lg bg-primary-100 flex items-center justify-center">
+                            <i data-lucide="graduation-cap" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="text-xl font-semibold">学海无涯</span>
+                    </div>
+                    <p class="text-white/60 text-sm leading-relaxed mb-6">为大学生提供免费、优质的学习资源平台，让知识自由流通，助力每一位学子成长。</p>
+                    <div class="flex items-center gap-3">
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-100 transition-colors duration-150">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-100 transition-colors duration-150">
+                            <i data-lucide="twitter" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary-100 transition-colors duration-150">
+                            <i data-lucide="github" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">资源分类</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">学习笔记</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">视频讲座</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">历年真题</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">答案解析</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">热门科目</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">高等数学</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">线性代数</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">大学英语</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">数据结构</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-4">关于我们</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">平台介绍</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">贡献指南</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">联系我们</a></li>
+                        <li><a href="#" class="text-white/60 text-sm hover:text-primary-200 transition-colors duration-150">隐私政策</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-white/40 text-sm">© 2025 学海无涯. 知识共享，自由流通.</p>
+                <p class="text-white/40 text-sm">用 ❤️ 为大学生打造</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data
+        const semesterData = {
+            '1': {
+                name: '大一上学期',
+                subjects: [
+                    { name: '高等数学（上）', icon: 'calculator', color: '#0072FF', notes: 86, videos: 32, exams: 45, description: '极限、导数、微分、积分基础' },
+                    { name: '大学英语（一）', icon: 'languages', color: '#00C853', notes: 64, videos: 28, exams: 38, description: '综合英语能力提升与四级备考' },
+                    { name: 'C语言程序设计', icon: 'code', color: '#FF6D00', notes: 72, videos: 45, exams: 35, description: '编程基础、数组、指针、结构体' },
+                    { name: '思想道德与法治', icon: 'scale', color: '#AA00FF', notes: 48, videos: 20, exams: 30, description: '思想修养、道德规范、法治观念' },
+                    { name: '线性代数', icon: 'grid-3x3', color: '#2979FF', notes: 58, videos: 25, exams: 40, description: '矩阵、向量空间、特征值' },
+                    { name: '体育（一）', icon: 'dumbbell', color: '#FF1744', notes: 12, videos: 8, exams: 5, description: '体质测试与运动技能' },
+                ]
+            },
+            '2': {
+                name: '大一下学期',
+                subjects: [
+                    { name: '高等数学（下）', icon: 'calculator', color: '#0072FF', notes: 92, videos: 38, exams: 50, description: '多元函数、重积分、级数' },
+                    { name: '大学英语（二）', icon: 'languages', color: '#00C853', notes: 68, videos: 30, exams: 42, description: '进阶英语与六级备考基础' },
+                    { name: '大学物理（上）', icon: 'atom', color: '#FF6D00', notes: 75, videos: 35, exams: 44, description: '力学、热学基础' },
+                    { name: '数据结构', icon: 'git-branch', color: '#AA00FF', notes: 88, videos: 52, exams: 48, description: '链表、树、图、排序算法' },
+                    { name: '中国近现代史纲要', icon: 'book-open', color: '#2979FF', notes: 42, videos: 18, exams: 28, description: '近代史重大事件与历史脉络' },
+                    { name: '离散数学', icon: 'sigma', color: '#FF1744', notes: 55, videos: 22, exams: 35, description: '集合论、图论、数理逻辑' },
+                ]
+            },
+            '3': {
+                name: '大二上学期',
+                subjects: [
+                    { name: '概率论与数理统计', icon: 'bar-chart-3', color: '#0072FF', notes: 78, videos: 30, exams: 46, description: '概率、分布、假设检验' },
+                    { name: '大学英语（三）', icon: 'languages', color: '#00C853', notes: 60, videos: 25, exams: 36, description: '高级英语与学术写作' },
+                    { name: '大学物理（下）', icon: 'atom', color: '#FF6D00', notes: 70, videos: 32, exams: 40, description: '电磁学、光学、量子物理' },
+                    { name: '计算机组成原理', icon: 'cpu', color: '#AA00FF', notes: 65, videos: 28, exams: 38, description: 'CPU、存储器、I/O系统' },
+                    { name: '操作系统', icon: 'monitor', color: '#2979FF', notes: 72, videos: 35, exams: 42, description: '进程管理、内存管理、文件系统' },
+                    { name: '马克思主义基本原理', icon: 'book-open', color: '#FF1744', notes: 38, videos: 15, exams: 25, description: '哲学、政治经济学、科学社会主义' },
+                ]
+            },
+            '4': {
+                name: '大二下学期',
+                subjects: [
+                    { name: '数据库系统原理', icon: 'database', color: '#0072FF', notes: 68, videos: 30, exams: 40, description: 'SQL、关系模型、数据库设计' },
+                    { name: '计算机网络', icon: 'network', color: '#00C853', notes: 75, videos: 38, exams: 44, description: 'TCP/IP、HTTP、网络层协议' },
+                    { name: '软件工程', icon: 'layers', color: '#FF6D00', notes: 55, videos: 22, exams: 32, description: '需求分析、设计模式、测试' },
+                    { name: '数字逻辑', icon: 'toggle-left', color: '#AA00FF', notes: 48, videos: 20, exams: 30, description: '布尔代数、组合逻辑、时序逻辑' },
+                    { name: '数学实验', icon: 'flask-conical', color: '#2979FF', notes: 35, videos: 18, exams: 22, description: 'MATLAB、数学建模基础' },
+                    { name: '大学英语（四）', icon: 'languages', color: '#FF1744', notes: 52, videos: 20, exams: 30, description: '六级冲刺与学术英语' },
+                ]
+            },
+            '5': {
+                name: '大三上学期',
+                subjects: [
+                    { name: '编译原理', icon: 'file-code', color: '#0072FF', notes: 52, videos: 25, exams: 32, description: '词法分析、语法分析、代码生成' },
+                    { name: '人工智能导论', icon: 'brain', color: '#00C853', notes: 68, videos: 42, exams: 28, description: '搜索、机器学习、神经网络基础' },
+                    { name: '算法设计与分析', icon: 'workflow', color: '#FF6D00', notes: 72, videos: 35, exams: 45, description: '分治、动态规划、贪心算法' },
+                    { name: '面向对象程序设计', icon: 'boxes', color: '#AA00FF', notes: 58, videos: 28, exams: 35, description: 'Java/C++、设计模式、UML' },
+                    { name: '毛泽东思想概论', icon: 'book-open', color: '#2979FF', notes: 35, videos: 12, exams: 22, description: '毛泽东思想与中国特色社会主义' },
+                    { name: '信息安全', icon: 'shield', color: '#FF1744', notes: 45, videos: 20, exams: 28, description: '密码学、网络攻防、安全协议' },
+                ]
+            },
+            '6': {
+                name: '大三下学期',
+                subjects: [
+                    { name: '机器学习', icon: 'brain', color: '#0072FF', notes: 82, videos: 48, exams: 30, description: '监督学习、无监督学习、深度学习' },
+                    { name: '计算机图形学', icon: 'palette', color: '#00C853', notes: 45, videos: 22, exams: 25, description: '渲染、变换、光照模型' },
+                    { name: '嵌入式系统', icon: 'circuit-board', color: '#FF6D00', notes: 40, videos: 18, exams: 22, description: 'ARM架构、实时操作系统' },
+                    { name: '大数据技术', icon: 'hard-drive', color: '#AA00FF', notes: 55, videos: 30, exams: 20, description: 'Hadoop、Spark、数据挖掘' },
+                    { name: '移动应用开发', icon: 'smartphone', color: '#2979FF', notes: 48, videos: 35, exams: 18, description: 'Android/iOS开发框架' },
+                    { name: '自然语言处理', icon: 'message-square', color: '#FF1744', notes: 42, videos: 25, exams: 15, description: '文本分类、情感分析、语言模型' },
+                ]
+            },
+            '7': {
+                name: '大四上学期',
+                subjects: [
+                    { name: '云计算与分布式', icon: 'cloud', color: '#0072FF', notes: 38, videos: 20, exams: 15, description: '虚拟化、容器、微服务架构' },
+                    { name: '毕业设计指导', icon: 'file-badge', color: '#00C853', notes: 55, videos: 15, exams: 8, description: '选题、开题、论文写作规范' },
+                    { name: '项目管理', icon: 'kanban', color: '#FF6D00', notes: 32, videos: 12, exams: 18, description: '敏捷开发、项目规划、风险管理' },
+                    { name: '网络安全实践', icon: 'shield-check', color: '#AA00FF', notes: 28, videos: 18, exams: 12, description: '渗透测试、漏洞分析、安全加固' },
+                    { name: '创新创业基础', icon: 'lightbulb', color: '#2979FF', notes: 25, videos: 10, exams: 10, description: '创业思维、商业模式、融资基础' },
+                    { name: '专业综合实验', icon: 'flask-conical', color: '#FF1744', notes: 20, videos: 8, exams: 5, description: '综合项目实践与答辩' },
+                ]
+            },
+            '8': {
+                name: '大四下学期',
+                subjects: [
+                    { name: '毕业论文写作', icon: 'pen-tool', color: '#0072FF', notes: 45, videos: 12, exams: 5, description: '论文结构、文献综述、答辩技巧' },
+                    { name: '求职面试指南', icon: 'briefcase', color: '#00C853', notes: 58, videos: 25, exams: 0, description: '简历优化、技术面试、HR面试' },
+                    { name: '考研冲刺资料', icon: 'target', color: '#FF6D00', notes: 85, videos: 40, exams: 35, description: '政治、英语、数学、专业课' },
+                    { name: '公务员考试', icon: 'landmark', color: '#AA00FF', notes: 42, videos: 18, exams: 25, description: '行测、申论、面试备考' },
+                    { name: '实习报告模板', icon: 'file-text', color: '#2979FF', notes: 30, videos: 5, exams: 0, description: '实习总结、报告格式、评价标准' },
+                    { name: '职业规划', icon: 'compass', color: '#FF1744', notes: 22, videos: 10, exams: 0, description: '行业分析、职业路径、技能规划' },
+                ]
+            }
+        };
+
+        let currentSemester = '1';
+        let currentTab = 'all';
+        let searchQuery = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderSubjects();
+            initScrollEffects();
+            animateStats();
+        });
+
+        // Render subjects
+        function renderSubjects() {
+            const grid = document.getElementById('subjects-grid');
+            const emptyState = document.getElementById('empty-state');
+            const data = semesterData[currentSemester];
+
+            let subjects = data.subjects;
+
+            // Filter by search
+            if (searchQuery) {
+                subjects = subjects.filter(s =>
+                    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    s.description.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+
+            if (subjects.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = subjects.map(subject => {
+                let resources = [];
+
+                if (currentTab === 'all' || currentTab === 'notes') {
+                    resources.push(`
+                        <div class="subject-card flex items-center gap-3 p-3 bg-bg-200 rounded-xl cursor-pointer" onclick="showToast('正在打开《${subject.name}》学习笔记', 'info')">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color: ${subject.color}15;">
+                                <i data-lucide="book-open" class="w-5 h-5" style="color: ${subject.color};"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium truncate">学习笔记</div>
+                                <div class="text-xs text-neutral-200">${subject.notes} 份</div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-neutral-200 flex-shrink-0"></i>
+                        </div>
+                    `);
+                }
+
+                if (currentTab === 'all' || currentTab === 'videos') {
+                    resources.push(`
+                        <div class="subject-card flex items-center gap-3 p-3 bg-bg-200 rounded-xl cursor-pointer" onclick="showToast('正在加载《${subject.name}》视频讲座', 'info')">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color: ${subject.color}15;">
+                                <i data-lucide="play-circle" class="w-5 h-5" style="color: ${subject.color};"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium truncate">视频讲座</div>
+                                <div class="text-xs text-neutral-200">${subject.videos} 个</div>
+                            </div>
+                            <i data-lucide="play" class="w-4 h-4 text-neutral-200 flex-shrink-0"></i>
+                        </div>
+                    `);
+                }
+
+                if (currentTab === 'all' || currentTab === 'exams') {
+                    resources.push(`
+                        <div class="subject-card flex items-center gap-3 p-3 bg-bg-200 rounded-xl cursor-pointer" onclick="showToast('正在下载《${subject.name}》历年真题', 'info')">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background-color: ${subject.color}15;">
+                                <i data-lucide="file-text" class="w-5 h-5" style="color: ${subject.color};"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium truncate">历年真题及答案</div>
+                                <div class="text-xs text-neutral-200">${subject.exams} 套</div>
+                            </div>
+                            <i data-lucide="download" class="w-4 h-4 text-neutral-200 flex-shrink-0"></i>
+                        </div>
+                    `);
+                }
+
+                return `
+                    <div class="resource-card bg-white border border-bg-300 rounded-[2rem] p-6">
+                        <div class="flex items-start gap-4 mb-5">
+                            <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background-color: ${subject.color}15;">
+                                <i data-lucide="${subject.icon}" class="w-6 h-6" style="color: ${subject.color};"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-lg font-semibold tracking-tight mb-1">${subject.name}</h3>
+                                <p class="text-sm text-neutral-200">${subject.description}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-4 mb-5 text-xs">
+                            <span class="flex items-center gap-1 text-neutral-200">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5"></i> ${subject.notes} 笔记
+                            </span>
+                            <span class="flex items-center gap-1 text-neutral-200">
+                                <i data-lucide="play-circle" class="w-3.5 h-3.5"></i> ${subject.videos} 视频
+                            </span>
+                            <span class="flex items-center gap-1 text-neutral-200">
+                                <i data-lucide="file-text" class="w-3.5 h-3.5"></i> ${subject.exams} 真题
+                            </span>
+                        </div>
+                        <div class="space-y-2">
+                            ${resources.join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // Switch semester
+        function switchSemester(btn, semester) {
+            currentSemester = semester;
+            document.querySelectorAll('.semester-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderSubjects();
+        }
+
+        // Switch tab
+        function switchTab(btn, tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderSubjects();
+        }
+
+        // Search
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        function performSearch() {
+            searchQuery = document.getElementById('hero-search').value.trim();
+            if (searchQuery) {
+                document.getElementById('resources').scrollIntoView({ behavior: 'smooth' });
+                renderSubjects();
+                showToast(`正在搜索"${searchQuery}"相关资源`, 'info');
+            } else {
+                renderSubjects();
+            }
+        }
+
+        function quickSearch(term) {
+            document.getElementById('hero-search').value = term;
+            searchQuery = term;
+            document.getElementById('resources').scrollIntoView({ behavior: 'smooth' });
+            renderSubjects();
+            showToast(`正在搜索"${term}"相关资源`, 'info');
+        }
+
+        // FAQ Toggle
+        function toggleFaq(btn) {
+            const content = btn.nextElementSibling;
+            const icon = btn.querySelector('[data-lucide="chevron-down"]');
+            const isOpen = !content.classList.contains('hidden');
+
+            // Close all
+            document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('.faq-toggle [data-lucide="chevron-down"]').forEach(i => {
+                i.style.transform = 'rotate(0deg)';
+            });
+
+            if (!isOpen) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const colors = {
+                success: 'bg-green-500',
+                info: 'bg-primary-100',
+                error: 'bg-red-500'
+            };
+
+            const icons = {
+                success: 'check-circle',
+                info: 'info',
+                error: 'alert-circle'
+            };
+
+            toast.className = `toast flex items-center gap-3 px-5 py-3.5 ${colors[type]} text-white rounded-2xl shadow-lg text-sm font-medium`;
+            toast.innerHTML = `<i data-lucide="${icons[type]}" class="w-5 h-5 flex-shrink-0"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Scroll effects
+        function initScrollEffects() {
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+                } else {
+                    navbar.style.borderBottom = 'none';
+                }
+            });
+
+            // Mobile menu toggle
+            const menuBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu on link click
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        }
+
+        // Animate stats
+        function animateStats() {
+            const targets = [
+                { id: 'stat-1', value: 2400, suffix: '+' },
+                { id: 'stat-2', value: 860, suffix: '+' },
+                { id: 'stat-3', value: 1500, suffix: '+' },
+                { id: 'stat-4', value: 50000, suffix: '+' },
+            ];
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        targets.forEach(target => {
+                            const el = document.getElementById(target.id);
+                            animateNumber(el, 0, target.value, 2000, target.suffix);
+                        });
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            const statsSection = document.getElementById('stats');
+            if (statsSection) observer.observe(statsSection);
+        }
+
+        function animateNumber(el, start, end, duration, suffix) {
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + (end - start) * eased);
+
+                if (end >= 10000) {
+                    el.textContent = (current / 1000).toFixed(current >= 10000 ? 0 : 1) + 'K' + suffix;
+                } else {
+                    el.textContent = current.toLocaleString() + suffix;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    if (end >= 10000) {
+                        el.textContent = (end / 1000) + 'K' + suffix;
+                    } else {
+                        el.textContent = end.toLocaleString() + suffix;
+                    }
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猛火快餐 | MENGHUO FAST FOOD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .hero-gradient { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%); }
+        .card-glow:hover { box-shadow: 0 0 30px rgba(239, 68, 68, 0.15); }
+        .price-tag { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .promo-gradient { background: linear-gradient(135deg, #ef4444 0%, #f97316 100%); }
+        .cart-bounce { animation: bounce 0.3s ease; }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up { animation: slideUp 0.6s ease forwards; }
+        .toast-enter { animation: toastIn 0.4s ease forwards; }
+        .toast-exit { animation: toastOut 0.3s ease forwards; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
+        }
+    </style>
+</head>
+<body class="bg-neutral-950 text-neutral-300">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-neutral-950/80 backdrop-blur-md border-b border-neutral-800">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="h-9 w-9 bg-red-600 rounded-lg flex items-center justify-center">
+                        <i data-lucide="flame" class="h-5 w-5 text-white"></i>
+                    </div>
+                    <span class="text-white font-semibold text-lg tracking-tight">猛火快餐</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#menu" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors">菜单</a>
+                    <a href="#specials" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors">特惠</a>
+                    <a href="#order" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors">订购</a>
+                    <a href="#about" class="text-sm font-medium text-neutral-400 hover:text-white transition-colors">关于</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="toggleCart()" class="relative p-2 text-neutral-400 hover:text-white transition-colors">
+                        <i data-lucide="shopping-bag" class="h-5 w-5"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 h-5 w-5 bg-red-600 text-white text-xs font-semibold rounded-full flex items-center justify-center hidden">0</span>
+                    </button>
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-neutral-400 hover:text-white transition-colors">
+                        <i data-lucide="menu" class="h-5 w-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-neutral-800 bg-neutral-950/95 backdrop-blur-md">
+            <div class="px-6 py-4 space-y-3">
+                <a href="#menu" class="block text-sm font-medium text-neutral-400 hover:text-white transition-colors py-2">菜单</a>
+                <a href="#specials" class="block text-sm font-medium text-neutral-400 hover:text-white transition-colors py-2">特惠</a>
+                <a href="#order" class="block text-sm font-medium text-neutral-400 hover:text-white transition-colors py-2">订购</a>
+                <a href="#about" class="block text-sm font-medium text-neutral-400 hover:text-white transition-colors py-2">关于</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient relative overflow-hidden">
+        <div class="absolute inset-0" style="background: radial-gradient(ellipse at 70% 50%, rgba(239,68,68,0.08), transparent 60%)"></div>
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-16 lg:pt-32 pb-24 lg:pb-40">
+            <div class="grid lg:grid-cols-2 gap-16 lg:gap-8 items-center">
+                <div class="relative z-10">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-red-600/30 bg-red-600/10 mb-6">
+                        <span class="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
+                        <span class="text-xs font-medium text-red-400 uppercase tracking-widest">限时特惠进行中</span>
+                    </div>
+                    <h1 class="text-5xl sm:text-6xl font-medium text-white leading-none tracking-tight mb-6">
+                        猛火现做<br>
+                        <span class="text-red-500">美味即达</span>
+                    </h1>
+                    <p class="text-lg text-neutral-400 leading-relaxed max-w-lg mb-8">
+                        每一份餐品都是猛火现做，精选优质食材，从厨房到您手中，保证热腾腾的美味体验。30分钟极速送达。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#order" class="group inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-all" style="box-shadow: 0 10px 15px -3px rgba(220,38,38,0.2)">
+                            立即订购
+                            <i data-lucide="arrow-right" class="h-4 w-4 transition-transform group-hover:translate-x-1"></i>
+                        </a>
+                        <a href="#menu" class="inline-flex items-center gap-2 px-6 py-3 border border-neutral-700 hover:border-neutral-600 text-white text-sm font-medium rounded-lg transition-all hover:bg-neutral-800/50">
+                            浏览菜单
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-8 mt-10 pt-8 border-t border-neutral-800">
+                        <div>
+                            <div class="text-2xl font-semibold text-white">30min</div>
+                            <div class="text-xs text-neutral-500 mt-1">平均送达</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-semibold text-white">4.9★</div>
+                            <div class="text-xs text-neutral-500 mt-1">用户评分</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-semibold text-white">50K+</div>
+                            <div class="text-xs text-neutral-500 mt-1">月订单量</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative h-[500px] lg:h-auto flex items-center justify-center">
+                    <div class="relative w-80 h-80">
+                        <div class="absolute inset-0 rounded-full border border-neutral-800 animate-pulse"></div>
+                        <div class="absolute inset-4 rounded-full border border-neutral-700/50"></div>
+                        <div class="absolute inset-8 rounded-full border border-neutral-700/30"></div>
+                        <div class="absolute inset-0 flex items-center justify-center float-anim">
+                            <img src="https://picsum.photos/seed/burger-hero/400/400.jpg" alt="招牌汉堡" class="w-64 h-64 rounded-full object-cover shadow-2xl shadow-red-900/20 border-4 border-neutral-800">
+                        </div>
+                        <!-- Floating cards -->
+                        <div class="absolute top-4 right-0 bg-neutral-900/90 backdrop-blur-sm border border-neutral-800 rounded-lg px-3 py-2 float-anim" style="animation-delay: 0.5s">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="clock" class="h-4 w-4 text-red-500"></i>
+                                <span class="text-xs text-white font-medium">新鲜现做</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-8 left-0 bg-neutral-900/90 backdrop-blur-sm border border-neutral-800 rounded-lg px-3 py-2 float-anim" style="animation-delay: 1s">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="truck" class="h-4 w-4 text-green-500"></i>
+                                <span class="text-xs text-white font-medium">极速配送</span>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-20 right-4 bg-neutral-900/90 backdrop-blur-sm border border-neutral-800 rounded-lg px-3 py-2 float-anim" style="animation-delay: 1.5s">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="star" class="h-4 w-4 text-yellow-500"></i>
+                                <span class="text-xs text-white font-medium">好评如潮</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Special Offers -->
+    <section id="specials" class="py-24 bg-neutral-950">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-xs font-medium text-red-500 uppercase tracking-widest">限时优惠</span>
+                <h2 class="text-4xl md:text-5xl font-medium text-white leading-tight tracking-tight mt-3">今日特惠</h2>
+                <p class="text-lg text-neutral-400 mt-4 max-w-2xl mx-auto">每日精选优惠，让您以更实惠的价格享受美味</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Offer 1 -->
+                <div class="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all card-glow">
+                    <div class="absolute top-4 left-4 z-10">
+                        <span class="price-tag text-white text-xs font-semibold px-3 py-1.5 rounded-full">省 ¥15</span>
+                    </div>
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://picsum.photos/seed/combo-deal-1/600/400.jpg" alt="超值套餐" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    </div>
+                    <div class="p-6 bg-neutral-900/50">
+                        <h3 class="text-xl font-semibold text-white mb-2">双人超值套餐</h3>
+                        <p class="text-sm text-neutral-400 mb-4">2个经典汉堡 + 2份薯条 + 2杯可乐，双人共享更划算</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-semibold text-red-500">¥59</span>
+                                <span class="text-sm text-neutral-500 line-through">¥74</span>
+                            </div>
+                            <button onclick="addToCart('双人超值套餐', 59)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-all">
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Offer 2 -->
+                <div class="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all card-glow">
+                    <div class="absolute top-4 left-4 z-10">
+                        <span class="price-tag text-white text-xs font-semibold px-3 py-1.5 rounded-full">省 ¥12</span>
+                    </div>
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://picsum.photos/seed/chicken-deal/600/400.jpg" alt="炸鸡套餐" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    </div>
+                    <div class="p-6 bg-neutral-900/50">
+                        <h3 class="text-xl font-semibold text-white mb-2">香辣炸鸡全家桶</h3>
+                        <p class="text-sm text-neutral-400 mb-4">6块秘制炸鸡 + 2份小食 + 3杯饮品，全家分享装</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-semibold text-red-500">¥79</span>
+                                <span class="text-sm text-neutral-500 line-through">¥91</span>
+                            </div>
+                            <button onclick="addToCart('香辣炸鸡全家桶', 79)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-all">
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Offer 3 -->
+                <div class="relative group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all card-glow">
+                    <div class="absolute top-4 left-4 z-10">
+                        <span class="price-tag text-white text-xs font-semibold px-3 py-1.5 rounded-full">半价</span>
+                    </div>
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://picsum.photos/seed/drink-special/600/400.jpg" alt="饮品特惠" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    </div>
+                    <div class="p-6 bg-neutral-900/50">
+                        <h3 class="text-xl font-semibold text-white mb-2">第二杯半价</h3>
+                        <p class="text-sm text-neutral-400 mb-4">所有饮品第二杯半价，鲜榨果汁、奶茶、可乐均参与</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-semibold text-red-500">¥6起</span>
+                                <span class="text-sm text-neutral-500 line-through">¥12</span>
+                            </div>
+                            <button onclick="addToCart('饮品（第二杯半价）', 6)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-all">
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-24 bg-neutral-900/30">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-xs font-medium text-red-500 uppercase tracking-widest">精选美食</span>
+                <h2 class="text-4xl md:text-5xl font-medium text-white leading-tight tracking-tight mt-3">我们的菜单</h2>
+                <p class="text-lg text-neutral-400 mt-4 max-w-2xl mx-auto">猛火现做，每一口都是满足</p>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="flex justify-center mb-12">
+                <div class="inline-flex items-center gap-1 p-1 bg-neutral-900/50 border border-neutral-800 rounded-xl">
+                    <button onclick="filterMenu('all')" class="menu-tab active px-5 py-2.5 text-sm font-medium rounded-lg transition-all" data-tab="all">全部</button>
+                    <button onclick="filterMenu('burger')" class="menu-tab px-5 py-2.5 text-sm font-medium rounded-lg transition-all text-neutral-400 hover:text-white" data-tab="burger">汉堡</button>
+                    <button onclick="filterMenu('chicken')" class="menu-tab px-5 py-2.5 text-sm font-medium rounded-lg transition-all text-neutral-400 hover:text-white" data-tab="chicken">炸鸡</button>
+                    <button onclick="filterMenu('side')" class="menu-tab px-5 py-2.5 text-sm font-medium rounded-lg transition-all text-neutral-400 hover:text-white" data-tab="side">小食</button>
+                    <button onclick="filterMenu('drink')" class="menu-tab px-5 py-2.5 text-sm font-medium rounded-lg transition-all text-neutral-400 hover:text-white" data-tab="drink">饮品</button>
+                </div>
+            </div>
+
+            <!-- Menu Grid -->
+            <div id="menu-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Items will be injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Section -->
+    <section id="order" class="py-24 bg-neutral-950">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-16 items-start">
+                <div>
+                    <span class="text-xs font-medium text-red-500 uppercase tracking-widest">快速订购</span>
+                    <h2 class="text-4xl md:text-5xl font-medium text-white leading-tight tracking-tight mt-3 mb-6">轻松下单<br>美味到家</h2>
+                    <p class="text-lg text-neutral-400 leading-relaxed mb-8">三步完成订购，30分钟内送达。支持堂食、外带和外卖三种方式。</p>
+                    
+                    <!-- Steps -->
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-red-600/10 border border-red-600/20 flex items-center justify-center">
+                                <span class="text-red-500 font-semibold text-sm">1</span>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">选择餐品</h4>
+                                <p class="text-sm text-neutral-400">从菜单中挑选您喜爱的美食</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-red-600/10 border border-red-600/20 flex items-center justify-center">
+                                <span class="text-red-500 font-semibold text-sm">2</span>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">确认订单</h4>
+                                <p class="text-sm text-neutral-400">核对订单信息，选择配送方式</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-red-600/10 border border-red-600/20 flex items-center justify-center">
+                                <span class="text-red-500 font-semibold text-sm">3</span>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-medium mb-1">等待送达</h4>
+                                <p class="text-sm text-neutral-400">30分钟内，美味送到您手中</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Options -->
+                    <div class="mt-10 grid grid-cols-3 gap-4">
+                        <button onclick="selectDelivery('dine-in')" class="delivery-option active p-4 rounded-xl border border-neutral-800 hover:border-red-600/50 transition-all text-center group" data-type="dine-in">
+                            <i data-lucide="utensils" class="h-6 w-6 mx-auto mb-2 text-neutral-400 group-hover:text-red-500 transition-colors"></i>
+                            <span class="text-sm text-neutral-400 group-hover:text-white transition-colors">堂食</span>
+                        </button>
+                        <button onclick="selectDelivery('takeout')" class="delivery-option p-4 rounded-xl border border-neutral-800 hover:border-red-600/50 transition-all text-center group" data-type="takeout">
+                            <i data-lucide="shopping-bag" class="h-6 w-6 mx-auto mb-2 text-neutral-400 group-hover:text-red-500 transition-colors"></i>
+                            <span class="text-sm text-neutral-400 group-hover:text-white transition-colors">外带</span>
+                        </button>
+                        <button onclick="selectDelivery('delivery')" class="delivery-option p-4 rounded-xl border border-neutral-800 hover:border-red-600/50 transition-all text-center group" data-type="delivery">
+                            <i data-lucide="truck" class="h-6 w-6 mx-auto mb-2 text-neutral-400 group-hover:text-red-500 transition-colors"></i>
+                            <span class="text-sm text-neutral-400 group-hover:text-white transition-colors">外卖</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cart Panel -->
+                <div class="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 lg:p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-semibold text-white">购物车</h3>
+                        <button onclick="clearCart()" class="text-xs text-neutral-500 hover:text-red-500 transition-colors">清空</button>
+                    </div>
+                    <div id="cart-items" class="space-y-4 mb-6 min-h-[200px]">
+                        <div id="cart-empty" class="flex flex-col items-center justify-center py-12 text-neutral-500">
+                            <i data-lucide="shopping-bag" class="h-12 w-12 mb-3 opacity-30"></i>
+                            <p class="text-sm">购物车是空的</p>
+                            <p class="text-xs mt-1">快去挑选美食吧</p>
+                        </div>
+                    </div>
+                    <div id="cart-summary" class="hidden border-t border-neutral-800 pt-6 space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-neutral-400">小计</span>
+                            <span id="cart-subtotal" class="text-white">¥0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-neutral-400">配送费</span>
+                            <span id="cart-delivery" class="text-white">¥5</span>
+                        </div>
+                        <div class="flex justify-between text-base font-semibold pt-3 border-t border-neutral-800">
+                            <span class="text-white">合计</span>
+                            <span id="cart-total" class="text-red-500">¥0</span>
+                        </div>
+                        <button onclick="checkout()" class="w-full mt-4 px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-all" style="box-shadow: 0 10px 15px -3px rgba(220,38,38,0.2)">
+                            确认下单
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About / Features -->
+    <section id="about" class="py-24 bg-neutral-900/30">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <span class="text-xs font-medium text-red-500 uppercase tracking-widest">为什么选择我们</span>
+                <h2 class="text-4xl md:text-5xl font-medium text-white leading-tight tracking-tight mt-3">猛火快餐的优势</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-6 rounded-xl border border-neutral-800 hover:border-neutral-700 transition-all bg-neutral-900/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-red-600/10 border border-red-600/20 flex items-center justify-center mb-4">
+                        <i data-lucide="flame" class="h-6 w-6 text-red-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">猛火现做</h3>
+                    <p class="text-sm text-neutral-400 leading-relaxed">每份餐品都是现场烹饪，绝不使用预制菜，保证口感和新鲜度</p>
+                </div>
+                <div class="p-6 rounded-xl border border-neutral-800 hover:border-neutral-700 transition-all bg-neutral-900/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-green-600/10 border border-green-600/20 flex items-center justify-center mb-4">
+                        <i data-lucide="leaf" class="h-6 w-6 text-green-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">优质食材</h3>
+                    <p class="text-sm text-neutral-400 leading-relaxed">严选优质供应商，每日新鲜配送食材，从源头保障品质</p>
+                </div>
+                <div class="p-6 rounded-xl border border-neutral-800 hover:border-neutral-700 transition-all bg-neutral-900/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-blue-600/10 border border-blue-600/20 flex items-center justify-center mb-4">
+                        <i data-lucide="zap" class="h-6 w-6 text-blue-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">极速送达</h3>
+                    <p class="text-sm text-neutral-400 leading-relaxed">专业配送团队，30分钟内送达，超时自动赔付优惠券</p>
+                </div>
+                <div class="p-6 rounded-xl border border-neutral-800 hover:border-neutral-700 transition-all bg-neutral-900/30 group">
+                    <div class="h-12 w-12 rounded-xl bg-purple-600/10 border border-purple-600/20 flex items-center justify-center mb-4">
+                        <i data-lucide="shield-check" class="h-6 w-6 text-purple-500"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white mb-2">食品安全</h3>
+                    <p class="text-sm text-neutral-400 leading-relaxed">全程可追溯，严格遵循食品安全标准，让您吃得放心</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-24 bg-neutral-950 relative overflow-hidden">
+        <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, rgba(239,68,68,0.05), transparent 60%)"></div>
+        <div class="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
+            <div class="promo-gradient rounded-2xl p-12 lg:p-16 text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-black/10"></div>
+                <div class="relative z-10">
+                    <h2 class="text-3xl md:text-4xl font-medium text-white leading-tight tracking-tight mb-4">新用户首单立减 ¥20</h2>
+                    <p class="text-white/80 text-lg mb-8 max-w-xl mx-auto">注册即享新人专属优惠，还有更多会员权益等您发现</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <input id="promo-email" type="email" placeholder="输入您的手机号或邮箱" class="w-full sm:w-80 px-5 py-3.5 rounded-lg bg-white/20 backdrop-blur-sm border border-white/30 text-white placeholder-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <button onclick="handleSignup()" class="w-full sm:w-auto px-8 py-3.5 bg-white text-red-600 text-sm font-semibold rounded-lg hover:bg-neutral-100 transition-all">
+                            立即领取
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-neutral-800 bg-neutral-950 py-16">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-10">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="h-9 w-9 bg-red-600 rounded-lg flex items-center justify-center">
+                            <i data-lucide="flame" class="h-5 w-5 text-white"></i>
+                        </div>
+                        <span class="text-white font-semibold text-lg">猛火快餐</span>
+                    </div>
+                    <p class="text-sm text-neutral-500 leading-relaxed">猛火现做，美味即达。<br>让每一餐都值得期待。</p>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-4">菜单</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">经典汉堡</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">炸鸡系列</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">小食拼盘</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">饮品甜点</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-4">服务</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">堂食点餐</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">外卖配送</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">企业团餐</a></li>
+                        <li><a href="#" class="text-sm text-neutral-500 hover:text-white transition-colors">生日派对</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-sm font-semibold text-white mb-4">联系我们</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center gap-2 text-sm text-neutral-500">
+                            <i data-lucide="phone" class="h-4 w-4"></i>
+                            400-888-9999
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-neutral-500">
+                            <i data-lucide="mail" class="h-4 w-4"></i>
+                            hello@menghuo.com
+                        </li>
+                        <li class="flex items-center gap-2 text-sm text-neutral-500">
+                            <i data-lucide="map-pin" class="h-4 w-4"></i>
+                            全国300+门店
+                        </li>
+                    </ul>
+                    <div class="flex items-center gap-3 mt-4">
+                        <a href="#" class="h-9 w-9 rounded-lg border border-neutral-800 hover:border-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-all">
+                            <i data-lucide="message-circle" class="h-4 w-4"></i>
+                        </a>
+                        <a href="#" class="h-9 w-9 rounded-lg border border-neutral-800 hover:border-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-all">
+                            <i data-lucide="instagram" class="h-4 w-4"></i>
+                        </a>
+                        <a href="#" class="h-9 w-9 rounded-lg border border-neutral-800 hover:border-neutral-700 flex items-center justify-center text-neutral-500 hover:text-white transition-all">
+                            <i data-lucide="twitter" class="h-4 w-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-neutral-800 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-neutral-600">© 2024 猛火快餐. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-xs text-neutral-600 hover:text-neutral-400 transition-colors">隐私政策</a>
+                    <a href="#" class="text-xs text-neutral-600 hover:text-neutral-400 transition-colors">服务条款</a>
+                    <a href="#" class="text-xs text-neutral-600 hover:text-neutral-400 transition-colors">加盟合作</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart Sidebar Overlay -->
+    <div id="cart-overlay" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleCart()"></div>
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-neutral-900 border-l border-neutral-800 transform translate-x-full transition-transform duration-300" id="cart-sidebar">
+            <div class="p-6 h-full flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-white">购物车</h3>
+                    <button onclick="toggleCart()" class="p-2 text-neutral-400 hover:text-white transition-colors">
+                        <i data-lucide="x" class="h-5 w-5"></i>
+                    </button>
+                </div>
+                <div id="sidebar-cart-items" class="flex-1 overflow-y-auto no-scrollbar space-y-4">
+                    <div id="sidebar-cart-empty" class="flex flex-col items-center justify-center py-16 text-neutral-500">
+                        <i data-lucide="shopping-bag" class="h-16 w-16 mb-4 opacity-20"></i>
+                        <p class="text-sm">购物车是空的</p>
+                    </div>
+                </div>
+                <div id="sidebar-cart-summary" class="hidden border-t border-neutral-800 pt-6 mt-4 space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-400">小计</span>
+                        <span id="sidebar-subtotal" class="text-white">¥0</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-neutral-400">配送费</span>
+                        <span id="sidebar-delivery" class="text-white">¥5</span>
+                    </div>
+                    <div class="flex justify-between text-base font-semibold pt-3 border-t border-neutral-800">
+                        <span class="text-white">合计</span>
+                        <span id="sidebar-total" class="text-red-500">¥0</span>
+                    </div>
+                    <button onclick="checkout()" class="w-full mt-2 px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-all" style="box-shadow: 0 10px 15px -3px rgba(220,38,38,0.2)">
+                        确认下单
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Menu Data
+        const menuItems = [
+            { id: 1, name: '经典牛肉堡', desc: '澳洲牛肉饼，新鲜蔬菜，秘制酱料', price: 28, category: 'burger', img: 'classic-beef-burger', tag: '招牌' },
+            { id: 2, name: '双层芝士堡', desc: '双层牛肉饼，浓郁芝士，焦香洋葱', price: 35, category: 'burger', img: 'double-cheese-burger', tag: '' },
+            { id: 3, name: '香辣鸡腿堡', desc: '香酥鸡腿排，爽辣酱汁，清脆生菜', price: 25, category: 'burger', img: 'spicy-chicken-burger', tag: '热销' },
+            { id: 4, name: '培根鳕鱼堡', desc: '深海鳕鱼排，烟熏培根，塔塔酱', price: 32, category: 'burger', img: 'bacon-fish-burger', tag: '' },
+            { id: 5, name: '秘制炸鸡（3块）', desc: '独家腌料，外酥里嫩，多汁爆浆', price: 22, category: 'chicken', img: 'fried-chicken-3', tag: '必点' },
+            { id: 6, name: '香辣鸡翅（6只）', desc: '香辣入味，皮脆肉嫩，越吃越上瘾', price: 26, category: 'chicken', img: 'spicy-wings-6', tag: '' },
+            { id: 7, name: '鸡米花', desc: '一口一个，酥脆可口，停不下来', price: 15, category: 'chicken', img: 'popcorn-chicken', tag: '' },
+            { id: 8, name: '脆皮鸡腿', desc: '整只大鸡腿，金黄酥脆，满足感爆棚', price: 18, category: 'chicken', img: 'crispy-drumstick', tag: '' },
+            { id: 9, name: '黄金薯条', desc: '外脆内软，撒上海盐，经典搭配', price: 12, category: 'side', img: 'golden-fries', tag: '' },
+            { id: 10, name: '洋葱圈', desc: '香脆洋葱圈，配上特制蘸酱', price: 14, category: 'side', img: 'onion-rings-side', tag: '' },
+            { id: 11, name: '玉米沙拉', desc: '新鲜蔬菜，甜玉米，清爽解腻', price: 10, category: 'side', img: 'corn-salad-fresh', tag: '' },
+            { id: 12, name: '芝士薯角', desc: '焗烤芝士，香浓薯角，双重享受', price: 16, category: 'side', img: 'cheese-potato-wedges', tag: '新品' },
+            { id: 13, name: '冰镇可乐', desc: '经典可口可乐，冰爽畅饮', price: 8, category: 'drink', img: 'cola-drink-ice', tag: '' },
+            { id: 14, name: '鲜榨橙汁', desc: '当日鲜榨，不添加，纯天然', price: 15, category: 'drink', img: 'fresh-orange-juice', tag: '' },
+            { id: 15, name: '珍珠奶茶', desc: 'Q弹珍珠，香浓奶茶，人气之选', price: 14, category: 'drink', img: 'bubble-tea-drink', tag: '热销' },
+            { id: 16, name: '草莓奶昔', desc: '新鲜草莓，香浓奶昔，甜蜜诱惑', price: 18, category: 'drink', img: 'strawberry-milkshake', tag: '' },
+        ];
+
+        let cart = [];
+        let deliveryType = 'dine-in';
+
+        // Render Menu
+        function renderMenu(filter = 'all') {
+            const grid = document.getElementById('menu-grid');
+            const filtered = filter === 'all' ? menuItems : menuItems.filter(item => item.category === filter);
+            
+            grid.innerHTML = filtered.map((item, index) => `
+                <div class="menu-item group rounded-xl overflow-hidden border border-neutral-800 hover:border-neutral-700 transition-all card-glow bg-neutral-900/30 slide-up" style="animation-delay: ${index * 0.05}s">
+                    <div class="relative h-44 overflow-hidden">
+                        <img src="https://picsum.photos/seed/${item.img}/400/300.jpg" alt="${item.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        ${item.tag ? `<span class="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full ${item.tag === '新品' ? 'bg-green-600' : item.tag === '必点' ? 'bg-amber-600' : 'bg-red-600'} text-white">${item.tag}</span>` : ''}
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-base font-semibold text-white mb-1">${item.name}</h3>
+                        <p class="text-xs text-neutral-500 mb-3 leading-relaxed">${item.desc}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-semibold text-red-500">¥${item.price}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="h-9 w-9 rounded-lg bg-red-600/10 border border-red-600/20 flex items-center justify-center text-red-500 hover:bg-red-600 hover:text-white transition-all">
+                                <i data-lucide="plus" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            lucide.createIcons();
+        }
+
+        // Filter Menu
+        function filterMenu(category) {
+            document.querySelectorAll('.menu-tab').forEach(tab => {
+                if (tab.dataset.tab === category) {
+                    tab.classList.add('active');
+                    tab.classList.remove('text-neutral-400');
+                    tab.style.background = '#dc2626';
+                    tab.style.color = 'white';
+                } else {
+                    tab.classList.remove('active');
+                    tab.classList.add('text-neutral-400');
+                    tab.style.background = 'transparent';
+                    tab.style.color = '';
+                }
+            });
+            renderMenu(category);
+        }
+
+        // Cart Functions
+        function addToCart(name, price) {
+            const existing = cart.find(item => item.name === name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+            showToast(`已添加 ${name}`, 'success');
+            
+            // Badge bounce
+            const badge = document.getElementById('cart-badge');
+            badge.classList.remove('cart-bounce');
+            void badge.offsetWidth;
+            badge.classList.add('cart-bounce');
+        }
+
+        function removeFromCart(name) {
+            const index = cart.findIndex(item => item.name === name);
+            if (index > -1) {
+                if (cart[index].qty > 1) {
+                    cart[index].qty -= 1;
+                } else {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+            showToast('购物车已清空', 'info');
+        }
+
+        function updateCartUI() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+            const deliveryFee = deliveryType === 'delivery' ? 5 : 0;
+            const total = subtotal + deliveryFee;
+
+            // Badge
+            const badge = document.getElementById('cart-badge');
+            if (totalItems > 0) {
+                badge.classList.remove('hidden');
+                badge.textContent = totalItems;
+            } else {
+                badge.classList.add('hidden');
+            }
+
+            // Main cart
+            const cartItemsEl = document.getElementById('cart-items');
+            const cartEmpty = document.getElementById('cart-empty');
+            const cartSummary = document.getElementById('cart-summary');
+
+            if (cart.length === 0) {
+                cartItemsEl.innerHTML = `
+                    <div id="cart-empty" class="flex flex-col items-center justify-center py-12 text-neutral-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-3 opacity-30"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <p class="text-sm">购物车是空的</p>
+                        <p class="text-xs mt-1">快去挑选美食吧</p>
+                    </div>`;
+                cartSummary.classList.add('hidden');
+            } else {
+                cartItemsEl.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-4 p-3 rounded-lg bg-neutral-800/30 border border-neutral-800">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white truncate">${item.name}</p>
+                            <p class="text-xs text-neutral-500 mt-0.5">¥${item.price} × ${item.qty}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="removeFromCart('${item.name}')" class="h-7 w-7 rounded-md border border-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-600 transition-all text-xs">−</button>
+                            <span class="text-sm text-white w-6 text-center">${item.qty}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="h-7 w-7 rounded-md border border-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-600 transition-all text-xs">+</button>
+                        </div>
+                        <span class="text-sm font-medium text-white w-16 text-right">¥${item.price * item.qty}</span>
+                    </div>
+                `).join('');
+                cartSummary.classList.remove('hidden');
+                document.getElementById('cart-subtotal').textContent = `¥${subtotal}`;
+                document.getElementById('cart-delivery').textContent = deliveryFee > 0 ? `¥${deliveryFee}` : '免费';
+                document.getElementById('cart-total').textContent = `¥${total}`;
+            }
+
+            // Sidebar cart
+            const sidebarItems = document.getElementById('sidebar-cart-items');
+            const sidebarEmpty = document.getElementById('sidebar-cart-empty');
+            const sidebarSummary = document.getElementById('sidebar-cart-summary');
+
+            if (cart.length === 0) {
+                sidebarItems.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-16 text-neutral-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mb-4 opacity-20"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" x2="21" y1="6" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        <p class="text-sm">购物车是空的</p>
+                    </div>`;
+                sidebarSummary.classList.add('hidden');
+            } else {
+                sidebarItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center gap-4 p-3 rounded-lg bg-neutral-800/30 border border-neutral-800">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white truncate">${item.name}</p>
+                            <p class="text-xs text-neutral-500 mt-0.5">¥${item.price} × ${item.qty}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="removeFromCart('${item.name}')" class="h-7 w-7 rounded-md border border-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-600 transition-all text-xs">−</button>
+                            <span class="text-sm text-white w-6 text-center">${item.qty}</span>
+                            <button onclick="addToCart('${item.name}', ${item.price})" class="h-7 w-7 rounded-md border border-neutral-700 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-600 transition-all text-xs">+</button>
+                        </div>
+                        <span class="text-sm font-medium text-white w-16 text-right">¥${item.price * item.qty}</span>
+                    </div>
+                `).join('');
+                sidebarSummary.classList.remove('hidden');
+                document.getElementById('sidebar-subtotal').textContent = `¥${subtotal}`;
+                document.getElementById('sidebar-delivery').textContent = deliveryFee > 0 ? `¥${deliveryFee}` : '免费';
+                document.getElementById('sidebar-total').textContent = `¥${total}`;
+            }
+        }
+
+        // Toggle Cart Sidebar
+        function toggleCart() {
+            const overlay = document.getElementById('cart-overlay');
+            const sidebar = document.getElementById('cart-sidebar');
+            
+            if (overlay.classList.contains('hidden')) {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    sidebar.style.transform = 'translateX(0)';
+                }, 10);
+            } else {
+                sidebar.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // Delivery Type
+        function selectDelivery(type) {
+            deliveryType = type;
+            document.querySelectorAll('.delivery-option').forEach(opt => {
+                if (opt.dataset.type === type) {
+                    opt.classList.add('active');
+                    opt.style.borderColor = 'rgba(220,38,38,0.5)';
+                    opt.style.background = 'rgba(220,38,38,0.05)';
+                } else {
+                    opt.classList.remove('active');
+                    opt.style.borderColor = '';
+                    opt.style.background = '';
+                }
+            });
+            updateCartUI();
+        }
+
+        // Checkout
+        function checkout() {
+            if (cart.length === 0) {
+                showToast('购物车为空，请先添加商品', 'error');
+                return;
+            }
+            const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0) + (deliveryType === 'delivery' ? 5 : 0);
+            showToast(`下单成功！合计 ¥${total}，预计30分钟内送达 🎉`, 'success');
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        // Toast
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'border-green-600/30 bg-green-600/10',
+                error: 'border-red-600/30 bg-red-600/10',
+                info: 'border-blue-600/30 bg-blue-600/10'
+            };
+            const icons = {
+                success: '✓',
+                error: '✕',
+                info: 'ℹ'
+            };
+            toast.className = `toast-enter flex items-center gap-3 px-4 py-3 rounded-lg border ${colors[type]} backdrop-blur-md`;
+            toast.innerHTML = `
+                <span class="text-sm font-medium ${type === 'success' ? 'text-green-400' : type === 'error' ? 'text-red-400' : 'text-blue-400'}">${icons[type]}</span>
+                <span class="text-sm text-white">${message}</span>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Mobile Menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Signup
+        function handleSignup() {
+            const input = document.getElementById('promo-email');
+            if (input.value.trim()) {
+                showToast('🎉 优惠券已发送，首单立减 ¥20！', 'success');
+                input.value = '';
+            } else {
+                showToast('请输入手机号或邮箱', 'error');
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            filterMenu('all');
+            selectDelivery('dine-in');
+        });
+    </script>
+</body>
+</html>

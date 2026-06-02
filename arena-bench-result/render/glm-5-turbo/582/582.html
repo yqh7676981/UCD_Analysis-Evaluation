@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邓稼先 - 中国核武器研究的奠基者</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f14;
+            --bg-secondary: #111820;
+            --fg: #e8e6e3;
+            --fg-muted: #9ca3af;
+            --accent: #d4a84b;
+            --accent-glow: rgba(212, 168, 75, 0.3);
+            --card: rgba(17, 24, 32, 0.8);
+            --border: rgba(212, 168, 75, 0.2);
+            --gradient-start: #1a1206;
+            --gradient-end: #0a0f14;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .font-serif {
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        /* Background Effects */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 40%, rgba(212, 168, 75, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 20%, rgba(212, 168, 75, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 50% 80%, rgba(180, 140, 60, 0.04) 0%, transparent 50%);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                linear-gradient(rgba(212, 168, 75, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(212, 168, 75, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, black 0%, transparent 70%);
+        }
+
+        /* Particle Canvas */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            transition: all 0.4s ease;
+        }
+
+        .nav-container.scrolled {
+            background: rgba(10, 15, 20, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-link {
+            position: relative;
+            color: var(--fg-muted);
+            transition: color 0.3s ease;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 6rem 2rem;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: rgba(212, 168, 75, 0.1);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.875rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.125rem, 2vw, 1.5rem);
+            color: var(--fg-muted);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--fg-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--fg-muted);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 1; /* fixed: was 0 */
+            animation: fadeIn 1s ease 1s forwards;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            animation: scrollPulse 2s ease infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        /* Sections */
+        .section {
+            position: relative;
+            z-index: 10;
+            padding: 6rem 2rem;
+        }
+
+        .section-header {
+            max-width: 1200px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, var(--border), transparent);
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        /* Biography Card */
+        .bio-card {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .bio-card {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .bio-image {
+            position: relative;
+            aspect-ratio: 3/4;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .bio-image-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--gradient-start), var(--bg-secondary));
+        }
+
+        .bio-image-placeholder svg {
+            width: 80px;
+            height: 80px;
+            color: var(--accent);
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        .bio-image-placeholder span {
+            font-size: 0.875rem;
+            color: var(--fg-muted);
+        }
+
+        .bio-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--fg);
+        }
+
+        .bio-content p {
+            color: var(--fg-muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .bio-timeline {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-year {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent);
+            min-width: 60px;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .timeline-text {
+            font-size: 0.9375rem;
+            color: var(--fg-muted);
+        }
+
+        /* Publications */
+        .publications-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .publication-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .publication-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .publication-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .publication-card:hover::before {
+            opacity: 1;
+        }
+
+        .pub-type {
+            display: inline-block;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: rgba(212, 168, 75, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .pub-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--fg);
+            line-height: 1.4;
+        }
+
+        .pub-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--fg-muted);
+            margin-bottom: 1rem;
+        }
+
+        .pub-desc {
+            font-size: 0.9375rem;
+            color: var(--fg-muted);
+            line-height: 1.6;
+        }
+
+        /* Projects */
+        .projects-list {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            transition: all 0.4s ease;
+        }
+
+        @media (max-width: 768px) {
+            .project-card {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .project-card:hover {
+            border-color: var(--accent);
+            background: rgba(212, 168, 75, 0.02);
+        }
+
+        .project-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(212, 168, 75, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .project-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--fg);
+        }
+
+        .project-period {
+            font-size: 0.875rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .project-desc {
+            color: var(--fg-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .project-tag {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            color: var(--fg-muted);
+        }
+
+        /* Contributions */
+        .contributions-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .contributions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .contributions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .contribution-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .contribution-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+        }
+
+        .contribution-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, rgba(212, 168, 75, 0.2), rgba(212, 168, 75, 0.05));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+        }
+
+        .contribution-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--fg);
+        }
+
+        .contribution-desc {
+            font-size: 0.9375rem;
+            color: var(--fg-muted);
+            line-height: 1.6;
+        }
+
+        /* Quote Section */
+        .quote-section {
+            background: linear-gradient(135deg, var(--gradient-start), var(--bg));
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 5rem 2rem;
+        }
+
+        .quote-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .quote-mark {
+            font-size: 4rem;
+            color: var(--accent);
+            opacity: 0.3;
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .quote-text {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.8;
+            margin: 1rem 0 2rem;
+            color: var(--fg);
+        }
+
+        .quote-author {
+            font-size: 1rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            color: var(--fg-muted);
+            font-size: 0.9375rem;
+            line-height: 1.8;
+        }
+
+        .footer-year {
+            margin-top: 2rem;
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            opacity: 0.6;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .reveal {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .scroll-line {
+                animation: none;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="nav-container" id="nav">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="font-serif text-xl font-bold" style="color: var(--accent);">邓稼先</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#biography" class="nav-link">生平简介</a>
+                <a href="#publications" class="nav-link">学术著作</a>
+                <a href="#projects" class="nav-link">研究项目</a>
+                <a href="#contributions" class="nav-link">学术贡献</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                </svg>
+                两弹元勋
+            </div>
+            <h1 class="hero-title font-serif"><span>邓稼先</span></h1>
+            <p class="hero-subtitle">
+                中国核武器理论研究工作的奠基者之一，为中国核事业奉献毕生心血的科学巨匠
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">28</div>
+                    <div class="stat-label">隐姓埋名年数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">国家级最高荣誉</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">62</div>
+                    <div class="stat-label">享年</div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>向下滚动</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- Biography Section -->
+    <section class="section" id="biography">
+        <div class="section-header reveal">
+            <div class="section-label">生平简介</div>
+            <h2 class="section-title font-serif">一位科学家的传奇人生</h2>
+        </div>
+        <div class="bio-card reveal">
+            <div class="bio-image">
+                <div class="bio-image-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>1924 - 1986</span>
+                </div>
+            </div>
+            <div class="bio-content">
+                <h3>中国核武器理论研究的开拓者</h3>
+                <p>
+                    邓稼先（1924年6月25日-1986年7月29日），安徽怀宁人，中国杰出的物理学家、核武器专家。他长期担任中国核武器研究和设计院院长，是中国核武器理论研究工作的奠基者之一，被誉为"两弹元勋"。
+                </p>
+                <p>
+                    1950年，邓稼先在美国普渡大学获得物理学博士学位后毅然回国，投身于新中国的核事业。他隐姓埋名28年，为中国原子弹和氢弹的研制做出了卓越贡献。
+                </p>
+                <div class="bio-timeline">
+                    <div class="timeline-item">
+                        <span class="timeline-year">1924</span>
+                        <span class="timeline-text">出生于安徽省怀宁县</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1950</span>
+                        <span class="timeline-text">获美国普渡大学物理学博士学位，随即回国</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1958</span>
+                        <span class="timeline-text">受命主持核武器理论研究工作</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1964</span>
+                        <span class="timeline-text">中国第一颗原子弹爆炸成功</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1967</span>
+                        <span class="timeline-text">中国第一颗氢弹爆炸成功</span>
+                    </div>
+                    <div class="timeline-item">
+                        <span class="timeline-year">1986</span>
+                        <span class="timeline-text">因病逝世，享年62岁</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Publications Section -->
+    <section class="section" id="publications">
+        <div class="section-header reveal">
+            <div class="section-label">学术著作</div>
+            <h2 class="section-title font-serif">重要的学术出版物</h2>
+        </div>
+        <div class="publications-grid">
+            <div class="publication-card reveal">
+                <span class="pub-type">理论论文</span>
+                <h3 class="pub-title">原子核结构理论</h3>
+                <div class="pub-meta">
+                    <span>理论研究</span>
+                    <span>核心论文</span>
+                </div>
+                <p class="pub-desc">关于原子核结构的理论研究，为后续核武器设计奠定了重要的理论基础。</p>
+            </div>
+            <div class="publication-card reveal">
+                <span class="pub-type">研究报告</span>
+                <h3 class="pub-title">原子弹理论设计方案</h3>
+                <div class="pub-meta">
+                    <span>机密报告</span>
+                    <span>1960年代</span>
+                </div>
+                <p class="pub-desc">主持完成中国第一颗原子弹的理论设计方案，确立了关键技术路线。</p>
+            </div>
+            <div class="publication-card reveal">
+                <span class="pub-type">研究报告</span>
+                <h3 class="pub-title">氢弹原理突破</h3>
+                <div class="pub-meta">
+                    <span>核心突破</span>
+                    <span>1966年</span>
+                </div>
+                <p class="pub-desc">提出氢弹设计的理论方案，为氢弹的成功研制提供了关键理论支撑。</p>
+            </div>
+            <div class="publication-card reveal">
+                <span class="pub-type">学术论文</span>
+                <h3 class="pub-title">核武器小型化研究</h3>
+                <div class="pub-meta">
+                    <span>技术攻关</span>
+                    <span>1970年代</span>
+                </div>
+                <p class="pub-desc">在核武器小型化、实战化方面进行了开创性研究，提升了核武器的实战能力。</p>
+            </div>
+            <div class="publication-card reveal">
+                <span class="pub-type">技术文献</span>
+                <h3 class="pub-title">核试验数据分析方法</h3>
+                <div class="pub-meta">
+                    <span>方法论</span>
+                    <span>多年度</span>
+                </div>
+                <p class="pub-desc">建立了系统的核试验数据分析方法体系，为武器研制提供科学依据。</p>
+            </div>
+            <div class="publication-card reveal">
+                <span class="pub-type">学术论文</span>
+                <h3 class="pub-title">中子输运理论</h3>
+                <div class="pub-meta">
+                    <span>基础理论</span>
+                    <span>核心研究</span>
+                </div>
+                <p class="pub-desc">在中子输运理论方面的深入研究，解决了核武器设计中的关键物理问题。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section" id="projects">
+        <div class="section-header reveal">
+            <div class="section-label">研究项目</div>
+            <h2 class="section-title font-serif">主持的重大科研项目</h2>
+        </div>
+        <div class="projects-list">
+            <div class="project-card reveal">
+                <div class="project-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="12" y1="2" x2="12" y2="5"></line>
+                        <line x1="12" y1="19" x2="12" y2="22"></line>
+                    </svg>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">原子弹理论设计</h3>
+                    <div class="project-period">1958年 - 1964年</div>
+                    <p class="project-desc">
+                        作为理论部主任，邓稼先主持并完成了中国第一颗原子弹的理论设计方案。他带领团队克服重重困难，在没有外援的情况下独立完成了全部理论计算工作，确定了原子弹研制的总体技术路线。1964年10月16日，中国第一颗原子弹爆炸成功，标志着中国成为世界上第五个拥有核武器的国家。
+                    </p>
+                    <div class="project-tags">
+                        <span class="project-tag">理论物理</span>
+                        <span class="project-tag">核裂变</span>
+                        <span class="project-tag">中子物理</span>
+                        <span class="project-tag">爆轰物理</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card reveal">
+                <div class="project-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">氢弹原理突破与研制</h3>
+                    <div class="project-period">1964年 - 1967年</div>
+                    <p class="project-desc">
+                        在原子弹成功后，邓稼先立即投入氢弹的理论研究。他带领团队在短短两年零八个月内攻克了氢弹原理，创造了从原子弹到氢弹发展的世界最快速度。1967年6月17日，中国第一颗氢弹爆炸成功。这一成就震惊了世界，使中国成为世界上第四个掌握氢弹技术的国家。
+                    </p>
+                    <div class="project-tags">
+                        <span class="project-tag">核聚变</span>
+                        <span class="project-tag">辐射流体力学</span>
+                        <span class="project-tag">高温等离子体</span>
+                        <span class="project-tag">惯性约束</span>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card reveal">
+                <div class="project-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div class="project-content">
+                    <h3 class="project-title">核武器小型化研究</h3>
+                    <div class="project-period">1970年代 - 1980年代</div>
+                    <p class="project-desc">
+                        邓稼先在生命的最后阶段，仍然致力于核武器的小型化和实战化研究。他带领团队进行技术攻关，显著提升了中国核武器的实战能力和威慑效果。即使在身患癌症的情况下，他仍坚持工作，完成了多项重要研究任务。
+                    </p>
+                    <div class="project-tags">
+                        <span class="project-tag">武器小型化</span>
+                        <span class="project-tag">工程优化</span>
+                        <span class="project-tag">安全性设计</span>
+                        <span class="project-tag">可靠性研究</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote Section -->
+    <section class="quote-section">
+        <div class="quote-content reveal">
+            <div class="quote-mark">"</div>
+            <p class="quote-text">
+                假如生命终结后可以再生，那么，我仍选择中国，选择核事业。
+            </p>
+            <div class="quote-author">邓稼先</div>
+        </div>
+    </section>
+
+    <!-- Contributions Section -->
+    <section class="section" id="contributions">
+        <div class="section-header reveal">
+            <div class="section-label">学术贡献</div>
+            <h2 class="section-title font-serif">对学术界和国家的贡献</h2>
+        </div>
+        <div class="contributions-grid">
+            <div class="contribution-card reveal">
+                <div class="contribution-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 2a10 10 0 1 0 10 10"></path>
+                        <path d="M12 12l6-6"></path>
+                        <path d="M16 2h6v6"></path>
+                    </svg>
+                </div>
+                <h3 class="contribution-title">核武器理论奠基</h3>
+                <p class="contribution-desc">开创了中国核武器理论研究的完整体系，培养了一大批核科技人才。</p>
+            </div>
+            <div class="contribution-card reveal">
+                <div class="contribution-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
+                </div>
+                <h3 class="contribution-title">人才培养</h3>
+                <p class="contribution-desc">建立了一套完整的核科技人才培养体系，为中国核事业储备了大量人才。</p>
+            </div>
+            <div class="contribution-card reveal">
+                <div class="contribution-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                </div>
+                <h3 class="contribution-title">国防安全</h3>
+                <p class="contribution-desc">为中国的国防安全做出了不可磨灭的贡献，提升了国家的战略地位。</p>
+            </div>
+            <div class="contribution-card reveal">
+                <div class="contribution-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 6v6l4 2"></path>
+                    </svg>
+                </div>
+                <h3 class="contribution-title">科研精神传承</h3>
+                <p class="contribution-desc">以身作则诠释了科学家精神，成为后人学习的楷模。</p>
+            </div>
+            <div class="contribution-card reveal">
+                <div class="contribution-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z"></path>
+                        <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
+                        <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z"></path>
+                        <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z"></path>
+                        <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z"></path>
+                        <path d="M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z"></path>
+                        <path d="M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z"></path>
+                        <path d="M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z"></path>
+                    </svg>
+                </div>
+                <h3 class="contribution-title">理论方法创新</h3>
+                <p class="contribution-desc">创立了多项核武器设计理论与方法，填补了国内空白。</p>
+            </div>
+            <div class="contribution-card reveal">
+                <div class="contribution-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="contribution-title">学术著作传承</h3>
+                <p class="contribution-desc">留下了大量珍贵的学术资料和研究笔记，为后人提供了宝贵财富。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content reveal">
+            <h3 class="footer-title font-serif">邓稼先</h3>
+            <p class="footer-text">
+                邓稼先用自己的一生诠释了什么是科学报国、什么是无私奉献。他是中国知识分子的优秀代表，是中华民族的脊梁。他的精神将永远激励后人。
+            </p>
+            <p class="footer-year">纪念网站 · 1924 - 1986</p>
+        </div>
+    </footer>
+
+    <script>
+        // Particle System
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId = null;
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            particles = [];
+            const count = Math.min(50, Math.floor((canvas.width * canvas.height) / 25000));
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    speedY: (Math.random() - 0.5) * 0.3,
+                    opacity: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212, 168, 75, ${p.opacity})`;
+                ctx.fill();
+            });
+        }
+
+        function updateParticles() {
+            particles.forEach(p => {
+                p.x += p.speedX;
+                p.y += p.speedY;
+                if (p.x < 0) p.x = canvas.width;
+                if (p.x > canvas.width) p.x = 0;
+                if (p.y < 0) p.y = canvas.height;
+                if (p.y > canvas.height) p.y = 0;
+            });
+        }
+
+        function animateParticles() {
+            if (prefersReducedMotion) return;
+            updateParticles();
+            drawParticles();
+            animationId = requestAnimationFrame(animateParticles);
+        }
+
+        // Initialize particles
+        resizeCanvas();
+        createParticles();
+        if (!prefersReducedMotion) {
+            animateParticles();
+        } else {
+            drawParticles();
+        }
+
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            createParticles();
+            if (prefersReducedMotion) {
+                drawParticles();
+            }
+        });
+
+        // Navigation scroll effect
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Scroll reveal animation
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('active');
+                    }, index * 100);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Counter animation for stats
+        function animateCounter(element, target, duration) {
+            if (prefersReducedMotion) {
+                element.textContent = target;
+                return;
+            }
+            let start = 0;
+            const startTime = performance.now();
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                element.textContent = Math.floor(easeOut * target);
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    element.textContent = target;
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // Animate stats on load
+        const statNumbers = document.querySelectorAll('.stat-number');
+        setTimeout(() => {
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.textContent);
+                animateCounter(stat, target, 1500);
+            });
+        }, 800);
+    </script>
+</body>
+</html>

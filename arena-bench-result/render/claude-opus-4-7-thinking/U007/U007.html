@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FF8A65">
+<title>毛孩子成长日记</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:linear-gradient(160deg,#FFE9D6 0%,#FFD3C4 50%,#FFC1B6 100%);color:#3D2C2A;min-height:100vh;padding-bottom:90px;overflow-x:hidden;}
+.app{max-width:480px;margin:0 auto;position:relative;}
+
+/* Header */
+.header{padding:20px 18px 14px;position:sticky;top:0;z-index:10;background:linear-gradient(160deg,#FFE9D6 0%,#FFD3C4 100%);backdrop-filter:blur(10px);}
+.profile{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.6);padding:14px;border-radius:20px;box-shadow:0 4px 16px rgba(255,138,101,0.15);backdrop-filter:blur(10px);}
+.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#FFB088,#FF8A65);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;box-shadow:0 4px 10px rgba(255,138,101,0.3);}
+.profile-info{flex:1;min-width:0;}
+.pet-name{font-size:18px;font-weight:700;color:#3D2C2A;margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+.pet-name input{border:none;background:transparent;font-size:18px;font-weight:700;color:#3D2C2A;width:100%;outline:none;padding:2px 0;}
+.pet-meta{font-size:12px;color:#8B6F66;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.stat{background:rgba(255,255,255,0.7);border-radius:16px;padding:12px 8px;text-align:center;box-shadow:0 2px 10px rgba(255,138,101,0.1);}
+.stat-num{font-size:20px;font-weight:800;color:#FF6B45;line-height:1;}
+.stat-label{font-size:11px;color:#8B6F66;margin-top:4px;}
+
+/* Section */
+.section{padding:6px 18px 20px;}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:18px 0 12px;}
+.section-title h2{font-size:16px;font-weight:700;color:#3D2C2A;display:flex;align-items:center;gap:6px;}
+.section-title .count{font-size:12px;color:#8B6F66;background:rgba(255,255,255,0.6);padding:3px 10px;border-radius:10px;}
+
+/* Records */
+.records{display:flex;flex-direction:column;gap:12px;}
+.record{background:rgba(255,255,255,0.85);border-radius:18px;padding:14px;box-shadow:0 4px 14px rgba(255,138,101,0.12);position:relative;animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.record-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.record-date{display:flex;align-items:center;gap:8px;}
+.mood{font-size:28px;line-height:1;}
+.date-info .d-main{font-size:14px;font-weight:700;color:#3D2C2A;}
+.date-info .d-sub{font-size:11px;color:#A88B82;}
+.del-btn{background:transparent;border:none;color:#C4A39A;font-size:18px;padding:4px 8px;cursor:pointer;border-radius:8px;}
+.del-btn:active{background:#FFE0DA;}
+
+.record-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.field{background:#FFF6F0;border-radius:12px;padding:8px 10px;}
+.field.full{grid-column:1/-1;}
+.field-label{font-size:10px;color:#A88B82;margin-bottom:2px;display:flex;align-items:center;gap:3px;}
+.field-val{font-size:13px;color:#3D2C2A;font-weight:600;line-height:1.4;word-break:break-word;}
+
+/* Empty */
+.empty{text-align:center;padding:50px 20px;color:#A88B82;}
+.empty-icon{font-size:60px;margin-bottom:12px;opacity:0.6;}
+.empty-text{font-size:14px;}
+
+/* FAB */
+.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#FF8A65,#FF6B45);color:#fff;border:none;font-size:32px;font-weight:300;box-shadow:0 6px 20px rgba(255,107,69,0.5);cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;line-height:1;transition:transform 0.2s;}
+.fab:active{transform:translateX(-50%) scale(0.92);}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:rgba(61,44,42,0.5);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-end;}
+.modal.show{display:flex;animation:fadeIn 0.2s;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.sheet{background:#FFF6F0;width:100%;max-width:480px;margin:0 auto;border-radius:24px 24px 0 0;padding:20px 18px 24px;max-height:88vh;overflow-y:auto;animation:slideUp 0.3s;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-handle{width:40px;height:4px;background:#E5C9BE;border-radius:2px;margin:0 auto 16px;}
+.sheet h3{font-size:18px;font-weight:700;margin-bottom:16px;color:#3D2C2A;text-align:center;}
+
+.form-group{margin-bottom:14px;}
+.form-label{font-size:13px;font-weight:600;color:#3D2C2A;margin-bottom:6px;display:block;}
+.form-input,.form-textarea{width:100%;background:#fff;border:2px solid transparent;border-radius:12px;padding:11px 14px;font-size:15px;color:#3D2C2A;font-family:inherit;outline:none;transition:border-color 0.2s;}
+.form-input:focus,.form-textarea:focus{border-color:#FF8A65;}
+.form-textarea{resize:none;min-height:60px;line-height:1.5;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+.mood-picker{display:flex;gap:6px;flex-wrap:wrap;justify-content:space-between;}
+.mood-opt{flex:1;min-width:46px;aspect-ratio:1;background:#fff;border:2px solid transparent;border-radius:12px;font-size:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s;}
+.mood-opt.active{border-color:#FF8A65;background:#FFE9D6;transform:scale(1.05);}
+.mood-opt:active{transform:scale(0.95);}
+
+.btn-row{display:flex;gap:10px;margin-top:18px;}
+.btn{flex:1;padding:13px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-cancel{background:#FFE0D5;color:#8B6F66;}
+.btn-save{background:linear-gradient(135deg,#FF8A65,#FF6B45);color:#fff;box-shadow:0 4px 12px rgba(255,107,69,0.4);}
+.btn:active{transform:scale(0.97);}
+
+.toast{position:fixed;top:30px;left:50%;transform:translateX(-50%);background:rgba(61,44,42,0.92);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:200;opacity: 1; /* fixed: was 0 */transition:opacity 0.3s;pointer-events:none;}
+.toast.show{opacity:1;}
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="profile">
+      <div class="avatar" id="avatar">🐶</div>
+      <div class="profile-info">
+        <div class="pet-name"><input id="petName" value="豆豆" maxlength="10"></div>
+        <div class="pet-meta" id="petMeta">点击头像切换 · 记录每个温暖瞬间</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="statCount">0</div><div class="stat-label">总记录</div></div>
+      <div class="stat"><div class="stat-num" id="statWeight">--</div><div class="stat-label">最新体重(kg)</div></div>
+      <div class="stat"><div class="stat-num" id="statDays">0</div><div class="stat-label">陪伴天数</div></div>
+    </div>
+  </header>
+
+  <section class="section">
+    <div class="section-title">
+      <h2>📖 成长日记</h2>
+      <span class="count" id="recCount">0 条</span>
+    </div>
+    <div class="records" id="records"></div>
+  </section>
+</div>
+
+<button class="fab" id="addBtn" aria-label="添加记录">+</button>
+
+<div class="modal" id="modal">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h3 id="modalTitle">✨ 新的一天</h3>
+    <form id="form">
+      <div class="form-group">
+        <label class="form-label">📅 日期</label>
+        <input type="date" class="form-input" id="fDate" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">😊 今日心情</label>
+        <div class="mood-picker" id="moodPicker">
+          <div class="mood-opt active" data-m="😄">😄</div>
+          <div class="mood-opt" data-m="😋">😋</div>
+          <div class="mood-opt" data-m="😴">😴</div>
+          <div class="mood-opt" data-m="🥰">🥰</div>
+          <div class="mood-opt" data-m="😢">😢</div>
+          <div class="mood-opt" data-m="🤒">🤒</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">⚖️ 体重(kg)</label>
+          <input type="number" step="0.1" min="0" class="form-input" id="fWeight" placeholder="如 5.2">
+        </div>
+        <div class="form-group">
+          <label class="form-label">💗 健康状态</label>
+          <input type="text" class="form-input" id="fHealth" placeholder="活力满满" maxlength="20">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">🍖 饮食情况</label>
+        <input type="text" class="form-input" id="fDiet" placeholder="今天吃了什么?" maxlength="50">
+      </div>
+      <div class="form-group">
+        <label class="form-label">✨ 趣事记录</label>
+        <textarea class="form-textarea" id="fFun" placeholder="今天发生的可爱小事..." maxlength="200"></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="button" class="btn btn-cancel" id="cancelBtn">取消</button>
+        <button type="submit" class="btn btn-save">💾 保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='petDiary_v1';
+const PKEY='petInfo_v1';
+const avatars=['🐶','🐱','🐰','🐹','🐢','🐦','🐠','🦎'];
+let records=JSON.parse(localStorage.getItem(KEY)||'[]');
+let pet=JSON.parse(localStorage.getItem(PKEY)||'{"name":"豆豆","avatar":"🐶","start":"'+new Date().toISOString().slice(0,10)+'"}');
+let currentMood='😄';
+
+const $=id=>document.getElementById(id);
+
+function init(){
+  $('petName').value=pet.name;
+  $('avatar').textContent=pet.avatar;
+  render();
+  bindEvents();
+}
+
+function bindEvents(){
+  $('addBtn').onclick=openModal;
+  $('cancelBtn').onclick=closeModal;
+  $('modal').onclick=e=>{if(e.target.id==='modal')closeModal();};
+  $('form').onsubmit=saveRecord;
+  $('avatar').onclick=()=>{
+    const i=avatars.indexOf(pet.avatar);
+    pet.avatar=avatars[(i+1)%avatars.length];
+    $('avatar').textContent=pet.avatar;
+    savePet();
+  };
+  $('petName').onchange=e=>{pet.name=e.target.value.trim()||'宝贝';e.target.value=pet.name;savePet();};
+  document.querySelectorAll('.mood-opt').forEach(el=>{
+    el.onclick=()=>{
+      document.querySelectorAll('.mood-opt').forEach(x=>x.classList.remove('active'));
+      el.classList.add('active');
+      currentMood=el.dataset.m;
+    };
+  });
+}
+
+function savePet(){localStorage.setItem(PKEY,JSON.stringify(pet));render();}
+
+function openModal(){
+  $('fDate').value=new Date().toISOString().slice(0,10);
+  $('fWeight').value='';$('fHealth').value='';$('fDiet').value='';$('fFun').value='';
+  document.querySelectorAll('.mood-opt').forEach((x,i)=>x.classList.toggle('active',i===0));
+  currentMood='😄';
+  $('modal').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  $('modal').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+function saveRecord(e){
+  e.preventDefault();
+  const r={
+    id:Date.now(),
+    date:$('fDate').value,
+    mood:currentMood,
+    weight:$('fWeight').value,
+    health:$('fHealth').value.trim(),
+    diet:$('fDiet').value.trim(),
+    fun:$('fFun').value.trim()
+  };
+  if(!r.weight&&!r.health&&!r.diet&&!r.fun){toast('至少填写一项内容哦~');return;}
+  records.unshift(r);
+  localStorage.setItem(KEY,JSON.stringify(records));
+  closeModal();
+  render();
+  toast('记录已保存 ✨');
+}
+
+function delRecord(id){
+  if(!confirm('确定要删除这条记录吗?'))return;
+  records=records.filter(r=>r.id!==id);
+  localStorage.setItem(KEY,JSON.stringify(records));
+  render();
+  toast('已删除');
+}
+
+function fmtDate(s){
+  const d=new Date(s);
+  const wd=['周日','周一','周二','周三','周四','周五','周六'][d.getDay()];
+  return{main:`${d.getMonth()+1}月${d.getDate()}日`,sub:`${d.getFullYear()} · ${wd}`};
+}
+
+function esc(s){return(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function render(){
+  records.sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  $('statCount').textContent=records.length;
+  $('recCount').textContent=records.length+' 条';
+  const last=records.find(r=>r.weight);
+  $('statWeight').textContent=last?last.weight:'--';
+  const start=new Date(pet.start);
+  const days=Math.max(1,Math.floor((Date.now()-start)/86400000)+1);
+  $('statDays').textContent=days;
+
+  const list=$('records');
+  if(!records.length){
+    list.innerHTML='<div class="empty"><div class="empty-icon">🐾</div><div class="empty-text">还没有记录哦<br>点击下方按钮记录第一篇日记吧</div></div>';
+    return;
+  }
+  list.innerHTML=records.map(r=>{
+    const d=fmtDate(r.date);
+    let fields='';
+    if(r.weight)fields+=`<div class="field"><div class="field-label">⚖️ 体重</div><div class="field-val">${esc(r.weight)} kg</div></div>`;
+    if(r.health)fields+=`<div class="field"><div class="field-label">💗 健康</div><div class="field-val">${esc(r.health)}</div></div>`;
+    if(r.diet)fields+=`<div class="field full"><div class="field-label">🍖 饮食</div><div class="field-val">${esc(r.diet)}</div></div>`;
+    if(r.fun)fields+=`<div class="field full"><div class="field-label">✨ 趣事</div><div class="field-val">${esc(r.fun)}</div></div>`;
+    return `<div class="record">
+      <div class="record-head">
+        <div class="record-date">
+          <div class="mood">${r.mood}</div>
+          <div class="date-info"><div class="d-main">${d.main}</div><div class="d-sub">${d.sub}</div></div>
+        </div>
+        <button class="del-btn" onclick="delRecord(${r.id})" aria-label="删除">🗑️</button>
+      </div>
+      <div class="record-grid">${fields}</div>
+    </div>`;
+  }).join('');
+}
+
+let toastTimer;
+function toast(msg){
+  const t=$('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),1800);
+}
+
+init();
+</script>
+</body>
+</html>

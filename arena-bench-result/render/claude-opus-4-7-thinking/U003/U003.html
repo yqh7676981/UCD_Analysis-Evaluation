@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#667eea">
+<title>旅行打包清单</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+    padding-bottom: 100px;
+}
+
+.header {
+    padding: 24px 20px 20px;
+    color: #fff;
+    text-align: center;
+    position: relative;
+}
+
+.header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+}
+
+.header p {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.progress-card {
+    margin: 0 16px 16px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.progress-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.progress-percent {
+    font-size: 20px;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.progress-bar {
+    height: 8px;
+    background: #f0f0f5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+}
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+    flex-shrink: 0;
+    padding: 10px 18px;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tab.active {
+    background: #fff;
+    color: #667eea;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tab .count {
+    font-size: 12px;
+    background: rgba(0,0,0,0.1);
+    padding: 1px 7px;
+    border-radius: 10px;
+    min-width: 22px;
+    text-align: center;
+}
+
+.tab.active .count {
+    background: rgba(102,126,234,0.15);
+}
+
+.content {
+    margin: 0 16px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 8px 0;
+    min-height: 200px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.add-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f5;
+}
+
+.add-input {
+    flex: 1;
+    border: 1.5px solid #e8e8ef;
+    border-radius: 12px;
+    padding: 11px 14px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fafafc;
+}
+
+.add-input:focus {
+    border-color: #667eea;
+    background: #fff;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 0 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+    transition: transform 0.1s;
+}
+
+.add-btn:active { transform: scale(0.95); }
+
+.list {
+    list-style: none;
+    padding: 4px 0;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    border-bottom: 1px solid #f6f6fa;
+    animation: slideIn 0.3s ease;
+}
+
+.item:last-child { border-bottom: none; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #d0d0dc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    background: #fff;
+}
+
+.checkbox.checked {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: transparent;
+}
+
+.checkbox.checked::after {
+    content: '';
+    width: 6px;
+    height: 11px;
+    border-right: 2.5px solid #fff;
+    border-bottom: 2.5px solid #fff;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.item-name {
+    flex: 1;
+    font-size: 15px;
+    color: #333;
+    transition: all 0.25s;
+    word-break: break-all;
+}
+
+.item.done .item-name {
+    color: #b8b8c4;
+    text-decoration: line-through;
+}
+
+.delete-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #d0d0dc;
+    cursor: pointer;
+    font-size: 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.delete-btn:active {
+    background: #ffe5e5;
+    color: #ff6b6b;
+}
+
+.empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #b8b8c4;
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+.empty-text {
+    font-size: 14px;
+}
+
+.toolbar {
+    margin: 16px 16px 0;
+    display: flex;
+    gap: 10px;
+}
+
+.tool-btn {
+    flex: 1;
+    padding: 12px;
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: background 0.2s;
+}
+
+.tool-btn:active {
+    background: rgba(255,255,255,0.35);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🧳 旅行打包清单</h1>
+    <p>整理好行李，安心去旅行</p>
+</div>
+
+<div class="progress-card">
+    <div class="progress-info">
+        <span class="progress-label" id="progressLabel">已打包 0 / 0</span>
+        <span class="progress-percent" id="progressPercent">0%</span>
+    </div>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="content">
+    <div class="add-bar">
+        <input type="text" class="add-input" id="addInput" placeholder="添加物品..." maxlength="30">
+        <button class="add-btn" id="addBtn">添加</button>
+    </div>
+    <ul class="list" id="list"></ul>
+</div>
+
+<div class="toolbar">
+    <button class="tool-btn" id="resetBtn">↺ 重置勾选</button>
+    <button class="tool-btn" id="clearBtn">🗑 清空当前</button>
+</div>
+
+<script>
+const categories = [
+    { id: 'clothes', name: '衣物', icon: '👕' },
+    { id: 'toiletries', name: '洗漱', icon: '🧴' },
+    { id: 'electronics', name: '电子', icon: '📱' },
+    { id: 'documents', name: '证件', icon: '📄' }
+];
+
+const defaults = {
+    clothes: ['T恤', '内衣裤', '袜子', '外套', '睡衣'],
+    toiletries: ['牙刷', '牙膏', '洗发水', '毛巾', '护肤品'],
+    electronics: ['手机充电器', '充电宝', '耳机', '数据线'],
+    documents: ['身份证', '护照', '机票', '酒店预订单']
+};
+
+let data = JSON.parse(localStorage.getItem('packingList') || 'null');
+if (!data) {
+    data = {};
+    categories.forEach(c => {
+        data[c.id] = defaults[c.id].map(name => ({
+            id: Date.now() + Math.random(),
+            name,
+            done: false
+        }));
+    });
+}
+
+let activeTab = categories[0].id;
+
+function save() {
+    localStorage.setItem('packingList', JSON.stringify(data));
+}
+
+function renderTabs() {
+    const tabsEl = document.getElementById('tabs');
+    tabsEl.innerHTML = categories.map(c => {
+        const items = data[c.id] || [];
+        const total = items.length;
+        return `<button class="tab ${activeTab === c.id ? 'active' : ''}" data-id="${c.id}">
+            <span>${c.icon}</span>
+            <span>${c.name}</span>
+            <span class="count">${total}</span>
+        </button>`;
+    }).join('');
+    tabsEl.querySelectorAll('.tab').forEach(t => {
+        t.addEventListener('click', () => {
+            activeTab = t.dataset.id;
+            renderTabs();
+            renderList();
+        });
+    });
+}
+
+function renderList() {
+    const listEl = document.getElementById('list');
+    const items = data[activeTab] || [];
+    
+    if (items.length === 0) {
+        listEl.innerHTML = `<div class="empty">
+            <div class="empty-icon">📦</div>
+            <div class="empty-text">还没有物品，添加一些吧</div>
+        </div>`;
+    } else {
+        listEl.innerHTML = items.map(item => `
+            <li class="item ${item.done ? 'done' : ''}" data-id="${item.id}">
+                <div class="checkbox ${item.done ? 'checked' : ''}"></div>
+                <span class="item-name">${escapeHtml(item.name)}</span>
+                <button class="delete-btn">×</button>
+            </li>
+        `).join('');
+        
+        listEl.querySelectorAll('.item').forEach(el => {
+            const id = parseFloat(el.dataset.id);
+            el.querySelector('.checkbox').addEventListener('click', () => toggleItem(id));
+            el.querySelector('.item-name').addEventListener('click', () => toggleItem(id));
+            el.querySelector('.delete-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteItem(id);
+            });
+        });
+    }
+    updateProgress();
+}
+
+function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+}
+
+function toggleItem(id) {
+    const item = data[activeTab].find(i => i.id === id);
+    if (item) {
+        item.done = !item.done;
+        save();
+        renderList();
+    }
+}
+
+function deleteItem(id) {
+    data[activeTab] = data[activeTab].filter(i => i.id !== id);
+    save();
+    renderTabs();
+    renderList();
+}
+
+function addItem() {
+    const input = document.getElementById('addInput');
+    const name = input.value.trim();
+    if (!name) return;
+    data[activeTab].push({
+        id: Date.now() + Math.random(),
+        name,
+        done: false
+    });
+    input.value = '';
+    save();
+    renderTabs();
+    renderList();
+}
+
+function updateProgress() {
+    let total = 0, done = 0;
+    Object.values(data).forEach(items => {
+        items.forEach(i => {
+            total++;
+            if (i.done) done++;
+        });
+    });
+    const pct = total === 0 ? 0 : Math.round(done / total * 100);
+    document.getElementById('progressLabel').textContent = `已打包 ${done} / ${total}`;
+    document.getElementById('progressPercent').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+}
+
+document.getElementById('addBtn').addEventListener('click', addItem);
+document.getElementById('addInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') addItem();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+    if (confirm('确定要重置所有勾选状态吗？')) {
+        Object.values(data).forEach(items => items.forEach(i => i.done = false));
+        save();
+        renderList();
+    }
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+    const cat = categories.find(c => c.id === activeTab);
+    if (confirm(`确定要清空"${cat.name}"分类吗？`)) {
+        data[activeTab] = [];
+        save();
+        renderTabs();
+        renderList();
+    }
+});
+
+renderTabs();
+renderList();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>产品经理模拟面试</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --bg-card: #111827;
+            --fg: #f1f5f9;
+            --muted: #64748b;
+            --accent: #f59e0b;
+            --accent-glow: rgba(245, 158, 11, 0.3);
+            --border: #1e293b;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(99, 102, 241, 0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .page {
+            display: none;
+            min-height: 100vh;
+            padding: 24px 16px 32px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.5); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #fbbf24);
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--success));
+        }
+
+        .question-number {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 1.6;
+            color: var(--fg);
+        }
+
+        .answer-input {
+            width: 100%;
+            min-height: 180px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 16px;
+            color: var(--fg);
+            font-family: inherit;
+            resize: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+        .answer-input::placeholder {
+            color: var(--muted);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            color: #000;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:active {
+            background: var(--border);
+        }
+
+        .timer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .timer-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .timer.warning {
+            color: var(--accent);
+        }
+
+        .timer.danger {
+            color: var(--error);
+            animation: pulse 1s infinite;
+        }
+
+        /* 首页样式 */
+        .hero-title {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--fg) 0%, var(--muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 16px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            animation: slideUp 0.5s ease-out backwards;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 0.1s; }
+        .feature-item:nth-child(2) { animation-delay: 0.2s; }
+        .feature-item:nth-child(3) { animation-delay: 0.3s; }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-glow), transparent);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .feature-icon svg {
+            width: 20px;
+            height: 20px;
+            color: var(--accent);
+        }
+
+        .feature-text {
+            font-size: 14px;
+            color: var(--fg);
+        }
+
+        /* 结果页样式 */
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .score-circle svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 8;
+        }
+
+        .score-progress {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 377;
+            stroke-dashoffset: 377;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--fg);
+        }
+
+        .result-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .feedback-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .feedback-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .feedback-item {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feedback-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .feedback-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+
+        .feedback-dot.good { background: var(--success); }
+        .feedback-dot.medium { background: var(--accent); }
+        .feedback-dot.weak { background: var(--error); }
+
+        .feedback-text {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--fg);
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .floating-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 200px;
+            height: 200px;
+            background: rgba(245, 158, 11, 0.15);
+            top: -50px;
+            right: -50px;
+            animation: float1 8s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 150px;
+            height: 150px;
+            background: rgba(16, 185, 129, 0.1);
+            bottom: 100px;
+            left: -50px;
+            animation: float2 10s ease-in-out infinite;
+        }
+
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-20px, 20px); }
+        }
+
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, -20px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="noise-overlay"></div>
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+
+    <!-- 首页 -->
+    <div id="page-home" class="page active">
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <h1 class="hero-title">产品经理<br>模拟面试</h1>
+            <p class="hero-subtitle">精选 8 道高频面试真题，限时作答，完成后获得专业评估与建议。</p>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <span class="feature-text">覆盖产品经理核心能力模型</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="feature-text">每题限时 3 分钟，模拟真实压力</span>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <span class="feature-text">智能评估，生成面试报告</span>
+                </div>
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%;" onclick="startInterview()">
+            开始面试
+        </button>
+    </div>
+
+    <!-- 答题页 -->
+    <div id="page-question" class="page">
+        <div class="timer" id="timer">
+            <svg class="timer-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span id="timer-text">03:00</span>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        
+        <div class="question-card">
+            <div class="question-number" id="question-number">QUESTION 01</div>
+            <div class="question-text" id="question-text"></div>
+        </div>
+        
+        <textarea 
+            class="answer-input" 
+            id="answer-input" 
+            placeholder="在此输入你的回答..."
+            oninput="updateCharCount()"
+        ></textarea>
+        <div class="char-count">
+            <span id="char-count">0</span> 字
+        </div>
+        
+        <div style="flex: 1"></div>
+        
+        <div style="display: flex; gap: 12px;">
+            <button class="btn btn-secondary" style="flex: 1;" id="btn-prev" onclick="prevQuestion()">上一题</button>
+            <button class="btn btn-primary" style="flex: 2;" id="btn-next" onclick="nextQuestion()">下一题</button>
+        </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="page-result" class="page">
+        <div class="result-card">
+            <div class="score-circle">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                    <defs>
+                        <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f59e0b"/>
+                            <stop offset="100%" style="stop-color:#10b981"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="score-bg" cx="70" cy="70" r="60"/>
+                    <circle class="score-progress" id="score-circle" cx="70" cy="70" r="60"/>
+                </svg>
+                <div class="score-value" id="score-value">0</div>
+            </div>
+            <h2 class="result-title" id="result-title">面试评估完成</h2>
+            <p class="result-desc" id="result-desc">根据你的回答，我们生成了以下评估报告</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="stat-answered">8</div>
+                <div class="stat-label">完成题目</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-time">0:00</div>
+                <div class="stat-label">总用时</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="stat-words">0</div>
+                <div class="stat-label">总字数</div>
+            </div>
+        </div>
+        
+        <div class="feedback-section">
+            <div class="feedback-title">评估反馈</div>
+            <div id="feedback-list"></div>
+        </div>
+        
+        <button class="btn btn-primary" style="width: 100%;" onclick="restartInterview()">
+            重新开始
+        </button>
+    </div>
+
+    <script>
+        // 面试问题数据
+        const questions = [
+            {
+                id: 1,
+                text: "请做一个简短的自我介绍，并说明你为什么想成为一名产品经理？",
+                keywords: ["产品", "用户", "数据", "沟通", "协调"]
+            },
+            {
+                id: 2,
+                text: "你是如何发现和挖掘用户需求的？请举例说明你的一次完整的需求调研经历。",
+                keywords: ["调研", "用户", "访谈", "数据", "分析"]
+            },
+            {
+                id: 3,
+                text: "如何确定产品功能的优先级？请结合实际案例说明你的决策依据。",
+                keywords: ["优先级", "价值", "成本", "用户", "商业"]
+            },
+            {
+                id: 4,
+                text: "当开发和设计团队对你的产品方案提出质疑时，你会如何处理？",
+                keywords: ["沟通", "协作", "数据", "目标", "共识"]
+            },
+            {
+                id: 5,
+                text: "请描述一次产品上线后数据表现不如预期的经历，你是如何分析和解决的？",
+                keywords: ["数据", "分析", "优化", "迭代", "复盘"]
+            },
+            {
+                id: 6,
+                text: "你认为一款成功的产品应该具备哪些核心要素？请以你常用的产品为例进行分析。",
+                keywords: ["用户价值", "体验", "商业模式", "差异化", "增长"]
+            },
+            {
+                id: 7,
+                text: "如何制定产品路线图？请说明你的方法论和考量因素。",
+                keywords: ["战略", "目标", "资源", "节奏", "优先级"]
+            },
+            {
+                id: 8,
+                text: "请描述你理想中的产品团队是怎样的？你在其中扮演什么角色？",
+                keywords: ["协作", "责任", "能力", "成长", "价值"]
+            }
+        ];
+
+        // 状态管理
+        let currentQuestion = 0;
+        let answers = [];
+        let timerInterval = null;
+        let timeLeft = 180;
+        let totalTime = 0;
+        let startTime = null;
+
+        // 初始化答案数组
+        function initAnswers() {
+            answers = questions.map(() => ({ text: '', time: 0 }));
+        }
+
+        // 开始面试
+        function startInterview() {
+            initAnswers();
+            currentQuestion = 0;
+            totalTime = 0;
+            startTime = Date.now();
+            
+            document.getElementById('page-home').classList.remove('active');
+            document.getElementById('page-question').classList.add('active');
+            
+            showQuestion();
+            startTimer();
+        }
+
+        // 显示问题
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('question-number').textContent = 
+                `QUESTION ${String(currentQuestion + 1).padStart(2, '0')}`;
+            document.getElementById('question-text').textContent = q.text;
+            document.getElementById('answer-input').value = answers[currentQuestion].text || '';
+            
+            updateCharCount();
+            updateProgress();
+            updateNavButtons();
+            
+            // 重置计时器
+            timeLeft = 180;
+            updateTimerDisplay();
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const percent = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progress-fill').style.width = percent + '%';
+        }
+
+        // 更新导航按钮
+        function updateNavButtons() {
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+            
+            prevBtn.style.visibility = currentQuestion === 0 ? 'hidden' : 'visible';
+            nextBtn.textContent = currentQuestion === questions.length - 1 ? '提交答案' : '下一题';
+        }
+
+        // 更新字数统计
+        function updateCharCount() {
+            const text = document.getElementById('answer-input').value;
+            document.getElementById('char-count').textContent = text.length;
+            answers[currentQuestion].text = text;
+        }
+
+        // 计时器相关
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                totalTime++;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    // 时间到，自动下一题
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const display = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            document.getElementById('timer-text').textContent = display;
+            
+            const timerEl = document.getElementById('timer');
+            timerEl.classList.remove('warning', 'danger');
+            if (timeLeft <= 30) {
+                timerEl.classList.add('danger');
+            } else if (timeLeft <= 60) {
+                timerEl.classList.add('warning');
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                answers[currentQuestion].time = 180 - timeLeft;
+                currentQuestion--;
+                timeLeft = 180 - (answers[currentQuestion].time || 0);
+                updateTimerDisplay();
+                showQuestion();
+            }
+        }
+
+        // 下一题
+        function nextQuestion() {
+            answers[currentQuestion].time = 180 - timeLeft;
+            
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                timeLeft = 180;
+                showQuestion();
+            } else {
+                finishInterview();
+            }
+        }
+
+        // 完成面试
+        function finishInterview() {
+            clearInterval(timerInterval);
+            
+            document.getElementById('page-question').classList.remove('active');
+            document.getElementById('page-result').classList.add('active');
+            
+            showResults();
+        }
+
+        // 显示结果
+        function showResults() {
+            // 计算分数
+            let totalScore = 0;
+            let totalWords = 0;
+            const feedbacks = [];
+            
+            questions.forEach((q, i) => {
+                const answer = answers[i].text;
+                totalWords += answer.length;
+                
+                // 基于关键词匹配计算分数
+                let keywordScore = 0;
+                q.keywords.forEach(keyword => {
+                    if (answer.includes(keyword)) keywordScore += 10;
+                });
+                
+                // 基于字数的基础分
+                let lengthScore = 0;
+                if (answer.length >= 50) lengthScore = 20;
+                if (answer.length >= 100) lengthScore = 30;
+                if (answer.length >= 200) lengthScore = 40;
+                
+                const questionScore = Math.min(100, keywordScore + lengthScore);
+                totalScore += questionScore;
+                
+                // 生成反馈
+                if (questionScore >= 60) {
+                    feedbacks.push({
+                        type: 'good',
+                        text: `第${i + 1}题回答较好，涵盖了核心要点`
+                    });
+                } else if (questionScore >= 30) {
+                    feedbacks.push({
+                        type: 'medium',
+                        text: `第${i + 1}题回答一般，建议补充更多细节`
+                    });
+                } else {
+                    feedbacks.push({
+                        type: 'weak',
+                        text: `第${i + 1}题回答较短，建议深入思考`
+                    });
+                }
+            });
+            
+            const avgScore = Math.round(totalScore / questions.length);
+            
+            // 更新UI
+            setTimeout(() => {
+                document.getElementById('score-value').textContent = avgScore;
+                
+                // 动画圆环
+                const circle = document.getElementById('score-circle');
+                const offset = 377 - (377 * avgScore / 100);
+                circle.style.strokeDashoffset = offset;
+            }, 100);
+            
+            // 结果标题
+            let title = '继续努力';
+            let desc = '建议多积累产品实战经验，提升表达能力';
+            
+            if (avgScore >= 80) {
+                title = '表现出色';
+                desc = '你展现了扎实的产品思维，继续保持';
+            } else if (avgScore >= 60) {
+                title = '表现良好';
+                desc = '基础扎实，部分问题可以回答得更深入';
+            } else if (avgScore >= 40) {
+                title = '有待提升';
+                desc = '建议加强对产品方法论的学习和实践';
+            }
+            
+            document.getElementById('result-title').textContent = title;
+            document.getElementById('result-desc').textContent = desc;
+            
+            // 统计数据
+            document.getElementById('stat-answered').textContent = '8';
+            
+            const totalMinutes = Math.floor(totalTime / 60);
+            const totalSeconds = totalTime % 60;
+            document.getElementById('stat-time').textContent = 
+                `${totalMinutes}:${String(totalSeconds).padStart(2, '0')}`;
+            
+            document.getElementById('stat-words').textContent = totalWords;
+            
+            // 反馈列表
+            const feedbackList = document.getElementById('feedback-list');
+            feedbackList.innerHTML = feedbacks.slice(0, 5).map(f => `
+                <div class="feedback-item">
+                    <div class="feedback-dot ${f.type}"></div>
+                    <div class="feedback-text">${f.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // 重新开始
+        function restartInterview() {
+            document.getElementById('page-result').classList.remove('active');
+            document.getElementById('page-home').classList.add('active');
+        }
+    </script>
+</body>
+</html>

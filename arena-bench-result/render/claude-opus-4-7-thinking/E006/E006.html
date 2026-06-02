@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#667eea">
+<title>PM 模拟面试</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;color:#2d3748}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:16px}
+.screen{flex:1;display:none;flex-direction:column;animation:fadeIn .4s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.15)}
+
+/* Welcome Screen */
+.welcome{justify-content:center;align-items:center;text-align:center;color:#fff}
+.welcome .logo{font-size:64px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.welcome h1{font-size:28px;margin-bottom:12px;font-weight:700}
+.welcome .desc{font-size:15px;opacity:.9;margin-bottom:8px;line-height:1.6;padding:0 12px}
+.welcome .info-card{background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border-radius:16px;padding:20px;margin:24px 0;width:100%;border:1px solid rgba(255,255,255,.2)}
+.welcome .info-card .row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px}
+.welcome .info-card .row span:first-child{opacity:.8}
+.welcome .info-card .row span:last-child{font-weight:600}
+
+/* Buttons */
+.btn{width:100%;padding:16px;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;min-height:52px;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-primary{background:#fff;color:#667eea}
+.btn-primary:active{transform:scale(.97);box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.btn-main{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+.btn-main:active{transform:scale(.97)}
+.btn-main:disabled{background:#cbd5e0;cursor:not-allowed;opacity:.7}
+.btn-ghost{background:transparent;color:#667eea;border:2px solid #e2e8f0}
+.btn-ghost:active{background:#f7fafc}
+
+/* Question Screen */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;color:#fff}
+.header .qnum{font-size:14px;font-weight:500;opacity:.95}
+.header .timer{font-size:14px;background:rgba(255,255,255,.2);padding:6px 12px;border-radius:20px;backdrop-filter:blur(10px)}
+.progress{height:6px;background:rgba(255,255,255,.25);border-radius:3px;margin-bottom:20px;overflow:hidden}
+.progress-bar{height:100%;background:#fff;border-radius:3px;transition:width .4s ease;width:0}
+
+.question-card{flex:1;display:flex;flex-direction:column}
+.q-tag{display:inline-block;font-size:12px;color:#667eea;background:#edf2ff;padding:4px 10px;border-radius:12px;font-weight:600;margin-bottom:12px;align-self:flex-start}
+.q-text{font-size:18px;font-weight:600;line-height:1.6;color:#1a202c;margin-bottom:16px}
+.q-hint{font-size:13px;color:#718096;background:#f7fafc;padding:12px;border-radius:10px;margin-bottom:16px;line-height:1.6;border-left:3px solid #667eea}
+textarea{width:100%;flex:1;min-height:160px;border:2px solid #e2e8f0;border-radius:12px;padding:14px;font-size:15px;line-height:1.6;resize:none;font-family:inherit;color:#2d3748;outline:none;transition:border-color .2s}
+textarea:focus{border-color:#667eea}
+.char-count{font-size:12px;color:#a0aec0;text-align:right;margin:8px 0 12px}
+.btn-row{display:flex;gap:10px;margin-top:auto}
+.btn-row .btn{flex:1}
+
+/* Result Screen */
+.result-card{text-align:center}
+.result-icon{font-size:56px;margin-bottom:8px}
+.result-title{font-size:24px;font-weight:700;margin-bottom:6px;color:#1a202c}
+.result-sub{font-size:14px;color:#718096;margin-bottom:20px}
+.score-ring{width:140px;height:140px;margin:0 auto 16px;position:relative;display:flex;align-items:center;justify-content:center}
+.score-ring svg{transform:rotate(-90deg);width:100%;height:100%}
+.score-ring .bg{fill:none;stroke:#edf2ff;stroke-width:10}
+.score-ring .fg{fill:none;stroke:url(#grad);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.score-text{position:absolute;text-align:center}
+.score-text .num{font-size:36px;font-weight:700;color:#667eea;line-height:1}
+.score-text .lbl{font-size:12px;color:#718096;margin-top:2px}
+
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.metric{background:#f7fafc;border-radius:12px;padding:12px}
+.metric .v{font-size:20px;font-weight:700;color:#667eea}
+.metric .l{font-size:12px;color:#718096;margin-top:2px}
+
+.feedback{background:#f7fafc;border-radius:12px;padding:16px;margin:16px 0;text-align:left}
+.feedback h3{font-size:15px;color:#1a202c;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.feedback p{font-size:13px;color:#4a5568;line-height:1.7}
+.feedback ul{list-style:none;font-size:13px;color:#4a5568;line-height:1.8}
+.feedback li{padding-left:18px;position:relative}
+.feedback li::before{content:"✓";position:absolute;left:0;color:#48bb78;font-weight:700}
+
+.review{margin-top:16px}
+.review-item{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:8px;text-align:left;cursor:pointer}
+.review-item .rq{font-size:13px;font-weight:600;color:#1a202c;margin-bottom:6px}
+.review-item .ra{font-size:12px;color:#718096;line-height:1.5;max-height:0;overflow:hidden;transition:max-height .3s}
+.review-item.open .ra{max-height:300px;margin-top:6px}
+.review-item .toggle{font-size:11px;color:#667eea;font-weight:600;display:flex;align-items:center;gap:4px}
+
+@media(max-height:600px){.welcome .logo{font-size:48px;margin-bottom:12px}.welcome h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Welcome -->
+  <section id="screen-welcome" class="screen welcome active">
+    <div class="logo">🎯</div>
+    <h1>产品经理模拟面试</h1>
+    <p class="desc">8 道高频面试题，全方位检验你的产品思维与表达能力</p>
+    <div class="info-card">
+      <div class="row"><span>📝 题目数量</span><span>8 题</span></div>
+      <div class="row"><span>⏱ 预计耗时</span><span>15-25 分钟</span></div>
+      <div class="row"><span>🎓 难度等级</span><span>中级</span></div>
+      <div class="row"><span>💡 评估维度</span><span>完整度 / 深度</span></div>
+    </div>
+    <button class="btn btn-primary" onclick="startInterview()">开始面试 →</button>
+  </section>
+
+  <!-- Question -->
+  <section id="screen-question" class="screen">
+    <div class="header">
+      <div class="qnum">第 <span id="curIdx">1</span> / 8 题</div>
+      <div class="timer">⏱ <span id="timer">00:00</span></div>
+    </div>
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="card question-card">
+      <span class="q-tag" id="qTag">基础认知</span>
+      <div class="q-text" id="qText"></div>
+      <div class="q-hint" id="qHint"></div>
+      <textarea id="answer" placeholder="请在此输入你的回答…建议至少 50 字" oninput="onInput()"></textarea>
+      <div class="char-count"><span id="charCount">0</span> 字</div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="skipQ()">跳过</button>
+        <button class="btn btn-main" id="nextBtn" onclick="nextQ()" disabled>下一题</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section id="screen-result" class="screen">
+    <div class="card result-card">
+      <div class="result-icon" id="rIcon">🏆</div>
+      <div class="result-title" id="rTitle">面试完成！</div>
+      <div class="result-sub">基于你的作答，生成评估如下</div>
+      <div class="score-ring">
+        <svg viewBox="0 0 120 120">
+          <defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#667eea"/><stop offset="100%" stop-color="#764ba2"/>
+          </linearGradient></defs>
+          <circle class="bg" cx="60" cy="60" r="52"/>
+          <circle class="fg" id="scoreCircle" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+        </svg>
+        <div class="score-text"><div class="num" id="scoreNum">0</div><div class="lbl">综合得分</div></div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><div class="v" id="mAnswered">0</div><div class="l">已答题数</div></div>
+        <div class="metric"><div class="v" id="mWords">0</div><div class="l">总字数</div></div>
+        <div class="metric"><div class="v" id="mTime">0″</div><div class="l">用时</div></div>
+        <div class="metric"><div class="v" id="mAvg">0</div><div class="l">平均字数</div></div>
+      </div>
+      <div class="feedback">
+        <h3>📋 综合评价</h3>
+        <p id="comment"></p>
+      </div>
+      <div class="feedback">
+        <h3>💪 提升建议</h3>
+        <ul id="advice"></ul>
+      </div>
+      <div class="review" id="review"></div>
+      <button class="btn btn-main" onclick="restart()" style="margin-top:16px">🔄 再来一次</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const QUESTIONS=[
+  {tag:"自我介绍",q:"请用 1-2 分钟做一个自我介绍，重点说明你的产品经历与核心能力。",hint:"💡 提示：突出与岗位匹配的项目经历、量化成果，避免简历复述。",keys:["项目","用户","数据","团队","成果"]},
+  {tag:"产品认知",q:"你认为优秀的产品经理最重要的 3 项能力是什么？请结合实际案例说明。",hint:"💡 提示：可从需求洞察、逻辑思维、跨部门协作、数据驱动等角度回答。",keys:["需求","用户","沟通","逻辑","数据","执行"]},
+  {tag:"项目经验",q:"请描述一个你主导从 0 到 1 的产品（或功能），如何发现机会、定义方案并落地？",hint:"💡 提示：建议使用 STAR 法则——背景、任务、行动、结果。",keys:["调研","方案","落地","上线","数据","迭代"]},
+  {tag:"跨部门协作",q:"当开发团队认为你的需求不合理或排期不够时，你会如何沟通和推进？",hint:"💡 提示：体现同理心、优先级判断与解决问题的能力。",keys:["沟通","优先级","价值","妥协","数据"]},
+  {tag:"用户研究",q:"如何进行一次有效的用户需求调研？请描述完整流程并举一个真实案例。",hint:"💡 提示：定性 + 定量结合，避免伪需求，关注场景与动机。",keys:["调研","访谈","问卷","场景","动机","样本"]},
+  {tag:"产品分析",q:"请选一款你常用的 App，分析其核心价值并提出 1-2 条具体优化建议。",hint:"💡 提示：分析要点：用户/场景/痛点→现有方案→优化思路→预期收益。",keys:["用户","场景","痛点","优化","收益","路径"]},
+  {tag:"数据思维",q:"如何评估一个产品功能上线后的成功与否？请列出你会关注的关键指标。",hint:"💡 提示：可参考 AARRR、北极星指标、漏斗分析等框架。",keys:["指标","转化","留存","活跃","北极星","漏斗"]},
+  {tag:"商业思维",q:"产品经理如何在用户体验与商业变现之间找到平衡？请举例说明。",hint:"💡 提示：体现长期价值思维，避免过度商业化损害用户信任。",keys:["体验","商业","变现","平衡","长期","价值"]}
+];
+
+let curIdx=0,answers=[],startTime=0,timerId=null;
+
+function startInterview(){
+  curIdx=0;answers=[];startTime=Date.now();
+  show("screen-question");renderQ();startTimer();
+}
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function renderQ(){
+  const q=QUESTIONS[curIdx];
+  document.getElementById("curIdx").textContent=curIdx+1;
+  document.getElementById("qTag").textContent=q.tag;
+  document.getElementById("qText").textContent=q.q;
+  document.getElementById("qHint").textContent=q.hint;
+  document.getElementById("answer").value=answers[curIdx]||"";
+  document.getElementById("progressBar").style.width=((curIdx)/QUESTIONS.length*100)+"%";
+  document.getElementById("nextBtn").textContent=curIdx===QUESTIONS.length-1?"提交评估":"下一题 →";
+  onInput();
+  document.getElementById("answer").focus();
+}
+function onInput(){
+  const v=document.getElementById("answer").value;
+  document.getElementById("charCount").textContent=v.length;
+  document.getElementById("nextBtn").disabled=v.trim().length<10;
+}
+function skipQ(){
+  if(!confirm("确定跳过这道题？跳过将不计入有效作答。"))return;
+  answers[curIdx]="";advance();
+}
+function nextQ(){
+  answers[curIdx]=document.getElementById("answer").value.trim();
+  advance();
+}
+function advance(){
+  if(curIdx<QUESTIONS.length-1){curIdx++;renderQ();}
+  else{stopTimer();finish();}
+}
+function startTimer(){
+  timerId=setInterval(()=>{
+    const s=Math.floor((Date.now()-startTime)/1000);
+    const m=String(Math.floor(s/60)).padStart(2,"0");
+    const ss=String(s%60).padStart(2,"0");
+    document.getElementById("timer").textContent=m+":"+ss;
+  },1000);
+}
+function stopTimer(){clearInterval(timerId)}
+
+function finish(){
+  document.getElementById("progressBar").style.width="100%";
+  let totalChars=0,answered=0,score=0,keyHits=0,totalKeys=0;
+  QUESTIONS.forEach((q,i)=>{
+    const a=answers[i]||"";
+    if(a.length>=10){answered++;totalChars+=a.length;
+      let s=0;
+      s+=Math.min(40,a.length/3);
+      const hit=q.keys.filter(k=>a.includes(k)).length;
+      keyHits+=hit;totalKeys+=q.keys.length;
+      s+=Math.min(40,hit/q.keys.length*40);
+      if(/[，。！？,.!?]/.test(a))s+=10;
+      if(a.length>150)s+=10;
+      score+=s;
+    }
+  });
+  const finalScore=Math.round(score/QUESTIONS.length);
+  const totalSec=Math.floor((Date.now()-startTime)/1000);
+  const avg=answered>0?Math.round(totalChars/answered):0;
+  document.getElementById("mAnswered").textContent=answered+"/8";
+  document.getElementById("mWords").textContent=totalChars;
+  document.getElementById("mTime").textContent=totalSec<60?totalSec+"″":Math.floor(totalSec/60)+"′"+(totalSec%60)+"″";
+  document.getElementById("mAvg").textContent=avg;
+  let icon="🏆",title="出色表现！",cmt="",adv=[];
+  if(finalScore>=80){icon="🏆";title="出色表现！";cmt="作答充实、思路清晰，关键要点把握到位，整体展现了扎实的产品功底，已具备中高级 PM 候选人水平。"}
+  else if(finalScore>=60){icon="🎯";title="表现不错";cmt="基本表达清晰，覆盖了主要思考点，但部分回答可更深入、更结构化，建议补充数据与案例支撑。"}
+  else if(finalScore>=40){icon="📚";title="仍需加油";cmt="作答完成度尚可，但深度不足，关键术语和方法论使用较少，建议系统补充产品方法论知识。"}
+  else{icon="💡";title="继续努力";cmt="作答较为简略或跳过较多，建议先熟悉常见 PM 框架（如 KANO、AARRR、用户旅程图），再多做模拟练习。"}
+  if(avg<80)adv.push("回答篇幅偏短，建议补充背景、思考过程与结果数据");
+  if(keyHits/Math.max(1,totalKeys)<0.4)adv.push("可多使用产品行业术语：如 MVP、北极星指标、用户旅程等");
+  if(answered<8)adv.push("尽量完成全部题目，跳过会影响整体评估");
+  if(avg<150)adv.push("善用 STAR 法则，让回答更有结构感");
+  adv.push("结合真实项目数据回答，避免空泛概念堆砌");
+  if(adv.length<2)adv.unshift("继续保持，可挑战更复杂的产品案例分析题");
+  document.getElementById("rIcon").textContent=icon;
+  document.getElementById("rTitle").textContent=title;
+  document.getElementById("comment").textContent=cmt;
+  document.getElementById("advice").innerHTML=adv.map(a=>`<li>${a}</li>`).join("");
+  const reviewHtml=QUESTIONS.map((q,i)=>{
+    const a=answers[i]||"（已跳过）";
+    return `<div class="review-item" onclick="this.classList.toggle('open')">
+      <div class="rq">Q${i+1}. ${q.q}</div>
+      <div class="toggle">点击查看作答 ▾</div>
+      <div class="ra">${a.replace(/</g,"&lt;").replace(/\n/g,"<br>")}</div>
+    </div>`;
+  }).join("");
+  document.getElementById("review").innerHTML='<h3 style="font-size:15px;color:#fff;margin:8px 0 12px;text-align:left">📖 作答回顾</h3>'+reviewHtml;
+  setTimeout(()=>{
+    document.getElementById("scoreNum").textContent=finalScore;
+    document.getElementById("scoreCircle").style.strokeDashoffset=326.7-(326.7*finalScore/100);
+  },200);
+  show("screen-result");
+}
+function restart(){
+  if(!confirm("确定重新开始一次新的面试？"))return;
+  show("screen-welcome");
+}
+</script>
+</body>
+</html>

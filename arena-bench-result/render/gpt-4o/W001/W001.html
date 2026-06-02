@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办事项工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 20px;
+        }
+        .container {
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:active {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li.completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .priority {
+            font-size: 14px;
+            color: #aaa;
+            margin-right: 10px;
+        }
+        .flex {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <header>待办事项工具</header>
+    <div class="container">
+        <input type="text" id="taskInput" placeholder="输入任务名称">
+        <select id="priorityInput">
+            <option value="高">高优先级</option>
+            <option value="中">中优先级</option>
+            <option value="低">低优先级</option>
+        </select>
+        <button onclick="addTask()">添加任务</button>
+        <ul id="taskList"></ul>
+    </div>
+    <script>
+        const taskList = document.getElementById('taskList');
+        
+        function addTask() {
+            const taskInput = document.getElementById('taskInput');
+            const priorityInput = document.getElementById('priorityInput');
+            const taskName = taskInput.value.trim();
+            const priority = priorityInput.value;
+
+            if (taskName === '') {
+                alert('请输入任务名称');
+                return;
+            }
+
+            const taskItem = document.createElement('li');
+            const prioritySpan = document.createElement('span');
+            prioritySpan.className = 'priority';
+            prioritySpan.innerText = priority;
+
+            const taskNameSpan = document.createElement('span');
+            taskNameSpan.innerText = taskName;
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.style.marginRight = '10px';
+            checkbox.addEventListener('change', (e) => {
+                taskItem.classList.toggle('completed', e.target.checked);
+                sortTasks();
+            });
+
+            taskItem.appendChild(prioritySpan);
+            taskItem.appendChild(taskNameSpan);
+            taskItem.appendChild(checkbox);
+            taskList.appendChild(taskItem);
+
+            taskInput.value = '';
+        }
+
+        function sortTasks() {
+            const items = Array.from(taskList.children);
+            items.sort((a, b) => {
+                if (a.classList.contains('completed') && !b.classList.contains('completed')) {
+                    return 1;
+                }
+                if (!a.classList.contains('completed') && b.classList.contains('completed')) {
+                    return -1;
+                }
+                return 0;
+            });
+            items.forEach((item) => taskList.appendChild(item));
+        }
+    </script>
+</body>
+</html>

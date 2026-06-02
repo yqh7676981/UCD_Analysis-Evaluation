@@ -1,0 +1,33 @@
+{
+  "index": 73,
+  "id": "U001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个家庭账单记录工具，可以分类记录水电、燃气、网费等月度账单，能看到每月总支出和分类占比。",
+  "evaluation": {
+    "total_score": 38,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 4,
+        "reason": "The page has a basic consistent green theme and a simple single-column mobile layout, but it feels generic and unfinished. There is no strong visual focus beyond the header/button, no data-visualization area for category proportion, and the screen lacks the product character expected for a household bill tool."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Inputs and button are aligned and padded adequately, and typography is readable at mobile size. However, the interface is very plain, spacing between sections is loose without a strong rhythm, the summary area feels empty, and there is little refinement in component states, dividers, or data presentation details."
+      },
+      "easy_to_perceive": {
+        "score": 4,
+        "reason": "Users can quickly see the form and the monthly total, but the requested key information architecture is incomplete. The page does not surface category proportion at all, the summary section is visually underdeveloped, and there is too much blank space relative to the amount of useful information."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "Labels like category, amount, and add bill are straightforward, so the basic input flow is understandable. But the scenario asks for categorized monthly tracking and proportion viewing, and the current interface does not clearly show recorded entries, month context, or how users would interpret category breakdowns after adding bills."
+      }
+    },
+    "summary": "This mobile page is readable and minimally usable for entering a bill amount, but it falls well short of the requested household billing experience. The biggest hard cap is task completeness: it shows only a category selector, amount field, and total spend, while the required category proportion view is missing and no recorded bill list or monthly context is visible. Visual consistency is acceptable, but the product feels more like a wireframe than a finished tool."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U001_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:30:13.953878"
+}

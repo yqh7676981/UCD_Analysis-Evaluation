@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>光的折射演示</title>
+    <style>
+        /* 全局样式和移动端适配 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff; /* 淡蓝色背景 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden; /* 防止水平滚动 */
+            box-sizing: border-box; /* 确保 padding 和 border 包含在元素的宽度和高度内 */
+            touch-action: pan-y; /* 允许垂直滚动，但不阻止其他手势 */
+        }
+
+        h1 {
+            color: #0056b3;
+            margin: 1rem 0;
+            font-size: 1.5rem; /* 适合移动端 */
+            text-align: center;
+            padding: 0 1rem;
+        }
+
+        .container {
+            width: 95%; /* 容器宽度 */
+            max-width: 500px; /* 最大宽度，避免在平板或桌面显示过宽 */
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            width: 100%; /* 画布宽度填充容器 */
+            aspect-ratio: 1 / 1; /* 保持宽高比为1:1，确保正方形 */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #e0f7fa; /* 浅水色背景 */
+            margin-bottom: 1rem;
+            touch-action: none; /* 防止canvas上的触摸手势干扰页面滚动 */
+        }
+
+        .controls {
+            width: 100%;
+            margin-bottom: 1rem;
+            text-align: center;
+            padding: 0 0.5rem; /* 左右内边距 */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #0056b3;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none; /* 移除默认样式 */
+            appearance: none;
+            width: 100%; /* 确保滑块在移动端有足够的宽度 */
+            height: 8px; /* 滑块条高度 */
+            background: #d3d3d3; /* 滑块条背景 */
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            border-radius: 5px;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 28px; /* 滑块大小 */
+            height: 28px;
+            border-radius: 50%; /* 圆形滑块 */
+            background: #007bff; /* 滑块颜色 */
+            cursor: pointer;
+            border: 3px solid #fff; /* 增加边框，提高触摸感 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-top: -10px; /* 调整滑块垂直位置 */
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .formula-display {
+            width: 100%;
+            padding: 1rem;
+            background-color: #e9f7ff; /* 浅蓝色背景 */
+            border-radius: 8px;
+            border: 1px dashed #a7d9ff;
+            text-align: center;
+            font-size: 0.95rem; /* 稍微小一点，适合显示公式 */
+            line-height: 1.6;
+            color: #004085;
+            box-sizing: border-box; /* 确保 padding 包含在宽度内 */
+        }
+
+        .formula-display strong {
+            color: #0056b3;
+            font-size: 1.1rem;
+        }
+        
+        /* 响应式字体大小 */
+        @media (max-width: 400px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            label {
+                font-size: 0.9rem;
+            }
+            input[type="range"]::-webkit-slider-thumb,
+            input[type="range"]::-moz-range-thumb {
+                width: 24px;
+                height: 24px;
+            }
+            .formula-display {
+                font-size: 0.85rem;
+            }
+            .formula-display strong {
+                font-size: 1rem;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1>光的折射演示</h1>
+
+    <div class="container">
+        <canvas id="refractionCanvas"></canvas>
+
+        <div class="controls">
+            <label for="incidentAngleSlider">入射角 (θ₁): <span id="incidentAngleValue">45</span>°</label>
+            <input type="range" id="incidentAngleSlider" min="0" max="89" value="45">
+        </div>
+
+        <div class="formula-display">
+            <strong>斯涅尔定律 (Snell's Law):</strong><br>
+            <span id="snellFormula">n₁ sin(θ₁) = n₂ sin(θ₂)</span><br>
+            <span id="currentValues"></span>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('refractionCanvas');
+        const ctx = canvas.getContext('2d');
+        const incidentAngleSlider = document.getElementById('incidentAngleSlider');
+        const incidentAngleValueSpan = document.getElementById('incidentAngleValue');
+        const snellFormulaSpan = document.getElementById('snellFormula');
+        const currentValuesSpan = document.getElementById('currentValues');
+
+        // 定义常量
+        const n1 = 1.00; // 介质1 (空气) 折射率
+        const n2 = 1.33; // 介质2 (水) 折射率
+        let waterLineYRatio = 0.5; // 水面在画布高度的比例
+        let originXRatio = 0.5; // 入射点在画布宽度的比例 (垂直法线位置)
+
+        let currentIncidentAngleDeg = parseFloat(incidentAngleSlider.value);
+
+        // 初始化画布大小和绘制
+        function setupCanvas() {
+            // 设置canvas的实际像素尺寸，以匹配其在CSS中的显示尺寸，防止模糊
+            // 确保canvas的物理像素与CSS像素匹配，应对高DPI屏幕
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr); // 缩放绘图上下文，使绘制的内容在高DPI下正确显示
+            drawRefraction();
+        }
+
+        function drawRefraction() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
+
+            const waterLineY = canvas.height * waterLineYRatio;
+            const originX = canvas.width * originXRatio;
+            const originY = waterLineY;
+
+            // 绘制空气和水区域
+            ctx.fillStyle = '#e0f7fa'; // 浅蓝色 (空气)
+            ctx.fillRect(0, 0, canvas.width, waterLineY);
+            ctx.fillStyle = '#b3e5fc'; // 较深蓝色 (水)
+            ctx.fillRect(0, waterLineY, canvas.width, canvas.height - waterLineY);
+
+            // 绘制水面
+            ctx.beginPath();
+            ctx.moveTo(0, waterLineY);
+            ctx.lineTo(canvas.width, waterLineY);
+            ctx.strokeStyle = '#00bcd4';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 绘制法线
+            ctx.beginPath();
+            ctx.moveTo(originX, 0);
+            ctx.lineTo(originX, canvas.height);
+            ctx.setLineDash([5, 5]); // 虚线
+            ctx.strokeStyle = '#607d8b';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]); // 恢复实线
+
+            // 入射角 (弧度)
+            const theta1Rad = currentIncidentAngleDeg * Math.PI / 180;
+
+            // 计算折射角 (弧度) - 斯涅尔定律
+            let theta2Rad;
+            // 避免sin(theta1) * n1 / n2 > 1 导致asin(>1)出现NaN (全反射)
+            const sinTheta1 = Math.sin(theta1Rad);
+            const ratio = (n1 * sinTheta1) / n2;
+
+            if (ratio > 1) { 
+                // 从光疏介质到光密介质 (空气到水) 不会发生全反射，因为 n1 < n2
+                // 这里通常不会进入这个分支，但为了防止浮点数误差或未来修改介质，仍保留
+                theta2Rad = 0; // 理论上不会发生，实际处理可以显示全反射提示
+            } else {
+                theta2Rad = Math.asin(ratio);
+            }
+            
+            // 将折射角转换为角度
+            const theta2Deg = theta2Rad * 180 / Math.PI;
+
+            // 绘制入射光线
+            const rayLength = canvas.width * 0.4; // 光线长度
+            ctx.beginPath();
+            // 计算入射光线的起点，使其始终在画布上方
+            // 注意：Canvas的Y轴向下，角度计算需要注意
+            const incidentStartX = originX - rayLength * Math.sin(theta1Rad);
+            const incidentStartY = originY - rayLength * Math.cos(theta1Rad);
+            ctx.moveTo(incidentStartX, incidentStartY);
+            ctx.lineTo(originX, originY);
+            ctx.strokeStyle = '#ffeb3b'; // 黄色光线
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 绘制折射光线
+            ctx.beginPath();
+            ctx.moveTo(originX, originY);
+            // 计算折射光线的终点，使其始终在画布下方
+            const refractedEndX = originX + rayLength * Math.sin(theta2Rad);
+            const refractedEndY = originY + rayLength * Math.cos(theta2Rad);
+            ctx.lineTo(refractedEndX, refractedEndY);
+            ctx.strokeStyle = '#ffc107'; // 橙黄色折射光线
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // 绘制角度弧线和文本
+            const arcRadius = Math.min(canvas.width, canvas.height) * 0.1; // 弧线半径，响应式
+            const textOffset = 20; // 文本离弧线的距离
+
+            // 入射角弧线
+            ctx.beginPath();
+            ctx.arc(originX, originY, arcRadius, -Math.PI / 2 - theta1Rad, -Math.PI / 2, false);
+            ctx.strokeStyle = '#fdd835';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            // 文本位置计算
+            const incidentTextX = originX - (arcRadius + textOffset) * Math.sin(theta1Rad / 2);
+            const incidentTextY = originY - (arcRadius + textOffset) * Math.cos(theta1Rad / 2);
+            ctx.fillText(`θ₁ ${currentIncidentAngleDeg.toFixed(1)}°`, incidentTextX, incidentTextY);
+
+            // 折射角弧线
+            ctx.beginPath();
+            ctx.arc(originX, originY, arcRadius, Math.PI / 2, Math.PI / 2 + theta2Rad, false);
+            ctx.strokeStyle = '#ffb300';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            // 文本位置计算
+            const refractedTextX = originX + (arcRadius + textOffset) * Math.sin(theta2Rad / 2);
+            const refractedTextY = originY + (arcRadius + textOffset) * Math.cos(theta2Rad / 2);
+            ctx.fillText(`θ₂ ${theta2Deg.toFixed(1)}°`, refractedTextX, refractedTextY);
+
+            // 更新公式显示
+            incidentAngleValueSpan.textContent = currentIncidentAngleDeg.toFixed(0);
+            snellFormulaSpan.innerHTML = `n₁ sin(θ₁) = n₂ sin(θ₂)<br>`;
+            currentValuesSpan.innerHTML = `${n1.toFixed(2)} × sin(${currentIncidentAngleDeg.toFixed(1)}°) = ${n2.toFixed(2)} × sin(${theta2Deg.toFixed(1)}°)<br>` +
+                                         `<span style="color:#007bff;">${(n1 * sinTheta1).toFixed(3)}</span> ≈ <span style="color:#007bff;">${(n2 * Math.sin(theta2Rad)).toFixed(3)}</span>`;
+        }
+
+        // 事件监听器
+        incidentAngleSlider.addEventListener('input', (event) => {
+            currentIncidentAngleDeg = parseFloat(event.target.value);
+            drawRefraction();
+        });
+
+        // 窗口大小改变时重新设置画布
+        window.addEventListener('resize', setupCanvas);
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', setupCanvas);
+
+    </script>
+</body>
+</html>

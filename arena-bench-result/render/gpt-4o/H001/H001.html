@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Calorie Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #ff7f50;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        #food-selector, #calorie-goal {
+            margin-bottom: 20px;
+        }
+
+        select, input[type="number"], button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #ff7f50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #e66935;
+        }
+
+        .progress-container {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 20px;
+            background-color: #ff7f50;
+            width: 0%;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            border-radius: 5px;
+        }
+
+        .current-intake, .goal {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Daily Calorie Tracker</h1>
+    </header>
+    <div class="container">
+        <div id="calorie-goal">
+            <label for="daily-goal">Set Your Daily Calorie Goal:</label>
+            <input type="number" id="daily-goal" placeholder="e.g., 2000" />
+        </div>
+
+        <div id="food-selector">
+            <label for="food-list">Select a Food Item:</label>
+            <select id="food-list">
+                <option value="150">Apple - 150 calories</option>
+                <option value="200">Banana - 200 calories</option>
+                <option value="250">Bread Slice - 250 calories</option>
+                <option value="300">Chicken Breast - 300 calories</option>
+                <option value="100">Carrot - 100 calories</option>
+            </select>
+            <button id="add-food">Add Food</button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div id="progress" class="progress">0%</div>
+            </div>
+            <div class="current-intake">Current Intake: <span id="current-intake">0</span> calories</div>
+            <div class="goal">Goal: <span id="calorie-goal-display">0</span> calories</div>
+        </div>
+    </div>
+
+    <script>
+        const dailyGoalInput = document.getElementById("daily-goal");
+        const foodList = document.getElementById("food-list");
+        const addFoodButton = document.getElementById("add-food");
+        const progressBar = document.getElementById("progress");
+        const currentIntakeDisplay = document.getElementById("current-intake");
+        const calorieGoalDisplay = document.getElementById("calorie-goal-display");
+
+        let dailyGoal = 0;
+        let currentIntake = 0;
+
+        dailyGoalInput.addEventListener("change", () => {
+            dailyGoal = parseInt(dailyGoalInput.value) || 0;
+            calorieGoalDisplay.textContent = dailyGoal;
+            updateProgress();
+        });
+
+        addFoodButton.addEventListener("click", () => {
+            const foodCalories = parseInt(foodList.value) || 0;
+            currentIntake += foodCalories;
+            currentIntakeDisplay.textContent = currentIntake;
+            updateProgress();
+        });
+
+        function updateProgress() {
+            const progressPercentage = dailyGoal ? Math.min((currentIntake / dailyGoal) * 100, 100) : 0;
+            progressBar.style.width = progressPercentage + "%";
+            progressBar.textContent = `${Math.round(progressPercentage)}%`;
+        }
+    </script>
+</body>
+</html>

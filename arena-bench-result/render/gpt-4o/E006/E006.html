@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="模拟产品经理岗位面试工具">
+    <title>产品经理面试工具</title>
+    <style>
+        /* 通用样式 */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #0078d4;
+            color: white;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: none;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 18px;
+            margin-top: 20px;
+            color: white;
+            background-color: #0078d4;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        .evaluation {
+            text-align: center;
+            font-size: 18px;
+        }
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 20px;
+            }
+            textarea {
+                font-size: 14px;
+            }
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>产品经理岗位模拟面试</h1>
+    </header>
+    <div class="container">
+        <div id="interview-tool">
+            <div id="question-container">
+                <p class="question" id="question-text"></p>
+                <textarea id="answer-input" placeholder="请输入您的答案"></textarea>
+                <button id="next-button" disabled>下一题</button>
+            </div>
+            <div id="evaluation-container" style="display: none;">
+                <p class="evaluation">感谢完成模拟面试！您的答案已记录。</p>
+                <button onclick="restartInterview()">重新开始</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const questions = [
+            "1. 请简述作为一名产品经理的核心职责。",
+            "2. 如何在一个完全陌生的领域中启动新产品的规划工作？",
+            "3. 遇到技术团队无法按时完成开发任务时，你会如何处理？",
+            "4. 你如何定义产品的成功标准？",
+            "5. 假设市场出现了一个重大机会，你如何快速迭代产品以抓住机会？",
+            "6. 如何收集用户反馈并将其转化为产品优化的具体行动？",
+            "7. 你在与设计团队和开发团队协作时遇到过什么挑战？你是如何解决的？",
+            "8. 如果有多个需求同时竞争开发资源，你如何进行优先级排序？"
+        ];
+        let currentQuestionIndex = 0;
+
+        const questionText = document.getElementById('question-text');
+        const answerInput = document.getElementById('answer-input');
+        const nextButton = document.getElementById('next-button');
+        const questionContainer = document.getElementById('question-container');
+        const evaluationContainer = document.getElementById('evaluation-container');
+
+        function loadQuestion(index) {
+            questionText.textContent = questions[index];
+            answerInput.value = '';
+            answerInput.focus();
+            nextButton.disabled = true;
+        }
+
+        function handleNext() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion(currentQuestionIndex);
+            } else {
+                questionContainer.style.display = 'none';
+                evaluationContainer.style.display = 'block';
+            }
+        }
+
+        answerInput.addEventListener('input', () => {
+            nextButton.disabled = !answerInput.value.trim();
+        });
+
+        nextButton.addEventListener('click', handleNext);
+
+        function restartInterview() {
+            currentQuestionIndex = 0;
+            questionContainer.style.display = 'block';
+            evaluationContainer.style.display = 'none';
+            loadQuestion(currentQuestionIndex);
+        }
+
+        // 初始化加载第一题
+        loadQuestion(currentQuestionIndex);
+    </script>
+</body>
+</html>

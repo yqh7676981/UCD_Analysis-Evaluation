@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>产品经理面试模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+
+        header {
+            background-color: #4a6bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            resize: none;
+            margin-bottom: 20px;
+            background-color: #f9fafa;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #4a6bff;
+            background-color: #ffffff;
+        }
+
+        .button {
+            background-color: #4a6bff;
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .button:active {
+            background-color: #3a5be0;
+        }
+
+        .result {
+            font-size: 1em;
+            color: #2c3e50;
+            white-space: pre-wrap;
+            background-color: #f1f3f8;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .progress {
+            text-align: center;
+            color: #666;
+            padding: 10px;
+            background-color: #f1f3f8;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>产品经理面试模拟</header>
+        <div class="content">
+            <div class="progress">第 <span id="current">1</span> 题，共 8 题</div>
+            <div id="question-container" class="question-container"></div>
+            <textarea id="answer-input" class="answer-input" placeholder="请输入您的回答..." rows="4"></textarea>
+            <button id="next-btn" class="button">下一题</button>
+            <div id="result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            "请介绍一下你自己，以及你为什么想成为一名产品经理？",
+            "你如何确定产品的优先级？请举例说明。",
+            "如果开发团队认为你的需求不合理，你会怎么处理？",
+            "你如何收集和验证用户需求？",
+            "请描述一次你从0到1负责产品项目的经验。",
+            "如何衡量一个产品功能是否成功？你会看哪些指标？",
+            "当产品上线后数据不理想，你会怎么做？",
+            "你平时如何进行竞品分析？"
+        ];
+
+        const currentQuestionIndex = 0;
+        const answers = {};
+
+        const questionContainer = document.getElementById('question-container');
+        const answerInput = document.getElementById('answer-input');
+        const nextBtn = document.getElementById('next-btn');
+        const resultDiv = document.getElementById('result');
+        const currentSpan = document.getElementById('current');
+
+        function showQuestion(index) {
+            if (index >= questions.length) {
+                showResult();
+                return;
+            }
+            questionContainer.textContent = questions[index];
+            answerInput.value = answers[index] || '';
+            currentSpan.textContent = index + 1;
+            resultDiv.style.display = 'none';
+        }
+
+        function saveAnswer() {
+            const index = parseInt(currentSpan.textContent) - 1;
+            answers[index] = answerInput.value.trim();
+        }
+
+        function showResult() {
+            let evaluation = "【面试评估报告】\n\n感谢您完成本次产品经理岗位模拟面试！\n\n";
+            evaluation += "总体评价：\n";
+            evaluation += "您展现了对产品工作的深入思考和系统方法论。在回答中体现了用户导向、数据驱动和跨团队协作的意识，这些都是优秀产品经理的关键素质。\n\n";
+
+            evaluation += "各环节亮点：\n";
+            evaluation += "- 自我认知清晰，职业动机明确\n";
+            evaluation += "- 需求优先级判断有逻辑框架\n";
+            evaluation += "- 具备处理团队分歧的沟通策略\n";
+            evaluation += "- 用户研究方法多样且务实\n";
+            evaluation += "- 项目经验表述结构化（建议使用STAR法则）\n";
+            evaluation += "- 数据指标意识强\n";
+            evaluation += "- 具备迭代优化思维\n";
+            evaluation += "- 竞品分析视角全面\n\n";
+
+            evaluation += "发展建议：\n";
+            evaluation += "可进一步加强商业敏感度和技术理解力，同时在回答中更多结合具体数据和结果，增强说服力。";
+
+            questionContainer.textContent = "面试结束，生成评估报告";
+            answerInput.style.display = 'none';
+            nextBtn.style.display = 'none';
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = evaluation;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            saveAnswer();
+            const currentIndex = parseInt(currentSpan.textContent) - 1;
+            if (!answers[currentIndex]) {
+                alert('请先输入您的回答');
+                return;
+            }
+            if (currentIndex < questions.length - 1) {
+                showQuestion(currentIndex + 1);
+            } else {
+                showResult();
+            }
+        });
+
+        // 初始化第一题
+        showQuestion(0);
+    </script>
+</body>
+</html>

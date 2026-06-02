@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番茄工作法计时器</title>
+    <style>
+        /* CSS 变量定义，便于主题管理和响应式调整 */
+        :root {
+            --primary-color: #f44336; /* 番茄红 */
+            --secondary-color: #4CAF50; /* 休息绿 */
+            --background-color: #f5f5f5;
+            --text-color: #333;
+            --button-bg: #007bff;
+            --button-hover-bg: #0056b3;
+            --button-text: #fff;
+            --border-radius: 8px;
+            --font-size-large: 4rem;
+            --font-size-medium: 1.8rem;
+            --font-size-small: 1rem;
+            --spacing-medium: 1.5rem;
+            --spacing-large: 2rem;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: var(--spacing-medium);
+            box-sizing: border-box; /* 确保内边距不会导致元素溢出 */
+            -webkit-font-smoothing: antialiased; /* 字体抗锯齿，使移动端字体更清晰 */
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: var(--spacing-large);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 400px; /* 限制最大宽度，适配桌面端 */
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-medium);
+        }
+
+        #status-message {
+            font-size: var(--font-size-medium);
+            margin-bottom: var(--spacing-medium);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        #timer-display {
+            font-size: var(--font-size-large);
+            font-weight: bold;
+            margin-bottom: var(--spacing-large);
+            padding: var(--spacing-medium) 0;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            display: inline-block; /* 使边框适应内容 */
+            min-width: 220px; /* 确保足够的宽度 */
+            background-color: #ffe0e0; /* 工作时淡红色背景 */
+            color: var(--primary-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+
+        #timer-display.break-time {
+            border-color: var(--secondary-color);
+            background-color: #e0ffe0; /* 休息时淡绿色背景 */
+            color: var(--secondary-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-medium);
+            margin-bottom: var(--spacing-large);
+            flex-wrap: wrap; /* 按钮在小屏幕上换行 */
+        }
+
+        button {
+            padding: 1rem 1.8rem;
+            font-size: var(--font-size-medium);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            color: var(--button-text);
+            background-color: var(--button-bg);
+            flex-grow: 1; /* 按钮可以增长以填充空间 */
+            max-width: 150px; /* 限制单个按钮的最大宽度 */
+            -webkit-tap-highlight-color: rgba(0,0,0,0); /* 移除移动端点击高亮 */
+        }
+
+        button:hover:not(:disabled) {
+            background-color: var(--button-hover-bg);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        #pomodoro-count {
+            font-size: var(--font-size-medium);
+            margin-top: var(--spacing-medium);
+            padding: var(--spacing-small);
+            background-color: #f0f0f0;
+            border-radius: var(--border-radius);
+            display: inline-block;
+        }
+
+        /* 响应式调整 - 针对小屏幕（如手机） */
+        @media (max-width: 480px) {
+            :root {
+                --font-size-large: 3.5rem;
+                --font-size-medium: 1.5rem;
+                --spacing-medium: 1rem;
+                --spacing-large: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            button {
+                padding: 0.8rem 1.5rem;
+                font-size: 1.2rem;
+                flex-basis: 45%; /* 每行两个按钮 */
+            }
+
+            .controls {
+                gap: 1rem;
+            }
+
+            #timer-display {
+                min-width: unset; /* 移除最小宽度限制 */
+                width: 80%; /* 调整宽度 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>番茄计时器</h1>
+        <div id="status-message">准备工作！</div>
+        <div id="timer-display">25:00</div>
+        <div class="controls">
+            <button id="start-btn">开始</button>
+            <button id="pause-btn" disabled>暂停</button>
+            <button id="reset-btn">重置</button>
+        </div>
+        <div id="pomodoro-count">今天完成番茄数: 0</div>
+    </div>
+
+    <script>
+        // 计时器默认设置（秒）
+        const workDuration = 25 * 60; // 25 分钟工作
+        const breakDuration = 5 * 60;  // 5 分钟休息
+
+        let currentDuration = workDuration; // 当前阶段剩余时间
+        let isWorking = true; // true: 工作阶段, false: 休息阶段
+        let intervalId = null; // setInterval 的ID，用于清除计时器
+        let isPaused = true; // 计时器是否处于暂停状态
+        let pomodorosCompleted = 0; // 今日完成的番茄数
+
+        // 获取DOM元素
+        const timerDisplay = document.getElementById('timer-display');
+        const statusMessage = document.getElementById('status-message');
+        const pomodoroCountDisplay = document.getElementById('pomodoro-count');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        // 格式化时间显示 (MM:SS)
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes < 10 ? '0' : ''}${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+        }
+
+        // 更新页面显示
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(currentDuration);
+            pomodoroCountDisplay.textContent = `今天完成番茄数: ${pomodorosCompleted}`;
+
+            // 根据阶段更新状态信息和计时器样式
+            if (isWorking) {
+                statusMessage.textContent = "专注工作！";
+                timerDisplay.classList.remove('break-time');
+            } else {
+                statusMessage.textContent = "短暂休息！";
+                timerDisplay.classList.add('break-time');
+            }
+        }
+
+        // 启动计时器
+        function startTimer() {
+            if (intervalId !== null) {
+                // 如果计时器已在运行，则不执行任何操作
+                return;
+            }
+
+            isPaused = false; // 计时器不再暂停
+
+            startBtn.disabled = true; // 开始按钮在运行时禁用
+            pauseBtn.disabled = false; // 暂停按钮启用
+            resetBtn.disabled = false; // 重置按钮启用
+
+            intervalId = setInterval(() => {
+                currentDuration--;
+                updateDisplay();
+
+                if (currentDuration <= 0) {
+                    clearInterval(intervalId); // 计时结束，清除计时器
+                    intervalId = null;
+                    playAlarmSound(); // 播放提示音
+
+                    if (isWorking) {
+                        pomodorosCompleted++; // 工作阶段结束，番茄数加一
+                        currentDuration = breakDuration; // 进入休息阶段
+                        isWorking = false;
+                        statusMessage.textContent = "短暂休息！";
+                    } else {
+                        currentDuration = workDuration; // 休息阶段结束，进入工作阶段
+                        isWorking = true;
+                        statusMessage.textContent = "专注工作！";
+                    }
+                    updateDisplay();
+                    // 自动开始下一个阶段
+                    startBtn.textContent = '开始'; // 新阶段开始，按钮显示“开始”
+                    startTimer(); 
+                }
+            }, 1000);
+        }
+
+        // 暂停计时器
+        function pauseTimer() {
+            if (intervalId === null) return; // 如果没有计时器在运行，不执行操作
+            
+            clearInterval(intervalId);
+            intervalId = null;
+            isPaused = true;
+
+            startBtn.textContent = '继续'; // 暂停后，开始按钮变为“继续”
+            startBtn.disabled = false; // “继续”按钮启用
+            pauseBtn.disabled = true; // 暂停按钮禁用
+            // resetBtn 状态保持不变
+            
+            statusMessage.textContent = (isWorking ? "工作" : "休息") + "已暂停";
+        }
+
+        // 重置计时器
+        function resetTimer() {
+            clearInterval(intervalId);
+            intervalId = null;
+            isWorking = true; // 恢复到工作阶段
+            currentDuration = workDuration; // 恢复到默认工作时间
+            isPaused = true;
+            pomodorosCompleted = 0; // 番茄数归零
+
+            startBtn.textContent = '开始'; // 重置后，开始按钮显示“开始”
+            startBtn.disabled = false; // 开始按钮启用
+            pauseBtn.disabled = true; // 暂停按钮禁用
+            resetBtn.disabled = false; // 重置按钮启用
+            
+            statusMessage.textContent = "准备工作！";
+            updateDisplay(); // 更新显示
+        }
+
+        // 播放提示音
+        function playAlarmSound() {
+            // 使用一个在线的短提示音。在实际生产环境中，建议使用本地音频文件或Base64编码，以避免网络问题和CORS限制。
+            const audio = new Audio('https://www.soundjay.com/buttons/beep-07.wav'); 
+            audio.play().catch(e => console.error("Error playing sound:", e));
+        }
+
+        // 绑定事件监听器
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // 页面加载完成后初始化计时器状态
+        document.addEventListener('DOMContentLoaded', () => {
+            resetTimer(); 
+        });
+    </script>
+</body>
+</html>

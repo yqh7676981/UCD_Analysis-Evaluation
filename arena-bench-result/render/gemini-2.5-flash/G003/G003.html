@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>像素画板</title>
+    <style>
+        /* CSS 变量，方便主题管理和响应式调整 */
+        :root {
+            --grid-size: 16;
+            --cell-border: 1px solid #e0e0e0;
+            --active-color-border: 2px solid #333;
+            --main-bg-color: #f8f8f8;
+            --control-bg-color: #ffffff;
+            --button-color: #3498db;
+            --button-text-color: #ffffff;
+            --button-active-color: #2980b9;
+        }
+
+        /* 全局样式和基础布局 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--main-bg-color);
+            margin: 0;
+            padding: 20px 10px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除移动端点击高亮 */
+            overflow-x: hidden; /* 防止水平滚动 */
+        }
+
+        header {
+            width: 100%;
+            max-width: 400px; /* 限制标题宽度 */
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.2em; /* 适合移动端的标题字号 */
+            color: #333;
+            margin: 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 400px; /* 限制整个应用容器的最大宽度 */
+        }
+
+        /* 控制面板样式 */
+        #controls {
+            background-color: var(--control-bg-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 18px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: opacity 0.3s ease, transform 0.3s ease; /* 预览模式过渡效果 */
+        }
+
+        #controls.hidden {
+            display: none; /* 预览模式隐藏 */
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+
+        /* 颜色选择器样式 */
+        #color-picker {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center; /* 居中显示颜色块 */
+        }
+
+        .color-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            touch-action: manipulation; /* 优化触摸响应 */
+            flex-shrink: 0; /* 防止挤压 */
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.05);
+        }
+
+        .color-swatch.active {
+            border: var(--active-color-border);
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 橡皮擦特殊样式 */
+        .color-swatch[data-color-value="white"] {
+            background: repeating-linear-gradient(
+                45deg,
+                #ccc,
+                #ccc 5px,
+                #f0f0f0 5px,
+                #f0f0f0 10px
+            );
+            border: 2px solid #999;
+        }
+
+        /* 工具按钮样式 */
+        #tools {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 两个按钮一行 */
+            gap: 10px;
+        }
+
+        #tools button {
+            padding: 12px 10px;
+            font-size: 1em; /* 适合移动端的按钮字号 */
+            border: none;
+            border-radius: 8px;
+            background-color: var(--button-color);
+            color: var(--button-text-color);
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            touch-action: manipulation;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #tools button:active {
+            background-color: var(--button-active-color);
+            transform: translateY(1px); /* 点击时轻微下沉效果 */
+        }
+
+        #preview-btn.active {
+            background-color: #e67e22; /* 预览激活时使用不同颜色 */
+        }
+        #preview-btn.active:active {
+            background-color: #d35400;
+        }
+
+        /* 像素画板网格样式 */
+        #pixel-grid-wrapper {
+            width: 100%;
+            padding-top: 100%; /* 利用 padding-top 制造正方形容器 */
+            position: relative;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            overflow: hidden; /* 确保单元格在圆角边框内 */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease; /* 预览模式过渡效果 */
+        }
+
+        #pixel-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-template-rows: repeat(var(--grid-size), 1fr);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            user-select: none; /* 防止在拖动时选择文本 */
+            touch-action: none; /* 阻止在网格上触摸时滚动/缩放 */
+        }
+
+        .grid-cell {
+            background-color: #ffffff; /* 默认白色背景 */
+            border: var(--cell-border);
+            box-sizing: border-box; /* 确保边框在单元格内部 */
+        }
+
+        /* 预览模式的样式调整 */
+        body.preview-mode #app-container {
+            max-width: 90vw; /* 预览时占据更多屏幕宽度 */
+            padding: 0; /* 移除内边距 */
+        }
+        body.preview-mode header,
+        body.preview-mode #controls {
+            display: none; /* 预览时隐藏标题和控制面板 */
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        body.preview-mode #pixel-grid-wrapper {
+            border: none; /* 预览时隐藏边框 */
+            box-shadow: none; /* 预览时隐藏阴影 */
+            border-radius: 0; /* 预览时移除圆角 */
+            width: 100vw; /* 预览时宽度适配屏幕 */
+            height: 100vw; /* 预览时高度适配屏幕 */
+            max-width: 100vh; /* 确保在横屏时不超出高度 */
+            max-height: 100vh; /* 确保在竖屏时不超出高度 */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>像素画板</h1>
+    </header>
+
+    <div id="app-container">
+        <div id="controls">
+            <div class="section-title">选择颜色</div>
+            <div id="color-picker">
+                <!-- 颜色选择器：data-color 存储颜色值，active 类表示当前选中 -->
+                <div class="color-swatch active" data-color="#000000" style="background-color: #000000;"></div>
+                <div class="color-swatch" data-color="#FF0000" style="background-color: #FF0000;"></div>
+                <div class="color-swatch" data-color="#00FF00" style="background-color: #00FF00;"></div>
+                <div class="color-swatch" data-color="#0000FF" style="background-color: #0000FF;"></div>
+                <div class="color-swatch" data-color="#FFFF00" style="background-color: #FFFF00;"></div>
+                <div class="color-swatch" data-color="#FF00FF" style="background-color: #FF00FF;"></div>
+                <div class="color-swatch" data-color="#00FFFF" style="background-color: #00FFFF;"></div>
+                <div class="color-swatch" data-color="#FFA500" style="background-color: #FFA500;"></div>
+                <div class="color-swatch" data-color="#800080" style="background-color: #800080;"></div>
+                <div class="color-swatch" data-color="#A52A2A" style="background-color: #A52A2A;"></div>
+                <div class="color-swatch" data-color="#808080" style="background-color: #808080;"></div>
+                <!-- 橡皮擦：实际是选择白色 -->
+                <div class="color-swatch" data-color-value="white"></div>
+            </div>
+
+            <div class="section-title">工具</div>
+            <div id="tools">
+                <button id="clear-btn">清空</button>
+                <button id="preview-btn">预览作品</button>
+            </div>
+        </div>
+
+        <div id="pixel-grid-wrapper">
+            <div id="pixel-grid">
+                <!-- 16x16 像素格将由 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const gridSize = 16; /* 定义网格大小 */
+            const pixelGrid = document.getElementById('pixel-grid');
+            const colorPicker = document.getElementById('color-picker');
+            const clearBtn = document.getElementById('clear-btn');
+            const previewBtn = document.getElementById('preview-btn');
+            const body = document.body;
+
+            let currentColor = '#000000'; // 默认颜色：黑色
+            let isDrawing = false; // 标记是否处于绘图状态（鼠标按下或触摸中）
+
+            /**
+             * 动态创建像素网格
+             */
+            function createGrid() {
+                pixelGrid.innerHTML = ''; // 清除现有网格
+                for (let i = 0; i < gridSize * gridSize; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell');
+                    // 每个单元格添加一个唯一ID，方便调试或未来扩展
+                    cell.id = `cell-${i}`; 
+                    pixelGrid.appendChild(cell);
+                }
+            }
+
+            /**
+             * 设置当前激活的颜色选择块
+             * @param {string} colorValue - 要激活的颜色值
+             */
+            function setActiveColorSwatch(colorValue) {
+                document.querySelectorAll('.color-swatch').forEach(swatch => {
+                    swatch.classList.remove('active');
+                });
+                
+                // 查找并激活匹配的颜色块
+                const activeSwatch = document.querySelector(`.color-swatch[data-color="${colorValue}"]`);
+                if (activeSwatch) {
+                    activeSwatch.classList.add('active');
+                } else if (colorValue === 'white') {
+                    // 特殊处理橡皮擦（白色）
+                    const eraserSwatch = document.querySelector('.color-swatch[data-color-value="white"]');
+                    if (eraserSwatch) {
+                        eraserSwatch.classList.add('active');
+                    }
+                }
+            }
+
+            /**
+             * 为指定的单元格上色
+             * @param {HTMLElement} cell - 要上色的单元格元素
+             */
+            function applyColorToCell(cell) {
+                if (cell && cell.classList.contains('grid-cell')) {
+                    cell.style.backgroundColor = currentColor;
+                }
+            }
+
+            // --- 事件监听器 ---
+
+            // 颜色选择器点击事件
+            colorPicker.addEventListener('click', (event) => {
+                const target = event.target;
+                if (target.classList.contains('color-swatch')) {
+                    const selectedColor = target.dataset.color || target.dataset.colorValue;
+                    if (selectedColor) {
+                        currentColor = selectedColor;
+                        setActiveColorSwatch(currentColor);
+                    }
+                }
+            });
+
+            // 鼠标/桌面端绘图事件
+            pixelGrid.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                applyColorToCell(e.target);
+            });
+
+            pixelGrid.addEventListener('mouseover', (e) => {
+                if (isDrawing) {
+                    applyColorToCell(e.target);
+                }
+            });
+
+            pixelGrid.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+
+            pixelGrid.addEventListener('mouseleave', () => {
+                isDrawing = false; // 鼠标离开网格时停止绘图
+            });
+
+            // 触摸/移动端绘图事件
+            pixelGrid.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // 阻止默认的滚动/缩放行为
+                isDrawing = true;
+                const touch = e.touches[0];
+                const targetCell = document.elementFromPoint(touch.clientX, touch.clientY);
+                applyColorToCell(targetCell);
+            }, { passive: false }); // { passive: false } 确保 preventDefault 有效
+
+            pixelGrid.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // 阻止默认的滚动/缩放行为
+                if (isDrawing) {
+                    const touch = e.touches[0];
+                    const targetCell = document.elementFromPoint(touch.clientX, touch.clientY);
+                    applyColorToCell(targetCell);
+                }
+            }, { passive: false });
+
+            pixelGrid.addEventListener('touchend', () => {
+                isDrawing = false;
+            });
+
+            pixelGrid.addEventListener('touchcancel', () => {
+                isDrawing = false;
+            });
+
+            // 阻止长按弹出上下文菜单 (移动端)
+            pixelGrid.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            // 清空画板按钮
+            clearBtn.addEventListener('click', () => {
+                if (confirm('确定要清空画板吗？')) {
+                    document.querySelectorAll('.grid-cell').forEach(cell => {
+                        cell.style.backgroundColor = '#ffffff'; // 恢复白色背景
+                    });
+                }
+            });
+
+            // 预览作品按钮
+            previewBtn.addEventListener('click', () => {
+                body.classList.toggle('preview-mode'); // 切换 body 上的预览模式类
+                if (body.classList.contains('preview-mode')) {
+                    previewBtn.textContent = '返回编辑';
+                    previewBtn.classList.add('active');
+                } else {
+                    previewBtn.textContent = '预览作品';
+                    previewBtn.classList.remove('active');
+                }
+            });
+
+            // --- 初始化设置 ---
+            createGrid(); // 创建像素网格
+            setActiveColorSwatch(currentColor); // 设置初始激活的颜色块
+        });
+    </script>
+</body>
+</html>

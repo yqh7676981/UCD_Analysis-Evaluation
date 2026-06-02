@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TicketHub - 活动门票平台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #f5f6fa;
+    color: #2d3436;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+  .logo-icon {
+    background: white;
+    color: #764ba2;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  nav {
+    display: flex;
+    gap: 8px;
+  }
+  nav button {
+    background: transparent;
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  nav button:hover { background: rgba(255,255,255,0.15); }
+  nav button.active { background: rgba(255,255,255,0.25); }
+  .cart-btn {
+    position: relative;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.2s;
+  }
+  .cart-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.05); }
+  .cart-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #e74c3c;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+  }
+
+  /* Hero / Search */
+  .hero {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 10px 0 50px;
+    color: white;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 36px;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .hero p {
+    font-size: 17px;
+    opacity: 0.9;
+    margin-bottom: 28px;
+  }
+  .search-bar {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    background: white;
+    border-radius: 50px;
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  }
+  .search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 14px 22px;
+    font-size: 15px;
+    border-radius: 50px;
+    background: transparent;
+  }
+  .search-bar button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    padding: 0 28px;
+    border-radius: 50px;
+    font-size: 15px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s;
+  }
+  .search-bar button:hover { transform: scale(1.03); }
+
+  /* Main container */
+  main {
+    max-width: 1200px;
+    margin: -20px auto 40px;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  /* Category chips */
+  .categories {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 20px 0;
+    margin-bottom: 10px;
+  }
+  .categories::-webkit-scrollbar { height: 0; }
+  .chip {
+    background: white;
+    border: 2px solid transparent;
+    padding: 10px 20px;
+    border-radius: 24px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .chip:hover { transform: translateY(-2px); }
+  .chip.active {
+    background: #764ba2;
+    color: white;
+    border-color: #764ba2;
+  }
+
+  /* Page sections */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section-title {
+    font-size: 24px;
+    margin: 16px 0 20px;
+    font-weight: 700;
+    color: #2d3436;
+  }
+
+  /* Event grid */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .event-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+  .event-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+  }
+  .event-img {
+    width: 100%;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    color: white;
+    position: relative;
+  }
+  .event-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255,255,255,0.95);
+    color: #764ba2;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .event-body {
+    padding: 18px;
+  }
+  .event-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #2d3436;
+  }
+  .event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #636e72;
+  }
+  .event-meta span { display: flex; align-items: center; gap: 6px; }
+  .event-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .event-price {
+    color: #e74c3c;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .event-price small { font-size: 12px; font-weight: 500; color: #999; }
+  .btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: transform 0.2s;
+  }
+  .btn:hover { transform: scale(1.05); }
+  .btn-secondary {
+    background: #f5f6fa;
+    color: #2d3436;
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  /* Ticket / Cart items */
+  .ticket-list, .cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .ticket-card, .cart-item {
+    background: white;
+    border-radius: 14px;
+    padding: 18px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+  }
+  .ticket-card:hover, .cart-item:hover { transform: translateY(-2px); }
+  .ticket-icon, .cart-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: white;
+    flex-shrink: 0;
+  }
+  .ticket-info, .cart-info {
+    flex: 1;
+  }
+  .ticket-info h3, .cart-info h3 {
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+  .ticket-info p, .cart-info p {
+    font-size: 13px;
+    color: #636e72;
+    margin-bottom: 3px;
+  }
+  .ticket-status {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .status-active { background: #d4edda; color: #155724; }
+  .status-used { background: #e0e0e0; color: #666; }
+  .status-upcoming { background: #fff3cd; color: #856404; }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .qty-control button {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .qty-control button:hover { background: #f0f0f0; }
+
+  .cart-summary {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+  }
+  .summary-row.total {
+    border-top: 2px solid #f0f0f0;
+    margin-top: 10px;
+    padding-top: 14px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .checkout-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+  }
+  .empty-icon { font-size: 60px; margin-bottom: 14px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .modal-header h2 { font-size: 20px; }
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
+  .close-btn:hover { background: #f0f0f0; color: #333; }
+  .modal-body { padding: 20px; }
+  .modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+  .modal-detail-img {
+    width: 100%;
+    height: 140px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+    font-size: 14px;
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row strong { min-width: 70px; color: #764ba2; }
+  .qr-code {
+    width: 140px;
+    height: 140px;
+    margin: 20px auto;
+    background: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 / 12px 12px;
+    border: 10px solid white;
+    box-shadow: 0 0 0 1px #ddd;
+    border-radius: 8px;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #2d3436;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    z-index: 2000;
+    opacity: 1; /* fixed: was 0 */
+    transition: all 0.3s;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 26px; }
+    nav button { padding: 6px 12px; font-size: 13px; }
+    .header-inner { padding: 0 14px; }
+    .logo { font-size: 19px; }
+    main { padding: 0 14px; }
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo" onclick="showPage('home')">
+      <div class="logo-icon">🎫</div>
+      <span>TicketHub</span>
+    </div>
+    <nav>
+      <button class="nav-btn active" data-page="home" onclick="showPage('home')">首页</button>
+      <button class="nav-btn" data-page="tickets" onclick="showPage('tickets')">我的门票</button>
+      <button class="nav-btn" data-page="orders" onclick="showPage('orders')">订单</button>
+    </nav>
+    <button class="cart-btn" onclick="showPage('cart')">
+      🛒
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>发现精彩活动</h1>
+  <p>演唱会、体育赛事、展览与更多尽在指尖</p>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="搜索活动、艺人或场馆...">
+    <button onclick="handleSearch()">搜索</button>
+  </div>
+</section>
+
+<main>
+  <!-- Home page -->
+  <div class="page active" id="page-home">
+    <div class="categories" id="categories"></div>
+    <h2 class="section-title">🔥 热门活动</h2>
+    <div class="events-grid" id="eventsGrid"></div>
+  </div>
+
+  <!-- My Tickets page -->
+  <div class="page" id="page-tickets">
+    <h2 class="section-title">🎟️ 我的门票</h2>
+    <div class="ticket-list" id="ticketList"></div>
+  </div>
+
+  <!-- Orders page -->
+  <div class="page" id="page-orders">
+    <h2 class="section-title">📋 订单记录</h2>
+    <div class="ticket-list" id="orderList"></div>
+  </div>
+
+  <!-- Cart page -->
+  <div class="page" id="page-cart">
+    <h2 class="section-title">🛒 购物车</h2>
+    <div class="cart-list" id="cartList"></div>
+    <div id="cartSummary"></div>
+  </div>
+</main>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>活动详情</h2>
+      <button class="close-btn" onclick="closeModal('detailModal')">×</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-footer" id="detailFooter"></div>
+  </div>
+</div>
+
+<!-- Ticket QR Modal -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>电子票</h2>
+      <button class="close-btn" onclick="closeModal('qrModal')">×</button>
+    </div>
+    <div class="modal-body" id="qrBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Data
+  const events = [
+    { id: 1, title: '周杰伦嘉年华演唱会', category: '演唱会', date: '2025-06-15 19:30', venue: '北京国家体育场', price: 680, icon: '🎤', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', tag: '热销' },
+    { id: 2, title: 'NBA中国赛：湖人 vs 勇士', category: '体育', date: '2025-07-08 20:00', venue: '上海梅赛德斯中心', price: 980, icon: '🏀', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', tag: '推荐' },
+    { id: 3, title: '莫奈印象派艺术展', category: '展览', date: '2025-05-01 ~ 08-31', venue: '上海当代艺术馆', price: 128, icon: '🎨', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', tag: '新展' },
+    { id: 4, title: '开心麻花爆笑话剧', category: '戏剧', date: '2025-05-20 19:00', venue: '北京保利剧院', price: 380, icon: '🎭', gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', tag: '限时' },
+    { id: 5, title: '电音节 Electric Dream', category: '演唱会', date: '2025-08-10 18:00', venue: '深圳湾体育中心', price: 580, icon: '🎧', gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', tag: '人气' },
+    { id: 6, title: '中超：国安 vs 申花', category: '体育', date: '2025-06-28 19:30', venue: '北京工人体育场', price: 280, icon: '⚽', gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', tag: '' },
+    { id: 7, title: '迪士尼冰上巡回秀', category: '家庭', date: '2025-07-15 14:00', venue: '广州体育馆', price: 220, icon: '❄️', gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)', tag: '亲子' },
+    { id: 8, title: '古典交响乐之夜', category: '戏剧', date: '2025-05-30 20:00', venue: '上海东方艺术中心', price: 480, icon: '🎻', gradient: 'linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)', tag: '' },
+  ];
+
+  const categories = ['全部', '演唱会', '体育', '展览', '戏剧', '家庭'];
+  let currentCategory = '全部';
+  let currentSearch = '';
+  let cart = [];
+  let myTickets = [
+    { id: 101, eventId: 3, title: '莫奈印象派艺术展', date: '2025-05-01 10:00', venue: '上海当代艺术馆', status: 'upcoming', icon: '🎨', gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', code: 'TH-ABC123' },
+    { id: 102, eventId: 8, title: '古典交响乐之夜', date: '2025-05-30 20:00', venue: '上海东方艺术中心', status: 'active', icon: '🎻', gradient: 'linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)', code: 'TH-XYZ789' },
+  ];
+  let orders = [
+    { id: 'ORD20250315001', title: '莫奈印象派艺术展 x1', amount: 128, date: '2025-03-15', status: '已支付' },
+    { id: 'ORD20250310002', title: '古典交响乐之夜 x1', amount: 480, date: '2025-03-10', status: '已支付' },
+  ];
+
+  // Rendering
+  function renderCategories() {
+    const el = document.getElementById('categories');
+    el.innerHTML = categories.map(c =>
+      `<div class="chip ${c === currentCategory ? 'active' : ''}" onclick="filterCategory('${c}')">${c}</div>`
+    ).join('');
+  }
+
+  function filterCategory(c) {
+    currentCategory = c;
+    renderCategories();
+    renderEvents();
+  }
+
+  function renderEvents() {
+    const filtered = events.filter(e =>
+      (currentCategory === '全部' || e.category === currentCategory) &&
+      (currentSearch === '' || e.title.toLowerCase().includes(currentSearch.toLowerCase()) || e.venue.toLowerCase().includes(currentSearch.toLowerCase()))
+    );
+    const el = document.getElementById('eventsGrid');
+    if (filtered.length === 0) {
+      el.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="empty-icon">🔍</div><p>没有找到匹配的活动</p></div>';
+      return;
+    }
+    el.innerHTML = filtered.map(e => `
+      <div class="event-card" onclick="openDetail(${e.id})">
+        <div class="event-img" style="background:${e.gradient}">
+          ${e.tag ? `<span class="event-tag">${e.tag}</span>` : ''}
+          ${e.icon}
+        </div>
+        <div class="event-body">
+          <div class="event-title">${e.title}</div>
+          <div class="event-meta">
+            <span>📅 ${e.date}</span>
+            <span>📍 ${e.venue}</span>
+          </div>
+          <div class="event-footer">
+            <div class="event-price">¥${e.price}<small> 起</small></div>
+            <button class="btn" onclick="event.stopPropagation(); addToCart(${e.id})">加入购物车</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function handleSearch() {
+    currentSearch = document.getElementById('searchInput').value.trim();
+    showPage('home');
+    renderEvents();
+  }
+  document.getElementById('searchInput').addEventListener('keypress', e => {
+    if (e.key === 'Enter') handleSearch();
+  });
+
+  // Detail modal
+  function openDetail(id) {
+    const e = events.find(x => x.id === id);
+    document.getElementById('detailBody').innerHTML = `
+      <div class="modal-detail-img" style="background:${e.gradient}">${e.icon}</div>
+      <h3 style="margin-bottom:14px">${e.title}</h3>
+      <div class="detail-row"><strong>类别</strong> <span>${e.category}</span></div>
+      <div class="detail-row"><strong>时间</strong> <span>${e.date}</span></div>
+      <div class="detail-row"><strong>场馆</strong> <span>${e.venue}</span></div>
+      <div class="detail-row"><strong>价格</strong> <span style="color:#e74c3c;font-weight:700">¥${e.price} 起</span></div>
+      <p style="margin-top:16px;color:#636e72;font-size:14px;line-height:1.6">这是一场不容错过的精彩活动。座位有限，请尽快预订。购票后您将获得电子票，扫码即可入场。</p>
+    `;
+    document.getElementById('detailFooter').innerHTML = `
+      <button class="btn btn-secondary" onclick="closeModal('detailModal')">关闭</button>
+      <button class="btn" onclick="addToCart(${e.id}); closeModal('detailModal')">立即加入购物车</button>
+    `;
+    document.getElementById('detailModal').classList.add('active');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+  }
+
+  // Cart
+  function addToCart(id) {
+    const exist = cart.find(x => x.id === id);
+    if (exist) exist.qty++;
+    else {
+      const e = events.find(x => x.id === id);
+      cart.push({ ...e, qty: 1 });
+    }
+    updateCartBadge();
+    renderCart();
+    showToast('✓ 已加入购物车');
+  }
+
+  function removeFromCart(id) {
+    cart = cart.filter(x => x.id !== id);
+    updateCartBadge();
+    renderCart();
+    showToast('已移除');
+  }
+
+  function changeQty(id, delta) {
+    const item = cart.find(x => x.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) {
+      removeFromCart(id);
+      return;
+    }
+    updateCartBadge();
+    renderCart();
+  }
+
+  function updateCartBadge() {
+    const total = cart.reduce((s, x) => s + x.qty, 0);
+    const badge = document.getElementById('cartBadge');
+    badge.textContent = total;
+    badge.style.display = total === 0 ? 'none' : 'flex';
+  }
+
+  function renderCart() {
+    const list = document.getElementById('cartList');
+    const summary = document.getElementById('cartSummary');
+    if (cart.length === 0) {
+      list.innerHTML = '<div class="empty"><div class="empty-icon">🛒</div><p>购物车是空的</p><button class="btn" style="margin-top:16px" onclick="showPage(\'home\')">去逛逛</button></div>';
+      summary.innerHTML = '';
+      return;
+    }
+    list.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="cart-icon" style="background:${item.gradient}">${item.icon}</div>
+        <div class="cart-info">
+          <h3>${item.title}</h3>
+          <p>📅 ${item.date}</p>
+          <p>📍 ${item.venue}</p>
+          <p style="color:#e74c3c;font-weight:700;margin-top:4px">¥${item.price}</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:flex-end">
+          <div class="qty-control">
+            <button onclick="changeQty(${item.id}, -1)">−</button>
+            <span style="font-weight:600">${item.qty}</span>
+            <button onclick="changeQty(${item.id}, 1)">+</button>
+          </div>
+          <button class="btn btn-danger" style="padding:4px 12px;font-size:12px" onclick="removeFromCart(${item.id})">删除</button>
+        </div>
+      </div>
+    `).join('');
+
+    const subtotal = cart.reduce((s, x) => s + x.price * x.qty, 0);
+    const fee = Math.round(subtotal * 0.05);
+    const total = subtotal + fee;
+    summary.innerHTML = `
+      <div class="cart-summary">
+        <div class="summary-row"><span>小计</span><span>¥${subtotal}</span></div>
+        <div class="summary-row"><span>服务费 (5%)</span><span>¥${fee}</span></div>
+        <div class="summary-row total"><span>应付总额</span><span style="color:#e74c3c">¥${total}</span></div>
+        <button class="btn checkout-btn" onclick="checkout()">确认支付</button>
+      </div>
+    `;
+  }
+
+  function checkout() {
+    if (cart.length === 0) return;
+    const total = cart.reduce((s, x) => s + x.price * x.qty * 1.05, 0);
+    const orderId = 'ORD' + Date.now();
+    const titles = cart.map(x => `${x.title} x${x.qty}`).join(', ');
+
+    orders.unshift({
+      id: orderId,
+      title: titles,
+      amount: Math.round(total),
+      date: new Date().toISOString().slice(0, 10),
+      status: '已支付'
+    });
+
+    cart.forEach(item => {
+      for (let i = 0; i < item.qty; i++) {
+        myTickets.push({
+          id: Date.now() + Math.random(),
+          eventId: item.id,
+          title: item.title,
+          date: item.date,
+          venue: item.venue,
+          status: 'upcoming',
+          icon: item.icon,
+          gradient: item.gradient,
+          code: 'TH-' + Math.random().toString(36).substr(2, 6).toUpperCase()
+        });
+      }
+    });
+
+    cart = [];
+    updateCartBadge();
+    renderCart();
+    renderTickets();
+    renderOrders();
+    showToast('🎉 支付成功！门票已生成');
+    setTimeout(() => showPage('tickets'), 600);
+  }
+
+  // Tickets
+  function renderTickets() {
+    const el = document.getElementById('ticketList');
+    if (myTickets.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">🎟️</div><p>还没有门票</p></div>';
+      return;
+    }
+    const statusText = { active: '可使用', used: '已使用', upcoming: '待生效' };
+    el.innerHTML = myTickets.map(t => `
+      <div class="ticket-card">
+        <div class="ticket-icon" style="background:${t.gradient}">${t.icon}</div>
+        <div class="ticket-info">
+          <h3>${t.title}</h3>
+          <p>📅 ${t.date}</p>
+          <p>📍 ${t.venue}</p>
+          <span class="ticket-status status-${t.status}">${statusText[t.status]}</span>
+        </div>
+        <button class="btn" onclick="showQR('${t.code}', '${t.title}')">查看票券</button>
+      </div>
+    `).join('');
+  }
+
+  function showQR(code, title) {
+    document.getElementById('qrBody').innerHTML = `
+      <h3 style="text-align:center;margin-bottom:6px">${title}</h3>
+      <p style="text-align:center;color:#636e72;font-size:13px">请在入场时出示此二维码</p>
+      <div class="qr-code"></div>
+      <p style="text-align:center;font-family:monospace;font-size:16px;letter-spacing:2px;color:#764ba2;font-weight:700">${code}</p>
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:#999">请勿将此票分享给他人</p>
+    `;
+    document.getElementById('qrModal').classList.add('active');
+  }
+
+  // Orders
+  function renderOrders() {
+    const el = document.getElementById('orderList');
+    if (orders.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><p>暂无订单</p></div>';
+      return;
+    }
+    el.innerHTML = orders.map(o => `
+      <div class="ticket-card">
+        <div class="ticket-icon" style="background:linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);color:#764ba2">📄</div>
+        <div class="ticket-info">
+          <h3>${o.title}</h3>
+          <p>订单号：${o.id}</p>
+          <p>下单时间：${o.date}</p>
+          <span class="ticket-status status-active">${o.status}</span>
+        </div>
+        <div style="text-align:right">
+          <div style="color:#e74c3c;font-weight:700;font-size:18px">¥${o.amount}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Navigation
+  function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const navBtn = document.querySelector(`.nav-btn[data-page="${page}"]`);
+    if (navBtn) navBtn.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Toast
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastTimer);
+    window._toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // Close modal on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => {
+      if (e.target === m) m.classList.remove('active');
+    });
+  });
+
+  // Init
+  renderCategories();
+  renderEvents();
+  renderTickets();
+  renderOrders();
+  renderCart();
+  updateCartBadge();
+</script>
+</body>
+</html>

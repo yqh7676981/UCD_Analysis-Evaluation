@@ -1,0 +1,33 @@
+{
+  "index": 158,
+  "id": "E005",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gemini-2.5-flash",
+  "question": "做一个光的折射物理演示动画，可以拖动入射角，实时看到光线在水面发生折射的角度变化，旁边显示折射定律公式。",
+  "evaluation": {
+    "total_score": 82,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent educational-demo style with a calm blue palette matching the water/refraction topic. Layout is clean and focused on the simulation, though visually generic and lacking a stronger primary focal treatment beyond the title and canvas."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography is readable, spacing is consistent, and the diagram elements are aligned well. The slider, labels, and formula card feel finished. Minor limitations include plain component styling and small in-canvas angle labels that are only moderately prominent."
+      },
+      "easy_to_perceive": {
+        "score": 9,
+        "reason": "Users can immediately identify the main demo area, the draggable angle control, and the accompanying formula. Information hierarchy is strong: title, visualization, control, then explanation. Density is appropriate for mobile and nothing important is buried."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "The simulation behavior is intuitive: adjust incidence angle and observe refraction plus updated formula values. Labels clearly indicate incident and refracted angles. The only semantic gap is that the slider affordance is visible but the exact drag target and any medium assumptions are not explicitly explained."
+      }
+    },
+    "summary": "A strong, usable mobile physics demo with clear hierarchy, appropriate visual tone, and an obvious core interaction. It succeeds at the requested task: users can drag the angle and immediately see refraction changes alongside Snell's law. The main caps are moderate visual plainness and limited explanatory/context detail, but the overall UX is polished and close to launch-ready."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E005_A_gemini-2.5-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:52:46.079725"
+}

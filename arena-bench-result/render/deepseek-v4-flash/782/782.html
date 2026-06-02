@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PcCraft - 预组装高性能计算机</title>
+    <style>
+        /* 重置和全局 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        /* 头部 */
+        header {
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 1rem 0;
+        }
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .logo span { color: #10b981; }
+        nav a {
+            color: #475569;
+            text-decoration: none;
+            margin-left: 2rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: #2563eb; }
+        /* 英雄区 */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4rem 0;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .hero-content {
+            flex: 1 1 400px;
+        }
+        .hero-content h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            color: #0f172a;
+        }
+        .hero-content h1 span {
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-content p {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        .hero-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+        }
+        .hero-price small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #64748b;
+            text-decoration: line-through;
+            margin-left: 0.5rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 8px 20px rgba(37,99,235,0.3);
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(37,99,235,0.4);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+        }
+        .btn-secondary:hover {
+            background: #eef2ff;
+            transform: translateY(-2px);
+        }
+        .hero-image {
+            flex: 1 1 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #dbeafe 0%, #ccfbf1 100%);
+            border-radius: 30px;
+            padding: 2rem;
+            min-height: 300px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        .hero-image .pc-icon {
+            font-size: 8rem;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+        }
+        /* 特性区 */
+        .features {
+            padding: 4rem 0;
+        }
+        .features h2, .reviews h2, .cta h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .feature-card p {
+            color: #64748b;
+        }
+        /* 评论 */
+        .reviews {
+            padding: 4rem 0;
+            background: #f1f5f9;
+        }
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .review-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .review-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+        .review-name {
+            font-weight: 600;
+        }
+        .review-stars {
+            color: #f59e0b;
+            letter-spacing: 2px;
+        }
+        .review-text {
+            color: #475569;
+        }
+        /* CTA 购买区 */
+        .cta {
+            padding: 4rem 0;
+            text-align: center;
+        }
+        .cta-box {
+            background: linear-gradient(135deg, #2563eb, #10b981);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(37,99,235,0.2);
+        }
+        .cta-box h2 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+        .cta-box p {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+        .cta-box .btn {
+            background: white;
+            color: #2563eb;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .cta-box .btn:hover {
+            background: #f8fafc;
+            transform: translateY(-2px);
+        }
+        /* 页脚 */
+        footer {
+            padding: 2rem 0;
+            text-align: center;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+        }
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 30px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .modal p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+        .modal .btn {
+            background: #2563eb;
+            color: white;
+            width: 100%;
+        }
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header-inner {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            nav a {
+                margin: 0 0.8rem;
+            }
+            .hero {
+                flex-direction: column-reverse;
+                text-align: center;
+            }
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+            .btn-group {
+                justify-content: center;
+            }
+            .hero-image {
+                min-height: 200px;
+            }
+            .hero-image .pc-icon {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-inner">
+            <a href="#" class="logo">Pc<span>Craft</span></a>
+            <nav>
+                <a href="#">首页</a>
+                <a href="#features">功能</a>
+                <a href="#reviews">评价</a>
+                <a href="#buy">购买</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- 英雄区 -->
+        <section class="hero container">
+            <div class="hero-content">
+                <h1>高性能 <span>预组装</span> 计算机</h1>
+                <p>专为创作者、游戏玩家和专业用户打造的强悍主机，开箱即用，轻松应对各种繁重任务。</p>
+                <div class="hero-price">¥8,999 <small>¥10,999</small></div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="buyNowBtn">立即购买</button>
+                    <button class="btn btn-secondary" id="learnMoreBtn">了解更多</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <span class="pc-icon">🖥️</span>
+            </div>
+        </section>
+
+        <!-- 功能 -->
+        <section class="features container" id="features">
+            <h2>强悍配置，不负期待</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>AMD Ryzen 7 5800X</h3>
+                    <p>8核16线程，基准3.8GHz，睿频高达4.7GHz，轻松驾驭多任务与大型游戏。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧠</div>
+                    <h3>32GB DDR4 3200MHz</h3>
+                    <p>高频率双通道内存，流畅运行编程、渲染和虚拟机等多种应用。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>1TB NVMe SSD + 2TB HDD</h3>
+                    <p>极速系统启动与超大仓储空间，兼顾速度和容量。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <h3>NVIDIA GeForce RTX 3070</h3>
+                    <p>8GB GDDR6 独立显卡，支持光线追踪，畅享 2K 高画质游戏与创作加速。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 客户评论 -->
+        <section class="reviews" id="reviews">
+            <div class="container">
+                <h2>客户真实评价</h2>
+                <div class="reviews-grid">
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">张</div>
+                            <div>
+                                <div class="review-name">张三</div>
+                                <div class="review-stars">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="review-text">这台主机真的太棒了！运行我需要的3D设计软件毫无压力，渲染速度比我旧电脑快了三倍。强烈推荐！</p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">李</div>
+                            <div>
+                                <div class="review-name">李四</div>
+                                <div class="review-stars">★★★★☆</div>
+                            </div>
+                        </div>
+                        <p class="review-text">游戏性能非常出色，几乎能全高画质运行所有3A大作。唯一希望的是能再多个USB口，不过瑕不掩瑜。</p>
+                    </div>
+                    <div class="review-card">
+                        <div class="review-header">
+                            <div class="review-avatar">王</div>
+                            <div>
+                                <div class="review-name">王五</div>
+                                <div class="review-stars">★★★★★</div>
+                            </div>
+                        </div>
+                        <p class="review-text">编程开发利器，开几十个浏览器标签页+IDE依然丝滑，而且机器运行非常安静，散热做得很好。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 购买选项 CTA -->
+        <section class="cta container" id="buy">
+            <div class="cta-box">
+                <h2>立即拥有这台强劲主机</h2>
+                <p>限时优惠，免费升级至 32GB 内存 + 1TB SSD，数量有限！<br>支持 3 期免息分期，顺丰包邮到家。</p>
+                <button class="btn" id="buyCtaBtn">立即购买 — ¥8,999</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 PcCraft. 所有权利保留。 预组装计算机专家。</p>
+        </div>
+    </footer>
+
+    <!-- 购买确认模态框 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>🎉 感谢您的购买</h3>
+            <p>您所选的高性能计算机已添加到购物车。我们的客服将在 1 小时内与您联系确认订单。</p>
+            <button class="btn" id="modalCloseBtn">继续浏览</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modalOverlay = document.getElementById('modalOverlay');
+            const buyBtns = [document.getElementById('buyNowBtn'), document.getElementById('buyCtaBtn')];
+            const closeModalBtn = document.getElementById('modalCloseBtn');
+
+            function openModal() {
+                modalOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeModal() {
+                modalOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            buyBtns.forEach(btn => {
+                btn.addEventListener('click', openModal);
+            });
+
+            closeModalBtn.addEventListener('click', closeModal);
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    closeModal();
+                }
+            });
+
+            const learnMoreBtn = document.getElementById('learnMoreBtn');
+            learnMoreBtn.addEventListener('click', function() {
+                document.getElementById('features').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+</body>
+</html>

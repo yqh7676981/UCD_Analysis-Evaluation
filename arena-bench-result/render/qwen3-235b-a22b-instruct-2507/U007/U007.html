@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>宠物成长记录本</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fef9f3;
+      color: #333;
+      padding: 16px;
+      line-height: 1.6;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff7e5f;
+      margin: 20px 0;
+      font-size: 1.8rem;
+    }
+
+    .form-container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 16px;
+      font-weight: bold;
+      color: #555;
+      font-size: 1rem;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin-top: 8px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #fafafa;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background-color: #ff7e5f;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e06b4f;
+    }
+
+    .records-list {
+      list-style: none;
+    }
+
+    .record-item {
+      background-color: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .record-date {
+      font-weight: bold;
+      color: #ff7e5f;
+      font-size: 1.1rem;
+    }
+
+    .record-weight, .record-diet, .record-health, .record-note {
+      margin: 8px 0;
+    }
+
+    .record-mood {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 1.5rem;
+      vertical-align: middle;
+    }
+
+    .no-records {
+      text-align: center;
+      color: #888;
+      font-style: italic;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      input, textarea, select, button {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🐾 宠物成长记录本</h1>
+
+  <div class="form-container">
+    <label for="date">日期</label>
+    <input type="date" id="date" required />
+
+    <label for="weight">体重（kg）</label>
+    <input type="number" id="weight" step="0.1" placeholder="例如：5.2" />
+
+    <label for="diet">饮食情况</label>
+    <textarea id="diet" placeholder="今天吃了什么？饭量如何？"></textarea>
+
+    <label for="health">健康状态</label>
+    <select id="health">
+      <option value="良好">良好</option>
+      <option value="一般">一般</option>
+      <option value="需关注">需关注</option>
+      <option value="异常">异常</option>
+    </select>
+
+    <label for="note">趣事记录</label>
+    <textarea id="note" placeholder="有趣的瞬间、小故事..."></textarea>
+
+    <label>心情</label>
+    <div style="display: flex; gap: 12px; margin-top: 8px; overflow-x: auto; padding-bottom: 4px;">
+      <label style="text-align: center;">
+        <input type="radio" name="mood" value="😄" /> <span style="font-size: 1.8rem;">😄</span><br />
+        <small>开心</small>
+      </label>
+      <label style="text-align: center;">
+        <input type="radio" name="mood" value="🥰" /> <span style="font-size: 1.8rem;">🥰</span><br />
+        <small>可爱</small>
+      </label>
+      <label style="text-align: center;">
+        <input type="radio" name="mood" value="😴" /> <span style="font-size: 1.8rem;">😴</span><br />
+        <small>困倦</small>
+      </label>
+      <label style="text-align: center;">
+        <input type="radio" name="mood" value="🤢" /> <span style="font-size: 1.8rem;">🤢</span><br />
+        <small>不适</small>
+      </label>
+      <label style="text-align: center;">
+        <input type="radio" name="mood" value="😎" /> <span style="font-size: 1.8rem;">😎</span><br />
+        <small>酷</small>
+      </label>
+    </div>
+
+    <button id="saveBtn">保存记录</button>
+  </div>
+
+  <h2 style="color: #ff7e5f; margin-bottom: 10px;">成长记录</h2>
+  <ul id="recordsList" class="records-list">
+    <!-- 记录将通过 JS 动态插入 -->
+  </ul>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const dateInput = document.getElementById('date');
+      const weightInput = document.getElementById('weight');
+      const dietInput = document.getElementById('diet');
+      const healthInput = document.getElementById('health');
+      const noteInput = document.getElementById('note');
+      const moodInputs = document.querySelectorAll('input[name="mood"]');
+      const saveBtn = document.getElementById('saveBtn');
+      const recordsList = document.getElementById('recordsList');
+
+      // 设置默认日期为今天
+      dateInput.valueAsDate = new Date();
+
+      // 从 localStorage 加载记录
+      function loadRecords() {
+        const records = JSON.parse(localStorage.getItem('petRecords')) || [];
+        recordsList.innerHTML = '';
+        if (records.length === 0) {
+          recordsList.innerHTML = '<li class="no-records">暂无记录，开始添加第一条吧！</li>';
+          return;
+        }
+        records.sort((a, b) => new Date(b.date) - new Date(a.date)); // 按日期倒序
+        records.forEach((record, index) => {
+          const li = document.createElement('li');
+          li.className = 'record-item';
+          li.innerHTML = `
+            <div class="record-date">${formatDate(record.date)}</div>
+            ${record.weight ? `<div class="record-weight"><strong>体重：</strong>${record.weight} kg</div>` : ''}
+            ${record.diet ? `<div class="record-diet"><strong>饮食：</strong>${record.diet}</div>` : ''}
+            ${record.health ? `<div class="record-health"><strong>健康：</strong>${record.health}</div>` : ''}
+            ${record.note ? `<div class="record-note"><strong>趣事：</strong>${record.note}</div>` : ''}
+            <div><strong>心情：</strong><span class="record-mood">${record.mood || '😊'}</span></div>
+          `;
+          recordsList.appendChild(li);
+        });
+      }
+
+      function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('zh-CN', options);
+      }
+
+      saveBtn.addEventListener('click', function () {
+        const date = dateInput.value;
+        const weight = weightInput.value;
+        const diet = dietInput.value.trim();
+        const health = healthInput.value;
+        const note = noteInput.value.trim();
+        const mood = Array.from(moodInputs).find(input => input.checked)?.value || '😊';
+
+        if (!date) {
+          alert('请填写日期！');
+          return;
+        }
+
+        const newRecord = { date, weight, diet, health, note, mood };
+        const records = JSON.parse(localStorage.getItem('petRecords')) || [];
+        records.push(newRecord);
+        localStorage.setItem('petRecords', JSON.stringify(records));
+
+        // 清空表单
+        weightInput.value = '';
+        dietInput.value = '';
+        healthInput.value = '良好';
+        noteInput.value = '';
+        moodInputs.forEach(input => input.checked = false);
+        dateInput.valueAsDate = new Date(); // 重置为今天
+
+        // 重新加载记录
+        loadRecords();
+      });
+
+      // 初始化加载
+      loadRecords();
+    });
+  </script>
+</body>
+</html>

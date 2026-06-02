@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复利增长的力量 - 标准普尔500指数长期投资</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --bg-secondary: #111827;
+            --fg: #f0f4f8;
+            --fg-muted: #8892a4;
+            --accent: #00d4aa;
+            --accent-warm: #ff6b35;
+            --card: rgba(17, 24, 39, 0.8);
+            --border: rgba(255, 255, 255, 0.08);
+            --glow: rgba(0, 212, 170, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--accent-warm) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation-delay: -10s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #4f46e5 0%, transparent 70%);
+            top: 50%;
+            left: 30%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        .accent-text {
+            color: var(--accent);
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 60px var(--glow);
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(180deg, rgba(0,212,170,0.03) 0%, transparent 100%);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            fill: none;
+            stroke: url(#lineGradient);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 8px rgba(0, 212, 170, 0.5));
+        }
+
+        .chart-area {
+            fill: url(#areaGradient);
+        }
+
+        .data-point {
+            fill: var(--accent);
+            stroke: var(--bg);
+            stroke-width: 2;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .data-point:hover {
+            r: 8;
+            filter: drop-shadow(0 0 12px var(--accent));
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(10, 15, 26, 0.95);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stat-number {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .timeline-bar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent-warm) 100%);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 4px rgba(0, 212, 170, 0.2);
+        }
+
+        .timeline-marker:hover {
+            transform: translateY(-50%) scale(1.3);
+            box-shadow: 0 0 0 8px rgba(0, 212, 170, 0.3);
+        }
+
+        .timeline-marker.active {
+            background: var(--accent-warm);
+            box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #00ff88 100%);
+            color: var(--bg);
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .fade-in {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(0); /* fixed */
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+
+        .growth-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--accent);
+        }
+
+        .comparison-bar {
+            height: 32px;
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .comparison-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .comparison-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 280px;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div class="gradient-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+    <div class="grid-pattern"></div>
+
+    <div class="content">
+        <!-- Hero Section -->
+        <header class="px-6 py-8 lg:px-16">
+            <nav class="flex justify-between items-center max-w-7xl mx-auto">
+                <div class="flex items-center gap-2">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <path d="M4 24L12 16L18 22L28 8" stroke="url(#navGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="navGradient" x1="4" y1="24" x2="28" y2="8">
+                                <stop stop-color="#00d4aa"/>
+                                <stop offset="1" stop-color="#00ff88"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="text-xl font-semibold" style="font-family: 'Space Grotesk', sans-serif;">GrowthView</span>
+                </div>
+                <div class="hidden md:flex items-center gap-8 text-sm" style="color: var(--fg-muted);">
+                    <a href="#chart" class="hover:text-white transition-colors">数据图表</a>
+                    <a href="#stats" class="hover:text-white transition-colors">关键数据</a>
+                    <a href="#comparison" class="hover:text-white transition-colors">收益对比</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Hero -->
+            <section class="px-6 lg:px-16 pt-12 pb-20 max-w-7xl mx-auto">
+                <div class="fade-in stagger-1">
+                    <span class="growth-indicator mb-6 inline-block">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M3 10L6 7L9 9L13 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        长期投资可视化
+                    </span>
+                </div>
+                <h1 class="hero-title fade-in stagger-2 mb-6">
+                    时间是投资的<br><span class="accent-text">最佳盟友</span>
+                </h1>
+                <p class="fade-in stagger-3 text-lg lg:text-xl max-w-2xl mb-10" style="color: var(--fg-muted); line-height: 1.7;">
+                    标准普尔500指数过去40年的数据告诉我们：复利的力量足以将小额投资转化为可观的财富。探索下方的交互式图表，了解长期持有的真正价值。
+                </p>
+                <div class="fade-in stagger-4 flex flex-wrap gap-4">
+                    <button class="btn" onclick="scrollToChart()">查看完整数据</button>
+                    <button class="px-6 py-3 rounded-lg border transition-all hover:bg-white/5" style="border-color: var(--border); color: var(--fg-muted);">
+                        了解复利原理
+                    </button>
+                </div>
+            </section>
+
+            <!-- Main Chart -->
+            <section id="chart" class="px-6 lg:px-16 py-16 max-w-7xl mx-auto">
+                <div class="card p-6 lg:p-8 fade-in">
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-8">
+                        <div>
+                            <h2 class="text-2xl lg:text-3xl font-semibold mb-2">标准普尔500指数历史走势</h2>
+                            <p style="color: var(--fg-muted);">1980 - 2024 年度回报数据（假设股息再投资）</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="period-btn px-4 py-2 rounded-lg text-sm transition-all active" data-period="all" style="background: rgba(0,212,170,0.15); color: var(--accent);">全部</button>
+                            <button class="period-btn px-4 py-2 rounded-lg text-sm transition-all" data-period="20" style="background: var(--border); color: var(--fg-muted);">近20年</button>
+                            <button class="period-btn px-4 py-2 rounded-lg text-sm transition-all" data-period="10" style="background: var(--border); color: var(--fg-muted);">近10年</button>
+                        </div>
+                    </div>
+
+                    <div class="chart-container" id="chartContainer">
+                        <svg id="chart" width="100%" height="100%"></svg>
+                        <div class="tooltip" id="tooltip"></div>
+                    </div>
+
+                    <div class="mt-8 p-4 rounded-lg" style="background: rgba(0,212,170,0.05); border: 1px solid rgba(0,212,170,0.2);">
+                        <p class="text-sm" style="color: var(--fg-muted);">
+                            <strong style="color: var(--accent);">投资启示：</strong> 
+                            如果在1980年投资$10,000于标普500指数并持有至今（含股息再投资），截至2024年底将增长至约<span class="accent-text font-semibold">$760,000</span>，年化收益率约<span class="accent-text font-semibold">11.5%</span>。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Section -->
+            <section id="stats" class="px-6 lg:px-16 py-16 max-w-7xl mx-auto">
+                <h2 class="text-2xl lg:text-3xl font-semibold mb-12 text-center fade-in">关键投资数据</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="card p-6 fade-in stagger-1">
+                        <p class="text-sm mb-2" style="color: var(--fg-muted);">历史最高年化回报</p>
+                        <p class="stat-number" data-target="37.5">0</p>
+                        <p class="text-sm mt-2" style="color: var(--fg-muted);">1995年</p>
+                    </div>
+                    <div class="card p-6 fade-in stagger-2">
+                        <p class="text-sm mb-2" style="color: var(--fg-muted);">平均年化回报</p>
+                        <p class="stat-number" data-target="11.5">0</p>
+                        <p class="text-sm mt-2" style="color: var(--fg-muted);">过去40年</p>
+                    </div>
+                    <div class="card p-6 fade-in stagger-3">
+                        <p class="text-sm mb-2" style="color: var(--fg-muted);">正收益年份占比</p>
+                        <p class="stat-number" data-target="78">0</p>
+                        <p class="text-sm mt-2" style="color: var(--fg-muted);">31/40年</p>
+                    </div>
+                    <div class="card p-6 fade-in stagger-4">
+                        <p class="text-sm mb-2" style="color: var(--fg-muted);">最大回撤</p>
+                        <p class="stat-number" data-target="-38">0</p>
+                        <p class="text-sm mt-2" style="color: var(--fg-muted);">2008年金融危机</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section id="comparison" class="px-6 lg:px-16 py-16 max-w-7xl mx-auto">
+                <div class="card p-6 lg:p-8 fade-in">
+                    <h2 class="text-2xl lg:text-3xl font-semibold mb-2">$10,000投资的40年旅程</h2>
+                    <p class="mb-8" style="color: var(--fg-muted);">对比不同投资方式的最终收益</p>
+
+                    <div class="space-y-6">
+                        <div class="comparison-item" data-value="760000">
+                            <div class="flex justify-between mb-2">
+                                <span style="color: var(--fg-muted);">标普500指数（股息再投资）</span>
+                                <span class="font-semibold accent-text">$760,000</span>
+                            </div>
+                            <div class="comparison-bar" style="background: rgba(255,255,255,0.1);">
+                                <div class="comparison-fill" style="background: linear-gradient(90deg, var(--accent), #00ff88); width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-item" data-value="450000">
+                            <div class="flex justify-between mb-2">
+                                <span style="color: var(--fg-muted);">标普500指数（不含股息）</span>
+                                <span class="font-semibold" style="color: #a5b4fc;">$450,000</span>
+                            </div>
+                            <div class="comparison-bar" style="background: rgba(255,255,255,0.1);">
+                                <div class="comparison-fill" style="background: linear-gradient(90deg, #6366f1, #a5b4fc); width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-item" data-value="180000">
+                            <div class="flex justify-between mb-2">
+                                <span style="color: var(--fg-muted);">公司债券</span>
+                                <span class="font-semibold" style="color: #fbbf24;">$180,000</span>
+                            </div>
+                            <div class="comparison-bar" style="background: rgba(255,255,255,0.1);">
+                                <div class="comparison-fill" style="background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="comparison-item" data-value="22000">
+                            <div class="flex justify-between mb-2">
+                                <span style="color: var(--fg-muted);">储蓄账户（平均利率）</span>
+                                <span class="font-semibold" style="color: var(--fg-muted);">$22,000</span>
+                            </div>
+                            <div class="comparison-bar" style="background: rgba(255,255,255,0.1);">
+                                <div class="comparison-fill" style="background: rgba(255,255,255,0.2); width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 pt-6" style="border-top: 1px solid var(--border);">
+                        <p class="text-sm" style="color: var(--fg-muted);">
+                            <strong style="color: var(--accent);">复利效应：</strong>
+                            股息再投资是长期收益的重要来源。不含股息的标普500收益约为含股息的60%，这充分说明了再投资的重要性。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Timeline -->
+            <section class="px-6 lg:px-16 py-16 max-w-7xl mx-auto">
+                <div class="card p-6 lg:p-8 fade-in">
+                    <h2 class="text-2xl lg:text-3xl font-semibold mb-8">市场重要事件</h2>
+                    <div class="timeline-bar mb-6">
+                        <div class="timeline-marker" style="left: 12.5%;" data-year="1987" data-event="黑色星期一"></div>
+                        <div class="timeline-marker" style="left: 50%;" data-year="2000" data-event="互联网泡沫"></div>
+                        <div class="timeline-marker" style="left: 70%;" data-year="2008" data-event="金融危机"></div>
+                        <div class="timeline-marker" style="left: 95%;" data-year="2020" data-event="疫情冲击"></div>
+                    </div>
+                    <div class="flex justify-between text-sm" style="color: var(--fg-muted);">
+                        <span>1980</span>
+                        <span>2000</span>
+                        <span>2024</span>
+                    </div>
+                    <div id="eventInfo" class="mt-6 p-4 rounded-lg text-center" style="background: rgba(0,0,0,0.3); min-height: 80px;">
+                        <p style="color: var(--fg-muted);">点击时间轴上的标记查看重要市场事件</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="px-6 lg:px-16 py-12 mt-16" style="border-top: 1px solid var(--border);">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <p style="color: var(--fg-muted);">数据来源：标准普尔道琼斯指数 | 仅供教育参考，不构成投资建议</p>
+                <p style="color: var(--fg-muted);">GrowthView 2024</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 标普500历史数据（年度回报率%）
+        const yearlyReturns = [
+            { year: 1980, return: 32.5, value: 132.5 },
+            { year: 1981, return: -4.9, value: 126.0 },
+            { year: 1982, return: 21.5, value: 153.1 },
+            { year: 1983, return: 22.5, value: 187.5 },
+            { year: 1984, return: 6.2, value: 199.1 },
+            { year: 1985, return: 32.2, value: 263.2 },
+            { year: 1986, return: 18.5, value: 311.9 },
+            { year: 1987, return: 5.2, value: 328.1 },
+            { year: 1988, return: 16.8, value: 383.2 },
+            { year: 1989, return: 31.5, value: 503.8 },
+            { year: 1990, return: -3.1, value: 488.2 },
+            { year: 1991, return: 30.5, value: 637.3 },
+            { year: 1992, return: 7.6, value: 685.7 },
+            { year: 1993, return: 10.1, value: 754.9 },
+            { year: 1994, return: 1.3, value: 764.7 },
+            { year: 1995, return: 37.5, value: 1051.5 },
+            { year: 1996, return: 23.0, value: 1293.3 },
+            { year: 1997, return: 33.3, value: 1723.9 },
+            { year: 1998, return: 28.6, value: 2217.0 },
+            { year: 1999, return: 21.0, value: 2682.6 },
+            { year: 2000, return: -9.1, value: 2438.6 },
+            { year: 2001, return: -11.9, value: 2148.9 },
+            { year: 2002, return: -22.1, value: 1673.8 },
+            { year: 2003, return: 28.7, value: 2154.2 },
+            { year: 2004, return: 10.9, value: 2388.7 },
+            { year: 2005, return: 4.9, value: 2505.8 },
+            { year: 2006, return: 15.8, value: 2901.7 },
+            { year: 2007, return: 5.5, value: 3061.7 },
+            { year: 2008, return: -37.0, value: 1928.9 },
+            { year: 2009, return: 26.5, value: 2439.9 },
+            { year: 2010, return: 15.1, value: 2808.3 },
+            { year: 2011, return: 2.1, value: 2867.3 },
+            { year: 2012, return: 16.0, value: 3326.1 },
+            { year: 2013, return: 32.4, value: 4404.2 },
+            { year: 2014, return: 13.7, value: 5007.6 },
+            { year: 2015, return: 1.4, value: 5077.7 },
+            { year: 2016, return: 12.0, value: 5687.0 },
+            { year: 2017, return: 21.8, value: 6927.4 },
+            { year: 2018, return: -4.4, value: 6622.7 },
+            { year: 2019, return: 31.5, value: 8708.9 },
+            { year: 2020, return: 18.4, value: 10310.5 },
+            { year: 2021, return: 28.7, value: 13269.2 },
+            { year: 2022, return: -18.1, value: 10868.9 },
+            { year: 2023, return: 26.3, value: 13729.1 },
+            { year: 2024, return: 15.0, value: 15788.5 }
+        ];
+
+        // 计算累计价值
+        function calculateCumulativeValues() {
+            let cumulative = 1000;
+            return yearlyReturns.map(item => {
+                cumulative = cumulative * (1 + item.return / 100);
+                return {
+                    year: item.year,
+                    return: item.return,
+                    value: cumulative
+                };
+            });
+        }
+
+        const chartData = calculateCumulativeValues();
+
+        // 绘制图表
+        function drawChart(period = 'all') {
+            const container = document.getElementById('chartContainer');
+            const svg = document.getElementById('chart');
+            const tooltip = document.getElementById('tooltip');
+            
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            
+            // 过滤数据
+            let filteredData = chartData;
+            if (period === '20') {
+                filteredData = chartData.filter(d => d.year >= 2005);
+            } else if (period === '10') {
+                filteredData = chartData.filter(d => d.year >= 2015);
+            }
+
+            const padding = { top: 40, right: 30, bottom: 50, left: 70 };
+            const chartWidth = width - padding.left - padding.right;
+            const chartHeight = height - padding.top - padding.bottom;
+
+            // 计算比例
+            const minValue = Math.min(...filteredData.map(d => d.value)) * 0.9;
+            const maxValue = Math.max(...filteredData.map(d => d.value)) * 1.1;
+            const minYear = Math.min(...filteredData.map(d => d.year));
+            const maxYear = Math.max(...filteredData.map(d => d.year));
+
+            function xScale(year) {
+                return padding.left + ((year - minYear) / (maxYear - minYear)) * chartWidth;
+            }
+
+            function yScale(value) {
+                return padding.top + chartHeight - ((value - minValue) / (maxValue - minValue)) * chartHeight;
+            }
+
+            // 生成路径
+            let linePath = '';
+            let areaPath = '';
+            
+            filteredData.forEach((d, i) => {
+                const x = xScale(d.year);
+                const y = yScale(d.value);
+                if (i === 0) {
+                    linePath += `M ${x} ${y}`;
+                    areaPath += `M ${x} ${height - padding.bottom} L ${x} ${y}`;
+                } else {
+                    linePath += ` L ${x} ${y}`;
+                    areaPath += ` L ${x} ${y}`;
+                }
+            });
+            
+            areaPath += ` L ${xScale(filteredData[filteredData.length - 1].year)} ${height - padding.bottom} Z`;
+
+            // 清空SVG
+            svg.innerHTML = '';
+
+            // 添加渐变定义
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            
+            const lineGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            lineGradient.setAttribute('id', 'lineGradient');
+            lineGradient.setAttribute('x1', '0%');
+            lineGradient.setAttribute('y1', '0%');
+            lineGradient.setAttribute('x2', '100%');
+            lineGradient.setAttribute('y2', '0%');
+            lineGradient.innerHTML = '<stop offset="0%" stop-color="#00d4aa"/><stop offset="100%" stop-color="#00ff88"/>';
+            defs.appendChild(lineGradient);
+
+            const areaGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            areaGradient.setAttribute('id', 'areaGradient');
+            areaGradient.setAttribute('x1', '0%');
+            areaGradient.setAttribute('y1', '0%');
+            areaGradient.setAttribute('x2', '0%');
+            areaGradient.setAttribute('y2', '100%');
+            areaGradient.innerHTML = '<stop offset="0%" stop-color="rgba(0,212,170,0.3)"/><stop offset="100%" stop-color="rgba(0,212,170,0)"/>';
+            defs.appendChild(areaGradient);
+
+            svg.appendChild(defs);
+
+            // 绘制网格线
+            const gridGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            for (let i = 0; i <= 5; i++) {
+                const y = padding.top + (chartHeight / 5) * i;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', padding.left);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', width - padding.right);
+                line.setAttribute('y2', y);
+                line.setAttribute('stroke', 'rgba(255,255,255,0.05)');
+                line.setAttribute('stroke-dasharray', '4,4');
+                gridGroup.appendChild(line);
+
+                // Y轴标签
+                const value = maxValue - ((maxValue - minValue) / 5) * i;
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', padding.left - 10);
+                text.setAttribute('y', y + 4);
+                text.setAttribute('text-anchor', 'end');
+                text.setAttribute('fill', '#8892a4');
+                text.setAttribute('font-size', '12');
+                text.textContent = '$' + Math.round(value / 1000) + 'k';
+                gridGroup.appendChild(text);
+            }
+            svg.appendChild(gridGroup);
+
+            // X轴标签
+            filteredData.forEach((d, i) => {
+                if (i % Math.ceil(filteredData.length / 8) === 0 || i === filteredData.length - 1) {
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', xScale(d.year));
+                    text.setAttribute('y', height - padding.bottom + 25);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('fill', '#8892a4');
+                    text.setAttribute('font-size', '12');
+                    text.textContent = d.year;
+                    svg.appendChild(text);
+                }
+            });
+
+            // 绘制面积
+            const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            area.setAttribute('d', areaPath);
+            area.setAttribute('class', 'chart-area');
+            area.style.opacity = '0';
+            area.style.transition = 'opacity 1s ease';
+            svg.appendChild(area);
+            
+            setTimeout(() => {
+                area.style.opacity = '1';
+            }, 100);
+
+            // 绘制线条
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            line.setAttribute('d', linePath);
+            line.setAttribute('class', 'chart-line');
+            
+            const pathLength = line.getTotalLength();
+            line.style.strokeDasharray = pathLength;
+            line.style.strokeDashoffset = pathLength;
+            line.style.transition = 'stroke-dashoffset 2s ease-out';
+            
+            svg.appendChild(line);
+            
+            setTimeout(() => {
+                line.style.strokeDashoffset = '0';
+            }, 100);
+
+            // 绘制数据点
+            filteredData.forEach((d, i) => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', xScale(d.year));
+                circle.setAttribute('cy', yScale(d.value));
+                circle.setAttribute('r', '5');
+                circle.setAttribute('class', 'data-point');
+                circle.style.opacity = '0';
+                circle.style.transition = `opacity 0.3s ease ${0.02 * i}s`;
+                
+                circle.addEventListener('mouseenter', (e) => {
+                    showTooltip(e, d);
+                });
+                
+                circle.addEventListener('mouseleave', () => {
+                    hideTooltip();
+                });
+                
+                svg.appendChild(circle);
+                
+                setTimeout(() => {
+                    circle.style.opacity = '1';
+                }, 1000 + i * 20);
+            });
+        }
+
+        function showTooltip(e, data) {
+            const tooltip = document.getElementById('tooltip');
+            const returnColor = data.return >= 0 ? '#00d4aa' : '#ff6b35';
+            const returnSign = data.return >= 0 ? '+' : '';
+            
+            tooltip.innerHTML = `
+                <div style="font-weight: 600; margin-bottom: 4px;">${data.year}年</div>
+                <div style="color: #8892a4; font-size: 12px;">
+                    年度回报: <span style="color: ${returnColor}; font-weight: 600;">${returnSign}${data.return.toFixed(1)}%</span>
+                </div>
+                <div style="color: #8892a4; font-size: 12px;">
+                    累计价值: <span style="color: #f0f4f8; font-weight: 600;">$${Math.round(data.value).toLocaleString()}</span>
+                </div>
+            `;
+            
+            const rect = e.target.getBoundingClientRect();
+            const container = document.getElementById('chartContainer').getBoundingClientRect();
+            
+            tooltip.style.left = (rect.left - container.left + 20) + 'px';
+            tooltip.style.top = (rect.top - container.top - 80) + 'px';
+            tooltip.classList.add('visible');
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.classList.remove('visible');
+        }
+
+        // 滚动显示动画
+        function initScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // 数字动画
+        function animateNumbers() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const target = parseFloat(el.dataset.target);
+                        let current = 0;
+                        const increment = target / 60;
+                        const isNegative = target < 0;
+                        
+                        const animate = () => {
+                            if ((isNegative && current > target) || (!isNegative && current < target)) {
+                                current += increment;
+                                el.textContent = (isNegative && current > target ? target : current).toFixed(1) + '%';
+                                requestAnimationFrame(animate);
+                            } else {
+                                el.textContent = target + '%';
+                            }
+                        };
+                        
+                        animate();
+                        observer.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.stat-number').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // 对比条动画
+        function animateComparisonBars() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const maxValue = 760000;
+                        document.querySelectorAll('.comparison-item').forEach((item, i) => {
+                            const value = parseInt(item.dataset.value);
+                            const percentage = (value / maxValue) * 100;
+                            const fill = item.querySelector('.comparison-fill');
+                            setTimeout(() => {
+                                fill.style.width = percentage + '%';
+                            }, i * 200);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            const comparisonSection = document.querySelector('#comparison');
+            if (comparisonSection) {
+                observer.observe(comparisonSection);
+            }
+        }
+
+        // 时间轴交互
+        function initTimeline() {
+            const markers = document.querySelectorAll('.timeline-marker');
+            const eventInfo = document.getElementById('eventInfo');
+
+            const eventDetails = {
+                1987: { title: '黑色星期一', desc: '1987年10月19日，道指单日下跌22.6%，标普500指数跌幅超过20%。但市场在两年内完全恢复。' },
+                2000: { title: '互联网泡沫破裂', desc: '科技股估值过高引发市场调整，标普500在2000-2002年间下跌约49%，但随后开启了强劲的复苏。' },
+                2008: { title: '全球金融危机', desc: '次贷危机引发全球金融海啸，标普500指数从高点下跌约57%。这是学习长期投资价值的经典案例。' },
+                2020: { title: '疫情冲击与反弹', desc: '新冠疫情导致市场快速下跌，但美联储干预和财政刺激推动市场创下新高，V型复苏展示了市场的韧性。' }
+            };
+
+            markers.forEach(marker => {
+                marker.addEventListener('click', () => {
+                    markers.forEach(m => m.classList.remove('active'));
+                    marker.classList.add('active');
+                    
+                    const year = marker.dataset.year;
+                    const event = eventDetails[year];
+                    
+                    eventInfo.innerHTML = `
+                        <h3 class="text-lg font-semibold mb-2" style="color: var(--accent);">${event.title} (${year})</h3>
+                        <p style="color: var(--fg-muted);">${event.desc}</p>
+                    `;
+                });
+            });
+        }
+
+        // 周期按钮切换
+        function initPeriodButtons() {
+            const buttons = document.querySelectorAll('.period-btn');
+            
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => {
+                        b.style.background = 'var(--border)';
+                        b.style.color = 'var(--fg-muted)';
+                    });
+                    btn.style.background = 'rgba(0,212,170,0.15)';
+                    btn.style.color = 'var(--accent)';
+                    
+                    drawChart(btn.dataset.period);
+                });
+            });
+        }
+
+        // 滚动到图表
+        function scrollToChart() {
+            document.getElementById('chart').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // 窗口大小改变时重绘图表
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                drawChart();
+            }, 250);
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            drawChart();
+            initScrollAnimations();
+            animateNumbers();
+            animateComparisonBars();
+            initTimeline();
+            initPeriodButtons();
+        });
+    </script>
+</body>
+</html>

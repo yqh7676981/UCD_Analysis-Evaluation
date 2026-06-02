@@ -1,0 +1,33 @@
+{
+  "index": 250,
+  "id": "77",
+  "group": "A",
+  "class": "Desktop",
+  "model": "claude-opus-4-7-thinking",
+  "question": "为一家快餐公司设计一个主页，突出显示他们的菜单项、特别优惠和简单的订购选项。",
+  "evaluation": {
+    "total_score": 78,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The page has a coherent fast-food visual system: red-orange-yellow palette, rounded cards, bold headings, and a warm promotional tone that fits the scenario. Layout rhythm is stable across hero, offers, menu, and ordering steps, though the style is somewhat generic and relies heavily on emoji-like imagery."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, spacing, and card padding are generally clean and consistent. Prices and CTA buttons are readable, and shadows/radii are mostly uniform. However, product visuals use oversized emoji instead of real food imagery, some text contrast is only moderate on orange surfaces, and element craftsmanship feels template-like rather than polished."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the main sections: hero CTA, weekly deals, signature menu, and simple ordering steps. The pricing and add/order actions are visible without search. Information density is controlled, though the offers and menu cards are visually similar, which slightly flattens priority."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "Navigation labels, menu categories, prices, cart, and add-to-cart actions follow common mental models and are easy to interpret. The 3-step ordering explanation reinforces the flow. Minor ambiguity remains because section tabs do not clearly indicate interactivity/state, and promotional badges like '限时/新品/热销' are visually small."
+      }
+    },
+    "summary": "This is a solid, scenario-appropriate desktop homepage that clearly highlights menu items, specials, and straightforward ordering options. Its strengths are strong thematic consistency, visible prices and CTAs, and an easy-to-scan structure. The main limits are generic visual execution, emoji-based food imagery instead of more credible product presentation, and only moderate distinction between content priorities. Usable and near launch-ready, but not premium or highly refined."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/77_A_claude-opus-4-7-thinking/screenshot_desktop.png",
+  "time": "2026-05-29T16:14:44.562276"
+}

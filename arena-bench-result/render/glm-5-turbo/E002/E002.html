@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>自然拼读乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #FFF8E7;
+            --bg-secondary: #FFECD2;
+            --accent-orange: #FF8C42;
+            --accent-teal: #2EC4B6;
+            --accent-coral: #FF6B6B;
+            --accent-purple: #9B5DE5;
+            --accent-gold: #FFD166;
+            --text-dark: #2D3436;
+            --text-light: #636E72;
+            --card-shadow: 0 8px 32px rgba(255, 140, 66, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Nunito', 'ZCOOL KuaiLe', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 动态背景 */
+        .bg-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-orange);
+            top: -50px;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 150px;
+            height: 150px;
+            background: var(--accent-teal);
+            bottom: 20%;
+            left: -30px;
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            width: 100px;
+            height: 100px;
+            background: var(--accent-purple);
+            top: 40%;
+            right: -20px;
+            animation-delay: -10s;
+        }
+
+        .shape-4 {
+            width: 180px;
+            height: 180px;
+            background: var(--accent-gold);
+            bottom: -80px;
+            right: 30%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(20px, -30px) rotate(5deg); }
+            50% { transform: translate(-10px, 20px) rotate(-5deg); }
+            75% { transform: translate(15px, 10px) rotate(3deg); }
+        }
+
+        /* 头部 */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-coral) 100%);
+            padding: 20px 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 26px;
+            font-weight: 900;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            background: white;
+            position: sticky;
+            top: 76px;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #F5F5F5;
+            color: var(--text-light);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-teal) 0%, #20A4F3 100%);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(46, 196, 182, 0.4);
+        }
+
+        .tab-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 主内容区 */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(180deg, var(--accent-orange), var(--accent-coral));
+            border-radius: 2px;
+        }
+
+        /* 字母组合卡片 */
+        .phonics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .phonics-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 12px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            border: 3px solid transparent;
+        }
+
+        .phonics-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-orange), var(--accent-coral));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .phonics-card:hover::before,
+        .phonics-card:active::before {
+            transform: scaleX(1);
+        }
+
+        .phonics-card:active {
+            transform: scale(0.95);
+        }
+
+        .phonics-card.playing {
+            border-color: var(--accent-teal);
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .phonics-text {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .phonics-card:nth-child(6n+1) .phonics-text { color: var(--accent-orange); }
+        .phonics-card:nth-child(6n+2) .phonics-text { color: var(--accent-teal); }
+        .phonics-card:nth-child(6n+3) .phonics-text { color: var(--accent-coral); }
+        .phonics-card:nth-child(6n+4) .phonics-text { color: var(--accent-purple); }
+        .phonics-card:nth-child(6n+5) .phonics-text { color: #20A4F3; }
+        .phonics-card:nth-child(6n+6) .phonics-text { color: var(--accent-gold); }
+
+        .phonics-example {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .play-icon {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-teal);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1; /* fixed: was 0 */
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+        }
+
+        .phonics-card:hover .play-icon,
+        .phonics-card:active .play-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .play-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: white;
+            margin-left: 2px;
+        }
+
+        /* 单词卡片 */
+        .words-section {
+            margin-top: 24px;
+        }
+
+        .words-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .word-card {
+            background: white;
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .word-card:active {
+            transform: scale(0.97);
+            border-color: var(--accent-orange);
+        }
+
+        .word-card.playing {
+            border-color: var(--accent-teal);
+            background: linear-gradient(135deg, #E8FFF8 0%, #F0FFFE 100%);
+        }
+
+        .word-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .word-card .highlight {
+            color: var(--accent-coral);
+            text-decoration: underline;
+            text-decoration-color: var(--accent-coral);
+            text-underline-offset: 3px;
+        }
+
+        .word-play {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-orange), var(--accent-coral));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .word-play svg {
+            width: 14px;
+            height: 14px;
+            fill: white;
+            margin-left: 2px;
+        }
+
+        /* 提示信息 */
+        .tip-banner {
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .tip-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-orange);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tip-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+        }
+
+        .tip-content h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .tip-content p {
+            font-size: 13px;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        /* 底部安全区 */
+        .safe-area {
+            height: 20px;
+        }
+
+        /* 响应式适配 */
+        @media (min-width: 400px) {
+            .phonics-text {
+                font-size: 36px;
+            }
+        }
+
+        /* 减少动画 */
+        @media (prefers-reduced-motion: reduce) {
+            .floating-shape {
+                animation: none;
+            }
+            .phonics-card, .word-card {
+                transition: none;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-decoration">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+
+    <!-- 头部 -->
+    <header class="header">
+        <h1>自然拼读乐园</h1>
+        <p>点击卡片听发音</p>
+    </header>
+
+    <!-- 分类标签 -->
+    <div class="category-tabs">
+        <button class="tab-btn active" data-category="all">全部</button>
+        <button class="tab-btn" data-category="vowel">元音组合</button>
+        <button class="tab-btn" data-category="consonant">辅音组合</button>
+        <button class="tab-btn" data-category="special">特殊发音</button>
+    </div>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 字母组合 -->
+        <section class="phonics-section">
+            <h2 class="section-title">字母组合</h2>
+            <div class="phonics-grid" id="phonicsGrid">
+                <!-- 动态生成 -->
+            </div>
+        </section>
+
+        <!-- 相关单词 -->
+        <section class="words-section">
+            <h2 class="section-title">常用单词</h2>
+            <div class="words-grid" id="wordsGrid">
+                <!-- 动态生成 -->
+            </div>
+        </section>
+
+        <!-- 提示 -->
+        <div class="tip-banner">
+            <div class="tip-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 18V5l12-2v13"/>
+                    <circle cx="6" cy="18" r="3"/>
+                    <circle cx="18" cy="16" r="3"/>
+                </svg>
+            </div>
+            <div class="tip-content">
+                <h3>学习小技巧</h3>
+                <p>先点击字母组合学习发音规律，再点击单词练习拼读。红色下划线标注的就是字母组合对应的发音哦！</p>
+            </div>
+        </div>
+
+        <div class="safe-area"></div>
+    </main>
+
+    <script>
+        // 数据定义
+        const phonicsData = {
+            consonant: [
+                { combo: 'sh', sound: 'ʃ', example: 'ship', words: ['ship', 'shop', 'she', 'fish', 'wish'] },
+                { combo: 'th', sound: 'θ/ð', example: 'this', words: ['this', 'that', 'three', 'mother', 'father'] },
+                { combo: 'ch', sound: 'tʃ', example: 'chair', words: ['chair', 'child', 'chicken', 'lunch', 'teach'] },
+                { combo: 'ph', sound: 'f', example: 'phone', words: ['phone', 'photo', 'elephant', 'dolphin'] },
+                { combo: 'wh', sound: 'w/hw', example: 'what', words: ['what', 'when', 'where', 'white', 'why'] },
+                { combo: 'ng', sound: 'ŋ', example: 'sing', words: ['sing', 'ring', 'king', 'long', 'song'] }
+            ],
+            vowel: [
+                { combo: 'ai', sound: 'eɪ', example: 'rain', words: ['rain', 'day', 'wait', 'train', 'paint'] },
+                { combo: 'ay', sound: 'eɪ', example: 'play', words: ['play', 'say', 'way', 'stay', 'may'] },
+                { combo: 'ee', sound: 'iː', example: 'tree', words: ['tree', 'see', 'green', 'three', 'sleep'] },
+                { combo: 'ea', sound: 'iː', example: 'sea', words: ['sea', 'tea', 'eat', 'read', 'beach'] },
+                { combo: 'oo', sound: 'uː/ʊ', example: 'moon', words: ['moon', 'book', 'food', 'good', 'cool'] },
+                { combo: 'ou', sound: 'aʊ', example: 'house', words: ['house', 'out', 'about', 'loud', 'cloud'] },
+                { combo: 'ow', sound: 'aʊ/oʊ', example: 'cow', words: ['cow', 'now', 'how', 'snow', 'yellow'] },
+                { combo: 'oi', sound: 'ɔɪ', example: 'coin', words: ['coin', 'boy', 'toy', 'enjoy', 'point'] },
+                { combo: 'ar', sound: 'ɑː', example: 'car', words: ['car', 'star', 'park', 'far', 'art'] },
+                { combo: 'or', sound: 'ɔː', example: 'for', words: ['for', 'more', 'born', 'corn', 'short'] },
+                { combo: 'er', sound: 'ɜː/ə', example: 'her', words: ['her', 'sister', 'water', 'teacher', 'paper'] },
+                { combo: 'ir', sound: 'ɜː', example: 'bird', words: ['bird', 'girl', 'shirt', 'first', 'birthday'] }
+            ],
+            special: [
+                { combo: 'tion', sound: 'ʃən', example: 'station', words: ['station', 'nation', 'action', 'motion'] },
+                { combo: 'ght', sound: 't', example: 'night', words: ['night', 'light', 'right', 'fight', 'sight'] },
+                { combo: 'kn', sound: 'n', example: 'know', words: ['know', 'knee', 'knife', 'knock'] },
+                { combo: 'wr', sound: 'r', example: 'write', words: ['write', 'wrong', 'wrist', 'wrap'] }
+            ]
+        };
+
+        // 当前状态
+        let currentCategory = 'all';
+        let currentSpeaking = null;
+
+        // DOM 元素
+        const phonicsGrid = document.getElementById('phonicsGrid');
+        const wordsGrid = document.getElementById('wordsGrid');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        // 初始化语音合成
+        const synth = window.speechSynthesis;
+
+        // 语音播放函数
+        function speak(text, element) {
+            if (currentSpeaking) {
+                synth.cancel();
+                currentSpeaking.classList.remove('playing');
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            utterance.pitch = 1.1;
+
+            element.classList.add('playing');
+            currentSpeaking = element;
+
+            utterance.onend = () => {
+                element.classList.remove('playing');
+                currentSpeaking = null;
+            };
+
+            utterance.onerror = () => {
+                element.classList.remove('playing');
+                currentSpeaking = null;
+            };
+
+            synth.speak(utterance);
+        }
+
+        // 生成字母组合卡片
+        function renderPhonicsCards() {
+            let data = [];
+            if (currentCategory === 'all') {
+                data = [...phonicsData.consonant, ...phonicsData.vowel, ...phonicsData.special];
+            } else {
+                data = phonicsData[currentCategory] || [];
+            }
+
+            phonicsGrid.innerHTML = data.map(item => `
+                <div class="phonics-card" data-combo="${item.combo}" data-sound="${item.example}">
+                    <div class="phonics-text">${item.combo}</div>
+                    <div class="phonics-example">${item.example}</div>
+                    <div class="play-icon">
+                        <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    </div>
+                </div>
+            `).join('');
+
+            // 绑定事件
+            document.querySelectorAll('.phonics-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    speak(card.dataset.combo, card);
+                    renderWords(card.dataset.combo);
+                });
+            });
+        }
+
+        // 生成单词卡片
+        function renderWords(combo) {
+            let words = [];
+            const allData = [...phonicsData.consonant, ...phonicsData.vowel, ...phonicsData.special];
+            const found = allData.find(item => item.combo === combo);
+            
+            if (found) {
+                words = found.words;
+            } else {
+                words = allData.slice(0, 5).flatMap(item => item.words.slice(0, 2));
+            }
+
+            wordsGrid.innerHTML = words.map(word => {
+                const comboLower = combo.toLowerCase();
+                const wordLower = word.toLowerCase();
+                const index = wordLower.indexOf(comboLower);
+                
+                if (index !== -1) {
+                    const before = word.slice(0, index);
+                    const match = word.slice(index, index + combo.length);
+                    const after = word.slice(index + combo.length);
+                    return `
+                        <div class="word-card" data-word="${word}">
+                            <div class="word-text">${before}<span class="highlight">${match}</span>${after}</div>
+                            <div class="word-play">
+                                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                        </div>
+                    `;
+                }
+                return `
+                    <div class="word-card" data-word="${word}">
+                        <div class="word-text">${word}</div>
+                        <div class="word-play">
+                            <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 绑定事件
+            document.querySelectorAll('.word-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    speak(card.dataset.word, card);
+                });
+            });
+        }
+
+        // 标签切换
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderPhonicsCards();
+                
+                // 重置单词显示
+                const allData = [...phonicsData.consonant, ...phonicsData.vowel, ...phonicsData.special];
+                renderWords(allData[0].combo);
+            });
+        });
+
+        // 初始化
+        function init() {
+            renderPhonicsCards();
+            const allData = [...phonicsData.consonant, ...phonicsData.vowel, ...phonicsData.special];
+            renderWords(allData[0].combo);
+        }
+
+        init();
+    </script>
+</body>
+</html>

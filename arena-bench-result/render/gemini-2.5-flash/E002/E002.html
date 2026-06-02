@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phonics Fun for Kids!</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif; /* Child-friendly font */
+            background-color: #f7fddb; /* Light yellow background */
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent; /* Remove highlight on tap */
+        }
+
+        /* Container for content */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styles */
+        h1 {
+            text-align: center;
+            color: #ff6f61; /* Bright coral */
+            font-size: 2.8em; /* Large for kids */
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Phonics Grid Layout */
+        .phonics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive columns */
+            gap: 20px;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        /* Phonics Card Styles */
+        .phonics-card {
+            background-color: #e0f7fa; /* Light blue */
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease;
+            position: relative;
+            overflow: hidden; /* For active effect */
+        }
+
+        .phonics-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .phonics-card.active {
+            background-color: #c8e6c9; /* Light green when active */
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px #81c784 inset; /* Green border effect */
+        }
+
+        /* Phonics Combination Text */
+        .phonics-combo {
+            font-size: 3.2em; /* Very large for combination */
+            font-weight: bold;
+            color: #4caf50; /* Green */
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            text-transform: lowercase; /* Ensure uniform lowercase for display */
+        }
+
+        /* Words List */
+        .words {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Individual Word Styles */
+        .word {
+            background-color: #a7d9b5; /* Slightly darker green */
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-size: 1.6em; /* Large enough for touch */
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .word:hover {
+            background-color: #81c784; /* Darker green on hover */
+            transform: translateY(-2px);
+        }
+
+        .word.active {
+            background-color: #66bb6a; /* Even darker green when active */
+            transform: scale(1.05);
+            box-shadow: 0 0 0 2px #388e3c inset;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2.2em;
+                margin-bottom: 20px;
+            }
+            .container {
+                padding: 10px;
+            }
+            .phonics-grid {
+                grid-template-columns: 1fr; /* Stack cards on very small screens */
+                gap: 15px;
+            }
+            .phonics-card {
+                padding: 15px;
+            }
+            .phonics-combo {
+                font-size: 2.8em;
+                margin-bottom: 10px;
+            }
+            .word {
+                font-size: 1.4em;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Phonics Fun! ✨</h1>
+
+        <div class="phonics-grid">
+
+            <!-- Phonics Card: sh -->
+            <div class="phonics-card" data-phonics="sh">
+                <div class="phonics-combo">sh</div>
+                <div class="words">
+                    <span class="word" data-word="ship">ship</span>
+                    <span class="word" data-word="shell">shell</span>
+                    <span class="word" data-word="fish">fish</span>
+                    <span class="word" data-word="shop">shop</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: th -->
+            <div class="phonics-card" data-phonics="th">
+                <div class="phonics-combo">th</div>
+                <div class="words">
+                    <span class="word" data-word="three">three</span>
+                    <span class="word" data-word="thumb">thumb</span>
+                    <span class="word" data-word="bath">bath</span>
+                    <span class="word" data-word="think">think</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: ch -->
+            <div class="phonics-card" data-phonics="ch">
+                <div class="phonics-combo">ch</div>
+                <div class="words">
+                    <span class="word" data-word="chair">chair</span>
+                    <span class="word" data-word="cherry">cherry</span>
+                    <span class="word" data-word="much">much</span>
+                    <span class="word" data-word="check">check</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: ai -->
+            <div class="phonics-card" data-phonics="ai">
+                <div class="phonics-combo">ai</div>
+                <div class="words">
+                    <span class="word" data-word="rain">rain</span>
+                    <span class="word" data-word="train">train</span>
+                    <span class="word" data-word="paint">paint</span>
+                    <span class="word" data-word="wait">wait</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: ee -->
+            <div class="phonics-card" data-phonics="ee">
+                <div class="phonics-combo">ee</div>
+                <div class="words">
+                    <span class="word" data-word="tree">tree</span>
+                    <span class="word" data-word="sleep">sleep</span>
+                    <span class="word" data-word="green">green</span>
+                    <span class="word" data-word="see">see</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: oo (long) -->
+            <div class="phonics-card" data-phonics="oo">
+                <div class="phonics-combo">oo</div>
+                <div class="words">
+                    <span class="word" data-word="moon">moon</span>
+                    <span class="word" data-word="food">food</span>
+                    <span class="word" data-word="spoon">spoon</span>
+                    <span class="word" data-word="cool">cool</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: oy -->
+            <div class="phonics-card" data-phonics="oy">
+                <div class="phonics-combo">oy</div>
+                <div class="words">
+                    <span class="word" data-word="toy">toy</span>
+                    <span class="word" data-word="boy">boy</span>
+                    <span class="word" data-word="enjoy">enjoy</span>
+                    <span class="word" data-word="noisy">noisy</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: ou -->
+            <div class="phonics-card" data-phonics="ou">
+                <div class="phonics-combo">ou</div>
+                <div class="words">
+                    <span class="word" data-word="cloud">cloud</span>
+                    <span class="word" data-word="house">house</span>
+                    <span class="word" data-word="mouse">mouse</span>
+                    <span class="word" data-word="out">out</span>
+                </div>
+            </div>
+
+            <!-- Phonics Card: ar -->
+            <div class="phonics-card" data-phonics="ar">
+                <div class="phonics-combo">ar</div>
+                <div class="words">
+                    <span class="word" data-word="car">car</span>
+                    <span class="word" data-word="farm">farm</span>
+                    <span class="word" data-word="star">star</span>
+                    <span class="word" data-word="park">park</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Check for Web Speech API support
+        if ('speechSynthesis' in window) {
+            const synth = window.speechSynthesis;
+            const phonicsCards = document.querySelectorAll('.phonics-card');
+
+            // Function to speak text
+            function speakText(text, element) {
+                // Cancel any ongoing speech to prevent overlap
+                synth.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US'; // Set language to US English
+                utterance.rate = 0.8;    // Speak a bit slower for kids
+                utterance.pitch = 1.2;   // Slightly higher pitch
+
+                // Add active class for visual feedback
+                element.classList.add('active');
+
+                utterance.onend = () => {
+                    element.classList.remove('active');
+                };
+                utterance.onerror = (event) => {
+                    console.error('Speech synthesis error:', event.error);
+                    element.classList.remove('active');
+                };
+
+                synth.speak(utterance);
+            }
+
+            phonicsCards.forEach(card => {
+                card.addEventListener('click', (event) => {
+                    let clickedElement = event.target;
+                    let textToSpeak = '';
+                    let activeElement = null;
+
+                    if (clickedElement.classList.contains('phonics-combo')) {
+                        textToSpeak = clickedElement.textContent;
+                        activeElement = card; // Highlight the whole card
+                    } else if (clickedElement.classList.contains('word')) {
+                        textToSpeak = clickedElement.dataset.word || clickedElement.textContent;
+                        activeElement = clickedElement; // Highlight the specific word
+                    } else if (clickedElement.classList.contains('phonics-card')) {
+                         // If the card itself is clicked but not a combo/word directly, speak the combo
+                        textToSpeak = clickedElement.querySelector('.phonics-combo').textContent;
+                        activeElement = clickedElement;
+                    }
+
+
+                    if (textToSpeak && activeElement) {
+                        speakText(textToSpeak, activeElement);
+                    }
+                });
+            });
+
+        } else {
+            // Fallback for browsers that don't support Web Speech API
+            console.warn('Web Speech API is not supported in this browser.');
+            const container = document.querySelector('.container');
+            const warning = document.createElement('p');
+            warning.style.textAlign = 'center';
+            warning.style.color = 'red';
+            warning.style.fontSize = '1.2em';
+            warning.textContent = 'Oops! Your browser does not support speech. Try Google Chrome or Safari.';
+            container.insertBefore(warning, container.firstChild);
+        }
+    </script>
+</body>
+</html>

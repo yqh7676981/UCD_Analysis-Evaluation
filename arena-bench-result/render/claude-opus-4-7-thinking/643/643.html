@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>复合增长的力量 · 标普 500 长期投资可视化</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+    color: #e8eef5;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  .hero {
+    text-align: center;
+    padding: 80px 20px 60px;
+    background: radial-gradient(ellipse at top, rgba(100, 200, 255, 0.15), transparent 70%);
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    background: linear-gradient(90deg, #7ee8fa, #eec0c6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+  }
+  .hero p {
+    font-size: 1.15rem;
+    color: #b8c6d3;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+  }
+  .stat-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+  .stat-value {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #7ee8fa;
+    margin-bottom: 6px;
+  }
+  .stat-label {
+    font-size: 0.95rem;
+    color: #b8c6d3;
+  }
+  .chart-section {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(10px);
+  }
+  .chart-section h2 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    color: #ffffff;
+  }
+  .chart-section .subtitle {
+    color: #b8c6d3;
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+  }
+  .chart-wrapper {
+    position: relative;
+    height: 420px;
+  }
+  .chart-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  .chart-controls button {
+    background: rgba(126, 232, 250, 0.1);
+    color: #e8eef5;
+    border: 1px solid rgba(126, 232, 250, 0.3);
+    padding: 8px 18px;
+    border-radius: 24px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.25s;
+  }
+  .chart-controls button:hover { background: rgba(126, 232, 250, 0.25); }
+  .chart-controls button.active {
+    background: linear-gradient(90deg, #7ee8fa, #4facfe);
+    color: #0f2027;
+    border-color: transparent;
+    font-weight: 600;
+  }
+  .calculator {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+  }
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .calc-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #b8c6d3;
+    font-size: 0.9rem;
+  }
+  .calc-field input[type="range"] {
+    width: 100%;
+    accent-color: #7ee8fa;
+  }
+  .calc-field .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #7ee8fa;
+  }
+  .calc-result {
+    background: linear-gradient(135deg, rgba(126, 232, 250, 0.15), rgba(79, 172, 254, 0.15));
+    border-radius: 14px;
+    padding: 24px;
+    text-align: center;
+  }
+  .calc-result .big {
+    font-size: 2.8rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #7ee8fa, #eec0c6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .insights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .insight-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 4px solid #7ee8fa;
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .insight-card h3 {
+    color: #7ee8fa;
+    margin-bottom: 10px;
+    font-size: 1.15rem;
+  }
+  .insight-card p {
+    color: #c9d5e0;
+    font-size: 0.95rem;
+  }
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    color: #8a9aaa;
+    font-size: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    margin-top: 40px;
+  }
+  @media (max-width: 600px) {
+    .chart-wrapper { height: 320px; }
+    .stat-value { font-size: 1.8rem; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <h1>复合增长的力量</h1>
+  <p>通过标普 500 指数近一个世纪的数据，直观感受时间如何将每一分投资放大成巨大的财富。</p>
+</section>
+
+<div class="container">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="stat1">~10%</div>
+      <div class="stat-label">年均总回报率（含股息）</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat2">96 年</div>
+      <div class="stat-label">历史观察区间（1928–2024）</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat3">$10 → $74,000+</div>
+      <div class="stat-label">1 美元在 96 年后的理论增长</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat4">500</div>
+      <div class="stat-label">美国最大上市公司覆盖</div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2>📈 标普 500 长期走势</h2>
+    <p class="subtitle">以指数点位的对数/线性视角观察长达数十年的增长趋势，穿越多次危机依然向上。</p>
+    <div class="chart-controls">
+      <button data-scale="linear" class="active">线性坐标</button>
+      <button data-scale="logarithmic">对数坐标</button>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="spChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2>💰 $10,000 的时间之旅</h2>
+    <p class="subtitle">如果在不同年份投入 10,000 美元并持续再投资，今天的价值将是多少？</p>
+    <div class="chart-wrapper">
+      <canvas id="growthChart"></canvas>
+    </div>
+  </div>
+
+  <div class="calculator">
+    <h2>🧮 复合增长计算器</h2>
+    <p class="subtitle" style="margin-bottom:24px;">调整参数，亲眼看见复利的雪球效应。</p>
+    <div class="calc-grid">
+      <div class="calc-field">
+        <label>初始投资：<span class="value" id="initVal">$10,000</span></label>
+        <input type="range" id="initial" min="1000" max="100000" step="1000" value="10000">
+      </div>
+      <div class="calc-field">
+        <label>年化回报率：<span class="value" id="rateVal">10%</span></label>
+        <input type="range" id="rate" min="1" max="15" step="0.5" value="10">
+      </div>
+      <div class="calc-field">
+        <label>投资年限：<span class="value" id="yearsVal">30 年</span></label>
+        <input type="range" id="years" min="5" max="50" step="1" value="30">
+      </div>
+    </div>
+    <div class="calc-result">
+      <div style="color:#b8c6d3; margin-bottom:8px;">预计最终价值</div>
+      <div class="big" id="finalValue">$174,494</div>
+      <div style="color:#b8c6d3; margin-top:8px;">净收益 <span id="gain" style="color:#7ee8fa; font-weight:600;">$164,494</span></div>
+    </div>
+    <div class="chart-wrapper" style="height: 320px; margin-top: 30px;">
+      <canvas id="calcChart"></canvas>
+    </div>
+  </div>
+
+  <div class="insights">
+    <div class="insight-card">
+      <h3>⏱️ 时间胜过时机</h3>
+      <p>长期持有标普 500 几乎总能跑赢试图择时进出的策略。错过市场表现最好的 10 天，长期回报可能被腰斩。</p>
+    </div>
+    <div class="insight-card">
+      <h3>🔁 再投资股息</h3>
+      <p>股息再投资贡献了标普 500 长期总回报的约 40%。让收益继续赚收益，才是复利真正的引擎。</p>
+    </div>
+    <div class="insight-card">
+      <h3>🌪️ 穿越周期</h3>
+      <p>大萧条、石油危机、互联网泡沫、2008 金融危机、2020 疫情……历经所有危机，指数仍在向上。</p>
+    </div>
+    <div class="insight-card">
+      <h3>📐 72 法则</h3>
+      <p>用 72 除以年化回报率，可粗略估算翻倍所需年数。按 10% 计算，约每 7.2 年本金翻一番。</p>
+    </div>
+  </div>
+</div>
+
+<footer>
+  数据为基于历史平均的示意性数值，仅用于教育展示，不构成投资建议。<br>
+  © Compound Growth Visualizer
+</footer>
+
+<script>
+  // 历史数据（年末收盘价近似值，用于展示趋势）
+  const historyYears = [1928,1935,1940,1945,1950,1955,1960,1965,1970,1975,1980,1985,1990,1995,2000,2005,2010,2015,2020,2024];
+  const historyPrices = [17,13,10,15,20,45,58,92,92,90,135,211,330,615,1320,1248,1257,2043,3756,5880];
+
+  // 按 10% 年化扩展后的理论 $1 增长曲线起点年
+  const invYears = [];
+  const invGrowth = [];
+  for (let y = 1928; y <= 2024; y += 4) {
+    invYears.push(y);
+    const yearsInv = 2024 - y;
+    invGrowth.push(10000 * Math.pow(1.10, yearsInv));
+  }
+
+  const gridColor = 'rgba(255,255,255,0.08)';
+  const tickColor = '#b8c6d3';
+
+  // 主图：标普走势
+  const ctx1 = document.getElementById('spChart').getContext('2d');
+  const grad = ctx1.createLinearGradient(0, 0, 0, 420);
+  grad.addColorStop(0, 'rgba(126, 232, 250, 0.5)');
+  grad.addColorStop(1, 'rgba(126, 232, 250, 0)');
+
+  const spChart = new Chart(ctx1, {
+    type: 'line',
+    data: {
+      labels: historyYears,
+      datasets: [{
+        label: 'S&P 500 指数点位',
+        data: historyPrices,
+        borderColor: '#7ee8fa',
+        backgroundColor: grad,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: '#7ee8fa'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#e8eef5' } },
+        tooltip: {
+          callbacks: {
+            label: (c) => `指数: ${c.parsed.y.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+        y: {
+          grid: { color: gridColor },
+          ticks: { color: tickColor, callback: (v) => v.toLocaleString() }
+        }
+      }
+    }
+  });
+
+  document.querySelectorAll('.chart-controls button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.chart-controls button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      spChart.options.scales.y.type = btn.dataset.scale;
+      spChart.update();
+    });
+  });
+
+  // 第二张图：$10,000 的增长
+  const ctx2 = document.getElementById('growthChart').getContext('2d');
+  const grad2 = ctx2.createLinearGradient(0, 0, 0, 420);
+  grad2.addColorStop(0, 'rgba(238, 192, 198, 0.5)');
+  grad2.addColorStop(1, 'rgba(238, 192, 198, 0)');
+
+  new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels: invYears,
+      datasets: [{
+        label: '$10,000 在 10% 年化下的增长',
+        data: invGrowth,
+        borderColor: '#eec0c6',
+        backgroundColor: grad2,
+        borderWidth: 2.5,
+        fill: true,
+        tension: 0.3,
+        pointRadius: 2,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#e8eef5' } },
+        tooltip: {
+          callbacks: {
+            label: (c) => `$${Math.round(c.parsed.y).toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+        y: {
+          type: 'logarithmic',
+          grid: { color: gridColor },
+          ticks: { color: tickColor, callback: (v) => '$' + v.toLocaleString() }
+        }
+      }
+    }
+  });
+
+  // 计算器
+  const initialEl = document.getElementById('initial');
+  const rateEl = document.getElementById('rate');
+  const yearsEl = document.getElementById('years');
+  const initValEl = document.getElementById('initVal');
+  const rateValEl = document.getElementById('rateVal');
+  const yearsValEl = document.getElementById('yearsVal');
+  const finalValueEl = document.getElementById('finalValue');
+  const gainEl = document.getElementById('gain');
+
+  const ctx3 = document.getElementById('calcChart').getContext('2d');
+  const grad3 = ctx3.createLinearGradient(0, 0, 0, 320);
+  grad3.addColorStop(0, 'rgba(79, 172, 254, 0.5)');
+  grad3.addColorStop(1, 'rgba(79, 172, 254, 0)');
+
+  const calcChart = new Chart(ctx3, {
+    type: 'line',
+    data: { labels: [], datasets: [{
+      label: '投资组合价值',
+      data: [],
+      borderColor: '#4facfe',
+      backgroundColor: grad3,
+      borderWidth: 2.5,
+      fill: true,
+      tension: 0.3,
+      pointRadius: 0,
+      pointHoverRadius: 5
+    }] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#e8eef5' } },
+        tooltip: { callbacks: { label: (c) => `$${Math.round(c.parsed.y).toLocaleString()}` } }
+      },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, callback: (v) => '$' + v.toLocaleString() } }
+      }
+    }
+  });
+
+  function updateCalc() {
+    const initial = parseFloat(initialEl.value);
+    const rate = parseFloat(rateEl.value) / 100;
+    const years = parseInt(yearsEl.value);
+
+    initValEl.textContent = '$' + initial.toLocaleString();
+    rateValEl.textContent = (rate * 100).toFixed(1) + '%';
+    yearsValEl.textContent = years + ' 年';
+
+    const labels = [];
+    const data = [];
+    for (let y = 0; y <= years; y++) {
+      labels.push('第 ' + y + ' 年');
+      data.push(initial * Math.pow(1 + rate, y));
+    }
+    const final = data[data.length - 1];
+    finalValueEl.textContent = '$' + Math.round(final).toLocaleString();
+    gainEl.textContent = '$' + Math.round(final - initial).toLocaleString();
+
+    calcChart.data.labels = labels;
+    calcChart.data.datasets[0].data = data;
+    calcChart.update();
+  }
+
+  [initialEl, rateEl, yearsEl].forEach(el => el.addEventListener('input', updateCalc));
+  updateCalc();
+</script>
+</body>
+</html>

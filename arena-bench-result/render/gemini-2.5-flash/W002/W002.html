@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件倒计时</title>
+    <style>
+        /* 全局样式和重置 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        /* 标题和布局 */
+        header {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1.2em 1em;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        main {
+            padding: 1em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 最近事件显示 */
+        #nearest-event {
+            background-color: #e74c3c;
+            color: #fff;
+            padding: 1.5em 1em;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 1.5em;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            font-size: 1.1em;
+        }
+
+        #nearest-event h2 {
+            margin-top: 0;
+            font-size: 1.6em;
+            margin-bottom: 0.5em;
+        }
+
+        #nearest-event .days-remaining {
+            font-size: 3em;
+            font-weight: bold;
+            display: block;
+            margin-top: 0.2em;
+        }
+
+        #nearest-event.no-events {
+            background-color: #95a5a6;
+        }
+
+        /* 添加事件区域 */
+        #add-event-section {
+            background-color: #fff;
+            padding: 1.5em;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2em;
+        }
+
+        #add-event-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 1em;
+        }
+
+        .input-group {
+            margin-bottom: 1em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        button:active {
+            background-color: #2980b9;
+            transform: translateY(1px);
+        }
+
+        /* 事件列表 */
+        #event-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .event-item {
+            background-color: #fff;
+            margin-bottom: 1em;
+            padding: 1em 1.2em;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* 允许项目在小屏幕上换行 */
+        }
+
+        .event-item.passed {
+            background-color: #ecf0f1;
+            color: #7f8c8d;
+            border-left: 5px solid #bdc3c7;
+        }
+
+        .event-details {
+            flex-grow: 1;
+            margin-right: 1em;
+            min-width: 150px; /* 确保在小屏幕下有足够空间 */
+        }
+
+        .event-details h4 {
+            margin: 0 0 0.2em 0;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+
+        .event-details .event-date {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 0.5em;
+        }
+
+        .event-details .days-display {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #e67e22;
+        }
+
+        .event-item.passed .days-display {
+            color: #7f8c8d;
+        }
+
+        .delete-btn {
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 50%; /* 圆形按钮 */
+            width: 36px;
+            height: 36px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0; /* 移除内边距，让图标居中 */
+            flex-shrink: 0; /* 防止按钮缩小 */
+        }
+
+        .delete-btn:hover {
+            background-color: #a93226;
+        }
+
+        .delete-btn:active {
+            background-color: #a93226;
+            transform: translateY(1px);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6em;
+            }
+            #nearest-event h2 {
+                font-size: 1.4em;
+            }
+            #nearest-event .days-remaining {
+                font-size: 2.5em;
+            }
+            .event-item {
+                flex-direction: column; /* 小屏幕上垂直堆叠 */
+                align-items: flex-start;
+            }
+            .event-details {
+                margin-right: 0;
+                margin-bottom: 0.8em;
+                width: 100%;
+            }
+            .delete-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+                align-self: flex-end; /* 按钮靠右 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>事件倒计时</h1>
+    </header>
+
+    <main>
+        <section id="nearest-event" class="no-events">
+            <h2>最近事件</h2>
+            <p id="nearest-event-name">暂无事件</p>
+            <span class="days-remaining" id="nearest-event-days">0</span>
+            <span>天</span>
+        </section>
+
+        <section id="add-event-section">
+            <h3>添加新事件</h3>
+            <div class="input-group">
+                <label for="eventName">事件名称</label>
+                <input type="text" id="eventName" placeholder="例如：生日、考试、项目截止" required>
+            </div>
+            <div class="input-group">
+                <label for="eventDate">日期</label>
+                <input type="date" id="eventDate" required>
+            </div>
+            <button id="addEventBtn">添加事件</button>
+        </section>
+
+        <section id="event-list-container">
+            <h3>所有事件</h3>
+            <ul id="event-list">
+                <!-- 事件将通过 JavaScript 渲染到这里 -->
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        const eventNameInput = document.getElementById('eventName');
+        const eventDateInput = document.getElementById('eventDate');
+        const addEventBtn = document.getElementById('addEventBtn');
+        const eventList = document.getElementById('event-list');
+        const nearestEventSection = document.getElementById('nearest-event');
+        const nearestEventName = document.getElementById('nearest-event-name');
+        const nearestEventDays = document.getElementById('nearest-event-days');
+
+        let events = [];
+
+        // 初始化：加载事件并显示
+        document.addEventListener('DOMContentLoaded', () => {
+            loadEvents();
+            renderEvents();
+            displayNearestEvent();
+        });
+
+        // 添加事件按钮点击事件
+        addEventBtn.addEventListener('click', addEvent);
+
+        // 加载事件
+        function loadEvents() {
+            const storedEvents = localStorage.getItem('countdownEvents');
+            if (storedEvents) {
+                events = JSON.parse(storedEvents);
+            }
+        }
+
+        // 保存事件
+        function saveEvents() {
+            localStorage.setItem('countdownEvents', JSON.stringify(events));
+        }
+
+        // 计算天数
+        function calculateDaysRemaining(targetDateString) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // 将今天的时间设置为午夜0点
+
+            const targetDate = new Date(targetDateString);
+            targetDate.setHours(0, 0, 0, 0); // 将目标日期的时间也设置为午夜0点
+
+            const diffTime = targetDate.getTime() - today.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // 向上取整，确保当天也算一天
+
+            return diffDays;
+        }
+
+        // 渲染所有事件列表
+        function renderEvents() {
+            eventList.innerHTML = ''; // 清空现有列表
+
+            // 对事件进行排序：未过期事件在前，按日期升序；已过期事件在后，按日期降序
+            const sortedEvents = [...events].sort((a, b) => {
+                const daysA = calculateDaysRemaining(a.date);
+                const daysB = calculateDaysRemaining(b.date);
+
+                if (daysA < 0 && daysB >= 0) return 1; // B是未来事件，A是过去事件，B在前
+                if (daysA >= 0 && daysB < 0) return -1; // A是未来事件，B是过去事件，A在前
+
+                // 都是未来事件，按天数升序
+                if (daysA >= 0 && daysB >= 0) return daysA - daysB;
+                // 都是过去事件，按天数降序（最近过去的在前）
+                if (daysA < 0 && daysB < 0) return daysB - daysA;
+
+                return 0;
+            });
+
+
+            if (sortedEvents.length === 0) {
+                eventList.innerHTML = '<li style="text-align: center; color: #7f8c8d; margin-top: 1em;">暂无事件，快来添加一个吧！</li>';
+                return;
+            }
+
+            sortedEvents.forEach((event, index) => {
+                const days = calculateDaysRemaining(event.date);
+                const listItem = document.createElement('li');
+                listItem.classList.add('event-item');
+                if (days < 0) {
+                    listItem.classList.add('passed');
+                }
+
+                let daysText;
+                if (days > 0) {
+                    daysText = `${days} 天`;
+                } else if (days === 0) {
+                    daysText = '今天！';
+                } else {
+                    daysText = `已过 ${Math.abs(days)} 天`;
+                }
+
+                listItem.innerHTML = `
+                    <div class="event-details">
+                        <h4>${event.name}</h4>
+                        <p class="event-date">${event.date}</p>
+                        <p class="days-display">${daysText}</p>
+                    </div>
+                    <button class="delete-btn" data-index="${events.indexOf(event)}">✕</button>
+                `;
+                eventList.appendChild(listItem);
+            });
+
+            // 为每个删除按钮添加事件监听器
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    deleteEvent(index);
+                });
+            });
+        }
+
+        // 显示最近的事件
+        function displayNearestEvent() {
+            let nearest = null;
+            let minDays = Infinity;
+
+            events.forEach(event => {
+                const days = calculateDaysRemaining(event.date);
+                // 只考虑未来的事件（或今天）
+                if (days >= 0 && days < minDays) {
+                    minDays = days;
+                    nearest = event;
+                }
+            });
+
+            if (nearest) {
+                nearestEventSection.classList.remove('no-events');
+                nearestEventName.textContent = nearest.name;
+                if (minDays === 0) {
+                    nearestEventDays.textContent = '0'; // '今天！'
+                    nearestEventSection.querySelector('span:last-child').textContent = '天 (今天!)';
+                } else {
+                    nearestEventDays.textContent = minDays;
+                    nearestEventSection.querySelector('span:last-child').textContent = '天';
+                }
+
+            } else {
+                nearestEventSection.classList.add('no-events');
+                nearestEventName.textContent = '暂无事件';
+                nearestEventDays.textContent = '0';
+                nearestEventSection.querySelector('span:last-child').textContent = '天';
+            }
+        }
+
+        // 添加事件
+        function addEvent() {
+            const name = eventNameInput.value.trim();
+            const date = eventDateInput.value;
+
+            if (!name || !date) {
+                alert('请填写事件名称和日期！');
+                return;
+            }
+
+            const newEvent = { name, date };
+            events.push(newEvent);
+            saveEvents();
+            renderEvents();
+            displayNearestEvent();
+
+            // 清空表单
+            eventNameInput.value = '';
+            eventDateInput.value = '';
+        }
+
+        // 删除事件
+        function deleteEvent(index) {
+            if (confirm('确定要删除此事件吗？')) {
+                events.splice(index, 1);
+                saveEvents();
+                renderEvents();
+                displayNearestEvent();
+            }
+        }
+    </script>
+</body>
+</html>

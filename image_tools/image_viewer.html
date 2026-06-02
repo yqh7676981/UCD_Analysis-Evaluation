@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Render 图片浏览器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .controls select, .controls input {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .controls input {
+            min-width: 200px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .model-section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .model-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .model-badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .image-card {
+            background: #fafafa;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .image-card.hidden {
+            display: none;
+        }
+
+        .image-wrapper {
+            position: relative;
+            padding-top: 75%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            overflow: hidden;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .image-wrapper.loaded {
+            animation: none;
+            background: #e0e0e0;
+        }
+
+        .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s, transform 0.3s;
+            opacity: 0;
+        }
+
+        .image-wrapper img.loaded {
+            opacity: 1;
+        }
+
+        .image-card:hover .image-wrapper img.loaded {
+            transform: scale(1.05);
+        }
+
+        .image-info {
+            padding: 12px 15px;
+        }
+
+        .image-id {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .image-path {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .lightbox img {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 4px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-info {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .lightbox-close:hover {
+            opacity: 1;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            padding: 20px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            user-select: none;
+        }
+
+        .lightbox-nav:hover {
+            opacity: 1;
+        }
+
+        .lightbox-prev {
+            left: 20px;
+        }
+
+        .lightbox-next {
+            right: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Render 图片浏览器</h1>
+        <div class="stats" id="stats">
+            <span>加载中...</span>
+        </div>
+        <div class="controls">
+            <select id="modelFilter">
+                <option value="all">所有模型</option>
+            </select>
+            <input type="text" id="searchInput" placeholder="搜索任务 ID...">
+            <select id="layoutSelect">
+                <option value="grid">网格视图</option>
+                <option value="compact">紧凑视图</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="container" id="container">
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <span class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#8249;</span>
+        <span class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#8250;</span>
+        <div class="lightbox-content">
+            <img id="lightboxImg" src="" alt="">
+            <div class="lightbox-info" id="lightboxInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        const models = [
+            'claude-opus-4-7-thinking',
+            'deepseek-v4-flash',
+            'gemini-2.5-flash',
+            'glm-5-turbo',
+            'gpt-4o',
+            'qwen3-235b-a22b-instruct-2507'
+        ];
+
+        // 实际存在的任务ID（从目录扫描得到）
+        const actualTaskIds = [
+            '58', '77', '81', '97', '117', '197', '250', '252', '259', '285',
+            '296', '316', '395', '437', '439', '451', '490', '582', '611', '633',
+            '643', '705', '782', '825', '840',
+            'E001', 'E002', 'E003', 'E004', 'E005', 'E006',
+            'G001', 'G002', 'G003', 'G004', 'G005',
+            'H001', 'H002',
+            'U001', 'U002', 'U003', 'U004', 'U005', 'U006', 'U007', 'U008',
+            'W001', 'W002', 'W003', 'W004'
+        ];
+
+        let allImages = [];
+        let filteredImages = [];
+        let currentImageIndex = 0;
+        let imageObserver;
+
+        function initModelSelect() {
+            const select = document.getElementById('modelFilter');
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                select.appendChild(option);
+            });
+        }
+
+        function initIntersectionObserver() {
+            imageObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        const src = img.dataset.src;
+                        if (src && !img.src) {
+                            img.src = src;
+                            img.onload = () => {
+                                img.classList.add('loaded');
+                                img.parentElement.classList.add('loaded');
+                            };
+                            img.onerror = () => {
+                                img.style.display = 'none';
+                            };
+                        }
+                        imageObserver.unobserve(img);
+                    }
+                });
+            }, {
+                rootMargin: '50px 0px',
+                threshold: 0.01
+            });
+        }
+
+        async function loadImages() {
+            const container = document.getElementById('container');
+            allImages = [];
+
+            // 按模型分组
+            const modelGroups = {};
+
+            for (const model of models) {
+                modelGroups[model] = [];
+
+                for (const taskId of actualTaskIds) {
+                    const imgPath = `../arena-bench-result/render/${model}/${taskId}/${taskId}.png`;
+                    modelGroups[model].push({
+                        path: imgPath,
+                        model: model,
+                        taskId: taskId
+                    });
+                }
+            }
+
+            // 创建DOM - 优先加载前面可见的内容
+            const fragment = document.createDocumentFragment();
+
+            for (const model of models) {
+                const modelSection = document.createElement('div');
+                modelSection.className = 'model-section';
+                modelSection.dataset.model = model;
+
+                const title = document.createElement('h2');
+                title.className = 'model-title';
+                title.innerHTML = `${model} <span class="model-badge">${modelGroups[model].length}</span>`;
+                modelSection.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'image-grid';
+
+                modelGroups[model].forEach((imgData, index) => {
+                    const card = createImageCard(imgData, index < 12); // 前12个立即加载，其他的懒加载
+                    grid.appendChild(card);
+                    imgData.element = card;
+                    allImages.push(imgData);
+                });
+
+                modelSection.appendChild(grid);
+                fragment.appendChild(modelSection);
+            }
+
+            container.appendChild(fragment);
+
+            updateStats();
+            filteredImages = [...allImages];
+        }
+
+        function createImageCard(imgData, loadImmediately) {
+            const card = document.createElement('div');
+            card.className = 'image-card';
+            card.dataset.model = imgData.model;
+            card.dataset.taskId = imgData.taskId;
+            card.onclick = () => openLightbox(imgData.path, imgData.model, imgData.taskId);
+
+            const img = document.createElement('img');
+            img.alt = imgData.taskId;
+            img.dataset.src = imgData.path;
+
+            if (loadImmediately) {
+                // 立即加载前几个
+                img.src = imgData.path;
+                img.onload = () => {
+                    img.classList.add('loaded');
+                };
+                img.onerror = () => {
+                    img.style.display = 'none';
+                };
+            } else {
+                // 其他的用 intersection observer 懒加载
+                imageObserver.observe(img);
+            }
+
+            card.innerHTML = `
+                <div class="image-wrapper">
+                </div>
+                <div class="image-info">
+                    <div class="image-id">任务 ${imgData.taskId}</div>
+                    <div class="image-path">${imgData.model}</div>
+                </div>
+            `;
+
+            card.querySelector('.image-wrapper').appendChild(img);
+
+            return card;
+        }
+
+        function updateStats() {
+            const stats = document.getElementById('stats');
+            const totalImages = allImages.length;
+            const totalModels = models.length;
+            stats.innerHTML = `
+                <span>${totalModels} 个模型</span>
+                <span>|</span>
+                <span>${actualTaskIds.length} 个任务</span>
+                <span>|</span>
+                <span>${totalImages} 张图片</span>
+            `;
+        }
+
+        function filterImages() {
+            const modelFilter = document.getElementById('modelFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+
+            filteredImages = allImages.filter(img => {
+                const matchModel = modelFilter === 'all' || img.model === modelFilter;
+                const matchSearch = img.taskId.toLowerCase().includes(searchInput);
+                return matchModel && matchSearch;
+            });
+
+            // 更新显示
+            allImages.forEach(img => {
+                const isVisible = filteredImages.includes(img);
+                img.element.classList.toggle('hidden', !isVisible);
+
+                // 如果显示且图片未加载，触发加载
+                if (isVisible && !img.element.querySelector('img').src) {
+                    const imgEl = img.element.querySelector('img');
+                    imgEl.src = imgEl.dataset.src;
+                }
+            });
+
+            // 更新模型区域显示
+            document.querySelectorAll('.model-section').forEach(section => {
+                const model = section.dataset.model;
+                const hasVisible = filteredImages.some(img => img.model === model);
+                section.style.display = hasVisible ? 'block' : 'none';
+
+                const visibleCount = filteredImages.filter(img => img.model === model).length;
+                const badge = section.querySelector('.model-badge');
+                if (badge) badge.textContent = visibleCount;
+            });
+        }
+
+        function switchLayout() {
+            const layout = document.getElementById('layoutSelect').value;
+            const grids = document.querySelectorAll('.image-grid');
+            grids.forEach(grid => {
+                if (layout === 'compact') {
+                    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
+                } else {
+                    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
+                }
+            });
+        }
+
+        function openLightbox(path, model, taskId) {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImg');
+            const info = document.getElementById('lightboxInfo');
+
+            img.src = path;
+            info.textContent = `${model} - 任务 ${taskId}`;
+
+            lightbox.classList.add('active');
+
+            currentImageIndex = filteredImages.findIndex(img =>
+                img.path === path && img.model === model && img.taskId === taskId
+            );
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        function navigateLightbox(direction) {
+            if (filteredImages.length === 0) return;
+
+            currentImageIndex += direction;
+            if (currentImageIndex < 0) currentImageIndex = filteredImages.length - 1;
+            if (currentImageIndex >= filteredImages.length) currentImageIndex = 0;
+
+            const img = filteredImages[currentImageIndex];
+            document.getElementById('lightboxImg').src = img.path;
+            document.getElementById('lightboxInfo').textContent = `${img.model} - 任务 ${img.taskId}`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('lightbox');
+            if (!lightbox.classList.contains('active')) return;
+
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') navigateLightbox(-1);
+            if (e.key === 'ArrowRight') navigateLightbox(1);
+        });
+
+        document.getElementById('modelFilter').addEventListener('change', filterImages);
+        document.getElementById('searchInput').addEventListener('input', filterImages);
+        document.getElementById('layoutSelect').addEventListener('change', switchLayout);
+
+        // 初始化
+        initModelSelect();
+        initIntersectionObserver();
+        loadImages();
+    </script>
+</body>
+</html>

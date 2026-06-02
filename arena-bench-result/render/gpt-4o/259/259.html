@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Watch Store - Checkout</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header, .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            margin: 0;
+            list-style: none;
+            background: #f4f4f4;
+        }
+
+        .progress-bar li {
+            text-align: center;
+            font-size: 14px;
+            flex: 1;
+            color: #999;
+            position: relative;
+        }
+
+        .progress-bar li.active {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .progress-bar li::after {
+            content: '';
+            width: calc(100% - 20px);
+            height: 2px;
+            background: #ddd;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+        }
+
+        .progress-bar li:first-child::after {
+            content: none;
+        }
+
+        .progress-bar li.active::after {
+            background: #333;
+        }
+
+        .main {
+            padding: 20px;
+        }
+
+        .summary, .payment {
+            margin-bottom: 20px;
+        }
+
+        .summary h3, .payment h3 {
+            font-size: 18px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .summary-table th, .summary-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-table th {
+            font-weight: bold;
+        }
+
+        .summary-table .total-row {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .payment input, .payment select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .checkout-btn {
+            display: block;
+            width: 100%;
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            background: #555;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Luxury Watch Store - Secure Checkout</div>
+        
+        <ul class="progress-bar">
+            <li class="active">Cart</li>
+            <li class="active">Details</li>
+            <li>Payment</li>
+            <li>Confirmation</li>
+        </ul>
+
+        <div class="main">
+            <div class="summary">
+                <h3>Order Summary</h3>
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Luxury Watch Model A</td>
+                            <td>1</td>
+                            <td>$5,000</td>
+                        </tr>
+                        <tr>
+                            <td>Deluxe Watch Model B</td>
+                            <td>1</td>
+                            <td>$3,000</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td>Total</td>
+                            <td></td>
+                            <td>$8,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="payment">
+                <h3>Payment Details</h3>
+                <form>
+                    <label for="card-name">Cardholder Name</label>
+                    <input type="text" id="card-name" placeholder="Enter your name" required>
+
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" required>
+
+                    <label for="expiry-date">Expiry Date</label>
+                    <input type="text" id="expiry-date" placeholder="MM/YY" maxlength="5" required>
+
+                    <label for="cvv">CVV</label>
+                    <input type="password" id="cvv" placeholder="###" maxlength="3" required>
+
+                    <a href="#" class="checkout-btn" onclick="alert('Payment processed successfully!')">Place Order</a>
+                </form>
+            </div>
+        </div>
+
+        <div class="footer">&copy; 2023 Luxury Watch Store. All rights reserved.</div>
+    </div>
+</body>
+</html>

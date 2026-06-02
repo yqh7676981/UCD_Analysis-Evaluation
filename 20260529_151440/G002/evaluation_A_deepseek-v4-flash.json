@@ -1,0 +1,33 @@
+{
+  "index": 104,
+  "id": "G002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做一个经典贪吃蛇小游戏，方向键控制移动，吃到食物变长，碰到自己就 game over，显示当前长度和最高纪录。",
+  "evaluation": {
+    "total_score": 78,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent dark game-panel style with consistent rounded cards, restrained neon accents, and a clear single-screen mobile layout. The tone fits a casual snake game, though the look is somewhat generic and the playfield lacks a stronger focal treatment."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography, spacing, corner radii, shadows, and control button styling are mostly consistent and polished. The score pill, board frame, and directional controls feel finished, but some elements are visually small for mobile, and the reset icon is less prominent and slightly weaker in contrast than the arrow controls."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can immediately identify the title, current length, record, play area, food, snake, and control zone. The layout is uncluttered and the task flow is obvious. However, the scoreboard is compact, and there is no explicit game state messaging visible in the screenshot such as start, paused, or game-over feedback."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Directional controls match the requested movement model and the length/high-score display is semantically clear. The core rules are inferable from the familiar genre, but there are no visible text hints for controls, no clear game-over/state feedback, and the center reset/restart action relies on icon interpretation alone."
+      }
+    },
+    "summary": "This is a strong, usable mobile snake-game UI with clear scenario fit, clean visual consistency, and an obvious main interaction model. The main limitations are around operational clarity and feedback rather than aesthetics: the interface shown does not communicate states like start, pause, or game over, and the reset action is somewhat icon-dependent. Good visual execution and task recognizability support a solid score, but missing feedback loops prevent a higher rating."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G002_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:38:09.929006"
+}

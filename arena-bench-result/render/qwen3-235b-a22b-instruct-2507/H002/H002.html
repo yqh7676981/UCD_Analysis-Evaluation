@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>每日喝水追踪</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef7fa;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            touch-action: manipulation;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #0077cc;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .goal-setting {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="number"] {
+            width: 80px;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 2px solid #cce7ff;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        button#set-goal {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #0077cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button#set-goal:hover {
+            background-color: #005fa3;
+        }
+
+        .water-tracker {
+            width: 120px;
+            height: 300px;
+            background-color: #a0d8f1;
+            border-radius: 60px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+            border: 6px solid #6caed6;
+        }
+
+        .water-level {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #35a9e0;
+            border-radius: 60px 60px 0 0;
+            transition: height 0.5s ease-in-out;
+            box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: rise linear infinite;
+        }
+
+        @keyframes rise {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-105%) translateX(20px);
+                opacity: 0;
+            }
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #0077cc;
+            font-weight: bold;
+        }
+
+        button#drink-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            background-color: #00c853;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button#drink-btn:active {
+            transform: scale(0.98);
+            background-color: #00a040;
+        }
+
+        button#reset-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button#reset-btn:hover {
+            background-color: #e64a19;
+        }
+
+        @media (max-height: 600px), (max-width: 350px) {
+            .water-tracker {
+                height: 200px;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            button#drink-btn {
+                padding: 12px 24px;
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>💧 每日喝水追踪</h1>
+    <div class="container">
+        <div class="goal-setting">
+            <label for="goal-input">今日目标（杯）</label>
+            <input type="number" id="goal-input" min="1" max="20" value="8" />
+            <button id="set-goal">设定目标</button>
+        </div>
+
+        <div class="water-tracker" id="tracker">
+            <div class="water-level" id="water-level"></div>
+            <!-- bubbles will be added dynamically -->
+        </div>
+
+        <div class="status" id="status">已喝 0 / 8 杯</div>
+
+        <button id="drink-btn">我喝水啦！</button>
+        <button id="reset-btn">重置今天</button>
+    </div>
+
+    <script>
+        // 获取元素
+        const goalInput = document.getElementById('goal-input');
+        const setGoalBtn = document.getElementById('set-goal');
+        const drinkBtn = document.getElementById('drink-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const waterLevel = document.getElementById('water-level');
+        const statusText = document.getElementById('status');
+        const tracker = document.getElementById('tracker');
+
+        // 默认目标
+        let dailyGoal = parseInt(goalInput.value);
+        let currentCups = 0;
+
+        // 初始化
+        function init() {
+            loadFromLocalStorage();
+            updateDisplay();
+            createBubbles();
+        }
+
+        // 加载本地存储数据
+        function loadFromLocalStorage() {
+            const savedDate = localStorage.getItem('waterTrackerDate');
+            const today = new Date().toDateString();
+
+            if (savedDate === today) {
+                currentCups = parseInt(localStorage.getItem('waterTrackerCups')) || 0;
+                dailyGoal = parseInt(localStorage.getItem('waterTrackerGoal')) || dailyGoal;
+                goalInput.value = dailyGoal;
+            } else {
+                // 新的一天，重置
+                currentCups = 0;
+                saveToLocalStorage();
+            }
+        }
+
+        // 保存到本地存储
+        function saveToLocalStorage() {
+            localStorage.setItem('waterTrackerCups', currentCups.toString());
+            localStorage.setItem('waterTrackerGoal', dailyGoal.toString());
+            localStorage.setItem('waterTrackerDate', new Date().toDateString());
+        }
+
+        // 更新UI显示
+        function updateDisplay() {
+            const percentage = dailyGoal > 0 ? (currentCups / dailyGoal) * 100 : 0;
+            const clampedPercentage = Math.min(percentage, 100);
+            waterLevel.style.height = `${clampedPercentage}%`;
+            statusText.textContent = `已喝 ${currentCups} / ${dailyGoal} 杯`;
+
+            // 改变颜色渐进
+            const r = Math.floor(53 + (255 - 53) * (1 - clampedPercentage / 100));
+            const g = Math.floor(169 + (160 - 169) * (1 - clampedPercentage / 100));
+            const b = 224;
+            waterLevel.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // 创建气泡
+        function createBubbles() {
+            // 清除旧气泡
+            const oldBubbles = tracker.querySelectorAll('.bubble');
+            oldBubbles.forEach(b => b.remove());
+
+            // 根据当前水位创建新气泡
+            const bubbleCount = Math.max(1, Math.floor(currentCups / 2));
+            for (let i = 0; i < bubbleCount; i++) {
+                addBubble();
+            }
+        }
+
+        function addBubble() {
+            const size = 10 + Math.random() * 15;
+            const left = Math.random() * 80 + 10;
+            const delay = Math.random() * 3;
+            const duration = 3 + Math.random() * 4;
+
+            const bubble = document.createElement('div');
+            bubble.classList.add('bubble');
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${left}%`;
+            bubble.style.bottom = `${size / 2}px`;
+            bubble.style.animationDuration = `${duration}s`;
+            bubble.style.animationDelay = `${delay}s`;
+
+            tracker.appendChild(bubble);
+
+            // 动画结束后移除并重新添加
+            setTimeout(() => {
+                bubble.remove();
+                addBubble();
+            }, (duration + delay) * 1000);
+        }
+
+        // 设定目标
+        setGoalBtn.addEventListener('click', () => {
+            const newGoal = parseInt(goalInput.value);
+            if (newGoal >= 1 && newGoal <= 20) {
+                dailyGoal = newGoal;
+                saveToLocalStorage();
+                updateDisplay();
+            } else {
+                alert('请设置1-20之间的目标杯数');
+            }
+        });
+
+        // 喝水按钮
+        drinkBtn.addEventListener('click', () => {
+            if (currentCups < dailyGoal) {
+                currentCups++;
+                saveToLocalStorage();
+                updateDisplay();
+                createBubbles();
+
+                // 添加微交互：按钮震动反馈
+                drinkBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    drinkBtn.style.transform = '';
+                }, 150);
+
+                // 如果完成目标，提示
+                if (currentCups >= dailyGoal) {
+                    setTimeout(() => {
+                        alert('🎉 恭喜你完成今天的喝水目标！');
+                    }, 300);
+                }
+            }
+        });
+
+        // 重置按钮
+        resetBtn.addEventListener('click', () => {
+            if (confirm('确定要重置今天的数据吗？')) {
+                currentCups = 0;
+                saveToLocalStorage();
+                updateDisplay();
+                createBubbles();
+            }
+        });
+
+        // 初始化
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>心情日记本</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            color: #1c1e21;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header & Tab Nav */
+        header {
+            background: #6C63FF;
+            padding: 16px 20px 0;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        #tab-nav {
+            display: flex;
+            gap: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 22px;
+            overflow: hidden;
+            margin-bottom: -1px;
+            backdrop-filter: blur(4px);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: 0.25s;
+            border-radius: 22px;
+            touch-action: manipulation;
+        }
+
+        .tab.active {
+            background: white;
+            color: #6C63FF;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            padding: 20px 20px 80px;
+            overflow-y: auto;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* ---------- Today Panel ---------- */
+        .date-display {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #555;
+        }
+
+        .mood-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .mood-btn {
+            flex: 0 0 calc(50% - 6px);
+            max-width: 160px;
+            padding: 14px 10px;
+            border: none;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: manipulation;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mood-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mood-btn.selected {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px white, 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .mood-btn[data-mood="happy"] {
+            background: #FFB300;
+        }
+        .mood-btn[data-mood="calm"] {
+            background: #42A5F5;
+        }
+        .mood-btn[data-mood="anxious"] {
+            background: #FF7043;
+        }
+        .mood-btn[data-mood="low"] {
+            background: #AB47BC;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            background: #fafafa;
+            transition: border-color 0.2s;
+            -webkit-appearance: none;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #6C63FF;
+            background: white;
+        }
+
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            background: #6C63FF;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            touch-action: manipulation;
+            margin-top: 16px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            background: #5a52e0;
+        }
+
+        .save-message {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 14px;
+            min-height: 22px;
+            transition: 0.2s;
+        }
+
+        /* ---------- Month Panel ---------- */
+        .month-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .month-nav {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #6C63FF;
+            cursor: pointer;
+            padding: 0 16px;
+            touch-action: manipulation;
+            line-height: 1;
+            font-weight: 300;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .month-nav:active {
+            opacity: 0.6;
+        }
+
+        #month-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #999;
+            padding: 8px 0;
+        }
+
+        .calendar-day {
+            background: #f5f5f5;
+            border-radius: 12px;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: 0.1s;
+            position: relative;
+        }
+
+        .calendar-day.today {
+            border: 2px solid #6C63FF;
+        }
+
+        .calendar-day .day-number {
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .calendar-day .mood-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .mood-indicator.happy {
+            background: #FFB300;
+        }
+        .mood-indicator.calm {
+            background: #42A5F5;
+        }
+        .mood-indicator.anxious {
+            background: #FF7043;
+        }
+        .mood-indicator.low {
+            background: #AB47BC;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+        }
+
+        .stats {
+            background: #f9f9fd;
+            border-radius: 20px;
+            padding: 20px 16px;
+        }
+
+        .stats h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+            text-align: center;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .stat-color.happy {
+            background: #FFB300;
+        }
+        .stat-color.calm {
+            background: #42A5F5;
+        }
+        .stat-color.anxious {
+            background: #FF7043;
+        }
+        .stat-color.low {
+            background: #AB47BC;
+        }
+
+        .stat-label {
+            flex: 0 0 50px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .stat-bar {
+            flex: 1;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+
+        .stat-bar-fill.happy {
+            background: #FFB300;
+        }
+        .stat-bar-fill.calm {
+            background: #42A5F5;
+        }
+        .stat-bar-fill.anxious {
+            background: #FF7043;
+        }
+        .stat-bar-fill.low {
+            background: #AB47BC;
+        }
+
+        .stat-count {
+            flex: 0 0 30px;
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 40px 0;
+            font-size: 16px;
+        }
+
+        /* Additional polish */
+        .panel-content {
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .mood-btn {
+                font-size: 15px;
+                padding: 12px 8px;
+            }
+            header h1 {
+                font-size: 20px;
+            }
+            .tab {
+                font-size: 14px;
+                padding: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>📖 心情日记</h1>
+            <nav id="tab-nav">
+                <button class="tab active" data-panel="today">✏️ 今日记录</button>
+                <button class="tab" data-panel="month">📊 月度总结</button>
+            </nav>
+        </header>
+        <main>
+            <!-- 今日面板 -->
+            <section id="today-panel" class="panel active">
+                <div class="panel-content">
+                    <p class="date-display" id="today-date"></p>
+                    <div class="mood-selector" id="mood-selector">
+                        <button class="mood-btn" data-mood="happy">😄 开心</button>
+                        <button class="mood-btn" data-mood="calm">😌 平静</button>
+                        <button class="mood-btn" data-mood="anxious">😟 焦虑</button>
+                        <button class="mood-btn" data-mood="low">😢 低落</button>
+                    </div>
+                    <textarea id="diary-text" placeholder="写下你今天的心情故事…" rows="5"></textarea>
+                    <button id="save-btn" class="btn-primary">💾 保存心情</button>
+                    <p id="save-message" class="save-message"></p>
+                </div>
+            </section>
+
+            <!-- 月度面板 -->
+            <section id="month-panel" class="panel">
+                <div class="panel-content">
+                    <div class="month-header">
+                        <button id="prev-month" class="month-nav">‹</button>
+                        <span id="month-title">2025年3月</span>
+                        <button id="next-month" class="month-nav">›</button>
+                    </div>
+                    <div class="calendar-grid" id="calendar-grid">
+                        <div class="weekday">日</div>
+                        <div class="weekday">一</div>
+                        <div class="weekday">二</div>
+                        <div class="weekday">三</div>
+                        <div class="weekday">四</div>
+                        <div class="weekday">五</div>
+                        <div class="weekday">六</div>
+                    </div>
+                    <div id="stats" class="stats">
+                        <!-- 由 JavaScript 填充 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // ============================================================
+        //  心情日记本 – 完整交互逻辑
+        // ============================================================
+
+        // -------- 常量 ----------
+        const STORAGE_KEY = 'mood_diary_entries';
+        const MOOD_LABEL = {
+            happy: '开心',
+            calm: '平静',
+            anxious: '焦虑',
+            low: '低落'
+        };
+        const MOOD_EMOJI = {
+            happy: '😄',
+            calm: '😌',
+            anxious: '😟',
+            low: '😢'
+        };
+
+        // -------- 数据 ----------
+        let entries = [];
+        let currentMood = null; // 今日面板当前选中的心情
+        let displayYear, displayMonth; // 月度面板展示的年月
+
+        // -------- 本地存储 ----------
+        function loadEntries() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                entries = stored ? JSON.parse(stored) : [];
+            } catch (_) {
+                entries = [];
+            }
+        }
+
+        function saveEntries() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        }
+
+        // -------- 工具函数 ----------
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function parseDate(dateStr) {
+            const parts = dateStr.split('-');
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function getFirstDayOfMonth(year, month) {
+            return new Date(year, month - 1, 1).getDay(); // 0=周日
+        }
+
+        function getTodayStr() {
+            return formatDate(new Date());
+        }
+
+        function getTodayEntry() {
+            const today = getTodayStr();
+            return entries.find(e => e.date === today) || null;
+        }
+
+        function getEntriesForMonth(year, month) {
+            return entries.filter(e => {
+                const d = parseDate(e.date);
+                return d.getFullYear() === year && (d.getMonth() + 1) === month;
+            });
+        }
+
+        function getWeekdayChinese(date) {
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            return weekdays[date.getDay()];
+        }
+
+        // -------- 视图渲染 ----------
+        function renderToday() {
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 周${getWeekdayChinese(now)}`;
+            document.getElementById('today-date').textContent = dateStr;
+
+            const exist = getTodayEntry();
+            const textarea = document.getElementById('diary-text');
+            const saveBtn = document.getElementById('save-btn');
+
+            // 清除选中（将在下面重新设置）
+            document.querySelectorAll('.mood-btn').forEach(btn => btn.classList.remove('selected'));
+            currentMood = null;
+
+            if (exist) {
+                // 预填心情和文字
+                const moodBtn = document.querySelector(`.mood-btn[data-mood="${exist.mood}"]`);
+                if (moodBtn) {
+                    moodBtn.classList.add('selected');
+                    currentMood = exist.mood;
+                }
+                textarea.value = exist.text || '';
+                saveBtn.textContent = '🔄 更新心情';
+            } else {
+                textarea.value = '';
+                saveBtn.textContent = '💾 保存心情';
+            }
+
+            document.getElementById('save-message').textContent = '';
+        }
+
+        function renderMonth(year, month) {
+            if (year === undefined || month === undefined) {
+                const now = new Date();
+                year = now.getFullYear();
+                month = now.getMonth() + 1;
+            }
+            displayYear = year;
+            displayMonth = month;
+
+            // 更新标题
+            document.getElementById('month-title').textContent = `${year}年${month}月`;
+
+            // 获取当月条目，建立 day -> entry 映射
+            const monthEntries = getEntriesForMonth(year, month);
+            const entryMap = {};
+            monthEntries.forEach(e => {
+                const day = parseInt(e.date.split('-')[2]);
+                entryMap[day] = e;
+            });
+
+            const daysInMonth = getDaysInMonth(year, month);
+            const firstDay = getFirstDayOfMonth(year, month);
+
+            const grid = document.getElementById('calendar-grid');
+            // 保留星期行（前 7 个子元素）
+            const weekdays = Array.from(grid.children).slice(0, 7);
+            grid.innerHTML = '';
+            weekdays.forEach(w => grid.appendChild(w));
+
+            // 每月1号前的空格
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+
+            const todayStr = getTodayStr();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day';
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (dateStr === todayStr) {
+                    cell.classList.add('today');
+                }
+
+                const numSpan = document.createElement('span');
+                numSpan.className = 'day-number';
+                numSpan.textContent = day;
+                cell.appendChild(numSpan);
+
+                if (entryMap[day]) {
+                    const mood = entryMap[day].mood;
+                    const indicator = document.createElement('div');
+                    indicator.className = `mood-indicator ${mood}`;
+                    cell.appendChild(indicator);
+                }
+
+                grid.appendChild(cell);
+            }
+
+            // 统计
+            renderStats(monthEntries);
+        }
+
+        function renderStats(monthEntries) {
+            const statsDiv = document.getElementById('stats');
+            if (monthEntries.length === 0) {
+                statsDiv.innerHTML = '<div class="no-data">本月还没有记录哦 🥺</div>';
+                return;
+            }
+
+            const total = monthEntries.length;
+            const counts = { happy: 0, calm: 0, anxious: 0, low: 0 };
+            monthEntries.forEach(e => {
+                if (counts.hasOwnProperty(e.mood)) counts[e.mood]++;
+            });
+
+            const order = ['happy', 'calm', 'anxious', 'low'];
+            let html = '<h3>📊 本月心情分布</h3>';
+            order.forEach(mood => {
+                const cnt = counts[mood];
+                const pct = total > 0 ? (cnt / total * 100).toFixed(0) : 0;
+                html += `
+                        <div class="stat-item">
+                            <div class="stat-color ${mood}"></div>
+                            <span class="stat-label">${MOOD_LABEL[mood]}</span>
+                            <div class="stat-bar">
+                                <div class="stat-bar-fill ${mood}" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="stat-count">${cnt}</span>
+                        </div>
+                    `;
+            });
+            html += `<p style="text-align:center;color:#999;margin-top:8px;font-size:14px;">共 ${total} 条记录</p>`;
+            statsDiv.innerHTML = html;
+        }
+
+        // -------- 事件处理 ----------
+        // Tab 切换
+        function handleTabClick(e) {
+            const tab = e.currentTarget;
+            const panelId = tab.dataset.panel; // 'today' 或 'month'
+
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${panelId}-panel`).classList.add('active');
+
+            if (panelId === 'today') {
+                renderToday();
+            } else if (panelId === 'month') {
+                // 若从未切换过月度面板，初始化为当前月
+                if (!displayMonth) {
+                    const now = new Date();
+                    displayYear = now.getFullYear();
+                    displayMonth = now.getMonth() + 1;
+                }
+                renderMonth(displayYear, displayMonth);
+            }
+        }
+
+        // 心情选择（radio 风格：点击未选中的切换，点击已选中的不动）
+        function handleMoodClick(e) {
+            const btn = e.currentTarget;
+            if (!btn.classList.contains('selected')) {
+                document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                currentMood = btn.dataset.mood;
+            }
+            // 如果已选中，不做任何操作（保留选中）
+        }
+
+        // 保存心情
+        function handleSave() {
+            const text = document.getElementById('diary-text').value.trim();
+            const msgEl = document.getElementById('save-message');
+
+            // 验证：必须选择心情
+            if (!currentMood) {
+                msgEl.textContent = '请选择一个心情标签 😊';
+                msgEl.style.color = '#e74c3c';
+                return;
+            }
+
+            // 验证：建议写文字，但不强制（允许仅保存心情）
+            // 若完全无文字，给出提示但仍保存；若用户执意不写，也允许
+            // 此处放宽，有心情即可保存
+            const today = getTodayStr();
+            const existingIndex = entries.findIndex(e => e.date === today);
+
+            if (existingIndex !== -1) {
+                // 更新
+                entries[existingIndex].mood = currentMood;
+                entries[existingIndex].text = text;
+            } else {
+                // 新增
+                entries.push({
+                    date: today,
+                    mood: currentMood,
+                    text: text
+                });
+            }
+            saveEntries();
+
+            // 更新界面
+            document.getElementById('save-btn').textContent = '🔄 更新心情';
+            if (!text) {
+                msgEl.textContent = '✅ 已保存心情！记得写点故事哦 ✍️';
+            } else {
+                msgEl.textContent = '✅ 已保存今日心情！';
+            }
+            msgEl.style.color = '#4CAF50';
+
+            // 3 秒后自动清除消息
+            clearTimeout(window._msgTimer);
+            window._msgTimer = setTimeout(() => {
+                msgEl.textContent = '';
+            }, 3000);
+
+            // 若月度面板已打开，下次切换时自动更新；也可立即更新（但不强制）
+        }
+
+        // 月份导航
+        function handlePrevMonth() {
+            if (displayMonth === 1) {
+                displayMonth = 12;
+                displayYear--;
+            } else {
+                displayMonth--;
+            }
+            renderMonth(displayYear, displayMonth);
+        }
+
+        function handleNextMonth() {
+            if (displayMonth === 12) {
+                displayMonth = 1;
+                displayYear++;
+            } else {
+                displayMonth++;
+            }
+            renderMonth(displayYear, displayMonth);
+        }
+
+        // -------- 初始化 ----------
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEntries();
+
+            // Tab 绑定
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', handleTabClick);
+            });
+
+            // 心情按钮绑定
+            document.querySelectorAll('.mood-btn').forEach(btn => {
+                btn.addEventListener('click', handleMoodClick);
+            });
+
+            // 保存按钮
+            document.getElementById('save-btn').addEventListener('click', handleSave);
+
+            // 月份导航
+            document.getElementById('prev-month').addEventListener('click', handlePrevMonth);
+            document.getElementById('next-month').addEventListener('click', handleNextMonth);
+
+            // 设置月度面板默认年月（用于首次点击月度）
+            const now = new Date();
+            displayYear = now.getFullYear();
+            displayMonth = now.getMonth() + 1;
+
+            // 渲染今日面板
+            renderToday();
+        });
+    </script>
+</body>
+</html>

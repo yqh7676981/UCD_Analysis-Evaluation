@@ -1,0 +1,33 @@
+{
+  "index": 251,
+  "id": "58",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为泰国餐馆创建一个温馨的主页，突出显示其菜单、营业时间和预订选项。",
+  "evaluation": {
+    "total_score": 63,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Warm beige and orange palette fits a cozy restaurant homepage, and cards/buttons are mostly consistent. However, the hero lacks appetizing food imagery or a strong focal asset, so the page feels more like a generic lifestyle template than a distinctive Thai restaurant experience."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Spacing, rounded cards, and shadows are generally tidy, but many text elements are small and low-contrast. Dish cards use placeholder-like circular visuals instead of real food photos, reducing polish and making the menu section feel unfinished."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "The page follows a clear top-down structure: hero, signature dishes, hours/contact, story, footer. Primary CTAs are visible, and menu cards are grouped well. Still, the hero's large empty graphic area wastes prime space, and key reservation info is lower on the page than ideal."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "Navigation labels, menu category chips, business hours, and reservation CTA are understandable. But the secondary hero button label is vague, the large hero panel with a location-style icon is semantically unclear, and the reservation flow is not strongly explained or surfaced as a clear booking form."
+      }
+    },
+    "summary": "This is a usable and visually pleasant restaurant homepage with a coherent warm tone and clear core sections for menu, hours, and booking contact. The main hard caps are weak scenario-specific imagery, small/light text, and a hero that prioritizes decorative space over immediate restaurant value and reservation clarity. Users can complete the basic understanding task, but the experience feels template-like rather than fully convincing or polished."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/58_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:14:54.407462"
+}

@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>旅行行程规划</title>
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #FF7E67;
+            --primary-dark: #E56A55;
+            --secondary: #4ECDC4;
+            --bg: #FEF9F2;
+            --card-bg: #FFFFFF;
+            --text: #2D3436;
+            --text-light: #636E72;
+            --text-muted: #B2BEC3;
+            --border: #F0E6DE;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 6px;
+            --font: -apple-system, 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding-bottom: calc(80px + var(--safe-bottom));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ===== 滚动条 ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 4px;
+        }
+
+        /* ===== 顶部 Header ===== */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #FF9A76 100%);
+            color: #fff;
+            padding: 20px 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 16px rgba(255, 126, 103, 0.3);
+        }
+
+        .app-header .top-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .app-header .top-row .icon {
+            font-size: 28px;
+        }
+
+        .app-header .title-input {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+            width: 100%;
+            outline: none;
+            backdrop-filter: blur(4px);
+            transition: background 0.2s;
+        }
+        .app-header .title-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .app-header .title-input:focus {
+            background: rgba(255, 255, 255, 0.35);
+        }
+
+        .app-header .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .app-header .meta-input {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: var(--radius-xs);
+            padding: 7px 12px;
+            font-size: 14px;
+            color: #fff;
+            flex: 1;
+            min-width: 100px;
+            outline: none;
+            backdrop-filter: blur(4px);
+            transition: background 0.2s;
+        }
+        .app-header .meta-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .app-header .meta-input:focus {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .app-header .meta-input.date {
+            min-width: 90px;
+            flex: 0 1 auto;
+            width: auto;
+        }
+
+        .app-header .meta-row .sep {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            opacity: 0.8;
+            padding: 0 2px;
+        }
+
+        /* ===== 天数导航 ===== */
+        .day-nav-wrap {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: var(--bg);
+            padding: 12px 0 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .day-nav {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 0 16px 8px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .day-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .day-tab {
+            flex: 0 0 auto;
+            padding: 8px 18px;
+            border-radius: 100px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            position: relative;
+        }
+        .day-tab:active {
+            transform: scale(0.95);
+        }
+        .day-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 126, 103, 0.35);
+        }
+        .day-tab .badge-del {
+            display: none;
+            margin-left: 6px;
+            font-size: 12px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        .day-tab.active .badge-del {
+            display: inline;
+        }
+
+        .day-tab-add {
+            flex: 0 0 auto;
+            padding: 8px 16px;
+            border-radius: 100px;
+            background: transparent;
+            border: 1.5px dashed var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .day-tab-add:active {
+            transform: scale(0.95);
+        }
+        .day-tab-add:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* ===== 主内容区 ===== */
+        .main-content {
+            padding: 16px 16px 100px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===== 天的头部 ===== */
+        .day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .day-header .day-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .day-header .day-title .sub {
+            font-weight: 400;
+            font-size: 14px;
+            color: var(--text-light);
+            margin-left: 6px;
+        }
+        .day-header .day-date-input {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-xs);
+            padding: 6px 12px;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            min-width: 120px;
+            transition: border 0.2s;
+        }
+        .day-header .day-date-input:focus {
+            border-color: var(--primary);
+        }
+
+        /* ===== 分类卡片 ===== */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px;
+            margin-bottom: 16px;
+            transition: box-shadow 0.2s;
+        }
+
+        .section-card .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .section-card .section-title .left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-card .section-title .left .emoji {
+            font-size: 20px;
+        }
+        .section-card .section-title .btn-add {
+            background: var(--secondary);
+            border: none;
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .section-card .section-title .btn-add:active {
+            transform: scale(0.95);
+            opacity: 0.85;
+        }
+        .section-card .section-title .btn-add .icon {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        /* ===== 条目列表 ===== */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+            transition: background 0.2s;
+            flex-wrap: nowrap;
+        }
+        .item-row .item-input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            padding: 6px 4px;
+            font-size: 14px;
+            color: var(--text);
+            outline: none;
+            border-bottom: 1.5px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .item-row .item-input:focus {
+            border-bottom-color: var(--primary);
+        }
+        .item-row .item-input::placeholder {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .item-row .item-input.short {
+            flex: 0 0 80px;
+            max-width: 100px;
+        }
+        .item-row .btn-del {
+            flex: 0 0 32px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .item-row .btn-del:active {
+            background: rgba(255, 0, 0, 0.1);
+            color: #ef4444;
+            transform: scale(0.9);
+        }
+
+        .empty-tip {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 14px;
+            padding: 12px 0 4px;
+        }
+
+        /* ===== 底部操作栏 ===== */
+        .bottom-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            padding: 12px 16px calc(12px + var(--safe-bottom));
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            display: flex;
+            gap: 10px;
+            z-index: 60;
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .bottom-actions .btn-action {
+            flex: 1;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .bottom-actions .btn-action:active {
+            transform: scale(0.97);
+        }
+
+        .btn-action.primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(255, 126, 103, 0.3);
+        }
+        .btn-action.primary:active {
+            box-shadow: 0 2px 6px rgba(255, 126, 103, 0.2);
+        }
+
+        .btn-action.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+        .btn-action.secondary:active {
+            background: var(--border);
+        }
+
+        /* ===== 模态框 - 旅行手册 ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px 16px 40px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            max-width: 500px;
+            width: 100%;
+            margin: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: modalIn 0.35s ease;
+            overflow: hidden;
+        }
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #FF9A76 100%);
+            color: #fff;
+            padding: 28px 24px 20px;
+            text-align: center;
+            position: relative;
+        }
+        .modal-header .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.25);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .modal-header .modal-close:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        .modal-header h2 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+        .modal-header .sub {
+            font-size: 14px;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+        .modal-header .sub .date-range {
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        .modal-body {
+            padding: 24px 20px 28px;
+        }
+
+        .modal-body .handbook-day {
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1.5px solid var(--border);
+        }
+        .modal-body .handbook-day:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .handbook-day .hday-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .handbook-day .hday-title .hday-date {
+            font-weight: 400;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+        .handbook-day .hday-section {
+            margin-top: 12px;
+        }
+        .handbook-day .hday-section .hs-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .handbook-day .hday-section .hs-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .handbook-day .hday-section .hs-items li {
+            font-size: 15px;
+            color: var(--text);
+            padding: 4px 0 4px 18px;
+            position: relative;
+            line-height: 1.4;
+        }
+        .handbook-day .hday-section .hs-items li::before {
+            content: '•';
+            position: absolute;
+            left: 2px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .handbook-day .hday-section .hs-items li .note {
+            color: var(--text-light);
+            font-size: 13px;
+            margin-left: 6px;
+        }
+        .handbook-day .empty-hint {
+            color: var(--text-muted);
+            font-size: 13px;
+            padding-left: 18px;
+            font-style: italic;
+        }
+
+        .modal-footer {
+            padding: 16px 20px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+        }
+        .modal-footer .btn-modal-action {
+            flex: 1;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 12px 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .modal-footer .btn-modal-action:active {
+            transform: scale(0.97);
+        }
+        .btn-modal-action.print {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-modal-action.close {
+            background: var(--bg);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 380px) {
+            .app-header {
+                padding: 16px 12px 20px;
+            }
+            .app-header .title-input {
+                font-size: 17px;
+                padding: 6px 10px;
+            }
+            .app-header .meta-input {
+                font-size: 12px;
+                padding: 5px 8px;
+                min-width: 70px;
+            }
+            .item-row {
+                padding: 6px 8px;
+                flex-wrap: wrap;
+            }
+            .item-row .item-input {
+                font-size: 13px;
+                padding: 4px 2px;
+                min-width: 60px;
+            }
+            .item-row .item-input.short {
+                flex: 0 0 60px;
+                max-width: 70px;
+            }
+            .section-card {
+                padding: 12px;
+            }
+            .day-tab {
+                padding: 6px 14px;
+                font-size: 13px;
+            }
+            .modal-header h2 {
+                font-size: 22px;
+            }
+            .modal-body {
+                padding: 18px 14px 22px;
+            }
+            .bottom-actions .btn-action {
+                font-size: 14px;
+                padding: 12px 8px;
+            }
+        }
+
+        @media (min-width: 600px) {
+            .main-content {
+                padding: 20px 24px 100px;
+                max-width: 640px;
+            }
+            .item-row .item-input.short {
+                flex: 0 0 120px;
+                max-width: 140px;
+            }
+        }
+
+        /* ===== 打印样式 ===== */
+        @media print {
+            body {
+                background: #fff;
+                padding: 0;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .app-header,
+            .day-nav-wrap,
+            .bottom-actions,
+            .modal-overlay .modal-close,
+            .modal-footer .close {
+                display: none !important;
+            }
+            .modal-overlay {
+                position: static;
+                background: none;
+                backdrop-filter: none;
+                padding: 0;
+                display: block !important;
+                overflow: visible;
+            }
+            .modal-content {
+                box-shadow: none;
+                border-radius: 0;
+                max-width: 100%;
+                margin: 0;
+                animation: none;
+            }
+            .modal-header {
+                background: var(--primary) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 40px 24px 24px;
+            }
+            .modal-header .modal-close {
+                display: none;
+            }
+            .modal-body {
+                padding: 24px 20px;
+            }
+            .modal-footer {
+                display: none !important;
+            }
+            .handbook-day .hday-section .hs-items li {
+                break-inside: avoid;
+            }
+            .handbook-day {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            .modal-footer .btn-modal-action.print {
+                display: none;
+            }
+        }
+
+        /* ===== 工具类 ===== */
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-12 {
+            margin-top: 12px;
+        }
+        .gap-4 {
+            gap: 4px;
+        }
+
+        /* 过渡动画 */
+        .fade-enter {
+            animation: fadeIn 0.25s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 删除天的按钮 (在tab上长按或双击显示，简化: 加一个删除天的小按钮在激活tab上) */
+        .day-tab .del-day-btn {
+            display: none;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: #fff;
+            border: 2px solid var(--bg);
+            font-size: 10px;
+            line-height: 1;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            font-weight: 700;
+            padding: 0;
+        }
+        .day-tab.active .del-day-btn {
+            display: flex;
+        }
+        .day-tab .del-day-btn:active {
+            transform: scale(0.85);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="app-header" id="appHeader">
+        <div class="top-row">
+            <span class="icon">✈️</span>
+            <input class="title-input" id="tripTitle" type="text" placeholder="输入旅行名称..." value="我的旅行" maxlength="30">
+        </div>
+        <div class="meta-row">
+            <input class="meta-input" id="tripDest" type="text" placeholder="目的地" value="" maxlength="20">
+            <span class="sep">📅</span>
+            <input class="meta-input date" id="tripStart" type="date">
+            <span class="sep">~</span>
+            <input class="meta-input date" id="tripEnd" type="date">
+        </div>
+    </header>
+
+    <!-- ===== 天数导航 ===== -->
+    <div class="day-nav-wrap" id="dayNavWrap">
+        <div class="day-nav" id="dayNav">
+            <!-- 由 js 动态生成 -->
+        </div>
+    </div>
+
+    <!-- ===== 主内容 ===== -->
+    <main class="main-content" id="mainContent">
+        <!-- 由 js 动态渲染 -->
+    </main>
+
+    <!-- ===== 底部操作栏 ===== -->
+    <div class="bottom-actions">
+        <button class="btn-action secondary" id="btnAddDay">➕ 添加天数</button>
+        <button class="btn-action primary" id="btnGenerate">📋 生成手册</button>
+    </div>
+
+    <!-- ===== 模态框 - 旅行手册 ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+                <button class="modal-close" id="modalClose">✕</button>
+                <h2 id="modalTitle">旅行手册</h2>
+                <div class="sub">
+                    <span id="modalDest"></span>
+                    <span class="date-range" id="modalDates"></span>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 由 js 生成 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-modal-action close" id="modalCloseBtn">关闭</button>
+                <button class="btn-modal-action print" id="modalPrint">🖨️ 打印</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA MODEL
+        // ============================================================
+        const DEFAULT_DATA = () => ({
+            title: '我的旅行',
+            destination: '',
+            startDate: '',
+            endDate: '',
+            days: [createDay(1)]
+        });
+
+        let nextDayId = 2;
+        let nextItemId = 1;
+
+        function createDay(dayNumber, date = '') {
+            return {
+                id: nextDayId++,
+                dayNumber: dayNumber,
+                date: date,
+                attractions: [],
+                transport: [],
+                restaurants: []
+            };
+        }
+
+        function createItem(type) {
+            const item = { id: nextItemId++ };
+            if (type === 'attraction') {
+                item.name = '';
+                item.note = '';
+            } else if (type === 'transport') {
+                item.mode = '';
+                item.detail = '';
+            } else if (type === 'restaurant') {
+                item.name = '';
+                item.cuisine = '';
+            }
+            return item;
+        }
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let data = loadData();
+        let currentDayId = data.days.length > 0 ? data.days[0].id : null;
+
+        // ============================================================
+        //  LOCAL STORAGE
+        // ============================================================
+        function loadData() {
+            try {
+                const raw = localStorage.getItem('trip_planner_data');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    // 确保有 days 数组
+                    if (parsed && typeof parsed === 'object' && Array.isArray(parsed.days) && parsed.days.length > 0) {
+                        // 恢复 id 计数器
+                        let maxDayId = 0;
+                        let maxItemId = 0;
+                        parsed.days.forEach(d => {
+                            if (d.id > maxDayId) maxDayId = d.id;
+                            ['attractions', 'transport', 'restaurants'].forEach(key => {
+                                (d[key] || []).forEach(item => {
+                                    if (item.id > maxItemId) maxItemId = item.id;
+                                });
+                            });
+                        });
+                        nextDayId = maxDayId + 1;
+                        nextItemId = maxItemId + 1;
+                        return parsed;
+                    }
+                }
+            } catch (e) { /* ignore */ }
+            const def = DEFAULT_DATA();
+            nextDayId = 2;
+            nextItemId = 1;
+            return def;
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('trip_planner_data', JSON.stringify(data));
+            } catch (e) { /* ignore */ }
+        }
+
+        // ============================================================
+        //  RENDER
+        // ============================================================
+        function renderAll() {
+            renderHeader();
+            renderDayNav();
+            renderDayContent();
+            saveData();
+        }
+
+        // ---------- 渲染头部 ----------
+        function renderHeader() {
+            document.getElementById('tripTitle').value = data.title || '';
+            document.getElementById('tripDest').value = data.destination || '';
+            document.getElementById('tripStart').value = data.startDate || '';
+            document.getElementById('tripEnd').value = data.endDate || '';
+        }
+
+        // ---------- 渲染天数导航 ----------
+        function renderDayNav() {
+            const nav = document.getElementById('dayNav');
+            let html = '';
+            data.days.forEach((day, idx) => {
+                const active = day.id === currentDayId ? 'active' : '';
+                const label = `第${day.dayNumber}天`;
+                html += `<div class="day-tab ${active}" data-day-id="${day.id}">
+                            ${label}
+                            <span class="badge-del">${data.days.length > 1 ? '✕' : ''}</span>
+                            ${data.days.length > 1 ? `<button class="del-day-btn" data-day-id="${day.id}" aria-label="删除此天">✕</button>` : ''}
+                         </div>`;
+            });
+            html += `<div class="day-tab-add" id="dayTabAdd">➕ 添加</div>`;
+            nav.innerHTML = html;
+
+            // 点击tab切换
+            nav.querySelectorAll('.day-tab').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    // 如果点击的是删除按钮，不切换
+                    if (e.target.classList.contains('del-day-btn')) return;
+                    const id = parseInt(this.dataset.dayId);
+                    if (id && id !== currentDayId) {
+                        currentDayId = id;
+                        renderAll();
+                    }
+                });
+            });
+
+            // 删除天按钮
+            nav.querySelectorAll('.del-day-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = parseInt(this.dataset.dayId);
+                    deleteDay(id);
+                });
+            });
+
+            // 添加天
+            const addBtn = nav.querySelector('#dayTabAdd');
+            if (addBtn) {
+                addBtn.addEventListener('click', function() {
+                    addNewDay();
+                });
+            }
+
+            // 滚动到激活的tab
+            setTimeout(() => {
+                const active = nav.querySelector('.day-tab.active');
+                if (active) {
+                    active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 50);
+        }
+
+        // ---------- 渲染当天内容 ----------
+        function renderDayContent() {
+            const main = document.getElementById('mainContent');
+            const day = data.days.find(d => d.id === currentDayId);
+            if (!day) {
+                if (data.days.length > 0) {
+                    currentDayId = data.days[0].id;
+                    renderAll();
+                    return;
+                } else {
+                    // 没有天，创建一个
+                    const newDay = createDay(1);
+                    data.days.push(newDay);
+                    currentDayId = newDay.id;
+                    saveData();
+                    renderAll();
+                    return;
+                }
+            }
+
+            // 天的头部
+            let html = `
+                <div class="day-header">
+                    <div class="day-title">
+                        第${day.dayNumber}天
+                        <span class="sub">📅</span>
+                    </div>
+                    <input class="day-date-input" type="date" id="dayDateInput" value="${day.date || ''}" data-day-id="${day.id}">
+                </div>
+            `;
+
+            // 三个分类
+            html += renderSection('attractions', '🏞️', '景点', day);
+            html += renderSection('transport', '🚗', '交通', day);
+            html += renderSection('restaurants', '🍽️', '餐厅', day);
+
+            main.innerHTML = html;
+
+            // 日期变更
+            const dateInput = document.getElementById('dayDateInput');
+            if (dateInput) {
+                dateInput.addEventListener('change', function() {
+                    const dayId = parseInt(this.dataset.dayId);
+                    const dayObj = data.days.find(d => d.id === dayId);
+                    if (dayObj) {
+                        dayObj.date = this.value;
+                        saveData();
+                    }
+                });
+            }
+
+            // 为每个分类的添加按钮绑定事件
+            main.querySelectorAll('.btn-add-section').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    addItemToDay(currentDayId, type);
+                });
+            });
+
+            // 为每个删除按钮绑定事件
+            main.querySelectorAll('.btn-del-item').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    const itemId = parseInt(this.dataset.itemId);
+                    deleteItemFromDay(currentDayId, type, itemId);
+                });
+            });
+
+            // 输入框实时保存
+            main.querySelectorAll('.item-input').forEach(input => {
+                let timer;
+                input.addEventListener('input', function() {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        const type = this.dataset.type;
+                        const itemId = parseInt(this.dataset.itemId);
+                        const field = this.dataset.field;
+                        const value = this.value;
+                        updateItemField(currentDayId, type, itemId, field, value);
+                    }, 300);
+                });
+                // 失焦立即保存
+                input.addEventListener('blur', function() {
+                    const type = this.dataset.type;
+                    const itemId = parseInt(this.dataset.itemId);
+                    const field = this.dataset.field;
+                    const value = this.value;
+                    updateItemField(currentDayId, type, itemId, field, value);
+                });
+            });
+        }
+
+        // ---------- 渲染分类卡片 ----------
+        function renderSection(type, emoji, label, day) {
+            const items = day[type] || [];
+            let itemsHtml = '';
+            if (items.length === 0) {
+                itemsHtml = `<div class="empty-tip">还没有添加${label}，点击上方按钮添加 ✨</div>`;
+            } else {
+                items.forEach(item => {
+                    itemsHtml += renderItemRow(type, item);
+                });
+            }
+
+            return `
+                <div class="section-card">
+                    <div class="section-title">
+                        <div class="left">
+                            <span class="emoji">${emoji}</span>
+                            <span>${label}</span>
+                        </div>
+                        <button class="btn-add-section" data-type="${type}">
+                            <span class="icon">+</span> 添加
+                        </button>
+                    </div>
+                    <div class="item-list">
+                        ${itemsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ---------- 渲染条目行 ----------
+        function renderItemRow(type, item) {
+            if (type === 'attractions') {
+                return `
+                    <div class="item-row fade-enter">
+                        <input class="item-input" type="text" placeholder="景点名称" value="${escapeHtml(item.name || '')}" data-type="attractions" data-item-id="${item.id}" data-field="name">
+                        <input class="item-input short" type="text" placeholder="备注" value="${escapeHtml(item.note || '')}" data-type="attractions" data-item-id="${item.id}" data-field="note">
+                        <button class="btn-del" data-type="attractions" data-item-id="${item.id}" aria-label="删除">✕</button>
+                    </div>
+                `;
+            } else if (type === 'transport') {
+                return `
+                    <div class="item-row fade-enter">
+                        <input class="item-input" type="text" placeholder="交通方式" value="${escapeHtml(item.mode || '')}" data-type="transport" data-item-id="${item.id}" data-field="mode">
+                        <input class="item-input short" type="text" placeholder="详情" value="${escapeHtml(item.detail || '')}" data-type="transport" data-item-id="${item.id}" data-field="detail">
+                        <button class="btn-del" data-type="transport" data-item-id="${item.id}" aria-label="删除">✕</button>
+                    </div>
+                `;
+            } else if (type === 'restaurants') {
+                return `
+                    <div class="item-row fade-enter">
+                        <input class="item-input" type="text" placeholder="餐厅名称" value="${escapeHtml(item.name || '')}" data-type="restaurants" data-item-id="${item.id}" data-field="name">
+                        <input class="item-input short" type="text" placeholder="推荐菜" value="${escapeHtml(item.cuisine || '')}" data-type="restaurants" data-item-id="${item.id}" data-field="cuisine">
+                        <button class="btn-del" data-type="restaurants" data-item-id="${item.id}" aria-label="删除">✕</button>
+                    </div>
+                `;
+            }
+            return '';
+        }
+
+        // ============================================================
+        //  DATA OPERATIONS
+        // ============================================================
+
+        function addNewDay() {
+            const maxDayNum = data.days.reduce((max, d) => Math.max(max, d.dayNumber), 0);
+            const newDay = createDay(maxDayNum + 1);
+            // 自动设置日期：如果上一天有日期，尝试加一天
+            const lastDay = data.days[data.days.length - 1];
+            if (lastDay && lastDay.date) {
+                try {
+                    const d = new Date(lastDay.date);
+                    d.setDate(d.getDate() + 1);
+                    newDay.date = d.toISOString().split('T')[0];
+                } catch (e) { /* ignore */ }
+            }
+            data.days.push(newDay);
+            currentDayId = newDay.id;
+            renderAll();
+            // 滚动到新tab
+            setTimeout(() => {
+                const nav = document.getElementById('dayNav');
+                const tabs = nav.querySelectorAll('.day-tab');
+                if (tabs.length > 0) {
+                    tabs[tabs.length - 1].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 100);
+        }
+
+        function deleteDay(dayId) {
+            if (data.days.length <= 1) {
+                // 至少保留一天
+                showToast('至少保留一天行程');
+                return;
+            }
+            const idx = data.days.findIndex(d => d.id === dayId);
+            if (idx === -1) return;
+            data.days.splice(idx, 1);
+            if (currentDayId === dayId) {
+                currentDayId = data.days[Math.min(idx, data.days.length - 1)].id;
+            }
+            renderAll();
+        }
+
+        function addItemToDay(dayId, type) {
+            const day = data.days.find(d => d.id === dayId);
+            if (!day) return;
+            const item = createItem(type);
+            day[type].push(item);
+            renderDayContent();
+            saveData();
+            // 聚焦到新添加的最后一个输入框
+            setTimeout(() => {
+                const main = document.getElementById('mainContent');
+                const rows = main.querySelectorAll(`.item-row`);
+                if (rows.length > 0) {
+                    const lastRow = rows[rows.length - 1];
+                    const inputs = lastRow.querySelectorAll('.item-input');
+                    if (inputs.length > 0) inputs[0].focus();
+                }
+            }, 100);
+        }
+
+        function deleteItemFromDay(dayId, type, itemId) {
+            const day = data.days.find(d => d.id === dayId);
+            if (!day) return;
+            const arr = day[type];
+            const idx = arr.findIndex(item => item.id === itemId);
+            if (idx === -1) return;
+            arr.splice(idx, 1);
+            renderDayContent();
+            saveData();
+        }
+
+        function updateItemField(dayId, type, itemId, field, value) {
+            const day = data.days.find(d => d.id === dayId);
+            if (!day) return;
+            const arr = day[type];
+            const item = arr.find(i => i.id === itemId);
+            if (!item) return;
+            if (item.hasOwnProperty(field)) {
+                item[field] = value;
+                saveData();
+            }
+        }
+
+        // ============================================================
+        //  HEADER 事件绑定
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 标题
+            document.getElementById('tripTitle').addEventListener('input', function() {
+                data.title = this.value || '';
+                saveData();
+            });
+            document.getElementById('tripTitle').addEventListener('blur', function() {
+                if (!this.value.trim()) {
+                    this.value = '我的旅行';
+                    data.title = '我的旅行';
+                    saveData();
+                }
+            });
+
+            // 目的地
+            document.getElementById('tripDest').addEventListener('input', function() {
+                data.destination = this.value || '';
+                saveData();
+            });
+
+            // 日期范围
+            document.getElementById('tripStart').addEventListener('change', function() {
+                data.startDate = this.value || '';
+                saveData();
+            });
+            document.getElementById('tripEnd').addEventListener('change', function() {
+                data.endDate = this.value || '';
+                saveData();
+            });
+
+            // 底部添加天按钮
+            document.getElementById('btnAddDay').addEventListener('click', function() {
+                addNewDay();
+            });
+
+            // 生成手册
+            document.getElementById('btnGenerate').addEventListener('click', function() {
+                generateHandbook();
+            });
+
+            // 初始渲染
+            renderAll();
+
+            // 设置默认日期
+            if (!data.startDate) {
+                const today = new Date().toISOString().split('T')[0];
+                data.startDate = today;
+                const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+                data.endDate = tomorrow;
+                renderHeader();
+                saveData();
+            }
+
+            // 让所有动态生成的输入框都能触发保存 (通过事件委托处理已由单独绑定覆盖)
+        });
+
+        // ============================================================
+        //  生成旅行手册 (模态框)
+        // ============================================================
+        function generateHandbook() {
+            const overlay = document.getElementById('modalOverlay');
+            const body = document.getElementById('modalBody');
+            const titleEl = document.getElementById('modalTitle');
+            const destEl = document.getElementById('modalDest');
+            const datesEl = document.getElementById('modalDates');
+
+            // 标题
+            titleEl.textContent = data.title || '我的旅行';
+            destEl.textContent = data.destination ? `📍 ${data.destination}` : '';
+            const start = data.startDate || '?';
+            const end = data.endDate || '?';
+            datesEl.textContent = `📅 ${formatDate(start)} — ${formatDate(end)}`;
+
+            // 生成内容
+            let html = '';
+            data.days.forEach((day, idx) => {
+                const dateStr = day.date ? formatDate(day.date) : '日期未定';
+                html += `<div class="handbook-day">`;
+                html += `<div class="hday-title">📅 第${day.dayNumber}天 <span class="hday-date">${dateStr}</span></div>`;
+
+                // 景点
+                html += renderHandbookSection('🏞️', '景点', day.attractions, 'attractions');
+                // 交通
+                html += renderHandbookSection('🚗', '交通', day.transport, 'transport');
+                // 餐厅
+                html += renderHandbookSection('🍽️', '餐厅', day.restaurants, 'restaurants');
+
+                html += `</div>`;
+            });
+
+            body.innerHTML = html;
+
+            // 显示模态框
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderHandbookSection(emoji, label, items, type) {
+            let listHtml = '';
+            if (!items || items.length === 0) {
+                listHtml = `<div class="empty-hint">暂无安排</div>`;
+            } else {
+                listHtml = `<ul class="hs-items">`;
+                items.forEach(item => {
+                    if (type === 'attractions') {
+                        const name = item.name || '未命名景点';
+                        const note = item.note ? `· ${item.note}` : '';
+                        listHtml += `<li>${escapeHtml(name)} <span class="note">${escapeHtml(note)}</span></li>`;
+                    } else if (type === 'transport') {
+                        const mode = item.mode || '未指定方式';
+                        const detail = item.detail ? `· ${item.detail}` : '';
+                        listHtml += `<li>${escapeHtml(mode)} <span class="note">${escapeHtml(detail)}</span></li>`;
+                    } else if (type === 'restaurants') {
+                        const name = item.name || '未命名餐厅';
+                        const cuisine = item.cuisine ? `· ${item.cuisine}` : '';
+                        listHtml += `<li>${escapeHtml(name)} <span class="note">${escapeHtml(cuisine)}</span></li>`;
+                    }
+                });
+                listHtml += `</ul>`;
+            }
+            return `
+                <div class="hday-section">
+                    <div class="hs-title">${emoji} ${label}</div>
+                    ${listHtml}
+                </div>
+            `;
+        }
+
+        // ============================================================
+        //  模态框控制
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const overlay = document.getElementById('modalOverlay');
+            const closeBtn = document.getElementById('modalClose');
+            const closeBtn2 = document.getElementById('modalCloseBtn');
+            const printBtn = document.getElementById('modalPrint');
+
+            function closeModal() {
+                overlay.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+
+            closeBtn.addEventListener('click', closeModal);
+            closeBtn2.addEventListener('click', closeModal);
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) closeModal();
+            });
+
+            // 打印
+            printBtn.addEventListener('click', function() {
+                window.print();
+            });
+
+            // 键盘关闭
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && overlay.classList.contains('open')) {
+                    closeModal();
+                }
+            });
+        });
+
+        // ============================================================
+        //  工具函数
+        // ============================================================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '?';
+            try {
+                const d = new Date(dateStr + 'T00:00:00');
+                if (isNaN(d.getTime())) return dateStr;
+                const month = d.getMonth() + 1;
+                const day = d.getDate();
+                return `${month}月${day}日`;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // Toast 提示
+        function showToast(msg) {
+            const existing = document.querySelector('.toast-msg');
+            if (existing) existing.remove();
+
+            const div = document.createElement('div');
+            div.className = 'toast-msg';
+            div.textContent = msg;
+            Object.assign(div.style, {
+                position: 'fixed',
+                bottom: '100px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0,0,0,0.75)',
+                color: '#fff',
+                padding: '10px 24px',
+                borderRadius: '100px',
+                fontSize: '14px',
+                fontWeight: '500',
+                zIndex: '2000',
+                backdropFilter: 'blur(8px)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                maxWidth: '80%',
+                textAlign: 'center',
+                animation: 'fadeIn 0.25s ease',
+                pointerEvents: 'none'
+            });
+            document.body.appendChild(div);
+            setTimeout(() => {
+                div.style.opacity = '0';
+                div.style.transition = 'opacity 0.3s';
+                setTimeout(() => div.remove(), 300);
+            }, 2000);
+        }
+
+        // 添加一些额外的样式 (toast)
+        const styleExtra = document.createElement('style');
+        styleExtra.textContent = `
+            .toast-msg {
+                transition: opacity 0.3s;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+                to { opacity: 1; transform: translateX(-50%) translateY(0); }
+            }
+            @media print {
+                .toast-msg { display: none !important; }
+            }
+        `;
+        document.head.appendChild(styleExtra);
+
+        // 确保在页面加载完成后渲染
+        console.log('✈️ 旅行行程规划已启动');
+    </script>
+
+</body>
+</html>

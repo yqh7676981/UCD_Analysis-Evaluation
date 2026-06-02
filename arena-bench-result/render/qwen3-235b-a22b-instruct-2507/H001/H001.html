@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>每日热量记录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.6em;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .goal-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 24px;
+            background-color: #ecf0f1;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background-color: #3498db;
+            border-radius: 12px;
+            transition: width 0.4s ease;
+        }
+
+        .calorie-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .food-selection {
+            margin-bottom: 20px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            appearance: none;
+            background: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center / 18px 18px;
+            background-color: white;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            font-size: 1em;
+            font-weight: 600;
+            color: white;
+            background-color: #2ecc71;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.3s;
+        }
+
+        button:active {
+            background-color: #27ae60;
+        }
+
+        .log {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+        .log-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .clear-btn {
+            background-color: #e74c3c;
+        }
+
+        .clear-btn:active {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <h1>每日热量记录</h1>
+    <div class="container">
+        <div class="goal-section">
+            <label for="calorie-goal">每日目标热量 (kcal)</label>
+            <input type="number" id="calorie-goal" placeholder="例如：2000" value="2000" min="0" />
+        </div>
+
+        <div class="progress-container">
+            <label>今日进度</label>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="calorie-info">
+                <span id="current-calories">0</span>
+                <span> / </span>
+                <span id="total-calories">2000</span>
+                <span>kcal</span>
+            </div>
+        </div>
+
+        <div class="food-selection">
+            <label for="food-select">选择食物</label>
+            <select id="food-select">
+                <option value="">-- 选择一种食物 --</option>
+                <option value="80">苹果 (100g) - 80 kcal</option>
+                <option value="150">香蕉 (100g) - 150 kcal</option>
+                <option value="350">米饭 (100g) - 350 kcal</option>
+                <option value="400">面条 (100g) - 400 kcal</option>
+                <option value="120">鸡蛋 (1个) - 120 kcal</option>
+                <option value="200">牛奶 (250ml) - 200 kcal</option>
+                <option value="250">鸡胸肉 (100g) - 250 kcal</option>
+                <option value="550">牛肉 (100g) - 550 kcal</option>
+                <option value="450">三文鱼 (100g) - 450 kcal</option>
+                <option value="60">黄瓜 (100g) - 60 kcal</option>
+                <option value="70">西红柿 (100g) - 70 kcal</option>
+                <option value="500">巧克力 (100g) - 500 kcal</option>
+                <option value="300">面包 (1片) - 300 kcal</option>
+                <option value="180">酸奶 (100g) - 180 kcal</option>
+                <option value="90">橙子 (100g) - 90 kcal</option>
+            </select>
+
+            <button id="add-food">添加到今日记录</button>
+            <button id="clear-all" class="clear-btn">清空今日记录</button>
+        </div>
+
+        <div class="log">
+            <h3>今日摄入记录</h3>
+            <div id="log-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化变量
+        let currentCalories = 0;
+        const calorieLog = [];
+        const calorieGoalInput = document.getElementById('calorie-goal');
+        const progressFill = document.getElementById('progress-fill');
+        const currentCaloriesSpan = document.getElementById('current-calories');
+        const totalCaloriesSpan = document.getElementById('total-calories');
+        const foodSelect = document.getElementById('food-select');
+        const addFoodButton = document.getElementById('add-food');
+        const clearAllButton = document.getElementById('clear-all');
+        const logList = document.getElementById('log-list');
+
+        // 更新目标值显示
+        function updateGoal() {
+            const goal = parseInt(calorieGoalInput.value) || 0;
+            if (goal <= 0) {
+                alert("请设置一个有效的热量目标！");
+                calorieGoalInput.value = "2000";
+                totalCaloriesSpan.textContent = "2000";
+                return 2000;
+            }
+            totalCaloriesSpan.textContent = goal;
+            updateProgress();
+            return goal;
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const goal = parseInt(calorieGoalInput.value) || 2000;
+            const percentage = goal > 0 ? Math.min((currentCalories / goal) * 100, 100) : 0;
+            progressFill.style.width = `${percentage}%`;
+
+            // 根据百分比改变颜色
+            if (percentage < 70) {
+                progressFill.style.backgroundColor = '#3498db';
+            } else if (percentage < 100) {
+                progressFill.style.backgroundColor = '#f39c12';
+            } else {
+                progressFill.style.backgroundColor = '#e74c3c';
+            }
+
+            currentCaloriesSpan.textContent = currentCalories;
+        }
+
+        // 添加食物
+        function addFood() {
+            const selectedIndex = foodSelect.selectedIndex;
+            if (selectedIndex <= 0) {
+                alert("请选择一种食物！");
+                return;
+            }
+
+            const option = foodSelect.options[selectedIndex];
+            const calories = parseInt(option.value);
+            const foodName = option.text.split(' - ')[0];
+
+            currentCalories += calories;
+            calorieLog.push({ foodName, calories });
+
+            updateProgress();
+            updateLog();
+            foodSelect.selectedIndex = 0; // 重置选择
+        }
+
+        // 更新日志列表
+        function updateLog() {
+            logList.innerHTML = '';
+            calorieLog.forEach((item, index) => {
+                const logItem = document.createElement('div');
+                logItem.className = 'log-item';
+                logItem.innerHTML = `
+                    <span>${item.foodName}</span>
+                    <span>${item.calories} kcal</span>
+                `;
+                logList.appendChild(logItem);
+            });
+        }
+
+        // 清空所有记录
+        function clearAll() {
+            if (calorieLog.length === 0) return;
+
+            if (confirm("确定要清空今日所有记录吗？")) {
+                currentCalories = 0;
+                calorieLog.length = 0;
+                updateProgress();
+                updateLog();
+            }
+        }
+
+        // 事件监听
+        calorieGoalInput.addEventListener('change', updateGoal);
+        addFoodButton.addEventListener('click', addFood);
+        clearAllButton.addEventListener('click', clearAll);
+
+        // 初始化
+        window.onload = () => {
+            updateGoal();
+            updateProgress();
+        };
+    </script>
+</body>
+</html>

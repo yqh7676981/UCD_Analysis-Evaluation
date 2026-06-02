@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星光美发沙龙 - 专业发型设计</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f5f0;
+        }
+        
+        header {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1574880320543-e0b452326a8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-align: center;
+            padding: 100px 20px;
+        }
+        
+        header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            background-color: #d4af37;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        nav li {
+            margin: 0 20px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        nav a:hover {
+            color: #333;
+            transform: translateY(-2px);
+        }
+        
+        section {
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            color: #d4af37;
+            position: relative;
+        }
+        
+        h2:after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: #d4af37;
+            margin: 15px auto;
+        }
+        
+        .services {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+        
+        .service-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .service-img {
+            height: 200px;
+            background-color: #f0e6d2;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .service-content {
+            padding: 20px;
+        }
+        
+        .service-content h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .service-content p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .price {
+            font-weight: bold;
+            color: #d4af37;
+            font-size: 1.2rem;
+        }
+        
+        .stylists {
+            background-color: #f0e6d2;
+        }
+        
+        .stylist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .stylist-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stylist-card:hover {
+            transform: scale(1.03);
+        }
+        
+        .stylist-img {
+            height: 250px;
+            background-color: #d4af37;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .stylist-info {
+            padding: 20px;
+        }
+        
+        .stylist-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .specialty {
+            color: #d4af37;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .booking {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .booking-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .booking-form {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #d4af37;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 30px auto 0;
+        }
+        
+        button:hover {
+            background-color: #b8972f;
+        }
+        
+        .reviews {
+            background-color: #f0e6d2;
+        }
+        
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .review-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .rating {
+            color: #d4af37;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .review-text {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .customer {
+            display: flex;
+            align-items: center;
+        }
+        
+        .customer-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #d4af37;
+            margin-right: 15px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .customer-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            text-align: left;
+        }
+        
+        .footer-section h3 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .contact-info p {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .social-links {
+            display: flex;
+            margin-top: 15px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: #555;
+            color: white;
+            border-radius: 50%;
+            margin-right: 10px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: #d4af37;
+        }
+        
+        .copyright {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+            text-align: center;
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            overflow: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            position: relative;
+            animation: modalopen 0.5s;
+        }
+        
+        @keyframes modalopen {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>星光美发沙龙</h1>
+        <p>专业发型设计，为您打造专属魅力形象</p>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#services">服务项目</a></li>
+            <li><a href="#stylists">造型师团队</a></li>
+            <li><a href="#booking">在线预约</a></li>
+            <li><a href="#reviews">客户评价</a></li>
+            <li><a href="#contact">联系我们</a></li>
+        </ul>
+    </nav>
+    
+    <section id="services">
+        <h2>我们的服务</h2>
+        <div class="services">
+            <div class="service-grid">
+                <div class="service-card">
+                    <div class="service-img" style="background-image: url('https://images.unsplash.com/photo-1567722066597-2bdf36d13481?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="service-content">
+                        <h3>剪发造型</h3>
+                        <p>由专业造型师根据您的脸型和气质设计最适合的发型</p>
+                        <span class="price">¥188起</span>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-img" style="background-image: url('https://images.unsplash.com/photo-1562322140-8baeececf3df?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="service-content">
+                        <h3>染发护理</h3>
+                        <p>使用顶级染发产品，保护发质的同时呈现完美色彩</p>
+                        <span class="price">¥388起</span>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-img" style="background-image: url('https://images.unsplash.com/photo-1569982153266-88291293dc0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="service-content">
+                        <h3>烫发造型</h3>
+                        <p>韩式、日式等多种烫发技术，打造持久动感卷发</p>
+                        <span class="price">¥588起</span>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-img" style="background-image: url('https://images.unsplash.com/photo-1577933197337-c66c60832465?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                    <div class="service-content">
+                        <h3>头皮护理</h3>
+                        <p>深层清洁+营养导入，改善头皮环境，促进头发健康生长</p>
+                        <span class="price">¥288起</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="stylists">
+        <h2>造型师团队</h2>
+        <div class="stylist-grid">
+            <div class="stylist-card">
+                <div class="stylist-img" style="background-image: url('https://images.unsplash.com/photo-1558403194-611308935126?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                <div class="stylist-info">
+                    <h3>李安娜</h3>
+                    <span class="specialty">首席造型师</span>
+                    <p>拥有12年行业经验，擅长时尚剪裁与创意染发，曾获全国美发大赛金奖。</p>
+                </div>
+            </div>
+            
+            <div class="stylist-card">
+                <div class="stylist-img" style="background-image: url('https://images.unsplash.com/photo-1565818517745-9be614323938?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                <div class="stylist-info">
+                    <h3>张伟</h3>
+                    <span class="specialty">烫染专家</span>
+                    <p>专注于烫发与染发技术研究8年，精通各种国际流行发色与卷度设计。</p>
+                </div>
+            </div>
+            
+            <div class="stylist-card">
+                <div class="stylist-img" style="background-image: url('https://images.unsplash.com/photo-1557551829-c863fedd9313?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                <div class="stylist-info">
+                    <h3>王静</h3>
+                    <span class="specialty">新锐设计师</span>
+                    <p>毕业于巴黎美发学院，将国际潮流元素融入东方审美，打造独特个性发型。</p>
+                </div>
+            </div>
+            
+            <div class="stylist-card">
+                <div class="stylist-img" style="background-image: url('https://images.unsplash.com/photo-1580618672591-eb180b1a973f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80');"></div>
+                <div class="stylist-info">
+                    <h3>陈芳</h3>
+                    <span class="specialty">护理专家</span>
+                    <p>专注头皮与发质健康研究10年，为每位顾客定制专属护理方案。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="booking">
+        <h2>在线预约</h2>
+        <div class="booking">
+            <form id="bookingForm" class="booking-form">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">电话</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="service">选择服务</label>
+                    <select id="service" name="service" required>
+                        <option value="">请选择服务项目</option>
+                        <option value="cut">剪发造型</option>
+                        <option value="color">染发护理</option>
+                        <option value="perm">烫发造型</option>
+                        <option value="treatment">头皮护理</option>
+                        <option value="other">其他服务</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stylist">选择造型师</label>
+                    <select id="stylist" name="stylist" required>
+                        <option value="">请选择造型师</option>
+                        <option value="li">李安娜</option>
+                        <option value="zhang">张伟</option>
+                        <option value="wang">王静</option>
+                        <option value="chen">陈芳</option>
+                        <option value="any">任意造型师</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">预约日期</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="time">预约时间</label>
+                    <select id="time" name="time" required>
+                        <option value="">请选择时间</option>
+                        <option value="9:00">9:00</option>
+                        <option value="10:00">10:00</option>
+                        <option value="11:00">11:00</option>
+                        <option value="14:00">14:00</option>
+                        <option value="15:00">15:00</option>
+                        <option value="16:00">16:00</option>
+                        <option value="17:00">17:00</option>
+                        <option value="18:00">18:00</option>
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="notes">备注信息</label>
+                    <textarea id="notes" name="notes" rows="4" placeholder="您有任何特殊需求或想法，请在这里告诉我们..."></textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <button type="submit">提交预约</button>
+                </div>
+            </form>
+        </div>
+    </section>
+    
+    <section id="reviews">
+        <h2>客户评价</h2>
+        <div class="review-grid">
+            <div class="review-card">
+                <div class="rating">★★★★★</div>
+                <p class="review-text">"在星光沙龙做了人生中最满意的一次发型！李安娜老师非常专业，不仅根据我的脸型设计了合适的发型，还给了我很多日常打理的建议。服务态度也特别好，环境优雅舒适，以后就是我的固定沙龙了！"</p>
+                <div class="customer">
+                    <div class="customer-img" style="background-image: url('https://images.unsplash.com/photo-1494790108537-97f1f9be3ac8?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80');"></div>
+                    <div class="customer-info">
+                        <h4>林女士</h4>
+                        <span class="date">2023年10月15日</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="rating">★★★★★</div>
+                <p class="review-text">"一直很害怕染发会伤头发，但这里的染发体验完全改变了我的想法。使用的是进口植物染发剂，过程中还有专门的护理，染完头发不但颜色漂亮，而且比之前更柔顺了。价格虽然稍高，但绝对物有所值！"</p>
+                <div class="customer">
+                    <div class="customer-img" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80');"></div>
+                    <div class="customer-info">
+                        <h4>张先生</h4>
+                        <span class="date">2023年9月28日</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="review-card">
+                <div class="rating">★★★★☆</div>
+                <p class="review-text">"整体体验很不错，王静设计师很有想法，给我设计的层次感短发很适合我。唯一的小遗憾是预约的时间稍微等了十分钟，不过看到前面的客人也在做精细的造型，也就理解了。已经推荐给闺蜜们了！"</p>
+                <div class="customer">
+                    <div class="customer-img" style="background-image: url('https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80');"></div>
+                    <div class="customer-info">
+                        <h4>赵小姐</h4>
+                        <span class="date">2023年10月5日</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer id="contact">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>星光美发沙龙</h3>
+                <p>致力于为每一位顾客提供专业的美发服务和舒适的美容体验，让您的美丽从"头"开始。</p>
+            </div>
+            
+            <div class="footer-section contact-info">
+                <h3>联系我们</h3>
+                <p>📍 地址：上海市黄浦区南京东路123号星光大厦2楼</p>
+                <p>📞 电话：021-1234-5678</p>
+                <p>✉️ 邮箱：info@starhair.com</p>
+                <p>⏰ 营业时间：周一至周日 9:00 - 20:00</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>关注我们</h3>
+                <div class="social-links">
+                    <a href="#" aria-label="微信">We</a>
+                    <a href="#" aria-label="微博">Wb</a>
+                    <a href="#" aria-label="小红书">Xh</a>
+                    <a href="#" aria-label="抖音">Dy</a>
+                </div>
+                <p style="margin-top: 20px;">扫描二维码关注我们，获取最新优惠资讯</p>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2023 星光美发沙龙. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <!-- 预约成功弹窗 -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 style="color: #d4af37; text-align: center; margin-bottom: 20px;">预约成功！</h2>
+            <p style="text-align: center; line-height: 1.8;">感谢您的预约，我们已收到您的信息。客服人员将在30分钟内与您确认预约详情。如有任何问题，请随时致电我们：021-1234-5678</p>
+            <p style="text-align: center; margin-top: 30px; color: #d4af37;">期待为您提供优质服务！</p>
+        </div>
+    </div>
+    
+    <script>
+        // 获取模态框和关闭按钮
+        const modal = document.getElementById("successModal");
+        const closeBtn = document.getElementsByClassName("close")[0];
+        
+        // 表单提交事件
+        document.getElementById("bookingForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            // 显示成功模态框
+            modal.style.display = "block";
+            
+            // 清空表单
+            this.reset();
+        });
+        
+        // 点击关闭按钮关闭模态框
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        
+        // 设置最小预约日期为今天
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("date").setAttribute('min', today);
+        
+        // 平滑滚动到锚点
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

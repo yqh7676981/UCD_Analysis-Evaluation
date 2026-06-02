@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>康护云 - 慢性病健康管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --bg-secondary: #111827;
+            --fg: #f0f4f8;
+            --muted: #6b7994;
+            --accent: #00d4aa;
+            --accent-secondary: #00b894;
+            --card: rgba(17, 24, 39, 0.8);
+            --border: rgba(0, 212, 170, 0.15);
+            --danger: #ff6b6b;
+            --warning: #ffd93d;
+            --success: #00d4aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Background Effects */
+        .bg-mesh {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-mesh::before {
+            content: '';
+            position: absolute;
+            width: 150%;
+            height: 150%;
+            top: -25%;
+            left: -25%;
+            background: 
+                radial-gradient(ellipse 600px 400px at 20% 20%, rgba(0, 212, 170, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 500px 500px at 80% 80%, rgba(0, 184, 148, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 400px 300px at 60% 30%, rgba(0, 212, 170, 0.04) 0%, transparent 50%);
+            animation: meshFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes meshFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2%, 1%) rotate(1deg); }
+            50% { transform: translate(-1%, 2%) rotate(-1deg); }
+            75% { transform: translate(1%, -1%) rotate(0.5deg); }
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Navigation */
+        .nav-glass {
+            background: rgba(10, 15, 26, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-item:hover::after,
+        .nav-item.active::after {
+            width: 100%;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        /* Cards */
+        .card-glass {
+            background: var(--card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-glass:hover {
+            border-color: rgba(0, 212, 170, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.1);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            color: var(--bg);
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        .btn-primary:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        /* Progress Ring */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            stroke-dasharray: 283;
+            stroke-dashoffset: 283;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        /* Status Indicators */
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger Animation */
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+
+        /* Tab System */
+        .tab-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--fg);
+        }
+
+        /* Symptom Tracker */
+        .severity-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        .severity-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        /* Medication Card */
+        .med-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .med-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .med-card.taken::before {
+            background: var(--success);
+        }
+
+        .med-card.pending::before {
+            background: var(--warning);
+        }
+
+        .med-card.missed::before {
+            background: var(--danger);
+        }
+
+        /* Checkbox Custom */
+        .checkbox-custom {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-custom.checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .checkbox-custom svg {
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease;
+        }
+
+        .checkbox-custom.checked svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Educational Content */
+        .edu-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .edu-card .tag {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 15, 26, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 480px;
+            width: 90%;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Input Styles */
+        .input-field {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--fg);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: var(--muted);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 170, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 212, 170, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .mobile-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(10, 15, 26, 0.95);
+                backdrop-filter: blur(20px);
+                border-top: 1px solid var(--border);
+                padding: 12px 0;
+                z-index: 50;
+            }
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Time Badge */
+        .time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(0, 212, 170, 0.1);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--accent);
+        }
+
+        /* Floating Action */
+        .fab {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 30px rgba(0, 212, 170, 0.4);
+            transition: all 0.3s ease;
+            z-index: 40;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+        }
+
+        @media (min-width: 769px) {
+            .fab {
+                bottom: 24px;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-mesh"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d4aa] to-[#00b894] flex items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a0f1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                        </svg>
+                    </div>
+                    <span class="font-display font-bold text-xl">康护云</span>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-8">
+                    <button class="nav-item active font-medium" data-section="dashboard">仪表盘</button>
+                    <button class="nav-item font-medium" data-section="symptoms">症状追踪</button>
+                    <button class="nav-item font-medium" data-section="medications">用药管理</button>
+                    <button class="nav-item font-medium" data-section="education">健康学堂</button>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button class="relative p-2 rounded-lg hover:bg-white/5 transition-colors" aria-label="通知">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span class="absolute top-1 right-1 w-2 h-2 bg-[#ff6b6b] rounded-full"></span>
+                    </button>
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-br from-[#00d4aa]/30 to-[#00b894]/30 border-2 border-[#00d4aa]/50 flex items-center justify-center text-sm font-semibold">
+                        李
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 pt-24 pb-24 md:pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Header Section -->
+            <section class="reveal mb-8">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+                    <div>
+                        <p class="text-[#6b7994] mb-1">2024年12月19日 星期四</p>
+                        <h1 class="font-display text-3xl md:text-4xl font-bold">早上好，李明</h1>
+                    </div>
+                    <div class="time-badge">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        <span id="currentTime">08:30</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Stats -->
+            <section class="reveal stagger-1 grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="card-glass p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[#6b7994] text-sm">今日用药</span>
+                        <div class="w-8 h-8 rounded-lg bg-[#00d4aa]/10 flex items-center justify-center">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2">
+                                <path d="M10.5 20.5L3.5 13.5C2 12 2 9.5 3.5 8C5 6.5 7.5 6.5 9 8L16 15"/>
+                                <path d="M13.5 17.5L20.5 10.5C22 9 22 6.5 20.5 5C19 3.5 16.5 3.5 15 5L8 12"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-display text-2xl font-bold">3/4</div>
+                    <div class="text-xs text-[#6b7994] mt-1">已完成 75%</div>
+                </div>
+
+                <div class="card-glass p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[#6b7994] text-sm">症状评分</span>
+                        <div class="w-8 h-8 rounded-lg bg-[#00d4aa]/10 flex items-center justify-center">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-display text-2xl font-bold text-[#00d4aa]">良好</div>
+                    <div class="text-xs text-[#6b7994] mt-1">较昨日改善 15%</div>
+                </div>
+
+                <div class="card-glass p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[#6b7994] text-sm">连续记录</span>
+                        <div class="w-8 h-8 rounded-lg bg-[#00d4aa]/10 flex items-center justify-center">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4aa" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-display text-2xl font-bold">14 天</div>
+                    <div class="text-xs text-[#6b7994] mt-1">继续保持</div>
+                </div>
+
+                <div class="card-glass p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-[#6b7994] text-sm">下次复诊</span>
+                        <div class="w-8 h-8 rounded-lg bg-[#ffd93d]/10 flex items-center justify-center">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffd93d" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="font-display text-2xl font-bold">3 天后</div>
+                    <div class="text-xs text-[#ffd93d] mt-1">12月22日 09:00</div>
+                </div>
+            </section>
+
+            <!-- Main Grid -->
+            <div class="grid lg:grid-cols-3 gap-6">
+                
+                <!-- Left Column: Symptoms & Quick Log -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Symptom Tracker -->
+                    <section class="reveal stagger-2 card-glass p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="font-display text-xl font-semibold mb-1">症状追踪</h2>
+                                <p class="text-sm text-[#6b7994]">记录您的日常症状变化</p>
+                            </div>
+                            <button class="btn-secondary text-sm" onclick="openSymptomModal()">
+                                添加记录
+                            </button>
+                        </div>
+
+                        <!-- Symptom Tabs -->
+                        <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
+                            <button class="tab-btn active" data-tab="today">今日</button>
+                            <button class="tab-btn" data-tab="week">本周</button>
+                            <button class="tab-btn" data-tab="month">本月</button>
+                        </div>
+
+                        <!-- Symptoms List -->
+                        <div class="space-y-4" id="symptomsList">
+                            <div class="flex items-center gap-4 p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-medium">疲劳程度</span>
+                                        <span class="text-sm text-[#00d4aa]">轻度</span>
+                                    </div>
+                                    <div class="severity-bar">
+                                        <div class="severity-fill bg-gradient-to-r from-[#00d4aa] to-[#00b894]" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-[#6b7994]">08:00</span>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-medium">关节疼痛</span>
+                                        <span class="text-sm text-[#ffd93d]">中度</span>
+                                    </div>
+                                    <div class="severity-bar">
+                                        <div class="severity-fill bg-gradient-to-r from-[#ffd93d] to-[#f0c419]" style="width: 55%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-[#6b7994]">08:00</span>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="font-medium">睡眠质量</span>
+                                        <span class="text-sm text-[#00d4aa]">良好</span>
+                                    </div>
+                                    <div class="severity-bar">
+                                        <div class="severity-fill bg-gradient-to-r from-[#00d4aa] to-[#00b894]" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-[#6b7994]">07:30</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Health Trend Chart -->
+                    <section class="reveal stagger-3 card-glass p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="font-display text-xl font-semibold mb-1">健康趋势</h2>
+                                <p class="text-sm text-[#6b7994]">过去7天症状评分变化</p>
+                            </div>
+                        </div>
+                        
+                        <div class="relative h-48">
+                            <svg class="w-full h-full" viewBox="0 0 400 160" preserveAspectRatio="none">
+                                <!-- Grid Lines -->
+                                <defs>
+                                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#00d4aa" stop-opacity="1"/>
+                                        <stop offset="100%" stop-color="#00b894" stop-opacity="1"/>
+                                    </linearGradient>
+                                    <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#00d4aa" stop-opacity="0.3"/>
+                                        <stop offset="100%" stop-color="#00d4aa" stop-opacity="0"/>
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Area -->
+                                <path d="M0,120 L57,100 L114,110 L171,80 L228,90 L285,60 L342,50 L400,40 L400,160 L0,160 Z" fill="url(#areaGradient)"/>
+                                
+                                <!-- Line -->
+                                <path d="M0,120 L57,100 L114,110 L171,80 L228,90 L285,60 L342,50 L400,40" fill="none" stroke="url(#lineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                
+                                <!-- Points -->
+                                <circle cx="0" cy="120" r="5" fill="#00d4aa"/>
+                                <circle cx="57" cy="100" r="5" fill="#00d4aa"/>
+                                <circle cx="114" cy="110" r="5" fill="#00d4aa"/>
+                                <circle cx="171" cy="80" r="5" fill="#00d4aa"/>
+                                <circle cx="228" cy="90" r="5" fill="#00d4aa"/>
+                                <circle cx="285" cy="60" r="5" fill="#00d4aa"/>
+                                <circle cx="342" cy="50" r="5" fill="#00d4aa"/>
+                                <circle cx="400" cy="40" r="6" fill="#0a0f1a" stroke="#00d4aa" stroke-width="3"/>
+                            </svg>
+                            
+                            <!-- X-axis Labels -->
+                            <div class="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-[#6b7994] px-2">
+                                <span>周一</span>
+                                <span>周二</span>
+                                <span>周三</span>
+                                <span>周四</span>
+                                <span>周五</span>
+                                <span>周六</span>
+                                <span>周日</span>
+                                <span class="text-[#00d4aa]">今日</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Medications -->
+                <div class="space-y-6">
+                    
+                    <!-- Today's Medications -->
+                    <section class="reveal stagger-3 card-glass p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h2 class="font-display text-xl font-semibold mb-1">今日用药</h2>
+                                <p class="text-sm text-[#6b7994]">记得按时服药</p>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3" id="medicationsList">
+                            <!-- Medication items will be rendered here -->
+                        </div>
+                    </section>
+
+                    <!-- Upcoming Appointments -->
+                    <section class="reveal stagger-4 card-glass p-6">
+                        <h2 class="font-display text-xl font-semibold mb-4">即将到来的预约</h2>
+                        
+                        <div class="space-y-3">
+                            <div class="p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-[#00d4aa]/10 flex flex-col items-center justify-center text-sm">
+                                        <span class="text-[#00d4aa] font-bold">22</span>
+                                        <span class="text-[#6b7994] text-xs">12月</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium mb-1">内分泌科复诊</h4>
+                                        <p class="text-sm text-[#6b7994]">北京协和医院 · 张医生</p>
+                                        <p class="text-xs text-[#00d4aa] mt-1">09:00 - 09:30</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-[#ffd93d]/10 flex flex-col items-center justify-center text-sm">
+                                        <span class="text-[#ffd93d] font-bold">05</span>
+                                        <span class="text-[#6b7994] text-xs">1月</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-medium mb-1">血压监测检查</h4>
+                                        <p class="text-sm text-[#6b7994]">社区卫生中心</p>
+                                        <p class="text-xs text-[#ffd93d] mt-1">14:00 - 14:30</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quick Actions -->
+                    <section class="reveal stagger-4 card-glass p-6">
+                        <h2 class="font-display text-xl font-semibold mb-4">快速操作</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button class="p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10 hover:border-[#00d4aa]/30 transition-all text-center" onclick="openSymptomModal()">
+                                <svg class="w-6 h-6 mx-auto mb-2 text-[#00d4aa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 5v14M5 12h14"/>
+                                </svg>
+                                <span class="text-sm">记录症状</span>
+                            </button>
+                            <button class="p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10 hover:border-[#00d4aa]/30 transition-all text-center" onclick="openMedModal()">
+                                <svg class="w-6 h-6 mx-auto mb-2 text-[#00d4aa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10.5 20.5L3.5 13.5C2 12 2 9.5 3.5 8C5 6.5 7.5 6.5 9 8L16 15"/>
+                                    <path d="M13.5 17.5L20.5 10.5C22 9 22 6.5 20.5 5C19 3.5 16.5 3.5 15 5L8 12"/>
+                                </svg>
+                                <span class="text-sm">添加药物</span>
+                            </button>
+                            <button class="p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10 hover:border-[#00d4aa]/30 transition-all text-center">
+                                <svg class="w-6 h-6 mx-auto mb-2 text-[#00d4aa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                <span class="text-sm">导出报告</span>
+                            </button>
+                            <button class="p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10 hover:border-[#00d4aa]/30 transition-all text-center">
+                                <svg class="w-6 h-6 mx-auto mb-2 text-[#00d4aa]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                </svg>
+                                <span class="text-sm">联系医生</span>
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <!-- Education Section -->
+            <section class="reveal stagger-4 mt-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="font-display text-2xl font-semibold mb-1">健康学堂</h2>
+                        <p class="text-[#6b7994]">了解慢性病管理知识，掌握健康主动权</p>
+                    </div>
+                    <button class="btn-secondary text-sm hidden md:block">
+                        查看全部
+                    </button>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="educationGrid">
+                    <!-- Education cards will be rendered here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav md:hidden">
+        <div class="flex justify-around">
+            <button class="flex flex-col items-center gap-1 text-[#00d4aa]" data-section="dashboard">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="9"/>
+                    <rect x="14" y="3" width="7" height="5"/>
+                    <rect x="14" y="12" width="7" height="9"/>
+                    <rect x="3" y="16" width="7" height="5"/>
+                </svg>
+                <span class="text-xs">首页</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-[#6b7994]" data-section="symptoms">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                <span class="text-xs">症状</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-[#6b7994]" data-section="medications">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.5 20.5L3.5 13.5C2 12 2 9.5 3.5 8C5 6.5 7.5 6.5 9 8L16 15"/>
+                    <path d="M13.5 17.5L20.5 10.5C22 9 22 6.5 20.5 5C19 3.5 16.5 3.5 15 5L8 12"/>
+                </svg>
+                <span class="text-xs">用药</span>
+            </button>
+            <button class="flex flex-col items-center gap-1 text-[#6b7994]" data-section="education">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+                <span class="text-xs">学堂</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- FAB Button -->
+    <button class="fab" onclick="openSymptomModal()" aria-label="快速记录">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a0f1a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+    </button>
+
+    <!-- Symptom Modal -->
+    <div class="modal-overlay" id="symptomModal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-display text-xl font-semibold">记录症状</h3>
+                <button onclick="closeModal('symptomModal')" class="p-2 hover:bg-white/5 rounded-lg transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="symptomForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-[#6b7994] mb-2">症状类型</label>
+                    <select class="input-field" id="symptomType">
+                        <option value="">请选择症状</option>
+                        <option value="fatigue">疲劳</option>
+                        <option value="pain">疼痛</option>
+                        <option value="sleep">睡眠问题</option>
+                        <option value="appetite">食欲问题</option>
+                        <option value="mood">情绪变化</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-[#6b7994] mb-2">严重程度</label>
+                    <div class="flex gap-2">
+                        <button type="button" class="severity-btn flex-1 p-3 rounded-lg border border-[#00d4aa]/20 text-sm hover:border-[#00d4aa]/50 transition-all" data-level="1">轻微</button>
+                        <button type="button" class="severity-btn flex-1 p-3 rounded-lg border border-[#00d4aa]/20 text-sm hover:border-[#00d4aa]/50 transition-all" data-level="2">轻度</button>
+                        <button type="button" class="severity-btn flex-1 p-3 rounded-lg border border-[#00d4aa]/20 text-sm hover:border-[#00d4aa]/50 transition-all" data-level="3">中度</button>
+                        <button type="button" class="severity-btn flex-1 p-3 rounded-lg border border-[#00d4aa]/20 text-sm hover:border-[#00d4aa]/50 transition-all" data-level="4">严重</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-[#6b7994] mb-2">备注（可选）</label>
+                    <textarea class="input-field resize-none" rows="3" placeholder="记录更多细节..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full mt-6">保存记录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Medication Modal -->
+    <div class="modal-overlay" id="medModal">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-display text-xl font-semibold">添加药物</h3>
+                <button onclick="closeModal('medModal')" class="p-2 hover:bg-white/5 rounded-lg transition-colors">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="medForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-[#6b7994] mb-2">药物名称</label>
+                    <input type="text" class="input-field" placeholder="例如：二甲双胍">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-[#6b7994] mb-2">剂量</label>
+                        <input type="text" class="input-field" placeholder="例如：500mg">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-[#6b7994] mb-2">频率</label>
+                        <select class="input-field">
+                            <option>每日一次</option>
+                            <option>每日两次</option>
+                            <option>每日三次</option>
+                            <option>每周一次</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-[#6b7994] mb-2">服药时间</label>
+                    <input type="time" class="input-field" value="08:00">
+                </div>
+                
+                <button type="submit" class="btn-primary w-full mt-6">添加药物</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const medications = [
+            { id: 1, name: '二甲双胍', dose: '500mg', time: '08:00', status: 'taken', frequency: '早餐后' },
+            { id: 2, name: '氨氯地平', dose: '5mg', time: '08:00', status: 'taken', frequency: '早餐后' },
+            { id: 3, name: '阿托伐他汀', dose: '20mg', time: '20:00', status: 'pending', frequency: '晚餐后' },
+            { id: 4, name: '阿司匹林', dose: '100mg', time: '12:00', status: 'pending', frequency: '午餐后' }
+        ];
+
+        const educationContent = [
+            {
+                id: 1,
+                title: '糖尿病患者的饮食管理',
+                description: '了解如何通过合理饮食控制血糖水平，预防并发症。',
+                readTime: '8分钟',
+                category: '糖尿病',
+                categoryColor: '#00d4aa'
+            },
+            {
+                id: 2,
+                title: '高血压的日常监测要点',
+                description: '掌握正确的血压测量方法，了解血压波动的影响因素。',
+                readTime: '5分钟',
+                category: '高血压',
+                categoryColor: '#ffd93d'
+            },
+            {
+                id: 3,
+                title: '慢性病患者如何科学运动',
+                description: '适合慢性病患者的运动方式和强度建议。',
+                readTime: '10分钟',
+                category: '生活方式',
+                categoryColor: '#ff6b6b'
+            },
+            {
+                id: 4,
+                title: '用药依从性的重要性',
+                description: '为什么按时服药如此重要？如何建立良好的用药习惯？',
+                readTime: '6分钟',
+                category: '用药指导',
+                categoryColor: '#00d4aa'
+            },
+            {
+                id: 5,
+                title: '冬季慢性病防护指南',
+                description: '寒冷季节如何保护自己，预防慢性病急性发作。',
+                readTime: '7分钟',
+                category: '季节保健',
+                categoryColor: '#ffd93d'
+            },
+            {
+                id: 6,
+                title: '如何解读您的检查报告',
+                description: '常见检验指标的含义，帮助您更好地了解自己的身体状况。',
+                readTime: '12分钟',
+                category: '检查解读',
+                categoryColor: '#ff6b6b'
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMedications();
+            renderEducation();
+            initScrollReveal();
+            initTabs();
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+
+        // Render Medications
+        function renderMedications() {
+            const container = document.getElementById('medicationsList');
+            container.innerHTML = medications.map(med => `
+                <div class="med-card ${med.status} p-4 rounded-xl bg-black/20 border border-[#00d4aa]/10">
+                    <div class="flex items-center gap-3">
+                        <div class="checkbox-custom ${med.status === 'taken' ? 'checked' : ''}" onclick="toggleMedication(${med.id})" role="checkbox" aria-checked="${med.status === 'taken'}" tabindex="0">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0f1a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">${med.name}</span>
+                                <span class="text-xs text-[#6b7994]">${med.dose}</span>
+                            </div>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs text-[#6b7994]">${med.time}</span>
+                                <span class="text-xs text-[#6b7994]">·</span>
+                                <span class="text-xs text-[#6b7994]">${med.frequency}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full ${getStatusStyle(med.status)}">${getStatusText(med.status)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusStyle(status) {
+            const styles = {
+                taken: 'bg-[#00d4aa]/20 text-[#00d4aa]',
+                pending: 'bg-[#ffd93d]/20 text-[#ffd93d]',
+                missed: 'bg-[#ff6b6b]/20 text-[#ff6b6b]'
+            };
+            return styles[status] || styles.pending;
+        }
+
+        function getStatusText(status) {
+            const texts = { taken: '已服用', pending: '待服用', missed: '已错过' };
+            return texts[status] || '待服用';
+        }
+
+        function toggleMedication(id) {
+            const med = medications.find(m => m.id === id);
+            if (med) {
+                med.status = med.status === 'taken' ? 'pending' : 'taken';
+                renderMedications();
+            }
+        }
+
+        // Render Education
+        function renderEducation() {
+            const container = document.getElementById('educationGrid');
+            container.innerHTML = educationContent.map(item => `
+                <article class="edu-card card-glass p-5 cursor-pointer group" tabindex="0">
+                    <span class="tag bg-[${item.categoryColor}]/20 text-[${item.categoryColor}]">${item.category}</span>
+                    <h3 class="font-semibold mb-2 pr-16 group-hover:text-[#00d4aa] transition-colors">${item.title}</h3>
+                    <p class="text-sm text-[#6b7994] mb-4 line-clamp-2">${item.description}</p>
+                    <div class="flex items-center gap-2 text-xs text-[#6b7994]">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        <span>${item.readTime}阅读</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        // Scroll Reveal
+        function initScrollReveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            reveals.forEach(el => observer.observe(el));
+        }
+
+        // Tabs
+        function initTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                });
+            });
+        }
+
+        // Time
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('currentTime').textContent = timeStr;
+        }
+
+        // Modals
+        function openSymptomModal() {
+            document.getElementById('symptomModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function openMedModal() {
+            document.getElementById('medModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Severity buttons
+        let selectedSeverity = null;
+        document.querySelectorAll('.severity-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.severity-btn').forEach(b => {
+                    b.classList.remove('bg-[#00d4aa]/20', 'border-[#00d4aa]', 'text-[#00d4aa]');
+                });
+                btn.classList.add('bg-[#00d4aa]/20', 'border-[#00d4aa]', 'text-[#00d4aa]');
+                selectedSeverity = btn.dataset.level;
+            });
+        });
+
+        // Form submissions
+        document.getElementById('symptomForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            closeModal('symptomModal');
+            // Show success feedback
+            alert('症状记录已保存');
+        });
+
+        document.getElementById('medForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            closeModal('medModal');
+            alert('药物已添加');
+        });
+
+        // Keyboard navigation for checkboxes
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                if (e.target.classList.contains('checkbox-custom')) {
+                    e.preventDefault();
+                    e.target.click();
+                }
+            }
+        });
+
+        // Escape key closes modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

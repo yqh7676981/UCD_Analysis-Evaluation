@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宠物成长记录本</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f6f0;
+            color: #333;
+            padding-bottom: 90px;
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #FF9A9E, #FAD0C4);
+            padding: 24px 16px 20px;
+            text-align: center;
+            color: white;
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .header .sub {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 6px;
+        }
+        .header .sub span {
+            font-weight: 600;
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 16px 16px 0;
+        }
+
+        /* 记录卡片 */
+        .record-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            position: relative;
+            transition: transform 0.15s ease;
+        }
+        .record-card:active {
+            transform: scale(0.98);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .record-date {
+            font-weight: 600;
+            font-size: 16px;
+            color: #555;
+        }
+        .record-mood {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        .record-body {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .record-body .item {
+            display: flex;
+            align-items: baseline;
+            font-size: 14px;
+        }
+        .record-body .label {
+            font-size: 12px;
+            color: #999;
+            width: 58px;
+            flex-shrink: 0;
+            text-align: right;
+            margin-right: 10px;
+        }
+        .record-body .value {
+            font-size: 15px;
+            font-weight: 500;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        /* 删除按钮 */
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #ccc;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 50%;
+            transition: background 0.2s, color 0.2s;
+            line-height: 1;
+        }
+        .delete-btn:active,
+        .delete-btn:hover {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.08);
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #bbb;
+        }
+        .empty-state .icon {
+            font-size: 72px;
+            margin-bottom: 16px;
+        }
+        .empty-state p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* 浮动添加按钮 */
+        .fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            font-size: 34px;
+            font-weight: 300;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.45);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .fab:active {
+            transform: scale(0.88);
+            box-shadow: 0 2px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        /* 模态框覆盖层 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 22px;
+            padding: 28px 22px 22px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+        .modal h2 {
+            text-align: center;
+            margin-bottom: 22px;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #eee;
+            border-radius: 14px;
+            font-size: 16px;
+            background: #fafafa;
+            transition: border-color 0.2s, background 0.2s;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FF6B6B;
+            background: white;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        /* 心情选择器 */
+        .mood-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .mood-selector .mood-option {
+            font-size: 36px;
+            padding: 8px 14px;
+            border-radius: 16px;
+            border: 3px solid transparent;
+            background: #f5f5f5;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            line-height: 1;
+        }
+        .mood-selector .mood-option.selected {
+            border-color: #FF6B6B;
+            background: #ffe8e8;
+            transform: scale(1.12);
+        }
+        .mood-selector .mood-option:active {
+            transform: scale(0.92);
+        }
+
+        /* 表单按钮 */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+        }
+        .form-actions button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .form-actions button:active {
+            transform: scale(0.97);
+        }
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .btn-submit {
+            background: #FF6B6B;
+            color: white;
+        }
+        .btn-submit:disabled {
+            opacity: 0.5;
+        }
+
+        /* 自定义滚动条（模态框内） */
+        .modal::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+        }
+
+        /* 小屏适配 */
+        @media (max-width: 400px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            .record-body .item {
+                font-size: 13px;
+            }
+            .record-body .value {
+                font-size: 14px;
+            }
+            .modal {
+                padding: 22px 16px 18px;
+            }
+            .mood-selector .mood-option {
+                font-size: 30px;
+                padding: 6px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>🐾 宠物成长日记</h1>
+        <div class="sub">记录每一个成长的瞬间 · <span id="countSpan">共 0 条记录</span></div>
+    </header>
+
+    <main class="container" id="recordsContainer">
+        <!-- 记录由 JS 动态渲染 -->
+    </main>
+
+    <!-- 添加按钮 -->
+    <button class="fab" id="addBtn" aria-label="添加记录">+</button>
+
+    <!-- 新增记录模态框 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <h2>📝 新增记录</h2>
+            <form id="recordForm" autocomplete="off">
+                <div class="form-group">
+                    <label for="date">📅 日期</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="weight">⚖️ 体重 (kg)</label>
+                    <input type="number" id="weight" step="0.01" min="0" placeholder="例如 5.20" required>
+                </div>
+                <div class="form-group">
+                    <label for="diet">🍽 饮食</label>
+                    <textarea id="diet" placeholder="今天吃了什么？" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="health">💊 健康状态</label>
+                    <input type="text" id="health" placeholder="良好、生病、驱虫等">
+                </div>
+                <div class="form-group">
+                    <label for="fun">🎉 趣事</label>
+                    <textarea id="fun" placeholder="发生了什么有趣的事？" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>😊 心情</label>
+                    <div class="mood-selector" id="moodSelector"></div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelBtn">取消</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        /* ---------------------------------- 数据 ---------------------------------- */
+        const MOODS = [
+            { emoji: '😄', label: '开心' },
+            { emoji: '😊', label: '微笑' },
+            { emoji: '😐', label: '平静' },
+            { emoji: '😞', label: '不悦' },
+            { emoji: '😢', label: '生病' }
+        ];
+
+        const STORAGE_KEY = 'pet_records';
+
+        let selectedMood = MOODS[0].emoji; // 当前选中的心情
+
+        /* ---------------------------------- DOM ---------------------------------- */
+        const container = document.getElementById('recordsContainer');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modal = document.getElementById('modal');
+        const addBtn = document.getElementById('addBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const form = document.getElementById('recordForm');
+        const dateInput = document.getElementById('date');
+        const weightInput = document.getElementById('weight');
+        const dietInput = document.getElementById('diet');
+        const healthInput = document.getElementById('health');
+        const funInput = document.getElementById('fun');
+        const moodSelector = document.getElementById('moodSelector');
+        const countSpan = document.getElementById('countSpan');
+
+        /* ------------------------------- 存储操作 ------------------------------- */
+        function getRecords() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function saveRecords(records) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        }
+
+        /* ------------------------------- 渲染记录 ------------------------------- */
+        function renderRecords() {
+            const records = getRecords();
+
+            // 按日期降序，同日期按 id 降序（最新添加在前）
+            records.sort((a, b) => {
+                if (a.date === b.date) return b.id - a.id;
+                return b.date.localeCompare(a.date);
+            });
+
+            // 更新记录计数
+            countSpan.textContent = `共 ${records.length} 条记录`;
+
+            // 空状态
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🐶</div>
+                        <p>还没有记录哦<br>点击下方 + 添加第一条</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 生成卡片
+            let html = '';
+            for (const r of records) {
+                const weightDisplay = r.weight != null ? r.weight + ' kg' : '-';
+                const dietDisplay = r.diet || '-';
+                const healthDisplay = r.health || '-';
+                const funDisplay = r.fun || '-';
+                const moodDisplay = r.mood || '😐';
+
+                html += `
+                    <div class="record-card" data-id="${r.id}">
+                        <button class="delete-btn" onclick="deleteRecord(${r.id})" aria-label="删除记录">✕</button>
+                        <div class="record-header">
+                            <span class="record-date">📅 ${r.date}</span>
+                            <span class="record-mood">${moodDisplay}</span>
+                        </div>
+                        <div class="record-body">
+                            <div class="item">
+                                <span class="label">⚖️ 体重</span>
+                                <span class="value">${weightDisplay}</span>
+                            </div>
+                            <div class="item">
+                                <span class="label">🍽 饮食</span>
+                                <span class="value">${dietDisplay}</span>
+                            </div>
+                            <div class="item">
+                                <span class="label">💊 健康</span>
+                                <span class="value">${healthDisplay}</span>
+                            </div>
+                            <div class="item">
+                                <span class="label">🎉 趣事</span>
+                                <span class="value">${funDisplay}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        /* ------------------------------- 删除记录 ------------------------------- */
+        window.deleteRecord = function (id) {
+            if (!confirm('确认删除这条记录吗？')) return;
+            let records = getRecords();
+            records = records.filter(r => r.id !== id);
+            saveRecords(records);
+            renderRecords();
+        };
+
+        /* ------------------------------- 新增记录 ------------------------------- */
+        function addRecord(record) {
+            const records = getRecords();
+            records.push(record);
+            saveRecords(records);
+            renderRecords();
+        }
+
+        /* ------------------------------- 表单与模态框 --------------------------- */
+        // 生成心情选择器按钮
+        function renderMoodSelector() {
+            moodSelector.innerHTML = '';
+            MOODS.forEach(m => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'mood-option' + (m.emoji === selectedMood ? ' selected' : '');
+                btn.dataset.emoji = m.emoji;
+                btn.textContent = m.emoji;
+                btn.title = m.label;
+                btn.addEventListener('click', function () {
+                    moodSelector.querySelectorAll('.mood-option').forEach(el => el.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedMood = this.dataset.emoji;
+                });
+                moodSelector.appendChild(btn);
+            });
+        }
+        renderMoodSelector();
+
+        // 重置表单
+        function resetForm() {
+            form.reset();
+            // 日期默认今天
+            const today = new Date().toISOString().slice(0, 10);
+            dateInput.value = today;
+            // 重置心情
+            selectedMood = MOODS[0].emoji;
+            moodSelector.querySelectorAll('.mood-option').forEach(el => el.classList.remove('selected'));
+            const first = moodSelector.querySelector('.mood-option');
+            if (first) first.classList.add('selected');
+        }
+
+        // 打开模态框
+        function openModal() {
+            resetForm();
+            modalOverlay.classList.add('active');
+            // 焦点到体重输入
+            weightInput.focus();
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        // 事件绑定
+        addBtn.addEventListener('click', openModal);
+        cancelBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+
+        // 表单提交
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const date = dateInput.value.trim();
+            const weight = weightInput.value.trim();
+            const diet = dietInput.value.trim();
+            const health = healthInput.value.trim();
+            const fun = funInput.value.trim();
+
+            if (!date) {
+                alert('请选择日期');
+                return;
+            }
+            if (!weight || isNaN(weight) || parseFloat(weight) <= 0) {
+                alert('请输入有效的体重 (大于 0)');
+                weightInput.focus();
+                return;
+            }
+
+            const record = {
+                id: Date.now(),
+                date: date,
+                weight: parseFloat(weight),
+                diet: diet || '',
+                health: health || '',
+                fun: fun || '',
+                mood: selectedMood
+            };
+
+            addRecord(record);
+            closeModal();
+        });
+
+        /* -------------------------------- 启动 ---------------------------------- */
+        renderRecords();
+    </script>
+
+</body>
+</html>

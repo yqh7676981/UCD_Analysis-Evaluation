@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn Phonics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin: 20px 0;
+        }
+        .phonics-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .phonics-item {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px 15px;
+            text-align: center;
+            width: calc(50% - 10px);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .phonics-item:hover {
+            background-color: #f0f0f0;
+            transform: scale(1.05);
+        }
+        .phonics-item span {
+            display: block;
+            font-size: 18px;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        .phonics-item p {
+            font-size: 16px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Learn Phonics</h1>
+    <div class="phonics-container">
+        <div class="phonics-item" onclick="playSound('sh ship')">
+            <span>sh</span>
+            <p>ship</p>
+        </div>
+        <div class="phonics-item" onclick="playSound('th thank')">
+            <span>th</span>
+            <p>thank</p>
+        </div>
+        <div class="phonics-item" onclick="playSound('ai rain')">
+            <span>ai</span>
+            <p>rain</p>
+        </div>
+        <div class="phonics-item" onclick="playSound('oo moon')">
+            <span>oo</span>
+            <p>moon</p>
+        </div>
+        <div class="phonics-item" onclick="playSound('ch chair')">
+            <span>ch</span>
+            <p>chair</p>
+        </div>
+        <div class="phonics-item" onclick="playSound('ee tree')">
+            <span>ee</span>
+            <p>tree</p>
+        </div>
+    </div>
+
+    <script>
+        function playSound(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('Your browser does not support Web Speech API.');
+            }
+        }
+    </script>
+</body>
+</html>

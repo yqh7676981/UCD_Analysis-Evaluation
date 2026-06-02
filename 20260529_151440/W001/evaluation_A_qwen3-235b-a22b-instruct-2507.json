@@ -1,0 +1,33 @@
+{
+  "index": 9,
+  "id": "W001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "做一个简洁的待办事项工具，可以添加任务、设置优先级、勾选完成,完成的任务会划线置底。",
+  "evaluation": {
+    "total_score": 56,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "Visual direction is simple and coherent for a lightweight mobile to-do tool: white background, clear title, native inputs, and one blue primary button. However, it feels generic and unfinished, with weak visual focus below the form and no stronger product character or refined layout rhythm."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Basic spacing and alignment are mostly clean, and controls have adequate size for mobile. But typography hierarchy is shallow, the form row/button spacing feels slightly awkward, borders and radii rely on default browser styles, and the empty state text sits loosely in space without strong alignment or supporting detail."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can immediately see the core flow: enter task, choose priority, tap add. The screen is uncluttered and the primary action is visible. The main limitation is over-simplicity: there is little grouping, no visible task list states, and much of the screen becomes empty, reducing guidance once content grows."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "Current visible controls are semantically clear, but the requested behavior is only partially evident from the delivered interface. The screenshot does not show task items, completion checkboxes, completed-task strike-through, or bottom placement behavior, so core operations and state changes are not verifiable to users from the presented experience."
+      }
+    },
+    "summary": "This is a usable but very basic mobile to-do interface. It succeeds at presenting a simple add-task flow with priority selection and a clear CTA, but the experience is capped by its generic styling, low visual completion, and lack of visible evidence for the key requested task states such as checking off items and moving completed items to the bottom with strike-through. Functional direction is correct, but the product does not feel complete."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/W001_A_qwen3-235b-a22b-instruct-2507/screenshot_mobile.png",
+  "time": "2026-05-29T15:16:32.021186"
+}

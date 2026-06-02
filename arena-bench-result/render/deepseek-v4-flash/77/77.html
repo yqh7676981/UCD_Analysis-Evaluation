@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>咔滋汉堡 · 快餐公司</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #fef7f0;
+            color: #2d1b12;
+            line-height: 1.6;
+        }
+
+        /* ===== 色彩变量 ===== */
+        :root {
+            --brand-red: #d32f2f;
+            --brand-orange: #f57c00;
+            --brand-yellow: #ffca28;
+            --brand-dark: #2d1b12;
+            --brand-light: #fff8f0;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.12);
+            --radius: 20px;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: var(--brand-light);
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--brand-red);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-icon {
+            font-size: 2.4rem;
+            line-height: 1;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            font-weight: 600;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--brand-dark);
+            transition: color 0.2s, transform 0.2s;
+            font-size: 1.05rem;
+            padding: 0.3rem 0;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--brand-orange);
+            transition: width 0.25s ease;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--brand-red);
+        }
+
+        .order-btn-nav {
+            background: var(--brand-red);
+            color: #fff !important;
+            padding: 0.5rem 1.6rem;
+            border-radius: 40px;
+            transition: background 0.25s, transform 0.2s;
+        }
+
+        .order-btn-nav:hover {
+            background: #b71c1c;
+            transform: scale(1.04);
+        }
+
+        .order-btn-nav::after {
+            display: none !important;
+        }
+
+        /* ===== 汉堡菜单（移动端） ===== */
+        .menu-toggle {
+            display: none;
+            font-size: 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--brand-dark);
+            padding: 0.2rem 0.5rem;
+        }
+
+        /* ===== Hero 区域 ===== */
+        .hero {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 5rem 5% 6rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            border-bottom: 6px solid var(--brand-yellow);
+        }
+
+        .hero-text {
+            flex: 1 1 380px;
+        }
+
+        .hero-text h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.2;
+            color: var(--brand-dark);
+        }
+
+        .hero-text h1 span {
+            color: var(--brand-red);
+            background: var(--brand-yellow);
+            padding: 0 0.4rem;
+            display: inline-block;
+            border-radius: 8px;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #4a3228;
+            margin: 1.2rem 0 2rem;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--brand-red);
+            color: #fff;
+            border: none;
+            padding: 0.9rem 2.4rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(211, 47, 47, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(211, 47, 47, 0.45);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--brand-dark);
+            border: 2px solid var(--brand-dark);
+            padding: 0.9rem 2.4rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--brand-dark);
+            color: #fff;
+            transform: translateY(-3px);
+        }
+
+        .hero-image {
+            flex: 1 1 320px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            transform: rotate(2deg);
+            transition: transform 0.4s ease;
+            display: block;
+        }
+
+        .hero-image img:hover {
+            transform: rotate(0deg) scale(1.01);
+        }
+
+        /* ===== 通用 section ===== */
+        section {
+            padding: 4rem 5%;
+        }
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--brand-dark);
+        }
+
+        .section-sub {
+            text-align: center;
+            color: #6b4c3b;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* ===== 菜单项 ===== */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .menu-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 1.8rem 1.5rem 2rem;
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .menu-icon {
+            font-size: 3.8rem;
+            line-height: 1;
+            margin-bottom: 0.8rem;
+        }
+
+        .menu-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--brand-dark);
+        }
+
+        .menu-card .desc {
+            color: #6b4c3b;
+            margin: 0.4rem 0 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .menu-card .price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--brand-red);
+        }
+
+        .menu-card .price small {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #6b4c3b;
+        }
+
+        .badge {
+            background: var(--brand-yellow);
+            color: var(--brand-dark);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 0.6rem;
+        }
+
+        /* ===== 特别优惠 ===== */
+        .offers {
+            background: linear-gradient(135deg, #2d1b12 0%, #4a2e20 100%);
+            color: #fff;
+        }
+
+        .offers .section-title {
+            color: #fff;
+        }
+
+        .offers .section-sub {
+            color: #e0c8b8;
+        }
+
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .offer-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(6px);
+            border-radius: var(--radius);
+            padding: 2rem 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: transform 0.3s, background 0.3s;
+            text-align: center;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .offer-emoji {
+            font-size: 3rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .offer-card h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--brand-yellow);
+        }
+
+        .offer-card .offer-desc {
+            color: #f5e3d6;
+            margin: 0.6rem 0 1.2rem;
+            font-size: 1rem;
+        }
+
+        .offer-price {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .offer-price small {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #e0c8b8;
+            text-decoration: line-through;
+            margin-left: 0.6rem;
+        }
+
+        .offer-tag {
+            background: var(--brand-orange);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 订购区域 ===== */
+        .order-section {
+            background: #fff;
+            text-align: center;
+        }
+
+        .order-box {
+            max-width: 700px;
+            margin: 0 auto;
+            background: var(--brand-light);
+            border-radius: var(--radius);
+            padding: 2.5rem 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 2px dashed var(--brand-orange);
+        }
+
+        .order-box h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--brand-dark);
+        }
+
+        .order-box p {
+            color: #5a3f30;
+            margin: 0.6rem 0 1.6rem;
+        }
+
+        .order-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .order-form select,
+        .order-form input[type="number"] {
+            padding: 0.7rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 40px;
+            border: 2px solid #ddd;
+            background: #fff;
+            min-width: 150px;
+            flex: 1 1 140px;
+            transition: border-color 0.2s;
+        }
+
+        .order-form select:focus,
+        .order-form input[type="number"]:focus {
+            outline: none;
+            border-color: var(--brand-orange);
+        }
+
+        .order-form .btn-order {
+            background: var(--brand-orange);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2.4rem;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: background 0.25s, transform 0.2s;
+            box-shadow: 0 4px 16px rgba(245, 124, 0, 0.35);
+            flex: 0 0 auto;
+        }
+
+        .order-form .btn-order:hover {
+            background: #e65100;
+            transform: translateY(-2px);
+        }
+
+        .order-feedback {
+            margin-top: 1.2rem;
+            font-weight: 600;
+            font-size: 1.05rem;
+            min-height: 2.2rem;
+            color: var(--brand-red);
+        }
+
+        /* ===== 页脚 ===== */
+        footer {
+            background: var(--brand-dark);
+            color: #e0c8b8;
+            padding: 2.5rem 5% 1.5rem;
+            text-align: center;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--brand-yellow);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-links a {
+            color: #e0c8b8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--brand-yellow);
+        }
+
+        .footer-copy {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1.2rem;
+            font-size: 0.9rem;
+            color: #b09482;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.8rem 5%;
+            }
+
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 0.8rem;
+                padding: 1.2rem 0 0.8rem;
+                border-top: 1px solid #eee;
+                margin-top: 0.8rem;
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .hero-text h1 {
+                font-size: 2.4rem;
+            }
+
+            .hero {
+                padding: 3rem 5% 4rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .order-box {
+                padding: 1.8rem 1.2rem;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-text h1 {
+                font-size: 1.9rem;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                padding: 0.7rem 1.6rem;
+                font-size: 1rem;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .offers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <header>
+        <nav class="navbar">
+            <div class="logo">
+                <span class="logo-icon">🍔</span>
+                <span>咔滋汉堡</span>
+            </div>
+            <button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#menu">菜单</a></li>
+                <li><a href="#offers">优惠</a></li>
+                <li><a href="#order" class="order-btn-nav">立即订购</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- ===== Hero ===== -->
+    <section class="hero">
+        <div class="hero-text">
+            <h1>一口<span>爆汁</span>，快乐翻倍！</h1>
+            <p>选用优质食材，现做现烤，每一口都是幸福感。咔滋汉堡 — 你的能量加油站。</p>
+            <div class="hero-buttons">
+                <a href="#order"><button class="btn-primary">🍔 立即点餐</button></a>
+                <a href="#menu"><button class="btn-secondary">浏览菜单</button></a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <!-- 用 emoji 拼成诱人汉堡大图，也可以用 SVG 或纯色，但用 emoji 简单热情 -->
+            <div style="font-size: 10rem; line-height: 1.2; text-align: center; background: #fff3e0; padding: 1rem 2rem; border-radius: var(--radius); box-shadow: var(--shadow-lg);">
+                🍔🔥🧀
+                <div style="font-size: 1.2rem; font-weight: 600; color: var(--brand-dark);">咔滋经典</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 菜单区域 ===== -->
+    <section id="menu">
+        <h2 class="section-title">🔥 人气菜单</h2>
+        <p class="section-sub">每一份都是现点现做，咬下去咔滋作响！</p>
+        <div class="menu-grid">
+            <!-- 卡片 1 -->
+            <div class="menu-card">
+                <div class="menu-icon">🍔</div>
+                <h3>经典牛肉堡</h3>
+                <p class="desc">澳洲牛肉饼 + 秘制酱料 + 新鲜蔬菜</p>
+                <div class="price">¥32 <small>起</small></div>
+                <span class="badge">⭐ 招牌必点</span>
+            </div>
+            <!-- 卡片 2 -->
+            <div class="menu-card">
+                <div class="menu-icon">🐔</div>
+                <h3>脆皮鸡腿堡</h3>
+                <p class="desc">整块鸡腿肉，外酥里嫩，咔滋脆</p>
+                <div class="price">¥28 <small>起</small></div>
+                <span class="badge">🔥 热卖</span>
+            </div>
+            <!-- 卡片 3 -->
+            <div class="menu-card">
+                <div class="menu-icon">🧀</div>
+                <h3>芝士双层牛堡</h3>
+                <p class="desc">双层牛肉 + 浓郁芝士，满足加倍</p>
+                <div class="price">¥42 <small>起</small></div>
+                <span class="badge">🧀 芝士控</span>
+            </div>
+            <!-- 卡片 4 -->
+            <div class="menu-card">
+                <div class="menu-icon">🍟</div>
+                <h3>香脆薯条 (大)</h3>
+                <p class="desc">金黄酥脆，撒上特制海盐</p>
+                <div class="price">¥16 <small>起</small></div>
+                <span class="badge">🥤 套餐搭配</span>
+            </div>
+            <!-- 卡片 5 -->
+            <div class="menu-card">
+                <div class="menu-icon">🥤</div>
+                <h3>酷爽可乐</h3>
+                <p class="desc">冰爽可乐，畅快一夏</p>
+                <div class="price">¥8 <small>起</small></div>
+                <span class="badge">❄️ 加冰更爽</span>
+            </div>
+            <!-- 卡片 6 -->
+            <div class="menu-card">
+                <div class="menu-icon">🥗</div>
+                <h3>鲜蔬沙拉</h3>
+                <p class="desc">新鲜时蔬搭配凯撒酱</p>
+                <div class="price">¥18 <small>起</small></div>
+                <span class="badge">🌿 轻食之选</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 特别优惠 ===== -->
+    <section class="offers" id="offers">
+        <h2 class="section-title">🎉 特别优惠</h2>
+        <p class="section-sub">限时特价，错过等一年！</p>
+        <div class="offers-grid">
+            <div class="offer-card">
+                <div class="offer-emoji">🔥</div>
+                <span class="offer-tag">限时 7 天</span>
+                <h3>超值双人餐</h3>
+                <p class="offer-desc">2 个经典牛肉堡 + 大份薯条 + 2 杯可乐</p>
+                <div class="offer-price">¥59 <small>¥88</small></div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-emoji">🎁</div>
+                <span class="offer-tag">买一送一</span>
+                <h3>脆皮鸡腿堡</h3>
+                <p class="offer-desc">购买任意鸡腿堡，免费再得一个！</p>
+                <div class="offer-price">¥28 <small>¥56</small></div>
+            </div>
+            <div class="offer-card">
+                <div class="offer-emoji">💥</div>
+                <span class="offer-tag">每日特价</span>
+                <h3>下午茶套餐</h3>
+                <p class="offer-desc">薯条 (中) + 可乐 (中) 只要 ￥18</p>
+                <div class="offer-price">¥18 <small>¥28</small></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 订购区域 ===== -->
+    <section class="order-section" id="order">
+        <h2 class="section-title">🛵 简单订购</h2>
+        <p class="section-sub">选好美食，一键下单，快速送达！</p>
+        <div class="order-box">
+            <h3>📋 在线点餐</h3>
+            <p>选择你喜欢的商品和数量，我们马上为你准备！</p>
+            <div class="order-form">
+                <select id="menuSelect" aria-label="选择商品">
+                    <option value="经典牛肉堡">🍔 经典牛肉堡 — ¥32</option>
+                    <option value="脆皮鸡腿堡">🐔 脆皮鸡腿堡 — ¥28</option>
+                    <option value="芝士双层牛堡">🧀 芝士双层牛堡 — ¥42</option>
+                    <option value="香脆薯条">🍟 香脆薯条 (大) — ¥16</option>
+                    <option value="酷爽可乐">🥤 酷爽可乐 — ¥8</option>
+                    <option value="鲜蔬沙拉">🥗 鲜蔬沙拉 — ¥18</option>
+                </select>
+                <input type="number" id="qtyInput" value="1" min="1" max="99" aria-label="数量">
+                <button class="btn-order" id="orderBtn">🛒 加入订单</button>
+            </div>
+            <div class="order-feedback" id="orderFeedback">💡 点击按钮即可下单</div>
+        </div>
+    </section>
+
+    <!-- ===== 页脚 ===== -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-logo">🍔 咔滋汉堡</div>
+            <div class="footer-links">
+                <a href="#menu">菜单</a>
+                <a href="#offers">优惠</a>
+                <a href="#order">订购</a>
+                <a href="#">关于我们</a>
+                <a href="#">联系方式</a>
+            </div>
+        </div>
+        <div class="footer-copy">
+            &copy; 2026 咔滋汉堡 · 用心做好每一餐 | 快餐 · 欢乐 · 便捷
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript 交互 ===== -->
+    <script>
+        (function() {
+            // 1) 移动端菜单切换
+            const toggleBtn = document.getElementById('menuToggle');
+            const navLinks = document.getElementById('navLinks');
+            if (toggleBtn && navLinks) {
+                toggleBtn.addEventListener('click', function() {
+                    navLinks.classList.toggle('open');
+                });
+                // 点击导航链接后自动关闭菜单（移动端友好）
+                navLinks.querySelectorAll('a').forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (window.innerWidth <= 768) {
+                            navLinks.classList.remove('open');
+                        }
+                    });
+                });
+            }
+
+            // 2) 订购交互
+            const orderBtn = document.getElementById('orderBtn');
+            const menuSelect = document.getElementById('menuSelect');
+            const qtyInput = document.getElementById('qtyInput');
+            const feedback = document.getElementById('orderFeedback');
+
+            if (orderBtn && menuSelect && qtyInput && feedback) {
+                orderBtn.addEventListener('click', function() {
+                    const item = menuSelect.options[menuSelect.selectedIndex].text;
+                    const qty = parseInt(qtyInput.value, 10) || 1;
+                    const cleanItem = item.replace(/^[^\s]+\s/, ''); // 去掉表情符号前缀
+                    // 简单价格提取（仅演示）
+                    const priceMap = {
+                        '经典牛肉堡': 32,
+                        '脆皮鸡腿堡': 28,
+                        '芝士双层牛堡': 42,
+                        '香脆薯条': 16,
+                        '酷爽可乐': 8,
+                        '鲜蔬沙拉': 18
+                    };
+                    const key = cleanItem.replace(/ —.*$/, '').trim();
+                    const unitPrice = priceMap[key] || 0;
+                    const total = unitPrice * qty;
+
+                    if (qty < 1) {
+                        feedback.textContent = '⚠️ 数量至少为 1 哦～';
+                        feedback.style.color = '#d32f2f';
+                        return;
+                    }
+
+                    if (qty > 99) {
+                        feedback.textContent = '⚠️ 数量太多啦，请减少一些～';
+                        feedback.style.color = '#d32f2f';
+                        return;
+                    }
+
+                    feedback.innerHTML = `✅ 已添加 <strong>${qty}</strong> 份 <strong>${key}</strong>，合计 <strong>¥${total}</strong> · 马上为你安排！🔥`;
+                    feedback.style.color = '#2d1b12';
+
+                    // 小彩蛋：按钮反馈
+                    orderBtn.style.transform = 'scale(0.96)';
+                    setTimeout(() => {
+                        orderBtn.style.transform = '';
+                    }, 150);
+                });
+            }
+
+            // 3) 平滑滚动 (所有锚点)
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('href');
+                    if (targetId && targetId.length > 1) {
+                        const target = document.querySelector(targetId);
+                        if (target) {
+                            e.preventDefault();
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
+            });
+        })();
+    </script>
+
+</body>
+</html>

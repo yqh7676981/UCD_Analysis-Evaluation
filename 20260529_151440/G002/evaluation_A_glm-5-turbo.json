@@ -1,0 +1,33 @@
+{
+  "index": 254,
+  "id": "G002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个经典贪吃蛇小游戏，方向键控制移动，吃到食物变长，碰到自己就 game over，显示当前长度和最高纪录。",
+  "evaluation": {
+    "total_score": 68,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The interface has a coherent retro neon game style with consistent dark background, glowing accents, rounded panels, and a focused title/game area. However, the visual language is somewhat generic, with limited variation and weak differentiation between game states and controls."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, spacing, and card styling are mostly clean and aligned. The score cards, board, and controls share consistent radius and shadow treatment. But body text at the bottom is very low contrast, control labels are minimal, and the board contents look sparse and slightly unfinished for a polished game UI."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly identify the title, score panels, game board, directional controls, and start button. The reading path is straightforward. The main weakness is that game status and priority actions are not strongly distinguished; pause and start have similar weight, and there is no obvious game state message or feedback area."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The arrows, score labels, and start/pause buttons match common expectations, so the basic game loop is understandable. However, the instruction says swipe can control movement while visible controls suggest tap-based arrows, creating ambiguity. There is also no visible game-over state, restart guidance, or clear indication of whether pause is active or available before starting."
+      }
+    },
+    "summary": "This is a usable and visually coherent mobile Snake interface with clear core structure and acceptable craftsmanship. It supports the main task at a basic level: users can see the board, scores, and movement controls. The hard cap comes from limited state communication and interaction clarity—especially around start/pause behavior, control modality, and missing visible game-over/restart feedback. Overall it feels competent but not fully complete as a polished game experience."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G002_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:15:27.258097"
+}

@@ -1,0 +1,33 @@
+{
+  "index": 284,
+  "id": "U003",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "帮我做一个旅行打包清单工具，可以按类别(衣物/洗漱/电子/证件)添加物品，打勾标记是否已装入行李。",
+  "evaluation": {
+    "total_score": 72,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark mobile UI is visually coherent, with consistent cards, rounded corners, muted surfaces, and category accent colors. The style fits a utility checklist well, though it is somewhat generic and the sticky bottom bar visually cuts through the content."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is readable and spacing is mostly consistent across cards, tabs, and headers. However, some controls are small for mobile, the category chips are tight, the bottom input bar overlaps list items, and icon treatment feels secondary rather than polished."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly identify the title, progress, categories, and checklist sections. Grouping by category is clear, but the long vertically stacked list creates density, the sticky add bar obscures content, and the currently active category versus shown sections is not immediately optimized for focus."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "The main operations are intuitive: check items, delete items, switch category, and add new items. Labels are clear and match the travel packing scenario. Minor ambiguity remains around whether tabs filter the list or just summarize categories, since multiple category sections are shown at once."
+      }
+    },
+    "summary": "This is a solid, usable mobile packing checklist with clear scenario fit, understandable controls, and a stable visual system. The main strengths are obvious task framing, practical category grouping, and straightforward add/check/delete actions. The hard cap comes from information flow issues: the fixed bottom input bar overlaps content, list density is high, and category chips do not fully clarify filtering behavior. Overall it feels near launch-ready rather than fully refined."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U003_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:21:37.168456"
+}

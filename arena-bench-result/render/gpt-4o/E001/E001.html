@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雅思核心词汇打卡工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            padding: 20px;
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            perspective: 800px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front,
+        .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .card-front {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        .card-back {
+            background-color: #f8f9fa;
+            color: #333;
+            transform: rotateY(180deg);
+        }
+
+        .progress-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 10px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            width: 0%;
+            background-color: #28a745;
+            transition: width 0.3s;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            color: white;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #999;
+        }
+    </style>
+</head>
+<body>
+    <header>雅思核心词汇打卡工具</header>
+    <div class="container">
+        <div class="progress-container">
+            <p>学习进度：<span id="progress-text">0</span>/20</p>
+            <div class="progress">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+        </div>
+        <div id="card-container">
+            <!-- Word cards will be appended here dynamically -->
+        </div>
+        <button id="mark-done-btn" disabled>标记已掌握</button>
+    </div>
+
+    <script>
+        const words = [
+            { word: "adventurous", definition: "Inclined to take risks or try new things.", example: "She has an adventurous spirit." },
+            { word: "benevolent", definition: "Well-meaning and kindly.", example: "A benevolent smile appeared on his face." },
+            { word: "candid", definition: "Truthful and straightforward.", example: "She was candid about her mistakes." },
+            // Add more words as needed
+        ];
+        
+        let masteredCount = 0;
+
+        const cardContainer = document.getElementById("card-container");
+        const progressBar = document.getElementById("progress-bar");
+        const progressText = document.getElementById("progress-text");
+        const markDoneBtn = document.getElementById("mark-done-btn");
+
+        function createCard(wordObj) {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <div class="card-inner">
+                    <div class="card-front">${wordObj.word}</div>
+                    <div class="card-back">
+                        <p><b>Definition:</b> ${wordObj.definition}</p>
+                        <p><b>Example:</b> ${wordObj.example}</p>
+                    </div>
+                </div>
+            `;
+            card.addEventListener("click", () => {
+                if (!card.classList.contains("mastered")) {
+                    card.classList.add("mastered");
+                    masteredCount++;
+                    updateProgress();
+                }
+            });
+            return card;
+        }
+
+        function updateProgress() {
+            progressText.textContent = masteredCount;
+            progressBar.style.width = `${(masteredCount / words.length) * 100}%`;
+            if (masteredCount === words.length) {
+                markDoneBtn.disabled = false;
+            }
+        }
+
+        markDoneBtn.addEventListener("click", () => {
+            alert("恭喜！你已掌握所有单词！");
+        });
+
+        function init() {
+            words.slice(0, 20).forEach(wordObj => {
+                const card = createCard(wordObj);
+                cardContainer.appendChild(card);
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

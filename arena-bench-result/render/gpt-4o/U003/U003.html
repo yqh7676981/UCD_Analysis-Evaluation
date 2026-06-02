@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行打包清单工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 1.5rem;
+        }
+        .container {
+            padding: 15px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .category {
+            margin-bottom: 20px;
+        }
+        .category h2 {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin: 0 -15px 10px;
+            font-size: 1.2rem;
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        li {
+            background: white;
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        li input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        li label {
+            flex-grow: 1;
+        }
+        .add-item {
+            display: flex;
+            margin-top: 10px;
+        }
+        .add-item input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .add-item button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .add-item button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>旅行打包清单工具</header>
+    <div class="container">
+        <div class="category" id="clothing">
+            <h2>衣物</h2>
+            <ul id="clothing-list">
+                <!-- Items will be dynamically added here -->
+            </ul>
+            <div class="add-item">
+                <input type="text" id="clothing-input" placeholder="添加衣物">
+                <button onclick="addItem('clothing')">添加</button>
+            </div>
+        </div>
+        <div class="category" id="toiletries">
+            <h2>洗漱</h2>
+            <ul id="toiletries-list">
+                <!-- Items will be dynamically added here -->
+            </ul>
+            <div class="add-item">
+                <input type="text" id="toiletries-input" placeholder="添加洗漱用品">
+                <button onclick="addItem('toiletries')">添加</button>
+            </div>
+        </div>
+        <div class="category" id="electronics">
+            <h2>电子</h2>
+            <ul id="electronics-list">
+                <!-- Items will be dynamically added here -->
+            </ul>
+            <div class="add-item">
+                <input type="text" id="electronics-input" placeholder="添加电子产品">
+                <button onclick="addItem('electronics')">添加</button>
+            </div>
+        </div>
+        <div class="category" id="documents">
+            <h2>证件</h2>
+            <ul id="documents-list">
+                <!-- Items will be dynamically added here -->
+            </ul>
+            <div class="add-item">
+                <input type="text" id="documents-input" placeholder="添加证件">
+                <button onclick="addItem('documents')">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addItem(category) {
+            const input = document.getElementById(`${category}-input`);
+            const list = document.getElementById(`${category}-list`);
+            const value = input.value.trim();
+            
+            if (value) {
+                const li = document.createElement('li');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+
+                const label = document.createElement('label');
+                label.textContent = value;
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+
+                list.appendChild(li);
+                input.value = '';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>简洁待办</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 16px;
+      color: #222;
+    }
+    .app {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      padding: 20px 16px 24px;
+      margin-top: 10px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      color: #1a1a2e;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h1::before {
+      content: '✅';
+      font-size: 22px;
+    }
+    .add-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .add-form .input-group {
+      flex: 1 1 100%;
+      display: flex;
+      gap: 8px;
+    }
+    .add-form input[type="text"] {
+      flex: 1;
+      padding: 14px 16px;
+      border: 1.5px solid #e6e8ec;
+      border-radius: 14px;
+      font-size: 16px;
+      background: #f8f9fc;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .add-form input[type="text"]:focus {
+      border-color: #7c6bf5;
+      background: #fff;
+    }
+    .add-form .priority-group {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+    }
+    .priority-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: 1.5px solid #e6e8ec;
+      border-radius: 12px;
+      background: #f8f9fc;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      color: #666;
+    }
+    .priority-btn.high {
+      border-color: #fcd5d5;
+      color: #d14545;
+    }
+    .priority-btn.medium {
+      border-color: #ffe4b5;
+      color: #c97d2d;
+    }
+    .priority-btn.low {
+      border-color: #c8e6c9;
+      color: #2e7d32;
+    }
+    .priority-btn.active {
+      transform: scale(0.96);
+      font-weight: 600;
+    }
+    .priority-btn.high.active {
+      background: #fce8e8;
+      border-color: #d14545;
+      color: #b33;
+    }
+    .priority-btn.medium.active {
+      background: #fff0d6;
+      border-color: #c97d2d;
+      color: #a5621a;
+    }
+    .priority-btn.low.active {
+      background: #e8f5e9;
+      border-color: #2e7d32;
+      color: #1b5e20;
+    }
+    .add-btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 14px;
+      background: #7c6bf5;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      min-width: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .add-btn:active {
+      transform: scale(0.96);
+      background: #6a5ae0;
+    }
+    .add-btn.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .task-list {
+      list-style: none;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .task {
+      display: flex;
+      align-items: center;
+      padding: 12px 14px;
+      background: #f9fafe;
+      border-radius: 14px;
+      transition: all 0.2s;
+      gap: 12px;
+      border: 1px solid transparent;
+    }
+    .task.completed {
+      background: #f4f6fb;
+      border-color: #edf0f7;
+    }
+    .task-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      accent-color: #7c6bf5;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin: 0;
+    }
+    .task-text {
+      flex: 1;
+      font-size: 16px;
+      line-height: 1.4;
+      word-break: break-word;
+      color: #222;
+      transition: color 0.2s, text-decoration 0.2s;
+    }
+    .task.completed .task-text {
+      color: #9aa2b5;
+      text-decoration: line-through;
+    }
+    .task-priority {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      flex-shrink: 0;
+      letter-spacing: 0.3px;
+    }
+    .task-priority.priority-high {
+      background: #fce8e8;
+      color: #b33;
+    }
+    .task-priority.priority-medium {
+      background: #fff0d6;
+      color: #a5621a;
+    }
+    .task-priority.priority-low {
+      background: #e8f5e9;
+      color: #1b5e20;
+    }
+    .empty-tip {
+      text-align: center;
+      color: #b0b8c9;
+      padding: 40px 20px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .empty-tip span {
+      font-size: 40px;
+      display: block;
+      margin-bottom: 12px;
+    }
+    /* 响应式优化 */
+    @media (max-width: 380px) {
+      .app {
+        padding: 16px 12px;
+      }
+      .add-btn {
+        padding: 14px 16px;
+        min-width: 60px;
+        font-size: 16px;
+      }
+      .priority-btn {
+        font-size: 13px;
+        padding: 8px 0;
+      }
+    }
+    @media (min-width: 600px) {
+      body {
+        padding: 24px;
+      }
+      .app {
+        padding: 28px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>待办事项</h1>
+    <div class="add-form">
+      <div class="input-group">
+        <input type="text" id="task-input" placeholder="添加新待办…" autocomplete="off">
+        <button class="add-btn" id="add-btn">＋</button>
+      </div>
+      <div class="priority-group" id="priority-group">
+        <div class="priority-btn high" data-priority="high">高</div>
+        <div class="priority-btn medium active" data-priority="medium">中</div>
+        <div class="priority-btn low" data-priority="low">低</div>
+      </div>
+    </div>
+    <div id="task-list" class="task-list">
+      <div class="empty-tip"><span>📋</span>添加一条待办吧</div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // 数据
+      let tasks = [];
+      let nextId = 1;
+      let currentPriority = 'medium';
+
+      // DOM 元素
+      const taskInput = document.getElementById('task-input');
+      const addBtn = document.getElementById('add-btn');
+      const taskList = document.getElementById('task-list');
+      const priorityBtns = document.querySelectorAll('.priority-btn');
+
+      // 工具：转义 HTML
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // 渲染列表
+      function render() {
+        if (tasks.length === 0) {
+          taskList.innerHTML = `<div class="empty-tip"><span>📋</span>添加一条待办吧</div>`;
+          return;
+        }
+        // 排序：未完成在前，完成后在后；同组按 id 升序（即添加顺序）
+        const sorted = [...tasks].sort((a, b) => {
+          if (a.completed !== b.completed) return a.completed - b.completed;
+          return a.id - b.id;
+        });
+        let html = '';
+        for (const task of sorted) {
+          const priorityLabel = { high: '高', medium: '中', low: '低' }[task.priority];
+          const priorityClass = 'priority-' + task.priority;
+          const checkedAttr = task.completed ? 'checked' : '';
+          html += `
+            <div class="task ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+              <input type="checkbox" class="task-checkbox" ${checkedAttr}>
+              <span class="task-text">${escapeHtml(task.text)}</span>
+              <span class="task-priority ${priorityClass}">${priorityLabel}</span>
+            </div>
+          `;
+        }
+        taskList.innerHTML = html;
+      }
+
+      // 添加任务
+      function addTask() {
+        const text = taskInput.value.trim();
+        if (!text) {
+          taskInput.focus();
+          return;
+        }
+        const task = {
+          id: nextId++,
+          text: text,
+          priority: currentPriority,
+          completed: false
+        };
+        tasks.push(task);
+        taskInput.value = '';
+        taskInput.focus();
+        render();
+      }
+
+      // 切换完成状态
+      function toggleComplete(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if (task) {
+          task.completed = !task.completed;
+          render();
+        }
+      }
+
+      // 事件绑定
+
+      // 添加按钮
+      addBtn.addEventListener('click', addTask);
+
+      // 回车添加
+      taskInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addTask();
+        }
+      });
+
+      // 优先级选择
+      priorityBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          priorityBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentPriority = this.dataset.priority;
+        });
+      });
+
+      // 任务列表事件委托（复选框切换）
+      taskList.addEventListener('change', function(e) {
+        if (e.target.classList.contains('task-checkbox')) {
+          const taskDiv = e.target.closest('.task');
+          if (taskDiv) {
+            const id = parseInt(taskDiv.dataset.id, 10);
+            toggleComplete(id);
+          }
+        }
+      });
+
+      // 可选：点击整个任务项也可以切换（但为了复选框精准，暂时不实现）
+      // 保持复选框为主
+
+      // 初始示例数据（便于展示，可删除）
+      (function initDemo() {
+        const demos = [
+          { text: '阅读设计文档', priority: 'high' },
+          { text: '整理笔记', priority: 'medium' },
+          { text: '买水果', priority: 'low' },
+          { text: '已完成的任务', priority: 'medium', completed: true }
+        ];
+        for (const d of demos) {
+          tasks.push({
+            id: nextId++,
+            text: d.text,
+            priority: d.priority,
+            completed: d.completed || false
+          });
+        }
+        // 将已完成置底，符合排序
+        render();
+      })();
+    })();
+  </script>
+</body>
+</html>

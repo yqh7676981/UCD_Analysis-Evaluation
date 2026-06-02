@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>光的折射演示</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+SC:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a1628;
+            --fg: #e8f4fc;
+            --muted: #4a6fa5;
+            --accent: #00e5a0;
+            --water: #0077b6;
+            --water-light: #00a8e8;
+            --card: rgba(16, 36, 64, 0.85);
+            --border: rgba(0, 229, 160, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 16px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 12px 0;
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            background: linear-gradient(135deg, var(--fg), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        
+        .canvas-container {
+            position: relative;
+            flex: 1;
+            min-height: 320px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 
+                0 4px 24px rgba(0, 229, 160, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        
+        .controls {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        
+        .angle-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+        
+        .angle-box {
+            flex: 1;
+            text-align: center;
+            padding: 12px 8px;
+            background: rgba(0, 229, 160, 0.08);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 229, 160, 0.2);
+        }
+        
+        .angle-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+        
+        .angle-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .angle-unit {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+        
+        .slider-container {
+            margin-top: 16px;
+        }
+        
+        .slider-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(90deg, rgba(0, 229, 160, 0.3), rgba(0, 229, 160, 0.6));
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 229, 160, 0.5);
+            transition: transform 0.2s ease;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.15);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(0, 229, 160, 0.5);
+        }
+        
+        .formula-section {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+        
+        .formula-title {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .formula {
+            text-align: center;
+            padding: 16px;
+            background: rgba(0, 229, 160, 0.05);
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: 0.02em;
+            border: 1px solid rgba(0, 229, 160, 0.15);
+        }
+        
+        .formula-main {
+            color: var(--fg);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .formula-desc {
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        
+        .info-item {
+            font-size: 0.75rem;
+            padding: 8px;
+            background: rgba(0, 119, 182, 0.15);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .info-item span {
+            color: var(--water-light);
+            font-weight: 500;
+        }
+        
+        .hint {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+        
+        @media (min-width: 480px) {
+            .container {
+                max-width: 480px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            .canvas-container {
+                min-height: 400px;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>光的折射演示</h1>
+            <p class="subtitle">拖动滑块调整入射角度</p>
+        </header>
+        
+        <div class="canvas-container">
+            <canvas id="refractionCanvas"></canvas>
+        </div>
+        
+        <div class="controls">
+            <div class="angle-display">
+                <div class="angle-box">
+                    <div class="angle-label">入射角 θ₁</div>
+                    <div class="angle-value" id="incidentAngle">45</div>
+                    <div class="angle-unit">度</div>
+                </div>
+                <div class="angle-box">
+                    <div class="angle-label">折射角 θ₂</div>
+                    <div class="angle-value" id="refractedAngle">32</div>
+                    <div class="angle-unit">度</div>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <label class="slider-label">入射角度调节</label>
+                <input type="range" id="angleSlider" min="5" max="85" value="45">
+            </div>
+            
+            <div class="hint">提示：也可直接在画布上触摸拖动光线</div>
+        </div>
+        
+        <div class="formula-section">
+            <div class="formula-title">斯涅尔定律 (折射定律)</div>
+            <div class="formula">
+                <div class="formula-main">n₁ sin θ₁ = n₂ sin θ₂</div>
+            </div>
+            <div class="formula-desc">
+                光从一种介质进入另一种介质时，入射角正弦与折射角正弦之比为常数
+            </div>
+            <div class="info-grid">
+                <div class="info-item">空气折射率 <span>n₁ = 1.0</span></div>
+                <div class="info-item">水的折射率 <span>n₂ = 1.33</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('refractionCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('angleSlider');
+        const incidentDisplay = document.getElementById('incidentAngle');
+        const refractedDisplay = document.getElementById('refractedAngle');
+        
+        const n1 = 1.0;
+        const n2 = 1.33;
+        
+        let incidentAngle = 45;
+        let centerX = 0;
+        let centerY = 0;
+        let dpr = 1;
+        let isDragging = false;
+        let particles = [];
+        let animationId = null;
+        
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < 30; i++) {
+                particles.push({
+                    x: Math.random(),
+                    y: Math.random() * 0.5,
+                    size: Math.random() * 2 + 1,
+                    speed: Math.random() * 0.002 + 0.001,
+                    opacity: Math.random() * 0.5 + 0.3
+                });
+            }
+        }
+        
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            dpr = window.devicePixelRatio || 1;
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            
+            centerX = (rect.width * dpr) / 2;
+            centerY = (rect.height * dpr) / 2;
+            
+            ctx.scale(dpr, dpr);
+        }
+        
+        function calculateRefraction(angleDegrees) {
+            const angleRad = angleDegrees * Math.PI / 180;
+            const sinRefracted = (n1 / n2) * Math.sin(angleRad);
+            
+            if (Math.abs(sinRefracted) > 1) {
+                return { totalReflection: true, angle: 90 };
+            }
+            
+            const refractedRad = Math.asin(sinRefracted);
+            return { totalReflection: false, angle: refractedRad * 180 / Math.PI };
+        }
+        
+        function drawBackground() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, centerY / dpr);
+            skyGradient.addColorStop(0, '#0a1628');
+            skyGradient.addColorStop(1, '#132744');
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, width, centerY / dpr);
+            
+            const waterGradient = ctx.createLinearGradient(0, centerY / dpr, 0, height);
+            waterGradient.addColorStop(0, '#005577');
+            waterGradient.addColorStop(0.3, '#003d5c');
+            waterGradient.addColorStop(1, '#002233');
+            ctx.fillStyle = waterGradient;
+            ctx.fillRect(0, centerY / dpr, width, height - centerY / dpr);
+        }
+        
+        function drawParticles() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            
+            particles.forEach(p => {
+                p.y += p.speed;
+                if (p.y > 0.5) {
+                    p.y = 0;
+                    p.x = Math.random();
+                }
+                
+                const x = p.x * width;
+                const y = p.y * height;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity * 0.3})`;
+                ctx.fill();
+            });
+        }
+        
+        function drawWaterSurface() {
+            const width = canvas.width / dpr;
+            
+            ctx.strokeStyle = 'rgba(0, 200, 255, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, centerY / dpr);
+            ctx.lineTo(width, centerY / dpr);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        function drawNormalLine() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const normalLength = Math.min(width, height) * 0.35;
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(centerX / dpr, centerY / dpr - normalLength);
+            ctx.lineTo(centerX / dpr, centerY / dpr + normalLength);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        function drawLightRays() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            const rayLength = Math.min(width, height) * 0.38;
+            
+            const incidentRad = incidentAngle * Math.PI / 180;
+            const refraction = calculateRefraction(incidentAngle);
+            
+            const incidentStartX = centerX / dpr - rayLength * Math.sin(incidentRad);
+            const incidentStartY = centerY / dpr - rayLength * Math.cos(incidentRad);
+            
+            ctx.shadowColor = 'rgba(255, 220, 100, 0.8)';
+            ctx.shadowBlur = 15;
+            
+            const incidentGradient = ctx.createLinearGradient(
+                incidentStartX, incidentStartY,
+                centerX / dpr, centerY / dpr
+            );
+            incidentGradient.addColorStop(0, 'rgba(255, 200, 50, 0.2)');
+            incidentGradient.addColorStop(0.7, 'rgba(255, 220, 100, 0.9)');
+            incidentGradient.addColorStop(1, 'rgba(255, 255, 200, 1)');
+            
+            ctx.strokeStyle = incidentGradient;
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(incidentStartX, incidentStartY);
+            ctx.lineTo(centerX / dpr, centerY / dpr);
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0;
+            
+            if (!refraction.totalReflection) {
+                const refractedRad = refraction.angle * Math.PI / 180;
+                const refractedEndX = centerX / dpr + rayLength * Math.sin(refractedRad);
+                const refractedEndY = centerY / dpr + rayLength * Math.cos(refractedRad);
+                
+                ctx.shadowColor = 'rgba(100, 200, 255, 0.8)';
+                ctx.shadowBlur = 15;
+                
+                const refractGradient = ctx.createLinearGradient(
+                    centerX / dpr, centerY / dpr,
+                    refractedEndX, refractedEndY
+                );
+                refractGradient.addColorStop(0, 'rgba(150, 230, 255, 1)');
+                refractGradient.addColorStop(0.5, 'rgba(100, 200, 255, 0.9)');
+                refractGradient.addColorStop(1, 'rgba(50, 150, 255, 0.3)');
+                
+                ctx.strokeStyle = refractGradient;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(centerX / dpr, centerY / dpr);
+                ctx.lineTo(refractedEndX, refractedEndY);
+                ctx.stroke();
+                
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function drawAngleArcs() {
+            const radius = 40;
+            const incidentRad = incidentAngle * Math.PI / 180;
+            const refraction = calculateRefraction(incidentAngle);
+            
+            ctx.strokeStyle = 'rgba(255, 200, 100, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX / dpr, centerY / dpr, radius, -Math.PI / 2 - incidentRad, -Math.PI / 2, false);
+            ctx.stroke();
+            
+            if (!refraction.totalReflection) {
+                const refractedRad = refraction.angle * Math.PI / 180;
+                ctx.strokeStyle = 'rgba(100, 200, 255, 0.7)';
+                ctx.beginPath();
+                ctx.arc(centerX / dpr, centerY / dpr, radius, Math.PI / 2 - refractedRad, Math.PI / 2, false);
+                ctx.stroke();
+            }
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.font = 'bold 12px JetBrains Mono, monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const labelRadius = radius + 18;
+            const iLabelX = centerX / dpr + labelRadius * Math.sin(incidentRad / 2 - Math.PI / 2);
+            const iLabelY = centerY / dpr - labelRadius * Math.cos(incidentRad / 2 - Math.PI / 2);
+            ctx.fillText('θ₁', iLabelX, iLabelY);
+            
+            if (!refraction.totalReflection) {
+                const refractedRad = refraction.angle * Math.PI / 180;
+                const rLabelX = centerX / dpr + labelRadius * Math.sin(refractedRad / 2);
+                const rLabelY = centerY / dpr + labelRadius * Math.cos(refractedRad / 2);
+                ctx.fillText('θ₂', rLabelX, rLabelY);
+            }
+        }
+        
+        function drawLabels() {
+            const width = canvas.width / dpr;
+            
+            ctx.fillStyle = 'rgba(200, 230, 255, 0.8)';
+            ctx.font = '500 14px Noto Sans SC, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('空气 (n₁ = 1.0)', width / 2, 25);
+            
+            ctx.fillStyle = 'rgba(100, 200, 255, 0.9)';
+            ctx.fillText('水 (n₂ = 1.33)', width / 2, centerY / dpr + 25);
+        }
+        
+        function draw() {
+            const width = canvas.width / dpr;
+            const height = canvas.height / dpr;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            drawBackground();
+            drawParticles();
+            drawWaterSurface();
+            drawNormalLine();
+            drawLightRays();
+            drawAngleArcs();
+            drawLabels();
+            
+            animationId = requestAnimationFrame(draw);
+        }
+        
+        function updateDisplay() {
+            const refraction = calculateRefraction(incidentAngle);
+            incidentDisplay.textContent = Math.round(incidentAngle);
+            refractedDisplay.textContent = Math.round(refraction.angle);
+        }
+        
+        function handleSliderChange() {
+            incidentAngle = parseFloat(slider.value);
+            updateDisplay();
+        }
+        
+        function getTouchAngle(touch) {
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left - rect.width / 2;
+            const y = -(touch.clientY - rect.top - rect.height / 2);
+            
+            let angle = Math.atan2(x, y) * 180 / Math.PI;
+            return Math.max(5, Math.min(85, angle));
+        }
+        
+        function handleTouchStart(e) {
+            e.preventDefault();
+            isDragging = true;
+            const touch = e.touches[0];
+            incidentAngle = getTouchAngle(touch);
+            slider.value = incidentAngle;
+            updateDisplay();
+        }
+        
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            const touch = e.touches[0];
+            incidentAngle = getTouchAngle(touch);
+            slider.value = incidentAngle;
+            updateDisplay();
+        }
+        
+        function handleTouchEnd() {
+            isDragging = false;
+        }
+        
+        function handleMouseDown(e) {
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = -(e.clientY - rect.top - rect.height / 2);
+            incidentAngle = Math.max(5, Math.min(85, Math.atan2(x, y) * 180 / Math.PI));
+            slider.value = incidentAngle;
+            updateDisplay();
+        }
+        
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = -(e.clientY - rect.top - rect.height / 2);
+            incidentAngle = Math.max(5, Math.min(85, Math.atan2(x, y) * 180 / Math.PI));
+            slider.value = incidentAngle;
+            updateDisplay();
+        }
+        
+        function handleMouseUp() {
+            isDragging = false;
+        }
+        
+        slider.addEventListener('input', handleSliderChange);
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd);
+        canvas.addEventListener('mousedown', handleMouseDown);
+        canvas.addEventListener('mousemove', handleMouseMove);
+        canvas.addEventListener('mouseup', handleMouseUp);
+        canvas.addEventListener('mouseleave', handleMouseUp);
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+        
+        initParticles();
+        resizeCanvas();
+        updateDisplay();
+        draw();
+    </script>
+</body>
+</html>

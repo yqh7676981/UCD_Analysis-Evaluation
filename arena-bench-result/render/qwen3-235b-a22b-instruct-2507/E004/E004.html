@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>错题本工具</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 16px;
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #4a4a4a;
+    }
+
+    .container {
+      max-width: 100%;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #fff;
+      transition: border 0.2s ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #4d90fe;
+      box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.2);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    button#filter-btn {
+      background-color: #2196F3;
+      margin-bottom: 16px;
+    }
+
+    button#filter-btn:hover {
+      background-color: #1976D2;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .filters select {
+      flex: 1;
+    }
+
+    .question-item {
+      background-color: white;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-left: 4px solid #4CAF50;
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .question-subject {
+      font-weight: bold;
+      color: #2196F3;
+      font-size: 0.95rem;
+    }
+
+    .question-topic {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    .question-text {
+      margin: 8px 0;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .error-reason, .correct-solution {
+      margin: 8px 0;
+      font-size: 0.95rem;
+    }
+
+    .error-label, .solution-label {
+      font-weight: 600;
+      color: #555;
+      display: inline-block;
+      margin-right: 8px;
+      min-width: 60px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #999;
+      padding: 30px 0;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 12px;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      input, textarea, select, button {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 错题本</h1>
+
+    <!-- 添加错题表单 -->
+    <div id="add-form">
+      <div class="form-group">
+        <label for="subject">学科</label>
+        <input type="text" id="subject" placeholder="例如：数学、物理、英语" />
+      </div>
+
+      <div class="form-group">
+        <label for="topic">知识点</label>
+        <input type="text" id="topic" placeholder="例如：二次函数、牛顿定律、时态" />
+      </div>
+
+      <div class="form-group">
+        <label for="question">错题内容</label>
+        <textarea id="question" placeholder="请输入题目内容..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="errorReason">错误原因</label>
+        <textarea id="errorReason" placeholder="分析自己为什么会做错..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="solution">正确解法</label>
+        <textarea id="solution" placeholder="写出正确的解题步骤..."></textarea>
+      </div>
+
+      <button id="save-btn">💾 保存错题</button>
+    </div>
+
+    <!-- 筛选区 -->
+    <div class="form-group">
+      <div class="filters">
+        <select id="filter-subject">
+          <option value="">全部学科</option>
+        </select>
+        <select id="filter-topic">
+          <option value="">全部知识点</option>
+        </select>
+      </div>
+      <button id="filter-btn">筛选</button>
+    </div>
+
+    <!-- 错题列表 -->
+    <div id="question-list">
+      <!-- 动态插入错题项 -->
+    </div>
+  </div>
+
+  <script>
+    // DOM 元素
+    const subjectInput = document.getElementById('subject');
+    const topicInput = document.getElementById('topic');
+    const questionInput = document.getElementById('question');
+    const errorReasonInput = document.getElementById('errorReason');
+    const solutionInput = document.getElementById('solution');
+    const saveBtn = document.getElementById('save-btn');
+    const filterSubjectSelect = document.getElementById('filter-subject');
+    const filterTopicSelect = document.getElementById('filter-topic');
+    const filterBtn = document.getElementById('filter-btn');
+    const questionList = document.getElementById('question-list');
+
+    // 存储错题数据
+    let mistakes = JSON.parse(localStorage.getItem('mistakes')) || [];
+
+    // 保存错题
+    saveBtn.addEventListener('click', () => {
+      const subject = subjectInput.value.trim();
+      const topic = topicInput.value.trim();
+      const question = questionInput.value.trim();
+      const errorReason = errorReasonInput.value.trim();
+      const solution = solutionInput.value.trim();
+
+      if (!subject || !topic || !question || !errorReason || !solution) {
+        alert('请填写所有字段！');
+        return;
+      }
+
+      const newMistake = {
+        id: Date.now(),
+        subject,
+        topic,
+        question,
+        errorReason,
+        solution,
+        createdAt: new Date().toISOString()
+      };
+
+      mistakes.push(newMistake);
+      localStorage.setItem('mistakes', JSON.stringify(mistakes));
+
+      // 清空表单
+      subjectInput.value = '';
+      topicInput.value = '';
+      questionInput.value = '';
+      errorReasonInput.value = '';
+      solutionInput.value = '';
+
+      // 更新UI
+      renderFilterOptions();
+      renderQuestionList();
+      alert('错题已保存！');
+    });
+
+    // 渲染筛选选项
+    function renderFilterOptions() {
+      // 获取所有学科和知识点
+      const subjects = [...new Set(mistakes.map(m => m.subject))];
+      const topics = [...new Set(mistakes.map(m => m.topic))];
+
+      // 更新学科下拉框
+      filterSubjectSelect.innerHTML = '<option value="">全部学科</option>';
+      subjects.forEach(s => {
+        const option = document.createElement('option');
+        option.value = s;
+        option.textContent = s;
+        filterSubjectSelect.appendChild(option);
+      });
+
+      // 更新知识点下拉框
+      filterTopicSelect.innerHTML = '<option value="">全部知识点</option>';
+      topics.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t;
+        option.textContent = t;
+        filterTopicSelect.appendChild(option);
+      });
+    }
+
+    // 渲染错题列表
+    function renderQuestionList(filteredMistakes = mistakes) {
+      questionList.innerHTML = '';
+
+      if (filteredMistakes.length === 0) {
+        questionList.innerHTML = '<div class="empty-state">暂无错题，快去添加吧！</div>';
+        return;
+      }
+
+      filteredMistakes.forEach(mistake => {
+        const item = document.createElement('div');
+        item.className = 'question-item';
+        item.innerHTML = `
+          <div class="question-header">
+            <span class="question-subject">${escapeHtml(mistake.subject)}</span>
+            <span class="question-topic">${escapeHtml(mistake.topic)}</span>
+          </div>
+          <div class="question-text">${escapeHtml(mistake.question)}</div>
+          <div class="error-reason"><span class="error-label">错因：</span>${escapeHtml(mistake.errorReason)}</div>
+          <div class="correct-solution"><span class="solution-label">正解：</span>${escapeHtml(mistake.solution)}</div>
+        `;
+        questionList.appendChild(item);
+      });
+    }
+
+    // 过滤错题
+    filterBtn.addEventListener('click', () => {
+      const selectedSubject = filterSubjectSelect.value;
+      const selectedTopic = filterTopicSelect.value;
+
+      const filtered = mistakes.filter(m => {
+        return (
+          (selectedSubject === '' || m.subject === selectedSubject) &&
+          (selectedTopic === '' || m.topic === selectedTopic)
+        );
+      });
+
+      renderQuestionList(filtered);
+    });
+
+    // HTML 转义防止 XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 初始化页面
+    window.addEventListener('DOMContentLoaded', () => {
+      renderFilterOptions();
+      renderQuestionList();
+    });
+  </script>
+</body>
+</html>

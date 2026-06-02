@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chronic Care Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+            padding: 0.5rem 0;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1rem;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        label, input, button {
+            display: block;
+            margin: 8px 0;
+        }
+
+        input {
+            padding: 8px;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Chronic Care Manager</h1>
+        <p>Your partner in managing chronic conditions effectively</p>
+    </header>
+
+    <nav>
+        <a href="#track-symptoms">Track Symptoms</a>
+        <a href="#medication-schedule">Medication Schedule</a>
+        <a href="#educational-resources">Educational Resources</a>
+    </nav>
+
+    <main>
+        <!-- Track Symptoms Section -->
+        <section id="track-symptoms">
+            <h2>Track Symptoms</h2>
+            <div class="card">
+                <form id="symptoms-form">
+                    <label for="symptom">Symptom:</label>
+                    <input type="text" id="symptom" name="symptom" placeholder="E.g. Headache, Fatigue">
+                    <label for="date">Date:</label>
+                    <input type="date" id="date" name="date">
+                    <button type="submit">Add Symptom</button>
+                </form>
+                <ul id="symptom-list"></ul>
+            </div>
+        </section>
+
+        <!-- Medication Schedule Section -->
+        <section id="medication-schedule">
+            <h2>Medication Schedule</h2>
+            <div class="card">
+                <form id="medication-form">
+                    <label for="medication">Medication Name:</label>
+                    <input type="text" id="medication" name="medication" placeholder="Enter medication name">
+                    <label for="schedule">Time to Take:</label>
+                    <input type="time" id="schedule" name="schedule">
+                    <button type="submit">Add Medication</button>
+                </form>
+                <ul id="medication-list"></ul>
+            </div>
+        </section>
+
+        <!-- Educational Resources Section -->
+        <section id="educational-resources">
+            <h2>Educational Resources</h2>
+            <div class="card">
+                <p>Learn more about managing chronic conditions:</p>
+                <ul>
+                    <li><a href="https://www.cdc.gov/chronicdisease/resources/index.htm" target="_blank">CDC Chronic Disease Resources</a></li>
+                    <li><a href="https://www.who.int/health-topics/noncommunicable-diseases#tab=tab_1" target="_blank">WHO: Noncommunicable Diseases</a></li>
+                    <li><a href="https://www.mayoclinic.org/diseases-conditions/chronic-diseases" target="_blank">Mayo Clinic: Chronic Conditions</a></li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Chronic Care Manager. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Handle symptom tracking
+        const symptomForm = document.getElementById('symptoms-form');
+        const symptomList = document.getElementById('symptom-list');
+
+        symptomForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const symptomInput = document.getElementById('symptom').value;
+            const dateInput = document.getElementById('date').value;
+
+            if (symptomInput && dateInput) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${symptomInput} - ${dateInput}`;
+                symptomList.appendChild(listItem);
+                symptomForm.reset();
+            }
+        });
+
+        // Handle medication schedule
+        const medicationForm = document.getElementById('medication-form');
+        const medicationList = document.getElementById('medication-list');
+
+        medicationForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const medicationInput = document.getElementById('medication').value;
+            const scheduleInput = document.getElementById('schedule').value;
+
+            if (medicationInput && scheduleInput) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${medicationInput} - ${scheduleInput}`;
+                medicationList.appendChild(listItem);
+                medicationForm.reset();
+            }
+        });
+    </script>
+</body>
+</html>

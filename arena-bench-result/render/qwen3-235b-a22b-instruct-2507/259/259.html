@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>豪华手表店 - 安全结账</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .checkout-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            color: #1a1a1a;
+            font-weight: 300;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .progress-tracker {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 1;
+        }
+        
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            width: 20%;
+        }
+        
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .progress-step.active .step-circle,
+        .progress-step.completed .step-circle {
+            background-color: #1a1a1a;
+        }
+        
+        .progress-step.active .step-label,
+        .progress-step.completed .step-label {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        
+        .progress-tracker::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            width: 75%;
+            height: 2px;
+            background-color: #1a1a1a;
+            z-index: 1;
+        }
+        
+        .checkout-content {
+            display: flex;
+            gap: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .checkout-form {
+            flex: 2;
+            padding: 30px;
+        }
+        
+        .order-summary {
+            flex: 1;
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-left: 1px solid #eee;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            font-weight: 400;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #1a1a1a;
+        }
+        
+        .card-info {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .security-badge i {
+            margin-right: 10px;
+            color: #4caf50;
+        }
+        
+        .place-order-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        
+        .place-order-btn:hover {
+            background-color: #333;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary-total {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .watch-item {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .watch-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+        
+        .watch-details {
+            flex: 1;
+        }
+        
+        .watch-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .watch-price {
+            font-weight: 500;
+        }
+        
+        .payment-methods {
+            margin-top: 20px;
+        }
+        
+        .payment-methods img {
+            height: 30px;
+            margin-right: 10px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+        
+        .payment-methods img:hover {
+            opacity: 1;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-content {
+                flex-direction: column;
+            }
+            
+            .card-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-tracker::after {
+                width: 60%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="checkout-container">
+        <header>
+            <h1>安全结账</h1>
+            <p>完成您的奢华腕表购买</p>
+        </header>
+        
+        <div class="progress-tracker">
+            <div class="progress-step completed">
+                <div class="step-circle">1</div>
+                <div class="step-label">购物车</div>
+            </div>
+            <div class="progress-step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">结账</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle">3</div>
+                <div class="step-label">确认</div>
+            </div>
+            <div class="progress-step">
+                <div class="step-circle">4</div>
+                <div class="step-label">完成</div>
+            </div>
+        </div>
+        
+        <div class="checkout-content">
+            <div class="checkout-form">
+                <h2>配送信息</h2>
+                
+                <div class="form-group">
+                    <label for="fullname">姓名</label>
+                    <input type="text" id="fullname" placeholder="输入您的全名">
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">电子邮件</label>
+                    <input type="email" id="email" placeholder="输入您的邮箱地址">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">电话号码</label>
+                    <input type="tel" id="phone" placeholder="输入您的电话号码">
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">地址</label>
+                    <input type="text" id="address" placeholder="街道地址">
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">城市</label>
+                    <input type="text" id="city" placeholder="城市名称">
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">国家/地区</label>
+                    <select id="country">
+                        <option value="">选择国家/地区</option>
+                        <option value="cn">中国</option>
+                        <option value="us">美国</option>
+                        <option value="uk">英国</option>
+                        <option value="de">德国</option>
+                        <option value="fr">法国</option>
+                    </select>
+                </div>
+                
+                <h2 style="margin-top: 30px;">付款信息</h2>
+                
+                <div class="form-group">
+                    <label for="card-number">信用卡号码</label>
+                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456">
+                </div>
+                
+                <div class="card-info">
+                    <div class="form-group">
+                        <label for="expiry-date">有效期</label>
+                        <input type="text" id="expiry-date" placeholder="MM/YY">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cvv">CVV</label>
+                        <input type="text" id="cvv" placeholder="123">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name-on-card">持卡人姓名</label>
+                    <input type="text" id="name-on-card" placeholder="与卡片上一致的姓名">
+                </div>
+                
+                <div class="security-badge">
+                    🔒 您的信息通过SSL加密传输，安全可靠
+                </div>
+                
+                <button class="place-order-btn">立即下单并支付</button>
+                
+                <div class="payment-methods">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/1200px-Visa_Inc._logo.svg.png" alt="Visa">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Mastercard-logo.svg/1200px-Mastercard-logo.svg.png" alt="Mastercard">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png" alt="American Express">
+                </div>
+            </div>
+            
+            <div class="order-summary">
+                <h2>订单摘要</h2>
+                
+                <div class="watch-item">
+                    <img src="https://images.unsplash.com/photo-1523275335682-92aa8abd2f63?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="豪华腕表" class="watch-image">
+                    <div class="watch-details">
+                        <div class="watch-name">经典系列自动机械表</div>
+                        <div class="watch-price">¥89,900.00</div>
+                        <div>数量: 1</div>
+                    </div>
+                </div>
+                
+                <div class="summary-item">
+                    <span>小计</span>
+                    <span>¥89,900.00</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span>配送费</span>
+                    <span>¥0.00</span>
+                </div>
+                
+                <div class="summary-item">
+                    <span>税费</span>
+                    <span>¥8,990.00</span>
+                </div>
+                
+                <div class="summary-total">
+                    <span>总计</span>
+                    <span>¥98,890.00</span>
+                </div>
+                
+                <div class="summary-item" style="border-bottom: none; margin-top: 20px;">
+                    <span style="font-size: 0.9rem; color: #777;">预计送达</span>
+                    <span style="font-size: 0.9rem; color: #777;">3-5个工作日</span>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 豪华手表店. 所有交易均受SSL加密保护 | 隐私政策 | 条款与条件</p>
+        </footer>
+    </div>
+
+    <script>
+        // 简单的表单验证
+        document.querySelector('.place-order-btn').addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const cardNumber = document.getElementById('card-number').value;
+            
+            if (!email || !cardNumber) {
+                alert('请填写所有必填字段');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                alert('请输入有效的邮箱地址');
+                return;
+            }
+            
+            if (cardNumber.replace(/\s/g, '').length !== 16) {
+                alert('请输入有效的16位信用卡号码');
+                return;
+            }
+            
+            // 模拟提交过程
+            this.textContent = '处理中...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                alert('订单已成功提交！您将被重定向到确认页面。');
+                // 实际应用中这里会跳转到确认页面
+            }, 1500);
+        });
+        
+        // 卡号格式化 (添加空格)
+        document.getElementById('card-number').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/g, '');
+            let formattedValue = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formattedValue += ' ';
+                }
+                formattedValue += value[i];
+            }
+            
+            e.target.value = formattedValue.substring(0, 19);
+        });
+    </script>
+</body>
+</html>

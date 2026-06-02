@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎨 像素画板</title>
+    <style>
+        /* ===== 全局重置 & 样式 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 16px 12px 24px;
+            touch-action: pan-y;
+            overscroll-behavior: none;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 460px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10);
+            padding: 20px 16px 22px;
+            transition: all 0.2s;
+        }
+
+        /* ===== 头部 ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 6px 10px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title span {
+            font-size: 22px;
+        }
+
+        .color-indicator-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f3f4f6;
+            padding: 4px 12px 4px 10px;
+            border-radius: 30px;
+        }
+
+        .color-indicator-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        #currentColorDisplay {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #d1d5db;
+            background: #ff0000;
+            flex-shrink: 0;
+            transition: background 0.15s;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ===== 网格区域 ===== */
+        .grid-wrapper {
+            position: relative;
+            background: #e5e7eb;
+            border-radius: 16px;
+            padding: 6px;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+            margin-bottom: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            gap: 2px;
+            aspect-ratio: 1 / 1;
+            touch-action: none;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #e5e7eb;
+        }
+
+        .cell {
+            background: #ffffff;
+            transition: background-color 0.08s ease;
+            position: relative;
+            border-radius: 1px;
+            cursor: pointer;
+        }
+
+        .cell:active {
+            transform: scale(0.94);
+        }
+
+        /* ===== 工具栏 & 颜色选择 ===== */
+        .tool-section {
+            margin-top: 12px;
+        }
+
+        .tool-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .color-palette {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 4px 0 6px;
+        }
+
+        .color-swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2.5px solid transparent;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+
+        .color-swatch:active {
+            transform: scale(0.88);
+        }
+
+        .color-swatch.active {
+            border-color: #1f2937;
+            box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #1f2937;
+            transform: scale(1.05);
+        }
+
+        .color-swatch-white {
+            border-color: #d1d5db !important;
+        }
+
+        .color-swatch-white.active {
+            border-color: #1f2937 !important;
+            box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #1f2937 !important;
+        }
+
+        .custom-color-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 2px;
+            flex-wrap: wrap;
+        }
+
+        .custom-color-wrap label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+        }
+
+        #colorPicker {
+            width: 42px;
+            height: 42px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            padding: 2px;
+            background: #fff;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        #colorPicker::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        #colorPicker::-webkit-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        #colorPicker::-moz-color-swatch {
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* ===== 功能按钮 ===== */
+        .tools-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            flex: 1;
+            min-width: 60px;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            background: #f3f4f6;
+            color: #1f2937;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            touch-action: manipulation;
+        }
+
+        .tool-btn:active {
+            transform: scale(0.94);
+            background: #e5e7eb;
+        }
+
+        .tool-btn-eraser {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tool-btn-eraser:active {
+            background: #fde68a;
+        }
+
+        .tool-btn-eraser.active {
+            background: #f59e0b;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+        }
+
+        .tool-btn-clear {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .tool-btn-clear:active {
+            background: #fecaca;
+        }
+
+        .tool-btn-preview {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .tool-btn-preview:active {
+            background: #bfdbfe;
+        }
+
+        .tool-btn-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* ===== 模态框 (预览) ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 28px 20px 24px;
+            max-width: 90vw;
+            width: 380px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .modal-close {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: #f3f4f6;
+            font-size: 22px;
+            line-height: 1;
+            color: #4b5563;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+            touch-action: manipulation;
+        }
+
+        .modal-close:active {
+            background: #e5e7eb;
+            transform: scale(0.92);
+        }
+
+        .preview-container {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            margin: 6px 0 4px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            aspect-ratio: 1 / 1;
+            gap: 0;
+            background: #ffffff;
+        }
+
+        .preview-cell {
+            background: #ffffff;
+            border: none;
+            transition: none;
+        }
+
+        .preview-info {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 14px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .preview-info span {
+            background: #f3f4f6;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .modal-footer-btn {
+            margin-top: 18px;
+            padding: 12px 28px;
+            background: #1f2937;
+            color: #ffffff;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            touch-action: manipulation;
+        }
+
+        .modal-footer-btn:active {
+            background: #111827;
+            transform: scale(0.96);
+        }
+
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 400px) {
+            .app {
+                padding: 14px 10px 18px;
+                border-radius: 18px;
+            }
+            .header-title {
+                font-size: 17px;
+            }
+            .color-swatch {
+                width: 30px;
+                height: 30px;
+            }
+            .tool-btn {
+                font-size: 13px;
+                padding: 10px 6px;
+                min-width: 48px;
+            }
+            #currentColorDisplay {
+                width: 26px;
+                height: 26px;
+            }
+            .color-indicator-group label {
+                font-size: 12px;
+            }
+            .modal-content {
+                padding: 20px 14px 18px;
+            }
+            #colorPicker {
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (min-width: 500px) {
+            .grid-wrapper {
+                padding: 10px;
+            }
+            .grid {
+                gap: 3px;
+            }
+            .color-swatch {
+                width: 40px;
+                height: 40px;
+            }
+            .tool-btn {
+                padding: 14px 12px;
+                font-size: 16px;
+            }
+        }
+
+        /* 防止长按菜单 */
+        .grid,
+        .color-swatch,
+        .tool-btn {
+            -webkit-touch-callout: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app">
+        <!-- 头部 -->
+        <header class="header">
+            <div class="header-title">
+                <span>🎨</span> 像素画板
+            </div>
+            <div class="color-indicator-group">
+                <label>当前</label>
+                <div id="currentColorDisplay" style="background:#ff0000;"></div>
+            </div>
+        </header>
+
+        <!-- 网格 -->
+        <div class="grid-wrapper">
+            <div class="grid" id="pixelGrid" touch-action="none">
+                <!-- 256 个格子由 JS 生成 -->
+            </div>
+        </div>
+
+        <!-- 工具区域 -->
+        <div class="tool-section">
+            <div class="tool-section-title">🎯 选择颜色</div>
+            <div class="color-palette" id="colorPalette">
+                <!-- 预设颜色由 JS 生成 -->
+            </div>
+            <div class="custom-color-wrap">
+                <label for="colorPicker">自定义</label>
+                <input type="color" id="colorPicker" value="#ff0000">
+            </div>
+        </div>
+
+        <div class="tools-row">
+            <button class="tool-btn tool-btn-eraser" id="eraserBtn">
+                <span class="tool-btn-icon">🧹</span> 橡皮擦
+            </button>
+            <button class="tool-btn tool-btn-clear" id="clearBtn">
+                <span class="tool-btn-icon">🗑️</span> 清空
+            </button>
+            <button class="tool-btn tool-btn-preview" id="previewBtn">
+                <span class="tool-btn-icon">👁️</span> 预览
+            </button>
+        </div>
+    </div>
+
+    <!-- 预览模态框 -->
+    <div class="modal-overlay" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🖼️ 作品预览</h2>
+                <button class="modal-close" id="modalCloseBtn">✕</button>
+            </div>
+            <div class="preview-container">
+                <div class="preview-grid" id="previewGrid">
+                    <!-- 预览时由 JS 生成 -->
+                </div>
+            </div>
+            <div class="preview-info">
+                <span>📐 16×16</span>
+                <span id="colorCount">🎨 0 色</span>
+            </div>
+            <button class="modal-footer-btn" id="modalCloseBottom">关闭预览</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== 配置 =====
+            const GRID_SIZE = 16;
+            const TOTAL_CELLS = GRID_SIZE * GRID_SIZE;
+            const DEFAULT_COLOR = '#ffffff';
+
+            // 预设颜色 (12 色)
+            const PRESET_COLORS = [
+                { name: '红', color: '#ff0000' },
+                { name: '橙', color: '#ff8c00' },
+                { name: '黄', color: '#ffd700' },
+                { name: '绿', color: '#00cc00' },
+                { name: '天蓝', color: '#00aaff' },
+                { name: '蓝', color: '#0044ff' },
+                { name: '紫', color: '#8b00ff' },
+                { name: '粉', color: '#ff69b4' },
+                { name: '棕', color: '#8b4513' },
+                { name: '黑', color: '#000000' },
+                { name: '灰', color: '#888888' },
+                { name: '白', color: '#ffffff' },
+            ];
+
+            // ===== DOM 引用 =====
+            const gridEl = document.getElementById('pixelGrid');
+            const colorPalette = document.getElementById('colorPalette');
+            const colorPicker = document.getElementById('colorPicker');
+            const currentDisplay = document.getElementById('currentColorDisplay');
+            const eraserBtn = document.getElementById('eraserBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const previewModal = document.getElementById('previewModal');
+            const previewGrid = document.getElementById('previewGrid');
+            const modalCloseBtn = document.getElementById('modalCloseBtn');
+            const modalCloseBottom = document.getElementById('modalCloseBottom');
+            const colorCountSpan = document.getElementById('colorCount');
+
+            // ===== 状态 =====
+            let pixels = new Array(TOTAL_CELLS).fill(DEFAULT_COLOR);
+            let currentColor = '#ff0000';
+            let isErasing = false;
+            let isDrawing = false;
+            let isTouchDevice = false;
+
+            // 格子 DOM 引用数组
+            let cellElements = [];
+
+            // ===== 初始化网格 =====
+            function initGrid() {
+                gridEl.innerHTML = '';
+                cellElements = [];
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.index = i;
+                    cell.style.backgroundColor = pixels[i];
+                    gridEl.appendChild(cell);
+                    cellElements.push(cell);
+                }
+            }
+
+            // ===== 更新单个格子 =====
+            function updateCell(index, color) {
+                if (index < 0 || index >= TOTAL_CELLS) return;
+                pixels[index] = color;
+                cellElements[index].style.backgroundColor = color;
+            }
+
+            // ===== 清空所有 =====
+            function clearAll() {
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    updateCell(i, DEFAULT_COLOR);
+                }
+            }
+
+            // ===== 获取当前绘画颜色 =====
+            function getPaintColor() {
+                return isErasing ? DEFAULT_COLOR : currentColor;
+            }
+
+            // ===== 更新当前颜色显示 =====
+            function updateColorDisplay(color) {
+                currentDisplay.style.backgroundColor = color;
+            }
+
+            // ===== 设置当前颜色 (来自预设或选择器) =====
+            function setCurrentColor(color, fromPresetIndex) {
+                currentColor = color;
+                if (!isErasing) {
+                    updateColorDisplay(color);
+                    colorPicker.value = color;
+                }
+                // 更新预设高亮
+                const swatches = colorPalette.querySelectorAll('.color-swatch');
+                swatches.forEach((sw, idx) => {
+                    const isActive = (fromPresetIndex !== undefined && idx === fromPresetIndex);
+                    sw.classList.toggle('active', isActive);
+                });
+            }
+
+            // ===== 切换橡皮擦模式 =====
+            function toggleEraser() {
+                isErasing = !isErasing;
+                eraserBtn.classList.toggle('active', isErasing);
+                if (isErasing) {
+                    updateColorDisplay('#f59e0b');
+                    // 取消预设高亮
+                    colorPalette.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+                } else {
+                    updateColorDisplay(currentColor);
+                }
+            }
+
+            // ===== 从坐标获取格子索引 (触摸/鼠标) =====
+            function getCellIndexFromPoint(clientX, clientY) {
+                const rect = gridEl.getBoundingClientRect();
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                if (x < 0 || y < 0 || x > rect.width || y > rect.height) return -1;
+                const col = Math.floor(x / (rect.width / GRID_SIZE));
+                const row = Math.floor(y / (rect.height / GRID_SIZE));
+                if (col < 0 || col >= GRID_SIZE || row < 0 || row >= GRID_SIZE) return -1;
+                return row * GRID_SIZE + col;
+            }
+
+            // ===== 绘画到指定坐标点 =====
+            function paintAt(clientX, clientY) {
+                const idx = getCellIndexFromPoint(clientX, clientY);
+                if (idx === -1) return;
+                const color = getPaintColor();
+                updateCell(idx, color);
+            }
+
+            // ===== 生成预览 =====
+            function generatePreview() {
+                previewGrid.innerHTML = '';
+                let colorSet = new Set();
+                for (let i = 0; i < TOTAL_CELLS; i++) {
+                    const color = pixels[i];
+                    colorSet.add(color);
+                    const div = document.createElement('div');
+                    div.className = 'preview-cell';
+                    div.style.backgroundColor = color;
+                    previewGrid.appendChild(div);
+                }
+                // 颜色数量 (排除白色默认)
+                let count = colorSet.size;
+                if (colorSet.has(DEFAULT_COLOR)) {
+                    // 如果只有白色，算1种；否则减去白色
+                    if (count > 1) count = count - 1;
+                }
+                colorCountSpan.textContent = '🎨 ' + count + ' 色';
+            }
+
+            // ===== 打开预览 =====
+            function openPreview() {
+                generatePreview();
+                previewModal.classList.add('open');
+            }
+
+            // ===== 关闭预览 =====
+            function closePreview() {
+                previewModal.classList.remove('open');
+            }
+
+            // ===== 初始化预设颜色 =====
+            function initPalette() {
+                colorPalette.innerHTML = '';
+                PRESET_COLORS.forEach((item, idx) => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    if (item.color === '#ffffff') {
+                        swatch.classList.add('color-swatch-white');
+                    }
+                    swatch.style.backgroundColor = item.color;
+                    swatch.dataset.color = item.color;
+                    swatch.dataset.index = idx;
+                    swatch.title = item.name;
+                    swatch.addEventListener('click', function(e) {
+                        const color = this.dataset.color;
+                        const index = parseInt(this.dataset.index);
+                        // 如果当前是橡皮擦模式，退出橡皮擦
+                        if (isErasing) {
+                            isErasing = false;
+                            eraserBtn.classList.remove('active');
+                        }
+                        setCurrentColor(color, index);
+                        updateColorDisplay(color);
+                        colorPicker.value = color;
+                        e.stopPropagation();
+                    });
+                    colorPalette.appendChild(swatch);
+                    // 默认选中第一个 (红色)
+                    if (idx === 0) {
+                        swatch.classList.add('active');
+                    }
+                });
+            }
+
+            // ===== 设置当前颜色从 Picker =====
+            function handleColorPickerInput(e) {
+                const color = e.target.value;
+                if (isErasing) {
+                    isErasing = false;
+                    eraserBtn.classList.remove('active');
+                }
+                currentColor = color;
+                updateColorDisplay(color);
+                // 取消预设高亮
+                colorPalette.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('active'));
+            }
+
+            // ===== 事件绑定 =====
+            function bindEvents() {
+
+                // ----- 触摸事件 (网格) -----
+                let touchActive = false;
+
+                gridEl.addEventListener('touchstart', function(e) {
+                    if (e.touches.length > 0) {
+                        isTouchDevice = true;
+                        touchActive = true;
+                        isDrawing = true;
+                        const touch = e.touches[0];
+                        paintAt(touch.clientX, touch.clientY);
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                gridEl.addEventListener('touchmove', function(e) {
+                    if (e.touches.length > 0 && isDrawing) {
+                        const touch = e.touches[0];
+                        paintAt(touch.clientX, touch.clientY);
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+
+                gridEl.addEventListener('touchend', function(e) {
+                    isDrawing = false;
+                    touchActive = false;
+                    e.preventDefault();
+                }, { passive: false });
+
+                gridEl.addEventListener('touchcancel', function(e) {
+                    isDrawing = false;
+                    touchActive = false;
+                }, { passive: false });
+
+                // ----- 鼠标事件 (网格) 桌面端支持 -----
+                let mouseDown = false;
+
+                gridEl.addEventListener('mousedown', function(e) {
+                    // 如果已经检测到触摸设备，忽略鼠标事件避免重复
+                    if (isTouchDevice) return;
+                    mouseDown = true;
+                    isDrawing = true;
+                    paintAt(e.clientX, e.clientY);
+                    e.preventDefault();
+                });
+
+                gridEl.addEventListener('mousemove', function(e) {
+                    if (mouseDown && isDrawing && !isTouchDevice) {
+                        paintAt(e.clientX, e.clientY);
+                        e.preventDefault();
+                    }
+                });
+
+                window.addEventListener('mouseup', function(e) {
+                    if (!isTouchDevice) {
+                        isDrawing = false;
+                        mouseDown = false;
+                    }
+                });
+
+                // 防止从网格外释放鼠标导致绘制卡死
+                document.addEventListener('mouseleave', function() {
+                    if (!isTouchDevice) {
+                        isDrawing = false;
+                        mouseDown = false;
+                    }
+                });
+
+                // ----- 橡皮擦按钮 -----
+                eraserBtn.addEventListener('click', function(e) {
+                    toggleEraser();
+                    e.stopPropagation();
+                });
+
+                // ----- 清空按钮 -----
+                clearBtn.addEventListener('click', function(e) {
+                    clearAll();
+                    e.stopPropagation();
+                });
+
+                // ----- 预览按钮 -----
+                previewBtn.addEventListener('click', function(e) {
+                    openPreview();
+                    e.stopPropagation();
+                });
+
+                // ----- 颜色选择器 -----
+                colorPicker.addEventListener('input', handleColorPickerInput);
+                colorPicker.addEventListener('change', function(e) {
+                    // 确保最终值同步
+                    handleColorPickerInput(e);
+                });
+
+                // ----- 模态关闭 -----
+                const closeModalFns = [closePreview];
+                modalCloseBtn.addEventListener('click', closePreview);
+                modalCloseBottom.addEventListener('click', closePreview);
+                previewModal.addEventListener('click', function(e) {
+                    if (e.target === previewModal) {
+                        closePreview();
+                    }
+                });
+
+                // 物理返回键支持 (popstate 不适用，用 keydown)
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && previewModal.classList.contains('open')) {
+                        closePreview();
+                    }
+                });
+            }
+
+            // ===== 一键重置 (用于测试/清空后计数等) =====
+            // 无额外需求
+
+            // ===== 启动 =====
+            function init() {
+                initGrid();
+                initPalette();
+                // 默认当前颜色为红色，显示更新
+                setCurrentColor('#ff0000', 0);
+                updateColorDisplay('#ff0000');
+                colorPicker.value = '#ff0000';
+                bindEvents();
+                // 初始清空一次，确保所有格子为白色
+                clearAll();
+            }
+
+            // 页面加载完成后启动
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                init();
+            } else {
+                document.addEventListener('DOMContentLoaded', init);
+            }
+
+        })();
+    </script>
+</body>
+</html>

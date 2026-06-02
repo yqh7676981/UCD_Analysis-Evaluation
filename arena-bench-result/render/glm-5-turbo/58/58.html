@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sukhothai Kitchen - 泰式风情餐厅</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FDF8F3;
+            --fg: #2D1810;
+            --muted: #8B7355;
+            --accent: #C45C26;
+            --accent-light: #E8A87C;
+            --card: #FFFFFF;
+            --border: #E5DCD3;
+            --gold: #B8860B;
+            --teal: #2A6B5C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Subtle pattern background */
+        .pattern-bg {
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(196, 92, 38, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(42, 107, 92, 0.03) 0%, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C45C26' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+
+        .reveal {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Decorative elements */
+        .deco-leaf {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Button styles */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(196, 92, 38, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 500;
+            border: 2px solid var(--accent);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Menu card */
+        .menu-card {
+            background: var(--card);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(45, 24, 16, 0.1);
+        }
+
+        .menu-card:hover .menu-img {
+            transform: scale(1.05);
+        }
+
+        .menu-img {
+            transition: transform 0.6s ease;
+        }
+
+        /* Spice indicator */
+        .spice-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: inline-block;
+        }
+
+        .spice-dot.inactive {
+            background: var(--border);
+        }
+
+        /* Navigation */
+        .nav-link {
+            position: relative;
+            color: var(--fg);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 0;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero section */
+        .hero-gradient {
+            background: linear-gradient(135deg, 
+                rgba(253, 248, 243, 0.95) 0%, 
+                rgba(253, 248, 243, 0.8) 50%,
+                rgba(232, 168, 124, 0.2) 100%);
+        }
+
+        /* Glow effect */
+        .glow-accent {
+            box-shadow: 0 0 60px rgba(196, 92, 38, 0.2);
+        }
+
+        /* Form styles */
+        .form-input {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 14px 20px;
+            border-radius: 12px;
+            width: 100%;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(196, 92, 38, 0.1);
+        }
+
+        /* Time badge */
+        .time-badge {
+            background: linear-gradient(135deg, var(--teal) 0%, #3D8B7A 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(45, 24, 16, 0.5);
+            backdrop-filter: blur(4px);
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="pattern-bg">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-[var(--bg)]/90 backdrop-blur-md border-b border-[var(--border)]">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="#" class="font-display text-2xl font-bold text-[var(--accent)]">Sukhothai</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#menu" class="nav-link">菜单</a>
+                <a href="#hours" class="nav-link">营业时间</a>
+                <a href="#about" class="nav-link">关于我们</a>
+                <button onclick="openReservationModal()" class="btn-primary text-sm">立即预订</button>
+            </div>
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2" aria-label="菜单">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobileMenu" class="md:hidden hidden bg-[var(--bg)] border-t border-[var(--border)] px-6 py-4">
+            <div class="flex flex-col gap-4">
+                <a href="#menu" class="nav-link">菜单</a>
+                <a href="#hours" class="nav-link">营业时间</a>
+                <a href="#about" class="nav-link">关于我们</a>
+                <button onclick="openReservationModal()" class="btn-primary text-sm w-full">立即预订</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen pt-20 relative overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-32 right-10 w-64 h-64 bg-gradient-to-br from-[var(--accent)]/10 to-transparent rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-tr from-[var(--teal)]/10 to-transparent rounded-full blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left content -->
+                <div class="relative z-10">
+                    <div class="animate-fade-in-up opacity-0 stagger-1">
+                        <span class="text-[var(--muted)] text-sm tracking-widest uppercase">正宗泰式料理</span>
+                    </div>
+                    <h1 class="font-display text-5xl lg:text-7xl font-bold mt-4 leading-tight animate-fade-in-up opacity-0 stagger-2">
+                        品味<span class="text-[var(--accent)]">泰国</span>的温暖
+                    </h1>
+                    <p class="text-[var(--muted)] text-lg mt-6 leading-relaxed max-w-md animate-fade-in-up opacity-0 stagger-3">
+                        每一道菜都是一段旅程，带您穿越曼谷的街头、清迈的夜市，感受最纯正的泰式风味。
+                    </p>
+                    <div class="flex flex-wrap gap-4 mt-8 animate-fade-in-up opacity-0 stagger-4">
+                        <button onclick="openReservationModal()" class="btn-primary">预订座位</button>
+                        <a href="#menu" class="btn-secondary">浏览菜单</a>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="flex gap-8 mt-12 animate-fade-in-up opacity-0 stagger-5">
+                        <div>
+                            <div class="font-display text-3xl font-bold text-[var(--accent)]">15+</div>
+                            <div class="text-[var(--muted)] text-sm">年烹饪经验</div>
+                        </div>
+                        <div>
+                            <div class="font-display text-3xl font-bold text-[var(--teal)]">50+</div>
+                            <div class="text-[var(--muted)] text-sm">特色菜品</div>
+                        </div>
+                        <div>
+                            <div class="font-display text-3xl font-bold text-[var(--gold)]">4.9</div>
+                            <div class="text-[var(--muted)] text-sm">顾客评分</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right image -->
+                <div class="relative animate-fade-in-up opacity-0 stagger-3">
+                    <div class="relative z-10 rounded-3xl overflow-hidden glow-accent animate-float">
+                        <div class="aspect-[4/5] bg-gradient-to-br from-[var(--accent)] to-[var(--accent-light)] flex items-center justify-center">
+                            <svg class="w-32 h-32 text-white/80" viewBox="0 0 100 100" fill="none">
+                                <circle cx="50" cy="50" r="40" stroke="currentColor" stroke-width="2"/>
+                                <path d="M50 20 C60 30, 70 40, 65 55 C60 70, 55 75, 50 80 C45 75, 40 70, 35 55 C30 40, 40 30, 50 20Z" fill="currentColor" opacity="0.6"/>
+                                <circle cx="50" cy="45" r="8" fill="currentColor" opacity="0.8"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <!-- Floating badges -->
+                    <div class="absolute -left-4 top-1/4 bg-white rounded-2xl p-4 shadow-xl animate-float" style="animation-delay: -2s;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[var(--accent)]/10 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[var(--accent)]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold">今日特惠</div>
+                                <div class="text-xs text-[var(--muted)]">冬阴功汤 8折</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-4 bottom-1/4 bg-white rounded-2xl p-4 shadow-xl animate-float" style="animation-delay: -4s;">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-[var(--teal)]/10 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[var(--teal)]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold">精选推荐</div>
+                                <div class="text-xs text-[var(--muted)]">主厨精心烹制</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="py-24 relative">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--accent)]/5 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-6 relative">
+            <div class="text-center reveal">
+                <span class="text-[var(--accent)] text-sm tracking-widest uppercase">精选菜品</span>
+                <h2 class="font-display text-4xl lg:text-5xl font-bold mt-4">招牌美食</h2>
+                <p class="text-[var(--muted)] mt-4 max-w-2xl mx-auto">每一道菜都源自泰国祖传秘方，选用新鲜食材，由经验丰富的泰籍主厨精心烹制</p>
+            </div>
+
+            <!-- Category tabs -->
+            <div class="flex justify-center gap-4 mt-12 reveal flex-wrap">
+                <button onclick="filterMenu('all')" class="menu-tab active px-6 py-2 rounded-full border-2 border-[var(--accent)] text-[var(--accent)] font-medium transition-all" data-category="all">全部</button>
+                <button onclick="filterMenu('appetizer')" class="menu-tab px-6 py-2 rounded-full border-2 border-[var(--border)] text-[var(--muted)] font-medium transition-all hover:border-[var(--accent)] hover:text-[var(--accent)]" data-category="appetizer">开胃菜</button>
+                <button onclick="filterMenu('main')" class="menu-tab px-6 py-2 rounded-full border-2 border-[var(--border)] text-[var(--muted)] font-medium transition-all hover:border-[var(--accent)] hover:text-[var(--accent)]" data-category="main">主菜</button>
+                <button onclick="filterMenu('dessert')" class="menu-tab px-6 py-2 rounded-full border-2 border-[var(--border)] text-[var(--muted)] font-medium transition-all hover:border-[var(--accent)] hover:text-[var(--accent)]" data-category="dessert">甜点</button>
+            </div>
+
+            <!-- Menu grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12" id="menuGrid">
+                <!-- Menu items will be rendered here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Hours & Location Section -->
+    <section id="hours" class="py-24 bg-gradient-to-br from-[var(--teal)]/5 to-[var(--accent)]/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Hours -->
+                <div class="reveal">
+                    <span class="text-[var(--teal)] text-sm tracking-widest uppercase">营业时间</span>
+                    <h2 class="font-display text-4xl lg:text-5xl font-bold mt-4">欢迎光临</h2>
+                    
+                    <div class="mt-8 space-y-4">
+                        <div class="bg-white rounded-2xl p-6 border border-[var(--border)]">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-[var(--teal)]/10 flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-[var(--teal)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">午餐时段</div>
+                                        <div class="text-[var(--muted)] text-sm">周一至周五</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-[var(--accent)]">11:00 - 14:30</div>
+                                    <span class="time-badge">营业中</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-2xl p-6 border border-[var(--border)]">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-[var(--accent)]/10 flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">晚餐时段</div>
+                                        <div class="text-[var(--muted)] text-sm">每日开放</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-[var(--accent)]">17:30 - 22:00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl p-6 border border-[var(--border)]">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-[var(--gold)]/10 flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-[var(--gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold">周末特惠</div>
+                                        <div class="text-[var(--muted)] text-sm">周六、周日</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-semibold text-[var(--accent)]">11:00 - 22:00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-[var(--muted)] mt-6 text-sm">
+                        * 节假日营业时间可能有所调整，请提前电话确认
+                    </p>
+                </div>
+
+                <!-- Location & Contact -->
+                <div class="reveal">
+                    <div class="bg-white rounded-3xl p-8 border border-[var(--border)] shadow-xl">
+                        <h3 class="font-display text-2xl font-bold mb-6">联系我们</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[var(--accent)]/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">餐厅地址</div>
+                                    <div class="text-[var(--muted)] mt-1">上海市静安区南京西路1266号<br>恒隆广场 L3-301</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[var(--teal)]/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-[var(--teal)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">预订电话</div>
+                                    <div class="text-[var(--accent)] mt-1 font-medium">021-6288-8888</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[var(--gold)]/10 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-5 h-5 text-[var(--gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="font-semibold">电子邮箱</div>
+                                    <div class="text-[var(--muted)] mt-1">reserve@sukhothai.com</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="openReservationModal()" class="btn-primary w-full mt-8">
+                            立即预订座位
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal">
+                    <div class="relative">
+                        <div class="aspect-square rounded-3xl bg-gradient-to-br from-[var(--teal)] to-[var(--accent)] opacity-20 absolute -inset-4 blur-2xl"></div>
+                        <div class="relative bg-gradient-to-br from-[var(--accent)]/20 to-[var(--teal)]/20 rounded-3xl aspect-square flex items-center justify-center">
+                            <svg class="w-48 h-48 text-[var(--accent)]" viewBox="0 0 100 100" fill="none">
+                                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1" opacity="0.3"/>
+                                <path d="M30 70 Q50 20, 70 70" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="35" cy="45" r="8" stroke="currentColor" stroke-width="2" fill="currentColor" opacity="0.2"/>
+                                <circle cx="65" cy="45" r="8" stroke="currentColor" stroke-width="2" fill="currentColor" opacity="0.2"/>
+                                <path d="M40 60 Q50 70, 60 60" stroke="currentColor" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reveal">
+                    <span class="text-[var(--accent)] text-sm tracking-widest uppercase">我们的故事</span>
+                    <h2 class="font-display text-4xl lg:text-5xl font-bold mt-4">源自素可泰的美味传承</h2>
+                    <div class="mt-6 space-y-4 text-[var(--muted)] leading-relaxed">
+                        <p>
+                            Sukhothai Kitchen 创立于2009年，由来自泰国素可泰的主厨 Somchai 带领团队，将家族三代传承的烹饪秘方带到上海。
+                        </p>
+                        <p>
+                            我们坚持选用最新鲜的食材，从泰国空运香料，每一道菜都承载着对泰式料理的热爱与执着。在这里，您不仅能品尝到正宗的泰式风味，更能感受到泰国文化的温暖与热情。
+                        </p>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-6 mt-8">
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-[var(--accent)]/10 flex items-center justify-center mx-auto">
+                                <svg class="w-8 h-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                                </svg>
+                            </div>
+                            <div class="font-semibold mt-3">新鲜食材</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-[var(--teal)]/10 flex items-center justify-center mx-auto">
+                                <svg class="w-8 h-8 text-[var(--teal)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                            </div>
+                            <div class="font-semibold mt-3">祖传秘方</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 rounded-2xl bg-[var(--gold)]/10 flex items-center justify-center mx-auto">
+                                <svg class="w-8 h-8 text-[var(--gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                </svg>
+                            </div>
+                            <div class="font-semibold mt-3">用心烹饪</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[var(--fg)] text-white py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12">
+                <div class="md:col-span-2">
+                    <h3 class="font-display text-3xl font-bold text-[var(--accent-light)]">Sukhothai Kitchen</h3>
+                    <p class="text-white/60 mt-4 max-w-md">
+                        正宗泰式料理，带给您最温暖的味蕾体验。每一道菜都是一段旅程，带您感受泰国的风情与魅力。
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">快速链接</h4>
+                    <ul class="space-y-2 text-white/60">
+                        <li><a href="#menu" class="hover:text-[var(--accent-light)] transition-colors">菜单</a></li>
+                        <li><a href="#hours" class="hover:text-[var(--accent-light)] transition-colors">营业时间</a></li>
+                        <li><a href="#about" class="hover:text-[var(--accent-light)] transition-colors">关于我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">关注我们</h4>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--accent)] transition-colors" aria-label="微信">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8.5 11.5a1 1 0 100-2 1 1 0 000 2zm5 0a1 1 0 100-2 1 1 0 000 2z"/>
+                                <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.546 20.2A1 1 0 003.8 21.454l3.032-.892A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--accent)] transition-colors" aria-label="微博">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.194 14.197c0 3.267-4.053 5.927-9.05 5.927-4.996 0-9.049-2.66-9.049-5.927 0-3.268 4.053-5.927 9.05-5.927 4.996 0 9.049 2.66 9.049 5.927z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[var(--accent)] transition-colors" aria-label="小红书">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 mt-12 pt-8 text-center text-white/40 text-sm">
+                &copy; 2024 Sukhothai Kitchen. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Reservation Modal -->
+    <div id="reservationModal" class="modal-overlay" onclick="closeReservationModal(event)">
+        <div class="modal-content p-8" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-display text-2xl font-bold">预订座位</h3>
+                <button onclick="closeReservationModal()" class="p-2 hover:bg-[var(--bg)] rounded-full transition-colors" aria-label="关闭">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="reservationForm" onsubmit="submitReservation(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">姓名</label>
+                        <input type="text" class="form-input" placeholder="您的姓名" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">电话</label>
+                        <input type="tel" class="form-input" placeholder="联系电话" required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">日期</label>
+                        <input type="date" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">时间</label>
+                        <select class="form-input" required>
+                            <option value="">选择时间</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:30">18:30</option>
+                            <option value="19:30">19:30</option>
+                            <option value="20:30">20:30</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">人数</label>
+                    <select class="form-input" required>
+                        <option value="">选择人数</option>
+                        <option value="1">1人</option>
+                        <option value="2">2人</option>
+                        <option value="3-4">3-4人</option>
+                        <option value="5-6">5-6人</option>
+                        <option value="7+">7人以上</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">备注（可选）</label>
+                    <textarea class="form-input" rows="3" placeholder="特殊要求或忌口..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-full mt-6">确认预订</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Menu data
+        const menuItems = [
+            {
+                id: 1,
+                name: '冬阴功汤',
+                description: '经典泰式酸辣汤，新鲜大虾配以香茅、南姜、柠檬叶',
+                price: 68,
+                category: 'appetizer',
+                spice: 3,
+                popular: true
+            },
+            {
+                id: 2,
+                name: '青木瓜沙拉',
+                description: '爽脆青木瓜丝，搭配花生碎与特制鱼露酱汁',
+                price: 38,
+                category: 'appetizer',
+                spice: 2,
+                popular: false
+            },
+            {
+                id: 3,
+                name: '泰式炸春卷',
+                description: '酥脆外皮包裹蔬菜与肉馅，配甜辣酱',
+                price: 42,
+                category: 'appetizer',
+                spice: 1,
+                popular: false
+            },
+            {
+                id: 4,
+                name: '绿咖喱鸡',
+                description: '椰浆绿咖喱配嫩滑鸡肉，香气四溢',
+                price: 78,
+                category: 'main',
+                spice: 3,
+                popular: true
+            },
+            {
+                id: 5,
+                name: '泰式炒河粉',
+                description: 'Pad Thai经典之作，虾仁豆芽花生碎完美融合',
+                price: 58,
+                category: 'main',
+                spice: 2,
+                popular: true
+            },
+            {
+                id: 6,
+                name: '芒果糯米饭',
+                description: '香甜芒果配椰浆糯米，泰国经典甜品',
+                price: 48,
+                category: 'dessert',
+                spice: 0,
+                popular: true
+            },
+            {
+                id: 7,
+                name: '红咖喱牛腩',
+                description: '慢炖牛腩配红咖喱酱，肉质软嫩入味',
+                price: 88,
+                category: 'main',
+                spice: 3,
+                popular: false
+            },
+            {
+                id: 8,
+                name: '泰式奶茶',
+                description: '浓郁泰式茶香，丝滑细腻',
+                price: 22,
+                category: 'dessert',
+                spice: 0,
+                popular: false
+            },
+            {
+                id: 9,
+                name: '椰汁西米糕',
+                description: '椰香西米配芋头丁，清凉解暑',
+                price: 28,
+                category: 'dessert',
+                spice: 0,
+                popular: false
+            }
+        ];
+
+        let currentCategory = 'all';
+
+        // Render menu
+        function renderMenu(category = 'all') {
+            const grid = document.getElementById('menuGrid');
+            const filtered = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
+            
+            grid.innerHTML = filtered.map((item, index) => `
+                <div class="menu-card reveal" style="animation-delay: ${index * 0.1}s;">
+                    <div class="h-48 bg-gradient-to-br from-[var(--accent)]/20 to-[var(--teal)]/20 menu-img flex items-center justify-center relative overflow-hidden">
+                        ${item.popular ? '<span class="absolute top-4 left-4 bg-[var(--accent)] text-white text-xs px-3 py-1 rounded-full">招牌推荐</span>' : ''}
+                        <svg class="w-20 h-20 text-[var(--accent)]/40" viewBox="0 0 100 100" fill="currentColor">
+                            <circle cx="50" cy="50" r="35" opacity="0.3"/>
+                            <circle cx="50" cy="50" r="20"/>
+                        </svg>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-display text-xl font-semibold">${item.name}</h3>
+                            <span class="text-[var(--accent)] font-bold">¥${item.price}</span>
+                        </div>
+                        <p class="text-[var(--muted)] text-sm mt-2">${item.description}</p>
+                        <div class="flex items-center gap-2 mt-4">
+                            <span class="text-xs text-[var(--muted)]">辣度:</span>
+                            ${renderSpiceLevel(item.spice)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-observe new elements
+            observeElements();
+        }
+
+        function renderSpiceLevel(level) {
+            let html = '';
+            for (let i = 0; i < 3; i++) {
+                html += `<span class="spice-dot ${i < level ? '' : 'inactive'}"></span>`;
+            }
+            return html;
+        }
+
+        function filterMenu(category) {
+            currentCategory = category;
+            
+            // Update tab styles
+            document.querySelectorAll('.menu-tab').forEach(tab => {
+                if (tab.dataset.category === category) {
+                    tab.classList.add('border-[var(--accent)]', 'text-[var(--accent)]');
+                    tab.classList.remove('border-[var(--border)]', 'text-[var(--muted)]');
+                } else {
+                    tab.classList.remove('border-[var(--accent)]', 'text-[var(--accent)]');
+                    tab.classList.add('border-[var(--border)]', 'text-[var(--muted)]');
+                }
+            });
+
+            renderMenu(category);
+        }
+
+        // Modal functions
+        function openReservationModal() {
+            document.getElementById('reservationModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReservationModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('reservationModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function submitReservation(event) {
+            event.preventDefault();
+            alert('预订成功！我们将尽快与您确认。谢谢！');
+            closeReservationModal();
+            event.target.reset();
+        }
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Scroll reveal
+        function observeElements() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.reveal').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+            observeElements();
+
+            // Set min date for reservation
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.min = today;
+                dateInput.value = today;
+            }
+        });
+
+        // Close modal on escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeReservationModal();
+            }
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    document.getElementById('mobileMenu').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

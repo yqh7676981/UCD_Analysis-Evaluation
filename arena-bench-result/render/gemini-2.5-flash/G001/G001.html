@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>飞机大战</title>
+    <style>
+        /* 通用样式 */
+        body {
+            margin: 0;
+            overflow: hidden; /* 防止滚动 */
+            font-family: 'Press Start 2P', cursive, Arial, sans-serif;
+            background-color: #222;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* 确保占满整个视口高度 */
+            -webkit-user-select: none; /* 禁用文本选择 */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: manipulation; /* 优化触摸响应 */
+        }
+
+        /* 游戏容器 */
+        #game-container {
+            width: 95vw; /* 占视口宽度的95% */
+            max-width: 450px; /* 最大宽度，避免在宽屏设备上过大 */
+            height: 85vh; /* 占视口高度的85% */
+            max-height: 800px; /* 最大高度 */
+            background-color: #000;
+            border: 2px solid #0f0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.7);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 游戏区域 (画布) */
+        #game-canvas {
+            flex-grow: 1; /* 占据剩余空间 */
+            position: relative;
+            overflow: hidden;
+            background-image: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="transparent"/><circle cx="1" cy="1" r="0.5" fill="%23333"/></svg>'); /* 星空背景 */
+            background-repeat: repeat;
+            background-size: 10px 10px;
+        }
+
+        /* 分数显示 */
+        #score-display {
+            position: absolute;
+            top: 1vh;
+            left: 1vw;
+            font-size: 2.5vh; /* 相对视口高度的字体大小 */
+            color: #fff;
+            z-index: 10;
+            text-shadow: 0 0 5px #0f0;
+            padding: 5px 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            border: 1px solid #0f0;
+        }
+
+        /* 玩家飞机 */
+        #player {
+            position: absolute;
+            width: 15vw; /* 相对视口宽度 */
+            height: 15vw;
+            max-width: 60px; /* 最大尺寸 */
+            max-height: 60px;
+            background-color: #00f;
+            border-radius: 50% 50% 20% 20%; /* 飞机造型 */
+            border: 2px solid #0ff;
+            box-shadow: 0 0 10px #0ff;
+            bottom: 5%; /* 距离底部 */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10vw; /* 飞机图标大小 */
+            line-height: 1;
+        }
+        #player::before {
+            content: '▲'; /* 飞机形状 */
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+            font-size: 4vh; /* 飞机箭头大小 */
+            transform: translateY(-10%);
+        }
+
+        /* 子弹 */
+        .bullet {
+            position: absolute;
+            width: 1.5vw;
+            height: 3vw;
+            max-width: 6px;
+            max-height: 12px;
+            background-color: #ff0;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ff0;
+            z-index: 4;
+        }
+
+        /* 敌机 */
+        .enemy {
+            position: absolute;
+            width: 12vw;
+            height: 12vw;
+            max-width: 50px;
+            max-height: 50px;
+            background-color: #f00;
+            border-radius: 50%;
+            border: 2px solid #f88;
+            box-shadow: 0 0 8px #f00;
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3.5vh;
+            line-height: 1;
+        }
+        .enemy::before {
+            content: '▼'; /* 敌机形状 */
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+            transform: translateY(10%);
+        }
+
+
+        /* 触摸控制按钮 */
+        #controls {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            padding: 1vh 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-top: 1px solid #0f0;
+        }
+
+        .control-button {
+            width: 40%;
+            height: 8vh;
+            max-height: 60px;
+            background-color: #050;
+            color: #fff;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            font-size: 4vh;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transition: background-color 0.1s ease, box-shadow 0.1s ease;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        .control-button:active {
+            background-color: #0f0;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.9);
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score-display">得分: 0</div>
+        <div id="game-canvas">
+            <div id="player"></div>
+        </div>
+        <div id="controls">
+            <button id="left-button" class="control-button">⬅️</button>
+            <button id="right-button" class="control-button">➡️</button>
+        </div>
+    </div>
+
+    <script>
+        const gameCanvas = document.getElementById('game-canvas');
+        const player = document.getElementById('player');
+        const scoreDisplay = document.getElementById('score-display');
+        const leftButton = document.getElementById('left-button');
+        const rightButton = document.getElementById('right-button');
+
+        let score = 0;
+        let playerX = gameCanvas.offsetWidth / 2 - player.offsetWidth / 2;
+        const playerSpeed = 5; // 玩家移动速度
+
+        const bullets = [];
+        const bulletSpeed = 10; // 子弹速度
+        const fireRate = 200; // 毫秒，自动发射间隔
+        let lastFireTime = 0;
+
+        const enemies = [];
+        const enemySpeed = 1.5; // 敌机速度
+        const enemySpawnRate = 1000; // 毫秒，敌机生成间隔
+        let lastEnemySpawnTime = 0;
+        let enemySpawnInterval = null; // 用于清除敌机生成定时器
+
+        const keys = {
+            ArrowLeft: false,
+            ArrowRight: false,
+            'left-touch': false, // 触摸控制
+            'right-touch': false // 触摸控制
+        };
+
+        // 获取元素矩形，用于碰撞检测
+        function getRect(element) {
+            const rect = element.getBoundingClientRect();
+            const canvasRect = gameCanvas.getBoundingClientRect();
+            return {
+                left: rect.left - canvasRect.left,
+                right: rect.right - canvasRect.left,
+                top: rect.top - canvasRect.top,
+                bottom: rect.bottom - canvasRect.top,
+                width: rect.width,
+                height: rect.height
+            };
+        }
+
+        // 初始化游戏
+        function initGame() {
+            // 设置玩家初始位置
+            playerX = (gameCanvas.offsetWidth - player.offsetWidth) / 2;
+            player.style.left = `${playerX}px`;
+            score = 0;
+            scoreDisplay.textContent = `得分: ${score}`;
+
+            // 清理旧的子弹和敌机
+            bullets.forEach(bullet => bullet.remove());
+            enemies.forEach(enemy => enemy.remove());
+            bullets.length = 0;
+            enemies.length = 0;
+
+            // 启动游戏循环
+            gameLoop();
+        }
+
+        // 更新玩家位置
+        function updatePlayer() {
+            if (keys.ArrowLeft || keys['left-touch']) {
+                playerX -= playerSpeed;
+            }
+            if (keys.ArrowRight || keys['right-touch']) {
+                playerX += playerSpeed;
+            }
+
+            // 边界检测
+            if (playerX < 0) {
+                playerX = 0;
+            }
+            if (playerX > gameCanvas.offsetWidth - player.offsetWidth) {
+                playerX = gameCanvas.offsetWidth - player.offsetWidth;
+            }
+            player.style.left = `${playerX}px`;
+        }
+
+        // 发射子弹
+        function spawnBullet(timestamp) {
+            if (timestamp - lastFireTime > fireRate) {
+                const bullet = document.createElement('div');
+                bullet.classList.add('bullet');
+                bullet.style.left = `${playerX + player.offsetWidth / 2 - bullet.offsetWidth / 2}px`;
+                bullet.style.top = `${player.offsetTop}px`;
+                gameCanvas.appendChild(bullet);
+                bullets.push(bullet);
+                lastFireTime = timestamp;
+            }
+        }
+
+        // 更新子弹位置
+        function updateBullets() {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                let currentTop = parseFloat(bullet.style.top);
+                currentTop -= bulletSpeed;
+                bullet.style.top = `${currentTop}px`;
+
+                // 移除超出屏幕的子弹
+                if (currentTop + bullet.offsetHeight < 0) {
+                    bullet.remove();
+                    bullets.splice(i, 1);
+                }
+            }
+        }
+
+        // 生成敌机
+        function spawnEnemy(timestamp) {
+            if (timestamp - lastEnemySpawnTime > enemySpawnRate) {
+                const enemy = document.createElement('div');
+                enemy.classList.add('enemy');
+                enemy.style.left = `${Math.random() * (gameCanvas.offsetWidth - enemy.offsetWidth)}px`;
+                enemy.style.top = `-${enemy.offsetHeight}px`; // 从屏幕上方外开始
+                gameCanvas.appendChild(enemy);
+                enemies.push(enemy);
+                lastEnemySpawnTime = timestamp;
+            }
+        }
+
+        // 更新敌机位置
+        function updateEnemies() {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                const enemy = enemies[i];
+                let currentTop = parseFloat(enemy.style.top);
+                currentTop += enemySpeed;
+                enemy.style.top = `${currentTop}px`;
+
+                // 移除超出屏幕的敌机 (暂时不设定游戏结束)
+                if (currentTop > gameCanvas.offsetHeight) {
+                    enemy.remove();
+                    enemies.splice(i, 1);
+                }
+            }
+        }
+
+        // 碰撞检测
+        function checkCollisions() {
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                const bulletRect = getRect(bullet);
+
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    const enemy = enemies[j];
+                    const enemyRect = getRect(enemy);
+
+                    // 简易碰撞检测
+                    if (
+                        bulletRect.left < enemyRect.right &&
+                        bulletRect.right > enemyRect.left &&
+                        bulletRect.top < enemyRect.bottom &&
+                        bulletRect.bottom > enemyRect.top
+                    ) {
+                        // 发生碰撞
+                        bullet.remove();
+                        bullets.splice(i, 1); // 移除子弹
+
+                        enemy.remove();
+                        enemies.splice(j, 1); // 移除敌机
+
+                        score += 10;
+                        scoreDisplay.textContent = `得分: ${score}`;
+                        break; // 一个子弹只能击中一个敌机
+                    }
+                }
+            }
+        }
+
+        // 游戏主循环
+        function gameLoop(timestamp) {
+            updatePlayer();
+            spawnBullet(timestamp);
+            updateBullets();
+            spawnEnemy(timestamp);
+            updateEnemies();
+            checkCollisions();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 键盘事件监听
+        window.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = true;
+                e.preventDefault(); // 阻止默认滚动行为
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+            }
+        });
+
+        // 触摸控制事件监听
+        leftButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['left-touch'] = true;
+        }, { passive: false }); // 使用 { passive: false } 防止阻止默认行为警告
+
+        leftButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['left-touch'] = false;
+        }, { passive: false });
+
+        rightButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['right-touch'] = true;
+        }, { passive: false });
+
+        rightButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['right-touch'] = false;
+        }, { passive: false });
+
+        // 为了在PC上测试触摸功能，也可以监听鼠标事件
+        leftButton.addEventListener('mousedown', () => { keys['left-touch'] = true; });
+        leftButton.addEventListener('mouseup', () => { keys['left-touch'] = false; });
+        leftButton.addEventListener('mouseleave', () => { keys['left-touch'] = false; }); // 如果鼠标离开按钮区域，也停止移动
+
+        rightButton.addEventListener('mousedown', () => { keys['right-touch'] = true; });
+        rightButton.addEventListener('mouseup', () => { keys['right-touch'] = false; });
+        rightButton.addEventListener('mouseleave', () => { keys['right-touch'] = false; }); // 如果鼠标离开按钮区域，也停止移动
+
+        // 页面加载完成时启动游戏
+        window.addEventListener('load', initGame);
+
+        // 窗口大小改变时重新计算玩家位置，并更新游戏画布尺寸
+        window.addEventListener('resize', () => {
+            // 重新计算玩家位置，保持居中或在当前比例
+            playerX = (gameCanvas.offsetWidth - player.offsetWidth) / 2;
+            player.style.left = `${playerX}px`;
+            // 注意：这里没有清空所有元素并重新定位，简单的游戏可以接受，复杂游戏需要更精细的缩放逻辑
+        });
+
+    </script>
+</body>
+</html>

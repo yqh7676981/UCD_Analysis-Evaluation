@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>小朋友学自然拼读</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      background-color: #f0f9ff;
+      color: #333;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0066cc;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #555;
+      font-size: 1rem;
+      margin-bottom: 30px;
+    }
+
+    .phonics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 20px 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, background-color 0.2s;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .card:active {
+      transform: scale(0.95);
+      background-color: #e6f7ff;
+    }
+
+    .blend {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #d35400;
+      margin-bottom: 8px;
+    }
+
+    .word {
+      font-size: 1.4rem;
+      color: #2c3e50;
+    }
+
+    .instruction {
+      text-align: center;
+      margin-top: 25px;
+      color: #777;
+      font-style: italic;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      .blend {
+        font-size: 1.6rem;
+      }
+      .word {
+        font-size: 1.2rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 学自然拼读</h1>
+  <p class="subtitle">点击卡片，听发音并学习！</p>
+
+  <div class="phonics-grid" id="container">
+    <!-- 卡片将通过 JavaScript 动态生成 -->
+  </div>
+
+  <p class="instruction">👉 点击任意单词卡片来听读音</p>
+
+  <script>
+    // 自然拼读组合和对应示例词
+    const phonicsPairs = [
+      { blend: 'sh', word: 'ship' },
+      { blend: 'th', word: 'think' },
+      { blend: 'ch', word: 'chat' },
+      { blend: 'ph', word: 'phone' },
+      { blend: 'ai', word: 'rain' },
+      { blend: 'ee', word: 'feet' },
+      { blend: 'oa', word: 'boat' },
+      { blend: 'ou', word: 'house' },
+      { blend: 'ck', word: 'duck' },
+      { blend: 'ng', word: 'sing' },
+      { blend: 'ay', word: 'play' },
+      { blend: 'oy', word: 'boy' }
+    ];
+
+    // 获取容器
+    const container = document.getElementById('container');
+
+    // 动态生成卡片
+    phonicsPairs.forEach(pair => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="blend">${pair.blend}</div>
+        <div class="word">${pair.word}</div>
+      `;
+      card.addEventListener('click', () => speakWord(pair.word));
+      container.appendChild(card);
+    });
+
+    // 使用 Web Speech API 播放语音
+    function speakWord(word) {
+      // 如果正在说话，先停止
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US'; // 英语发音
+        utterance.rate = 0.8;     // 放慢一点更适合孩子
+        utterance.pitch = 1.2;    // 高一点更亲切
+
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert("您的设备不支持语音功能，请使用现代手机浏览器。");
+      }
+    }
+
+    // 提示用户点击
+    setTimeout(() => {
+      const firstCard = document.querySelector('.card');
+      if (firstCard && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+        // 可以考虑首次加载时播放一个引导语音（可选）
+        // 这里只做提示
+      }
+    }, 1000);
+  </script>
+</body>
+</html>

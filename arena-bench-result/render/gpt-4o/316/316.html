@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Connect book lovers through shared reading preferences and build small book clubs with discussion forums and progress tracking">
+    <title>Book Lovers' Hub</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background-color: #333;
+            overflow: hidden;
+        }
+        nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        h1, h2, h3 {
+            margin-top: 0;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 1200px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .club-section, .forum-section, .progress-section {
+            margin-top: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #45a047;
+        }
+        .forum-section ul, .club-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .forum-section li, .club-section li {
+            background-color: #e6e6e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Example JavaScript for forum interaction
+            const form = document.querySelector("#forum-form");
+            const forumList = document.querySelector("#forum-list");
+
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const message = document.querySelector("#forum-message").value;
+                if (message.trim()) {
+                    const newMessage = document.createElement("li");
+                    newMessage.textContent = message;
+                    forumList.appendChild(newMessage);
+                    form.reset();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Book Lovers' Hub</h1>
+        <p>Connecting book enthusiasts through shared passions</p>
+    </header>
+    <nav>
+        <a href="#club-section">Clubs</a>
+        <a href="#forum-section">Forum</a>
+        <a href="#progress-section">Track Progress</a>
+    </nav>
+    <div class="container">
+        <!-- Book Club Section -->
+        <section id="club-section" class="club-section">
+            <h2>Join a Book Club</h2>
+            <p>Find or create a book club with others who love the same genres!</p>
+            <div class="form-group">
+                <label for="club-name">New Club Name:</label>
+                <input type="text" id="club-name" placeholder="Enter club name">
+                <button>Create Club</button>
+            </div>
+            <ul>
+                <li>Fantasy Lovers Club</li>
+                <li>Mystery Masters</li>
+            </ul>
+        </section>
+
+        <!-- Forum Section -->
+        <section id="forum-section" class="forum-section">
+            <h2>Discussion Forum</h2>
+            <p>Share your thoughts and discuss your favorite books with others!</p>
+            <form id="forum-form">
+                <div class="form-group">
+                    <label for="forum-message">Your Message:</label>
+                    <textarea id="forum-message" rows="4" placeholder="Enter your message"></textarea>
+                    <button type="submit">Post</button>
+                </div>
+            </form>
+            <ul id="forum-list">
+                <li>Just started reading "The Great Gatsby" - Loving it so far!</li>
+                <li>Anyone here into classic horror novels?</li>
+            </ul>
+        </section>
+
+        <!-- Reading Progress Tracker -->
+        <section id="progress-section" class="progress-section">
+            <h2>Track Your Reading Progress</h2>
+            <p>Keep a log of the books you've read and your reading goals.</p>
+            <div class="form-group">
+                <label for="book-title">Book Title:</label>
+                <input type="text" id="book-title" placeholder="Enter book title">
+                <label for="reading-progress">Progress (%):</label>
+                <input type="number" id="reading-progress" placeholder="Enter progress">
+                <button>Update Progress</button>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

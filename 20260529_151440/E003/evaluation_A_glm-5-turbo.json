@@ -1,0 +1,33 @@
+{
+  "index": 270,
+  "id": "E003",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个考研政治刷题工具，预置 10 道单选题，做完显示得分和错题解析，可以再来一组。",
+  "evaluation": {
+    "total_score": 68,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Dark teal visual theme is coherent and fits a focused study tool; card, button, and title styling are consistent. However, the page feels generic and underdeveloped, with limited visual differentiation and weak emphasis beyond the accent color."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Spacing and padding are mostly clean, option rows are aligned, and typography is readable at mobile size. But contrast is only moderate in places, the progress bar is visually faint, and some text/button treatment lacks refined hierarchy and polish."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly see the title, current question count, question stem, options, and bottom action. But the primary action is not strongly separated from its disabled-looking state, progress visibility is weak, and the layout leaves a lot of unused space without adding task clarity."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "The single-choice quiz pattern is familiar, labels A-D are clear, and the CTA text indicates that an answer must be selected first. However, the screenshot does not show selected state, result feedback, score view, wrong-answer explanation, or the promised '再来一组' flow, so task completion semantics are incomplete."
+      }
+    },
+    "summary": "This is a usable and visually coherent mobile quiz screen with clear core content and acceptable readability. The main limitations are incomplete task evidence for the requested full flow, weak progress/action emphasis, and only moderate visual refinement. It supports answering a question, but the overall experience does not yet demonstrate a complete, polished考研政治刷题工具."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E003_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:18:42.034939"
+}

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臻匠商务鞋 - 优质工艺，尊贵之选</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f8f8;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(to right, #1a1a1a, #2c3e50);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .logo span {
+            color: #cda45e;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #cda45e;
+        }
+        
+        .hero {
+            height: 80vh;
+            background: url('https://images.unsplash.com/photo-1543163521-1bf539c55dd2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+            max-width: 600px;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #cda45e;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: #b58d46;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        section {
+            padding: 5rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            color: #2c3e50;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: #cda45e;
+        }
+        
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        
+        .feature {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature i {
+            font-size: 3rem;
+            color: #cda45e;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature h3 {
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .products {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .product {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .product:hover {
+            transform: translateY(-10px);
+        }
+        
+        .product-img {
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .product:hover .product-img img {
+            transform: scale(1.1);
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-info h3 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        
+        .price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #cda45e;
+            margin: 0.5rem 0;
+        }
+        
+        .craftsmanship {
+            background-color: #2c3e50;
+            color: white;
+        }
+        
+        .craftsmanship .section-title {
+            color: white;
+        }
+        
+        .process {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .step {
+            flex: 1;
+            min-width: 200px;
+            margin: 2rem;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            background-color: #cda45e;
+            color: white;
+            border-radius: 50%;
+            line-height: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .testimonials {
+            background-color: #f1f1f1;
+        }
+        
+        .testimonial-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            gap: 2rem;
+            padding: 1rem 0;
+        }
+        
+        .testimonial-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .testimonial {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .customer {
+            display: flex;
+            align-items: center;
+        }
+        
+        .customer-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 1rem;
+        }
+        
+        .customer-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .customer-info h4 {
+            color: #2c3e50;
+        }
+        
+        footer {
+            background-color: #1a1a1a;
+            color: white;
+            padding: 3rem 0 1rem;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+            margin: 1rem;
+            text-align: left;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1.5rem;
+            color: #cda45e;
+            font-size: 1.3rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-section a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-section a:hover {
+            color: #cda45e;
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: #333;
+            color: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: #cda45e;
+            transform: translateY(-5px);
+        }
+        
+        .copyright {
+            border-top: 1px solid #333;
+            padding-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                font-size: 1.5rem;
+                color: white;
+                background: none;
+                border: none;
+                cursor: pointer;
+            }
+        }
+        
+        /* Icons using Unicode characters */
+        .icon-leather::before {
+            content: "🧰";
+        }
+        
+        .icon-handmade::before {
+            content: "✋";
+        }
+        
+        .icon-quality::before {
+            content: "⭐";
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">臻匠<span>商务鞋</span></div>
+                <ul class="nav-links">
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#features">特点</a></li>
+                    <li><a href="#products">产品</a></li>
+                    <li><a href="#craftsmanship">工艺</a></li>
+                    <li><a href="#testimonials">评价</a></li>
+                    <li><a href="#contact">联系</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>匠心打造 每一步都彰显尊贵</h1>
+                <p>精选顶级皮革，手工缝制，为您呈现完美商务形象。每一双臻匠商务鞋都凝聚着我们对品质的执着追求。</p>
+                <a href="#products" class="btn">探索我们的系列</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="container">
+            <h2 class="section-title">为什么选择臻匠</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="icon-leather"></div>
+                    <h3>顶级材质</h3>
+                    <p>我们只选用意大利进口头层牛皮，确保每双鞋都拥有卓越的质感和耐用性，经久耐穿。</p>
+                </div>
+                <div class="feature">
+                    <div class="icon-handmade"></div>
+                    <h3>手工制作</h3>
+                    <p>由经验丰富的工匠手工制作，每双鞋需要经过200多道工序，确保完美的贴合度和舒适感。</p>
+                </div>
+                <div class="feature">
+                    <div class="icon-quality"></div>
+                    <h3>品质保证</h3>
+                    <p>我们为每双鞋提供两年质保，承诺您购买的不仅是鞋子，更是长久的品质承诺。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="products">
+        <div class="container">
+            <h2 class="section-title">精选产品</h2>
+            <div class="products">
+                <div class="product">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1543076447-1a11d6b10e1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" alt="经典牛津鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>经典牛津鞋</h3>
+                        <p>优雅的闭合式鞋襟设计，适合正式场合穿着，展现专业风范。</p>
+                        <div class="price">¥2,880</div>
+                        <button class="btn">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1509088762636-93c353e782ec?ixlib=rb-1.2.1&auto=format&fit=crop&w=673&q=80" alt="德比鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>德比鞋</h3>
+                        <p>开放式鞋襟设计，穿着更舒适，适合各种脚型，商务休闲皆宜。</p>
+                        <div class="price">¥2,560</div>
+                        <button class="btn">加入购物车</button>
+                    </div>
+                </div>
+                <div class="product">
+                    <div class="product-img">
+                        <img src="https://images.unsplash.com/photo-1511556532293-2e81b336eb1c?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" alt="乐福鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>乐福鞋</h3>
+                        <p>无鞋带设计，穿脱方便，兼具舒适与时尚，适合现代商务人士。</p>
+                        <div class="price">¥2,380</div>
+                        <button class="btn">加入购物车</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="craftsmanship" class="craftsmanship">
+        <div class="container">
+            <h2 class="section-title">精湛工艺</h2>
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; color: #ddd;">
+                我们坚持传统手工制鞋工艺，将每一个细节做到极致，确保每双鞋都是艺术品。
+            </p>
+            <div class="process">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>选材</h3>
+                    <p>精选意大利顶级头层牛皮，经过严格筛选，确保材质均匀、纹理美观。</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>裁剪</h3>
+                    <p>由经验丰富的工匠手工裁剪，确保每一块皮革都得到最佳利用。</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>缝制</h3>
+                    <p>采用固特异工艺，手工缝制，确保鞋底牢固，可多次更换。</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>成型</h3>
+                    <p>在木制鞋楦上定型数日，确保完美贴合脚型，穿着舒适。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials" class="testimonials">
+        <div class="container">
+            <h2 class="section-title">客户评价</h2>
+            <div class="testimonial-container">
+                <div class="testimonial">
+                    <p class="testimonial-text">"这是我穿过的最舒适的商务鞋。不仅外观优雅，而且穿着一整天都不会感到疲劳。客户的目光总是被我的鞋子吸引，这让我在商务会议中更加自信。"</p>
+                    <div class="customer">
+                        <div class="customer-img">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="张伟">
+                        </div>
+                        <div class="customer-info">
+                            <h4>张伟</h4>
+                            <p>金融分析师</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title">联系我们</h2>
+            <p style="text-align: center; max-width: 600px; margin: 0 auto 2rem;">
+                如有任何问题或需要定制服务，请随时联系我们。我们的客户服务团队将竭诚为您服务。
+            </p>
+            <div style="text-align: center;">
+                <a href="tel:+8613800138000" class="btn">致电我们</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>臻匠商务鞋</h3>
+                    <p>致力于为现代商务人士提供最高品质的手工商务鞋，让每一步都彰显您的品味与地位。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><a href="#home">首页</a></li>
+                        <li><a href="#features">特点</a></li>
+                        <li><a href="#products">产品</a></li>
+                        <li><a href="#craftsmanship">工艺</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>客户服务</h3>
+                    <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">尺码指南</a></li>
+                        <li><a href="#">配送信息</a></li>
+                        <li><a href="#">退换政策</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="social-links">
+                <a href="#" aria-label="微信">微信</a>
+                <a href="#" aria-label="微博">微</a>
+                <a href="#" aria-label="小红书">小</a>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 臻匠商务鞋. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    window.scrollTo({
+                        top: target.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 简单的产品添加到购物车效果
+        document.querySelectorAll('.btn:not(.btn[href^="#"])').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.textContent === '加入购物车') {
+                    this.textContent = '已添加 ✓';
+                    this.style.backgroundColor = '#4CAF50';
+                    setTimeout(() => {
+                        this.textContent = '加入购物车';
+                        this.style.backgroundColor = '';
+                    }, 2000);
+                }
+            });
+        });
+
+        // 模拟轮播评价（虽然只有一个，但可以扩展）
+        // 在实际应用中，这里可以添加更多评价并实现自动轮播
+    </script>
+</body>
+</html>

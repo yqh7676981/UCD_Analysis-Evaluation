@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Twitter</title>
+    <style>
+        /* 全局重置与基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        /* 主容器 */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem 1.5rem 2rem;
+        }
+
+        /* 头部 */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #eef0f2;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .header .logo {
+            font-size: 1.8rem;
+            color: #1d9bf0;
+        }
+
+        /* 发推区域 */
+        .tweet-form {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .tweet-form .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #1d9bf0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .tweet-form .input-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tweet-form textarea {
+            width: 100%;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            transition: border 0.2s;
+            font-family: inherit;
+            min-height: 60px;
+        }
+
+        .tweet-form textarea:focus {
+            border-color: #1d9bf0;
+        }
+
+        .tweet-form .submit-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tweet-form .char-count {
+            font-size: 0.85rem;
+            color: #8b98a5;
+        }
+
+        .tweet-form .char-count.over {
+            color: #e74c3c;
+        }
+
+        .tweet-form button {
+            background-color: #1d9bf0;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.5rem 1.4rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .tweet-form button:hover {
+            background-color: #1a8ad4;
+        }
+
+        .tweet-form button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 时间线 */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .tweet {
+            background: #ffffff;
+            border: 1px solid #eef0f2;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .tweet:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tweet-header .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #cfd9e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .tweet-header .username {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .tweet-header .time {
+            font-size: 0.8rem;
+            color: #8b98a5;
+            margin-left: auto;
+        }
+
+        .tweet-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            word-wrap: break-word;
+        }
+
+        .tweet-actions {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            padding-top: 0.5rem;
+            border-top: 1px solid #f0f2f4;
+        }
+
+        .tweet-actions .action {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.85rem;
+            color: #6b7b8c;
+            cursor: pointer;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            padding: 0.2rem 0.4rem;
+            border-radius: 20px;
+        }
+
+        .tweet-actions .action:hover {
+            background-color: #f5f8fa;
+        }
+
+        .tweet-actions .action.liked {
+            color: #e74c3c;
+        }
+
+        .tweet-actions .action.liked .like-icon {
+            fill: #e74c3c;
+        }
+
+        .tweet-actions .action.retweeted {
+            color: #17bf63;
+        }
+
+        .tweet-actions .action .icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        .tweet-actions .count {
+            font-weight: 500;
+            min-width: 1.2rem;
+        }
+
+        /* 评论区域 */
+        .comments-section {
+            margin-top: 0.75rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #f0f2f4;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-form input {
+            flex: 1;
+            border: 1px solid #e1e5e9;
+            border-radius: 20px;
+            padding: 0.4rem 0.9rem;
+            font-size: 0.85rem;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .comment-form input:focus {
+            border-color: #1d9bf0;
+        }
+
+        .comment-form button {
+            background: #1d9bf0;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .comment-form button:hover {
+            background: #1a8ad4;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+            padding-left: 0.5rem;
+        }
+
+        .comment-item {
+            font-size: 0.85rem;
+            color: #2c3e50;
+            background: #f7f9fc;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            display: inline-block;
+            width: fit-content;
+            max-width: 100%;
+        }
+
+        .comment-item .comment-user {
+            font-weight: 600;
+            margin-right: 0.3rem;
+        }
+
+        .no-tweets {
+            text-align: center;
+            color: #8b98a5;
+            padding: 2rem 0;
+            font-size: 0.95rem;
+        }
+
+        /* 删除按钮（额外） */
+        .tweet-actions .delete-btn {
+            margin-left: auto;
+            color: #b0bcc9;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 50%;
+        }
+
+        .tweet-actions .delete-btn:hover {
+            color: #e74c3c;
+            background: #fce4e4;
+        }
+
+        /* 响应式 */
+        @media (max-width: 500px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .tweet-actions {
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📱 Mini Twitter</h1>
+            <span class="logo">🐦</span>
+        </div>
+
+        <!-- 发推表单 -->
+        <div class="tweet-form">
+            <div class="avatar" id="currentUserAvatar">M</div>
+            <div class="input-area">
+                <textarea id="tweetInput" placeholder="有什么新鲜事？" maxlength="280"></textarea>
+                <div class="submit-row">
+                    <span class="char-count" id="charCount">0 / 280</span>
+                    <button id="tweetBtn" disabled>发布</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 时间线 -->
+        <div class="timeline" id="timeline">
+            <div class="no-tweets">还没有推文，快来发布第一条吧 ✨</div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 状态管理 ----------
+            // 当前登录用户（模拟）
+            const CURRENT_USER = {
+                username: 'MiniUser',
+                avatar: 'M'
+            };
+
+            // 数据存储
+            let tweets = [];
+            let nextId = 1;
+
+            // 已点赞的 tweet id 集合（用于切换状态）
+            let likedTweets = new Set();
+
+            // 引用 DOM
+            const timelineEl = document.getElementById('timeline');
+            const tweetInput = document.getElementById('tweetInput');
+            const tweetBtn = document.getElementById('tweetBtn');
+            const charCount = document.getElementById('charCount');
+
+            // ---------- 辅助函数 ----------
+            function formatTime(date) {
+                const now = new Date();
+                const diff = Math.floor((now - date) / 1000);
+                if (diff < 60) return '刚刚';
+                if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+                if (diff < 86400) return Math.floor(diff / 3600) + '小时前';
+                const d = date.getDate().toString().padStart(2, '0');
+                const m = (date.getMonth() + 1).toString().padStart(2, '0');
+                return m + '-' + d;
+            }
+
+            // 生成随机头像颜色 (基于用户名)
+            function avatarColor(username) {
+                let hash = 0;
+                for (let i = 0; i < username.length; i++) {
+                    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const hue = Math.abs(hash) % 360;
+                return `hsl(${hue}, 60%, 55%)`;
+            }
+
+            // 获取头像字母
+            function getAvatarLetter(username) {
+                return username.charAt(0).toUpperCase();
+            }
+
+            // ---------- 渲染函数 ----------
+            function render() {
+                if (tweets.length === 0) {
+                    timelineEl.innerHTML = `<div class="no-tweets">还没有推文，快来发布第一条吧 ✨</div>`;
+                    return;
+                }
+
+                // 按时间倒序
+                const sorted = [...tweets].sort((a, b) => b.timestamp - a.timestamp);
+                let html = '';
+                sorted.forEach(tweet => {
+                    const isLiked = likedTweets.has(tweet.id);
+                    const retweetCount = tweet.retweets || 0;
+                    const commentCount = tweet.comments ? tweet.comments.length : 0;
+                    const timeStr = formatTime(new Date(tweet.timestamp));
+
+                    html += `
+                        <div class="tweet" data-id="${tweet.id}">
+                            <div class="tweet-header">
+                                <div class="avatar" style="background: ${avatarColor(tweet.username)}">
+                                    ${getAvatarLetter(tweet.username)}
+                                </div>
+                                <span class="username">${tweet.username}</span>
+                                <span class="time">${timeStr}</span>
+                            </div>
+                            <div class="tweet-content">${escapeHtml(tweet.content)}</div>
+                            <div class="tweet-actions">
+                                <button class="action comment-toggle" data-id="${tweet.id}">
+                                    <span class="icon">💬</span>
+                                    <span class="count">${commentCount}</span>
+                                </button>
+                                <button class="action retweet-btn" data-id="${tweet.id}">
+                                    <span class="icon">🔁</span>
+                                    <span class="count">${retweetCount}</span>
+                                </button>
+                                <button class="action like-btn ${isLiked ? 'liked' : ''}" data-id="${tweet.id}">
+                                    <span class="icon">${isLiked ? '❤️' : '🤍'}</span>
+                                    <span class="count">${tweet.likes + (isLiked ? 1 : 0)}</span>
+                                </button>
+                                <button class="delete-btn" data-id="${tweet.id}" title="删除">✕</button>
+                            </div>
+                            <div class="comments-section" id="comments-${tweet.id}" style="display: none;">
+                                <div class="comment-form">
+                                    <input type="text" placeholder="写下你的评论..." class="comment-input" data-id="${tweet.id}">
+                                    <button class="comment-submit" data-id="${tweet.id}">发送</button>
+                                </div>
+                                <div class="comments-list" id="comments-list-${tweet.id}">
+                                    ${renderComments(tweet.comments)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                timelineEl.innerHTML = html;
+            }
+
+            // 转义 HTML 防止 XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // 渲染评论列表
+            function renderComments(comments) {
+                if (!comments || comments.length === 0) return '';
+                return comments.map(c => `
+                    <div class="comment-item">
+                        <span class="comment-user">${escapeHtml(c.username)}</span>
+                        ${escapeHtml(c.content)}
+                    </div>
+                `).join('');
+            }
+
+            // ---------- 操作函数 ----------
+            function addTweet(content) {
+                const tweet = {
+                    id: nextId++,
+                    username: CURRENT_USER.username,
+                    content: content.trim(),
+                    timestamp: Date.now(),
+                    likes: 0,
+                    retweets: 0,
+                    comments: []
+                };
+                tweets.push(tweet);
+                render();
+            }
+
+            function toggleLike(tweetId) {
+                const tweet = tweets.find(t => t.id === tweetId);
+                if (!tweet) return;
+                if (likedTweets.has(tweetId)) {
+                    likedTweets.delete(tweetId);
+                    // 点赞取消，如果原来有+1过的计数要减回去
+                    // 注意：我们的显示是 baseLikes + (isLiked ? 1 : 0)，所以只需要改变集合
+                } else {
+                    likedTweets.add(tweetId);
+                }
+                render();
+            }
+
+            function retweet(tweetId) {
+                const tweet = tweets.find(t => t.id === tweetId);
+                if (!tweet) return;
+                tweet.retweets = (tweet.retweets || 0) + 1;
+                render();
+            }
+
+            function addComment(tweetId, content) {
+                const tweet = tweets.find(t => t.id === tweetId);
+                if (!tweet) return;
+                if (!tweet.comments) tweet.comments = [];
+                tweet.comments.push({
+                    username: CURRENT_USER.username,
+                    content: content.trim()
+                });
+                render();
+                // 自动展开评论区域
+                const section = document.getElementById(`comments-${tweetId}`);
+                if (section) section.style.display = 'block';
+            }
+
+            function deleteTweet(tweetId) {
+                tweets = tweets.filter(t => t.id !== tweetId);
+                likedTweets.delete(tweetId);
+                render();
+            }
+
+            // ---------- 事件绑定 ----------
+            // 发推
+            function handleTweet() {
+                const content = tweetInput.value.trim();
+                if (content && content.length <= 280) {
+                    addTweet(content);
+                    tweetInput.value = '';
+                    charCount.textContent = '0 / 280';
+                    tweetBtn.disabled = true;
+                }
+            }
+
+            tweetInput.addEventListener('input', function() {
+                const len = this.value.length;
+                charCount.textContent = `${len} / 280`;
+                if (len > 280) {
+                    charCount.classList.add('over');
+                    tweetBtn.disabled = true;
+                } else {
+                    charCount.classList.remove('over');
+                    tweetBtn.disabled = len === 0;
+                }
+            });
+
+            tweetBtn.addEventListener('click', handleTweet);
+
+            // 允许 Enter 发布（但不带 Shift）
+            tweetInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!tweetBtn.disabled) handleTweet();
+                }
+            });
+
+            // 事件委托处理推文操作
+            timelineEl.addEventListener('click', function(e) {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                // 点赞
+                if (target.classList.contains('like-btn')) {
+                    const id = Number(target.dataset.id);
+                    toggleLike(id);
+                    e.stopPropagation();
+                }
+
+                // 转发
+                if (target.classList.contains('retweet-btn')) {
+                    const id = Number(target.dataset.id);
+                    retweet(id);
+                    e.stopPropagation();
+                }
+
+                // 删除
+                if (target.classList.contains('delete-btn')) {
+                    const id = Number(target.dataset.id);
+                    if (confirm('确认删除这条推文吗？')) {
+                        deleteTweet(id);
+                    }
+                    e.stopPropagation();
+                }
+
+                // 展开/折叠评论
+                if (target.classList.contains('comment-toggle')) {
+                    const id = Number(target.dataset.id);
+                    const section = document.getElementById(`comments-${id}`);
+                    if (section) {
+                        section.style.display = section.style.display === 'none' ? 'block' : 'none';
+                    }
+                    e.stopPropagation();
+                }
+
+                // 提交评论
+                if (target.classList.contains('comment-submit')) {
+                    const id = Number(target.dataset.id);
+                    const input = document.querySelector(`.comment-input[data-id="${id}"]`);
+                    if (input) {
+                        const content = input.value.trim();
+                        if (content) {
+                            addComment(id, content);
+                            input.value = '';
+                        }
+                    }
+                    e.stopPropagation();
+                }
+            });
+
+            // 评论输入框也可以回车发送
+            timelineEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    const input = e.target.closest('.comment-input');
+                    if (input) {
+                        e.preventDefault();
+                        const id = Number(input.dataset.id);
+                        const content = input.value.trim();
+                        if (content) {
+                            addComment(id, content);
+                            input.value = '';
+                        }
+                    }
+                }
+            });
+
+            // ---------- 初始化示例数据 ----------
+            function initSampleData() {
+                const sampleTweets = [
+                    { username: 'TechDaily', content: '苹果发布新款 MacBook Air，搭载 M4 芯片，性能大幅提升！🔥', timeOffset: 3600000 * 2, likes: 15, retweets: 5 },
+                    { username: 'Traveler_X', content: '今天去了故宫，人山人海，但是夕阳下的角楼真的太美了 📸', timeOffset: 3600000 * 5, likes: 8, retweets: 2 },
+                    { username: 'Bookworm', content: '刚读完《百年孤独》，感觉整个马孔多都在眼前浮现。强烈推荐！📚', timeOffset: 3600000 * 8, likes: 12, retweets: 3 }
+                ];
+
+                sampleTweets.forEach((item, index) => {
+                    const tweet = {
+                        id: nextId++,
+                        username: item.username,
+                        content: item.content,
+                        timestamp: Date.now() - item.timeOffset,
+                        likes: item.likes,
+                        retweets: item.retweets,
+                        comments: []
+                    };
+                    // 为第一条加两条评论
+                    if (index === 0) {
+                        tweet.comments = [
+                            { username: 'Geek123', content: '真的假的？价格呢？' },
+                            { username: 'MiniUser', content: '期待评测！' }
+                        ];
+                    }
+                    tweets.push(tweet);
+                });
+                render();
+            }
+
+            initSampleData();
+
+            // 更新当前用户头像显示
+            document.getElementById('currentUserAvatar').textContent = CURRENT_USER.avatar;
+            document.getElementById('currentUserAvatar').style.background = avatarColor(CURRENT_USER.username);
+        })();
+    </script>
+</body>
+</html>

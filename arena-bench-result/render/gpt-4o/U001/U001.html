@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭账单记录工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f4f4f9;
+        }
+
+        header {
+            background-color: #4caf50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            font-size: 1rem;
+            color: white;
+            background-color: #4caf50;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .summary {
+            margin-top: 1.5rem;
+        }
+
+        .summary h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        家庭账单记录工具
+    </header>
+    <div class="container">
+        <div class="form-group">
+            <label for="categoryInput">账单分类</label>
+            <select id="categoryInput" required>
+                <option value="water">水电费</option>
+                <option value="gas">燃气费</option>
+                <option value="internet">网费</option>
+                <option value="other">其他</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="amountInput">金额 (¥)</label>
+            <input type="number" id="amountInput" min="0" step="0.01" required>
+        </div>
+        <button onclick="addBill()">添加账单</button>
+        <div class="summary">
+            <h2>每月账单汇总</h2>
+            <div id="billSummary">
+                <!-- Summary items will appear here -->
+            </div>
+            <div class="summary-item">
+                <strong>总支出：</strong>
+                <span id="totalExpense">¥0.00</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        const bills = [];
+        const categories = { 
+            water: '水电费', 
+            gas: '燃气费', 
+            internet: '网费', 
+            other: '其他' 
+        };
+
+        function addBill() {
+            const categoryInput = document.getElementById('categoryInput').value;
+            const amountInput = parseFloat(document.getElementById('amountInput').value);
+
+            if (!categoryInput || isNaN(amountInput) || amountInput <= 0) {
+                alert('请填写完整信息并确保金额大于 0！');
+                return;
+            }
+
+            bills.push({ category: categoryInput, amount: amountInput });
+            updateSummary();
+            document.getElementById('amountInput').value = '';
+        }
+
+        function updateSummary() {
+            const billSummary = document.getElementById('billSummary');
+            const totalExpense = document.getElementById('totalExpense');
+
+            billSummary.innerHTML = '';
+            const categoryTotals = {};
+
+            bills.forEach(bill => {
+                categoryTotals[bill.category] = (categoryTotals[bill.category] || 0) + bill.amount;
+            });
+
+            let total = 0;
+
+            for (const [key, value] of Object.entries(categoryTotals)) {
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `<strong>${categories[key]}：</strong><span>¥${value.toFixed(2)}</span>`;
+                billSummary.appendChild(summaryItem);
+                total += value;
+            }
+
+            totalExpense.textContent = `¥${total.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>

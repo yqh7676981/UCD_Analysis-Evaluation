@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apex Ventures | 驱动未来的风险投资</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    color: #1a1a2e;
+    line-height: 1.6;
+    background: #fafafa;
+  }
+  /* Navigation */
+  nav {
+    position: fixed; top: 0; width: 100%;
+    padding: 20px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    transition: all 0.3s;
+    border-bottom: 1px solid transparent;
+  }
+  nav.scrolled { border-bottom-color: #eee; padding: 15px 60px; }
+  .logo {
+    font-size: 24px; font-weight: 700;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    color: #333; text-decoration: none;
+    font-weight: 500; font-size: 15px;
+    transition: color 0.3s; position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -5px; left: 0;
+    width: 0; height: 2px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover { color: #667eea; }
+  .nav-links a:hover::after { width: 100%; }
+  .cta-btn {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white; border: none; border-radius: 30px;
+    font-weight: 600; cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.4); }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    color: white;
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+    padding: 0 60px;
+  }
+  .hero::before {
+    content: ''; position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(102,126,234,0.3), transparent);
+    top: -200px; right: -200px;
+    border-radius: 50%;
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero::after {
+    content: ''; position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(118,75,162,0.3), transparent);
+    bottom: -150px; left: -150px;
+    border-radius: 50%;
+    animation: float 10s ease-in-out infinite reverse;
+  }
+  @keyframes float {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(30px, -30px); }
+  }
+  .hero-content { max-width: 900px; position: relative; z-index: 2; }
+  .hero-tag {
+    display: inline-block;
+    padding: 8px 18px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    font-size: 13px; letter-spacing: 2px;
+    margin-bottom: 30px;
+    backdrop-filter: blur(10px);
+  }
+  .hero h1 {
+    font-size: 72px; font-weight: 800;
+    line-height: 1.1; margin-bottom: 30px;
+    letter-spacing: -2px;
+  }
+  .hero h1 span {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 20px; opacity: 0.85;
+    max-width: 650px; margin-bottom: 40px;
+  }
+  .hero-buttons { display: flex; gap: 20px; }
+  .btn-primary, .btn-outline {
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: all 0.3s;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white; border: none;
+  }
+  .btn-outline {
+    background: transparent; color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(245,87,108,0.4); }
+  .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+
+  /* Stats */
+  .stats {
+    display: flex; gap: 60px;
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-item .num {
+    font-size: 42px; font-weight: 700;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-item .label { font-size: 14px; opacity: 0.7; letter-spacing: 1px; }
+
+  /* Sections */
+  section { padding: 120px 60px; }
+  .section-header { text-align: center; max-width: 700px; margin: 0 auto 80px; }
+  .section-tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(102,126,234,0.1);
+    color: #667eea;
+    border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 2px; margin-bottom: 20px;
+  }
+  .section-header h2 {
+    font-size: 48px; font-weight: 800;
+    margin-bottom: 20px; letter-spacing: -1px;
+  }
+  .section-header p { font-size: 18px; color: #666; }
+
+  /* Mission */
+  .mission { background: white; }
+  .mission-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    max-width: 1200px; margin: 0 auto;
+  }
+  .mission-card {
+    padding: 40px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #fff, #f8f9ff);
+    border: 1px solid #eef0ff;
+    transition: all 0.4s;
+    position: relative; overflow: hidden;
+  }
+  .mission-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(102,126,234,0.15);
+    border-color: #667eea;
+  }
+  .mission-icon {
+    width: 60px; height: 60px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; margin-bottom: 24px;
+  }
+  .mission-card h3 { font-size: 22px; margin-bottom: 12px; }
+  .mission-card p { color: #666; font-size: 15px; }
+
+  /* Focus */
+  .focus {
+    background: linear-gradient(180deg, #fafafa, #fff);
+  }
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    max-width: 1300px; margin: 0 auto;
+  }
+  .focus-card {
+    padding: 36px 28px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #eee;
+    cursor: pointer;
+    transition: all 0.4s;
+    text-align: center;
+  }
+  .focus-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: transparent;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  }
+  .focus-emoji { font-size: 48px; margin-bottom: 20px; display: block; }
+  .focus-card h4 { font-size: 20px; margin-bottom: 12px; }
+  .focus-card p { color: #777; font-size: 14px; line-height: 1.7; }
+  .focus-tags {
+    margin-top: 16px;
+    display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+  }
+  .focus-tags span {
+    padding: 4px 10px;
+    background: #f0f2ff;
+    color: #667eea;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+
+  /* Team */
+  .team { background: white; }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    max-width: 1300px; margin: 0 auto;
+  }
+  .team-card {
+    text-align: center;
+    padding: 30px 20px;
+    border-radius: 20px;
+    transition: all 0.4s;
+    cursor: pointer;
+  }
+  .team-card:hover {
+    background: linear-gradient(135deg, #f8f9ff, #fff);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+  }
+  .team-avatar {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 52px; font-weight: 700;
+    color: white;
+    position: relative;
+  }
+  .team-avatar::after {
+    content: ''; position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px dashed transparent;
+    transition: border-color 0.4s;
+  }
+  .team-card:hover .team-avatar::after { border-color: #667eea; }
+  .a1 { background: linear-gradient(135deg, #667eea, #764ba2); }
+  .a2 { background: linear-gradient(135deg, #f093fb, #f5576c); }
+  .a3 { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .a4 { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+  .team-card h4 { font-size: 20px; margin-bottom: 6px; }
+  .team-role { color: #667eea; font-weight: 600; font-size: 14px; margin-bottom: 12px; }
+  .team-bio { color: #777; font-size: 13px; line-height: 1.7; }
+
+  /* CTA */
+  .cta-section {
+    background: linear-gradient(135deg, #0f0c29, #302b63);
+    color: white;
+    text-align: center;
+    padding: 100px 60px;
+  }
+  .cta-section h2 {
+    font-size: 48px; margin-bottom: 20px;
+    letter-spacing: -1px;
+  }
+  .cta-section p { font-size: 18px; opacity: 0.8; margin-bottom: 40px; }
+
+  /* Footer */
+  footer {
+    background: #0a0a1f;
+    color: #999;
+    padding: 50px 60px 30px;
+    text-align: center;
+  }
+  footer .logo { margin-bottom: 20px; }
+  .footer-links {
+    display: flex; justify-content: center; gap: 30px;
+    margin-bottom: 30px; flex-wrap: wrap;
+  }
+  .footer-links a { color: #aaa; text-decoration: none; font-size: 14px; transition: color 0.3s; }
+  .footer-links a:hover { color: #667eea; }
+  .copyright {
+    padding-top: 20px;
+    border-top: 1px solid #222;
+    font-size: 13px;
+  }
+
+  /* Animations */
+  .reveal { opacity: 1; /* fixed: was 0 */ transform: translateY(40px); transition: all 0.8s; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    nav { padding: 15px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 0 20px; }
+    .hero h1 { font-size: 44px; }
+    .hero p { font-size: 16px; }
+    .stats { flex-wrap: wrap; gap: 30px; }
+    section { padding: 80px 20px; }
+    .section-header h2 { font-size: 32px; }
+    .mission-grid, .focus-grid, .team-grid { grid-template-columns: 1fr; }
+    .cta-section { padding: 70px 20px; }
+    .cta-section h2 { font-size: 32px; }
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<nav id="nav">
+  <div class="logo">APEX VENTURES</div>
+  <ul class="nav-links">
+    <li><a href="#mission">使命</a></li>
+    <li><a href="#focus">投资重点</a></li>
+    <li><a href="#team">团队</a></li>
+    <li><a href="#contact">联系我们</a></li>
+  </ul>
+  <button class="cta-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">立即合作</button>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">⚡ 全球领先的早期风险投资机构</div>
+    <h1>投资于<span>改变世界</span>的远见者</h1>
+    <p>我们与最具野心的创业者并肩前行，用资本、网络与经验，助力下一代颠覆性企业从种子阶段走向全球舞台。</p>
+    <div class="hero-buttons">
+      <a href="#focus" class="btn-primary">探索投资组合 →</a>
+      <a href="#mission" class="btn-outline">了解我们</a>
+    </div>
+    <div class="stats">
+      <div class="stat-item">
+        <div class="num">$2.8B</div>
+        <div class="label">AUM 管理规模</div>
+      </div>
+      <div class="stat-item">
+        <div class="num">180+</div>
+        <div class="label">被投企业</div>
+      </div>
+      <div class="stat-item">
+        <div class="num">32</div>
+        <div class="label">独角兽项目</div>
+      </div>
+      <div class="stat-item">
+        <div class="num">15</div>
+        <div class="label">年行业积淀</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mission -->
+<section id="mission" class="mission">
+  <div class="section-header reveal">
+    <div class="section-tag">OUR MISSION</div>
+    <h2>我们的使命</h2>
+    <p>以长期主义的视角，发掘并支持那些敢于重新定义行业规则的创业团队。</p>
+  </div>
+  <div class="mission-grid">
+    <div class="mission-card reveal">
+      <div class="mission-icon">🎯</div>
+      <h3>精准洞察</h3>
+      <p>深耕前沿科技与商业趋势，用数据与经验捕捉下一个时代的机遇，早于市场发现价值。</p>
+    </div>
+    <div class="mission-card reveal">
+      <div class="mission-icon">🤝</div>
+      <h3>深度赋能</h3>
+      <p>不止于资金投入，我们提供战略咨询、人才引荐、全球资源对接，成为创始人真正的长期伙伴。</p>
+    </div>
+    <div class="mission-card reveal">
+      <div class="mission-icon">🌍</div>
+      <h3>创造影响</h3>
+      <p>投资那些推动社会进步、改善人类生活、面向可持续未来的创新项目，让资本产生真正的意义。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Focus -->
+<section id="focus" class="focus">
+  <div class="section-header reveal">
+    <div class="section-tag">INVESTMENT FOCUS</div>
+    <h2>投资重点领域</h2>
+    <p>我们专注于具有颠覆性潜力、市场规模广阔的前沿赛道。</p>
+  </div>
+  <div class="focus-grid">
+    <div class="focus-card reveal">
+      <span class="focus-emoji">🤖</span>
+      <h4>人工智能</h4>
+      <p>基础模型、AI Agent、垂直应用及AI基础设施的全栈投资。</p>
+      <div class="focus-tags"><span>LLM</span><span>AGI</span><span>AI SaaS</span></div>
+    </div>
+    <div class="focus-card reveal">
+      <span class="focus-emoji">🧬</span>
+      <h4>生命科学</h4>
+      <p>合成生物学、创新药研发、精准医疗及数字健康领域。</p>
+      <div class="focus-tags"><span>Biotech</span><span>HealthTech</span></div>
+    </div>
+    <div class="focus-card reveal">
+      <span class="focus-emoji">⚡</span>
+      <h4>清洁能源</h4>
+      <p>新能源、储能技术、碳中和解决方案与绿色工业革新。</p>
+      <div class="focus-tags"><span>新能源</span><span>ESG</span></div>
+    </div>
+    <div class="focus-card reveal">
+      <span class="focus-emoji">🚀</span>
+      <h4>企业服务</h4>
+      <p>云原生、数据基础设施、开发者工具及 B2B SaaS 平台。</p>
+      <div class="focus-tags"><span>SaaS</span><span>DevTools</span><span>Cloud</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Team -->
+<section id="team" class="team">
+  <div class="section-header reveal">
+    <div class="section-tag">CORE TEAM</div>
+    <h2>核心团队</h2>
+    <p>一支兼具深厚行业经验与前瞻视野的投资团队。</p>
+  </div>
+  <div class="team-grid">
+    <div class="team-card reveal">
+      <div class="team-avatar a1">DL</div>
+      <h4>David Lin</h4>
+      <div class="team-role">创始合伙人</div>
+      <p class="team-bio">前红杉资本董事总经理，20 年科技投资经验，主导过 6 家独角兽企业的早期布局。</p>
+    </div>
+    <div class="team-card reveal">
+      <div class="team-avatar a2">SW</div>
+      <h4>Sarah Wang</h4>
+      <div class="team-role">管理合伙人</div>
+      <p class="team-bio">斯坦福 MBA，曾任 Google Ventures 合伙人，专注 AI 与企业服务赛道的深度投资。</p>
+    </div>
+    <div class="team-card reveal">
+      <div class="team-avatar a3">MC</div>
+      <h4>Michael Chen</h4>
+      <div class="team-role">生命科学合伙人</div>
+      <p class="team-bio">MIT 生物工程博士，前辉瑞研发副总裁，在 Biotech 领域拥有广泛的学术与产业网络。</p>
+    </div>
+    <div class="team-card reveal">
+      <div class="team-avatar a4">EZ</div>
+      <h4>Emily Zhao</h4>
+      <div class="team-role">投资合伙人</div>
+      <p class="team-bio">哈佛商学院毕业，前麦肯锡咨询顾问，专注于清洁能源与可持续发展领域的前沿投资。</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="contact" class="cta-section">
+  <h2>有改变世界的想法？</h2>
+  <p>我们期待与每一位拥有远见的创业者对话。</p>
+  <a href="mailto:hello@apexventures.com" class="btn-primary">联系我们 →</a>
+</section>
+
+<footer>
+  <div class="logo">APEX VENTURES</div>
+  <div class="footer-links">
+    <a href="#">投资组合</a>
+    <a href="#">新闻资讯</a>
+    <a href="#">职业机会</a>
+    <a href="#">法律声明</a>
+    <a href="#">隐私政策</a>
+  </div>
+  <div class="copyright">© 2025 Apex Ventures. All rights reserved. | 上海 · 旧金山 · 新加坡</div>
+</footer>
+
+<script>
+  // Nav scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // Reveal on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Stat counter animation
+  const counters = document.querySelectorAll('.num');
+  const animateCounter = (el) => {
+    const text = el.innerText;
+    const hasB = text.includes('B'), hasPlus = text.includes('+'), hasDollar = text.includes('$');
+    const num = parseFloat(text.replace(/[^0-9.]/g, ''));
+    let current = 0;
+    const step = num / 50;
+    const timer = setInterval(() => {
+      current += step;
+      if (current >= num) { current = num; clearInterval(timer); }
+      let v = hasB ? current.toFixed(1) : Math.floor(current);
+      el.innerText = (hasDollar ? '$' : '') + v + (hasB ? 'B' : '') + (hasPlus ? '+' : '');
+    }, 30);
+  };
+  const statObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { animateCounter(e.target); statObserver.unobserve(e.target); }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(c => statObserver.observe(c));
+</script>
+
+</body>
+</html>

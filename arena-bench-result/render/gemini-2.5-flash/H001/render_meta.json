@@ -1,0 +1,10 @@
+{
+  "id": "H001",
+  "class": "Mobile",
+  "width": 390,
+  "height": 844,
+  "status": "success",
+  "error": null,
+  "html_path": "arena-bench-result/render/gemini-2.5-flash/H001/H001.html",
+  "screenshot_path": "arena-bench-result/render/gemini-2.5-flash/H001/H001.png"
+}

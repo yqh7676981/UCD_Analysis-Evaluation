@@ -1,0 +1,33 @@
+{
+  "index": 98,
+  "id": "E006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个产品经理岗位的模拟面试工具，预置 8 个常见面试问题，答完一题进入下一题，最后生成简单评估。",
+  "evaluation": {
+    "total_score": 53,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The page has a coherent minimal mobile form style with a clear blue header and a single white card, but it feels generic and unfinished. Large empty space below the card and lack of supporting visual structure make the product feel more like a bare form than a purposeful interview tool."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Text is readable, spacing is mostly clean, and the textarea/button padding is acceptable. However, the title bar is visually heavy, the button appears disabled due to gray styling, and the component detailing is basic with little typographic hierarchy beyond header/question/body."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly see the current question, answer area, and next action. But there is no visible progress across the 8 questions, no explanation of the flow, and the oversized blank area weakens information density and makes the interface feel incomplete."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "The core interaction is simple and conventional: answer the question and move to the next one. Still, the gray '下一题' button can be mistaken for disabled, there is no visible validation or state guidance, and the promised final evaluation flow is not communicated in the visible interface."
+      }
+    },
+    "summary": "This is a usable but very basic mobile interview-question form. The main task is discoverable and readable, but the experience lacks progress indication, feedback cues, and visible support for the full 8-question-to-evaluation scenario. Visual style is consistent enough to function, yet too sparse and generic to feel complete or polished, which caps the score in the low-qualified range."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E006_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:36:59.247319"
+}

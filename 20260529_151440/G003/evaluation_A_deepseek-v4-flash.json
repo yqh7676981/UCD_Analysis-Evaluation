@@ -1,0 +1,33 @@
+{
+  "index": 114,
+  "id": "G003",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做一个 16x16 的像素画板，可以选颜色后点击格子上色，支持橡皮擦和清空,完成后能预览作品。",
+  "evaluation": {
+    "total_score": 78,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent, friendly mobile-tool style with rounded cards, soft shadows, and a restrained palette. The white canvas area and pastel action buttons fit a casual pixel editor, though the visual language is somewhat generic and the preview action is not visually emphasized enough relative to secondary actions."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Spacing, padding, and alignment are mostly clean. The palette chips are consistent, the selected color state is visible, and the grid is crisp. Minor polish issues remain: emoji are used as functional icons, button text/icon styling is mixed, and the '当前' color indicator feels slightly detached from the rest of the control system."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the main drawing area, color selection, and bottom actions. The screen has clear top-to-bottom task flow and avoids overload. However, the preview function is not strongly differentiated as the outcome action after drawing, and the custom color area is comparatively understated."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Core operations are understandable: pick a color, tap cells, erase, clear, preview. Labels are explicit and familiar. The main limitation is semantic completeness: there is no visible mode/state explanation for eraser vs draw, no obvious preview result area in the screenshot, and emoji-based action icons reduce professionalism and can weaken affordance clarity."
+      }
+    },
+    "summary": "This is a solid, usable mobile pixel board with clear task flow and good visual cleanliness. The main strengths are straightforward layout, readable controls, and an immediately recognizable drawing canvas. The score is capped below top tier because the UI feels more like a neat prototype than a fully refined product: action hierarchy is only moderate, icon semantics rely on emoji, and some operational states and preview expectations are not fully communicated."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G003_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:40:18.443556"
+}

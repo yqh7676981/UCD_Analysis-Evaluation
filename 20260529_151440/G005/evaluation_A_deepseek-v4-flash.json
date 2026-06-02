@@ -1,0 +1,11 @@
+{
+  "index": 124,
+  "id": "G005",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做一个电子木鱼，点击木鱼会有敲击动画和音效,旁边显示已敲击次数和今日功德值,有一种佛系治愈的氛围。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/G005_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:44:57.166979"
+}

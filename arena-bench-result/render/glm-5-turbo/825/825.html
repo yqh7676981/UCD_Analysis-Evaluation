@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoopsZone - 篮球新闻·比分·数据</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Oswald', 'sans-serif'],
+                        body: ['Source Sans 3', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg-card: #141414;
+            --bg-card-hover: #1c1c1c;
+            --fg: #f0f0f0;
+            --fg-muted: #8a8a8a;
+            --accent: #FF6B2B;
+            --accent-glow: rgba(255, 107, 43, 0.3);
+            --accent-secondary: #FFB347;
+            --border: #2a2a2a;
+            --live: #e53e3e;
+            --win: #38a169;
+            --loss: #e53e3e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: 'Source Sans 3', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* 导航栏 */
+        .nav-main {
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: box-shadow 0.3s;
+        }
+        .nav-main.scrolled {
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+        }
+        .nav-link {
+            position: relative;
+            color: var(--fg-muted);
+            font-family: 'Oswald', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 0.5rem 0;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: var(--accent);
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent);
+            border-radius: 1px;
+        }
+
+        /* 英雄区域 */
+        .hero-section {
+            position: relative;
+            min-height: 85vh;
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 60% at 20% 50%, rgba(255,107,43,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 30%, rgba(255,179,71,0.08) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0a0a 0%, #111 100%);
+        }
+        .hero-particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .hero-particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 1; /* fixed: was 0 */
+            animation: particleFloat 6s infinite;
+        }
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(0) scale(0); }
+            20% { opacity: 0.6; transform: translateY(-30px) scale(1); }
+            100% { opacity: 0; transform: translateY(-200px) scale(0.3); }
+        }
+
+        /* 新闻卡片 */
+        .news-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            cursor: pointer;
+        }
+        .news-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px var(--accent-glow);
+        }
+        .news-card:hover .news-img {
+            transform: scale(1.08);
+        }
+        .news-img {
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .news-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* 比分卡片 */
+        .score-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.2rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .score-card:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+        .score-card:hover::before {
+            opacity: 1;
+        }
+        .score-card.live {
+            border-color: var(--live);
+        }
+        .score-card.live::before {
+            background: var(--live);
+            opacity: 1;
+            animation: livePulse 2s infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            background: var(--live);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'Oswald', sans-serif;
+            animation: liveBadgePulse 1.5s infinite;
+        }
+        @keyframes liveBadgePulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: liveDotBlink 1s infinite;
+        }
+        @keyframes liveDotBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 球员数据 */
+        .player-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.4s;
+            cursor: pointer;
+            position: relative;
+        }
+        .player-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--accent);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3), 0 0 20px var(--accent-glow);
+        }
+        .player-card .player-img-wrap {
+            position: relative;
+            overflow: hidden;
+        }
+        .player-card .player-img-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, var(--bg-card), transparent);
+        }
+        .stat-bar {
+            height: 4px;
+            background: #222;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary));
+            transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* 排行榜 */
+        .standings-row {
+            display: grid;
+            grid-template-columns: 40px 1fr 60px 60px 70px;
+            align-items: center;
+            padding: 0.7rem 1rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+        .standings-row:hover {
+            background: var(--bg-card-hover);
+        }
+        .standings-header {
+            color: var(--fg-muted);
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+        }
+
+        /* 标签切换 */
+        .tab-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--fg-muted);
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn:hover {
+            color: var(--fg);
+            background: rgba(255,255,255,0.05);
+        }
+        .tab-btn.active {
+            color: var(--accent);
+            background: rgba(255,107,43,0.1);
+            border-color: rgba(255,107,43,0.3);
+        }
+
+        /* 视频卡片 */
+        .video-card {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .video-card:hover {
+            transform: scale(1.03);
+        }
+        .video-card:hover .play-btn {
+            transform: translate(-50%, -50%) scale(1.15);
+            background: var(--accent);
+        }
+        .play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        /* 滚动动画 */
+        .reveal {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 背景装饰 */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: var(--fg);
+            font-family: 'Source Sans 3', sans-serif;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .search-box:focus {
+            border-color: var(--accent);
+            background: rgba(255,107,43,0.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .search-box::placeholder {
+            color: var(--fg-muted);
+        }
+
+        /* 底部 */
+        footer a {
+            color: var(--fg-muted);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        footer a:hover {
+            color: var(--accent);
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            color: var(--fg);
+            font-family: 'Source Sans 3', sans-serif;
+            z-index: 999;
+            transform: translateY(120%);
+            opacity: 1; /* fixed: was 0 */
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: scale(0.9) translateY(20px);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        /* 数字跳动动画 */
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 篮球纹理背景 */
+        .basketball-texture {
+            background-image: 
+                radial-gradient(circle at 30% 40%, rgba(255,107,43,0.03) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255,179,71,0.02) 0%, transparent 40%);
+        }
+
+        /* 移动端菜单 */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border);
+            z-index: 150;
+            transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 2rem;
+        }
+        .mobile-menu.open {
+            right: 0;
+        }
+        .mobile-menu-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 140;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section { min-height: 70vh; }
+            .standings-row { grid-template-columns: 30px 1fr 50px 50px 60px; font-size: 0.85rem; }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="basketball-texture">
+
+    <!-- 导航栏 -->
+    <nav class="nav-main" id="mainNav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent), var(--accent-secondary));">
+                        <i class="fas fa-basketball-ball text-white text-lg"></i>
+                    </div>
+                    <span class="font-display text-2xl font-bold tracking-wider" style="color: var(--fg);">HOOPS<span style="color: var(--accent);">ZONE</span></span>
+                </div>
+
+                <!-- 桌面导航 -->
+                <div class="hidden md:flex items-center gap-8">
+                    <span class="nav-link active" data-section="home">首页</span>
+                    <span class="nav-link" data-section="scores">比分</span>
+                    <span class="nav-link" data-section="news">新闻</span>
+                    <span class="nav-link" data-section="stats">数据</span>
+                    <span class="nav-link" data-section="standings">排名</span>
+                    <span class="nav-link" data-section="video">视频</span>
+                </div>
+
+                <!-- 搜索 & 菜单 -->
+                <div class="flex items-center gap-4">
+                    <div class="hidden sm:flex items-center relative">
+                        <input type="text" class="search-box w-48 text-sm" placeholder="搜索球员、球队..." id="searchInput">
+                        <i class="fas fa-search absolute right-3 text-sm" style="color: var(--fg-muted);"></i>
+                    </div>
+                    <button class="md:hidden text-xl" style="color: var(--fg-muted);" id="menuBtn" aria-label="打开菜单">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 移动端菜单 -->
+    <div class="mobile-menu-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="flex justify-between items-center mb-8">
+            <span class="font-display text-xl font-bold" style="color: var(--accent);">菜单</span>
+            <button id="closeMenu" aria-label="关闭菜单" style="color: var(--fg-muted);"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <div class="flex flex-col gap-4">
+            <span class="nav-link active text-lg" data-section="home">首页</span>
+            <span class="nav-link text-lg" data-section="scores">比分</span>
+            <span class="nav-link text-lg" data-section="news">新闻</span>
+            <span class="nav-link text-lg" data-section="stats">数据</span>
+            <span class="nav-link text-lg" data-section="standings">排名</span>
+            <span class="nav-link text-lg" data-section="video">视频</span>
+        </div>
+        <div class="mt-8">
+            <input type="text" class="search-box w-full text-sm" placeholder="搜索球员、球队...">
+        </div>
+    </div>
+
+    <!-- 英雄区域 -->
+    <section class="hero-section" id="home">
+        <div class="hero-bg"></div>
+        <div class="hero-particles" id="heroParticles"></div>
+        
+        <!-- 装饰光球 -->
+        <div class="glow-orb" style="width: 400px; height: 400px; background: var(--accent); opacity: 0.04; top: 10%; left: -5%;"></div>
+        <div class="glow-orb" style="width: 300px; height: 300px; background: var(--accent-secondary); opacity: 0.03; bottom: 10%; right: 5%;"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 flex items-center min-h-[85vh]">
+            <div class="grid lg:grid-cols-2 gap-12 items-center w-full">
+                <!-- 左侧文字 -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="news-tag" style="background: var(--accent); color: white;">今日焦点</span>
+                        <span style="color: var(--fg-muted); font-size: 0.85rem;">2025年1月18日</span>
+                    </div>
+                    <h1 class="font-display text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6" style="letter-spacing: -0.02em;">
+                        湖人加时险胜<br>
+                        <span style="color: var(--accent);">詹姆斯砍下</span><br>
+                        三双里程碑
+                    </h1>
+                    <p class="text-lg mb-8 leading-relaxed" style="color: var(--fg-muted); max-width: 500px;">
+                        勒布朗·詹姆斯在加时赛中展现统治力，全场贡献32分12篮板15助攻，带领湖人以128-125击败凯尔特人，生涯三双数达到新高度。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="px-8 py-3 rounded-lg font-display font-semibold text-sm uppercase tracking-wider text-white transition-all hover:scale-105" style="background: linear-gradient(135deg, var(--accent), #e55a1b); box-shadow: 0 4px 20px var(--accent-glow);" onclick="showToast('正在跳转至比赛详情...')">
+                            查看比赛详情
+                        </button>
+                        <button class="px-8 py-3 rounded-lg font-display font-semibold text-sm uppercase tracking-wider transition-all hover:scale-105" style="border: 1px solid var(--border); color: var(--fg-muted);" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--fg-muted)'" onclick="showToast('精彩集锦即将播放...')">
+                            <i class="fas fa-play mr-2"></i>观看集锦
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 右侧比分快报 -->
+                <div class="space-y-4">
+                    <h3 class="font-display text-lg font-semibold tracking-wider uppercase mb-4" style="color: var(--fg-muted);">
+                        <i class="fas fa-basketball-ball mr-2" style="color: var(--accent);"></i>今日比赛
+                    </h3>
+                    <div class="score-card live" onclick="openMatchDetail(this)">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="live-badge"><span class="live-dot"></span>LIVE</span>
+                            <span style="color: var(--fg-muted); font-size: 0.8rem;">Q4 5:32</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm" style="background: #552583; color: #FDB927;">LAL</div>
+                                <div>
+                                    <div class="font-semibold">湖人</div>
+                                    <div style="color: var(--fg-muted); font-size: 0.8rem;">主场</div>
+                                </div>
+                            </div>
+                            <div class="font-display text-3xl font-bold" style="color: var(--accent);">108</div>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm" style="background: #007A33; color: #FFFFFF;">BOS</div>
+                                <div>
+                                    <div class="font-semibold">凯尔特人</div>
+                                    <div style="color: var(--fg-muted); font-size: 0.8rem;">客场</div>
+                                </div>
+                            </div>
+                            <div class="font-display text-3xl font-bold">105</div>
+                        </div>
+                    </div>
+
+                    <div class="score-card" onclick="openMatchDetail(this)">
+                        <div class="flex items-center justify-between mb-2">
+                            <span style="color: var(--win); font-size: 0.75rem; font-weight: 600;">已结束</span>
+                            <span style="color: var(--fg-muted); font-size: 0.8rem;">最终</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm" style="background: #CE1141; color: #FFFFFF;">GSW</div>
+                                <div>
+                                    <div class="font-semibold">勇士</div>
+                                </div>
+                            </div>
+                            <div class="font-display text-3xl font-bold" style="color: var(--win);">118</div>
+                        </div>
+                        <div class="flex items-center justify-between mt-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm" style="background: #1D428A; color: #FFFFFF;">LAC</div>
+                                <div>
+                                    <div class="font-semibold">快船</div>
+                                </div>
+                            </div>
+                            <div class="font-display text-3xl font-bold" style="color: var(--loss);">112</div>
+                        </div>
+                    </div>
+
+                    <div class="score-card" onclick="openMatchDetail(this)">
+                        <div class="flex items-center justify-between mb-2">
+                            <span style="color: var(--fg-muted); font-size: 0.75rem; font-weight: 600;">未开始</span>
+                            <span style="color: var(--fg-muted); font-size: 0.8rem;">10:30 PM</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm" style="background: #C8102E; color: #FFFFFF;">MIA</div>
+                                <div class="font-semibold">热火</div>
+                            </div>
+                            <span style="color: var(--fg-muted);">VS</span>
+                            <div class="flex items-center gap-3">
+                                <div class="font-semibold">雄鹿</div>
+                                <div class="w-10 h-10 rounded-full flex items-center justify-center font-display font-bold text-sm" style="background: #00471B; color: #EEE1C6;">MIL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 新闻区域 -->
+    <section class="py-20 relative" id="news">
+        <div class="glow-orb" style="width: 500px; height: 500px; background: var(--accent); opacity: 0.02; top: 0; right: -10%;"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="reveal">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h2 class="font-display text-4xl font-bold tracking-tight">最新资讯</h2>
+                        <p style="color: var(--fg-muted);" class="mt-2">来自联盟第一手的篮球报道</p>
+                    </div>
+                    <div class="hidden sm:flex gap-2">
+                        <button class="tab-btn active" onclick="filterNews('all', this)">全部</button>
+                        <button class="tab-btn" onclick="filterNews('trade', this)">交易</button>
+                        <button class="tab-btn" onclick="filterNews('game', this)">赛况</button>
+                        <button class="tab-btn" onclick="filterNews('injury', this)">伤病</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6" id="newsGrid">
+                <!-- 大新闻 -->
+                <div class="lg:col-span-2 lg:row-span-2 news-card reveal" data-category="game" onclick="showToast('正在加载完整文章...')">
+                    <div class="relative overflow-hidden" style="height: 350px;">
+                        <img src="https://picsum.photos/seed/nba-hero1/800/400.jpg" alt="新闻图片" class="news-img w-full h-full object-cover">
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0.3) 50%, transparent 100%);"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6">
+                            <span class="news-tag mb-3" style="background: var(--accent); color: white;">赛况</span>
+                            <h3 class="font-display text-2xl sm:text-3xl font-bold mt-3 leading-tight">詹姆斯历史性夜晚：超越贾巴尔总得分纪录后的首个三双</h3>
+                            <p style="color: var(--fg-muted);" class="mt-3 text-sm leading-relaxed line-clamp-2">在洛杉矶Crypto.com Arena，39岁的勒布朗·詹姆斯再次书写历史，全场32分12篮板15助攻的豪华数据让他成为NBA历史上最年长的三双获得者...</p>
+                            <div class="flex items-center gap-4 mt-4" style="color: var(--fg-muted); font-size: 0.8rem;">
+                                <span><i class="far fa-clock mr-1"></i>2小时前</span>
+                                <span><i class="far fa-eye mr-1"></i>12.5万阅读</span>
+                                <span><i class="far fa-comment mr-1"></i>892评论</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-card reveal" data-category="trade" onclick="showToast('正在加载完整文章...')">
+                    <div class="relative overflow-hidden" style="height: 180px;">
+                        <img src="https://picsum.photos/seed/nba-trade1/400/250.jpg" alt="新闻图片" class="news-img w-full h-full object-cover">
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%);"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <span class="news-tag mb-2" style="background: #2D6A4F; color: white;">交易</span>
+                            <h4 class="font-display text-lg font-bold mt-2 leading-snug">重磅交易：独行侠送出首轮签换取防守悍将</h4>
+                            <span style="color: var(--fg-muted); font-size: 0.75rem;"><i class="far fa-clock mr-1"></i>4小时前</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="news-card reveal" data-category="injury" onclick="showToast('正在加载完整文章...')">
+                    <div class="relative overflow-hidden" style="height: 180px;">
+                        <img src="https://picsum.photos/seed/nba-injury1/400/250.jpg" alt="新闻图片" class="news-img w-full h-full object-cover">
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 60%);"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-4">
+                            <span class="news-tag mb-2" style="background: #9B2226; color: white;">伤病</span>
+                            <h4 class="font-display text-lg font-bold mt-2 leading-snug">恩比德膝盖伤势更新：预计缺席2-3周</h4>
+                            <span style="color: var(--fg-muted); font-size: 0.75rem;"><i class="far fa-clock mr-1"></i>5小时前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 更多新闻列表 -->
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+                <div class="news-card reveal p-5" data-category="game" onclick="showToast('正在加载完整文章...')">
+                    <span class="news-tag" style="background: rgba(255,107,43,0.15); color: var(--accent);">赛况</span>
+                    <h4 class="font-display text-base font-bold mt-3 leading-snug">库里三分雨！勇士客场射落太阳</h4>
+                    <p style="color: var(--fg-muted); font-size: 0.8rem;" class="mt-2 line-clamp-2">斯蒂芬·库里全场命中9记三分，砍下42分带领勇士取得三连胜...</p>
+                    <span style="color: var(--fg-muted); font-size: 0.7rem;" class="mt-3 block">6小时前</span>
+                </div>
+                <div class="news-card reveal p-5" data-category="trade" onclick="showToast('正在加载完整文章...')">
+                    <span class="news-tag" style="background: rgba(45,106,79,0.2); color: #52B788;">交易</span>
+                    <h4 class="font-display text-base font-bold mt-3 leading-snug">尼克斯瞄准全明星前锋，多方交易谈判进行中</h4>
+                    <p style="color: var(--fg-muted); font-size: 0.8rem;" class="mt-2 line-clamp-2">据消息人士透露，纽约尼克斯正在积极寻求前场补强...</p>
+                    <span style="color: var(--fg-muted); font-size: 0.7rem;" class="mt-3 block">8小时前</span>
+                </div>
+                <div class="news-card reveal p-5" data-category="game" onclick="showToast('正在加载完整文章...')">
+                    <span class="news-tag" style="background: rgba(255,107,43,0.15); color: var(--accent);">赛况</span>
+                    <h4 class="font-display text-base font-bold mt-3 leading-snug">文班亚马逆天封盖集锦，马刺新核防守统治力</h4>
+                    <p style="color: var(--fg-muted); font-size: 0.8rem;" class="mt-2 line-clamp-2">维克托·文班亚马送出8次封盖，追平赛季纪录...</p>
+                    <span style="color: var(--fg-muted); font-size: 0.7rem;" class="mt-3 block">10小时前</span>
+                </div>
+                <div class="news-card reveal p-5" data-category="injury" onclick="showToast('正在加载完整文章...')">
+                    <span class="news-tag" style="background: rgba(155,34,38,0.2); color: #E5383B;">伤病</span>
+                    <h4 class="font-display text-base font-bold mt-3 leading-snug">莫兰特赛季报销，灰熊调整阵容策略</h4>
+                    <p style="color: var(--fg-muted); font-size: 0.8rem;" class="mt-2 line-clamp-2">孟菲斯灰熊官方宣布，贾·莫兰特将接受手术...</p>
+                    <span style="color: var(--fg-muted); font-size: 0.7rem;" class="mt-3 block">12小时前</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 比分区域 -->
+    <section class="py-20 relative" id="scores" style="background: linear-gradient(180deg, transparent, rgba(255,107,43,0.02), transparent);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="reveal">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h2 class="font-display text-4xl font-bold tracking-tight">实时比分</h2>
+                        <p style="color: var(--fg-muted);" class="mt-2">所有比赛实时更新</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="tab-btn active" onclick="filterScores('all', this)">全部</button>
+                        <button class="tab-btn" onclick="filterScores('live', this)">进行中</button>
+                        <button class="tab-btn" onclick="filterScores('finished', this)">已结束</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5" id="scoresGrid">
+                <!-- 比分卡片由JS生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 球员数据区域 -->
+    <section class="py-20 relative" id="stats">
+        <div class="glow-orb" style="width: 400px; height: 400px; background: var(--accent-secondary); opacity: 0.02; bottom: 0; left: -5%;"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="reveal">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h2 class="font-display text-4xl font-bold tracking-tight">球员数据</h2>
+                        <p style="color: var(--fg-muted);" class="mt-2">赛季数据排行榜</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="tab-btn active" onclick="switchStatTab('points', this)">得分</button>
+                        <button class="tab-btn" onclick="switchStatTab('assists', this)">助攻</button>
+                        <button class="tab-btn" onclick="switchStatTab('rebounds', this)">篮板</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-5" id="playerStatsGrid">
+                <!-- 球员卡片由JS生成 -->
+            </div>
+
+            <!-- 详细数据表 -->
+            <div class="mt-12 reveal">
+                <div class="overflow-x-auto rounded-xl" style="background: var(--bg-card); border: 1px solid var(--border);">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <th class="text-left p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">排名</th>
+                                <th class="text-left p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">球员</th>
+                                <th class="text-left p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">球队</th>
+                                <th class="text-center p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">场次</th>
+                                <th class="text-center p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">得分</th>
+                                <th class="text-center p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">篮板</th>
+                                <th class="text-center p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">助攻</th>
+                                <th class="text-center p-4 font-display font-semibold text-xs uppercase tracking-wider" style="color: var(--fg-muted);">命中率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTableBody">
+                            <!-- JS生成 -->
+                        </tbody>
+                    </table>
+                </div>

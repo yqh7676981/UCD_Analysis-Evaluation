@@ -1,0 +1,10 @@
+{
+  "id": "840",
+  "class": "Desktop",
+  "width": 1280,
+  "height": 960,
+  "status": "error",
+  "error": "Page.screenshot: Timeout 180000ms exceeded.\nCall log:\n  - taking page screenshot\n    - disabled all CSS animations\n  - waiting for fonts to load...\n",
+  "html_path": "arena-bench-result/render/qwen3-235b-a22b-instruct-2507/840/840.html",
+  "screenshot_path": null
+}

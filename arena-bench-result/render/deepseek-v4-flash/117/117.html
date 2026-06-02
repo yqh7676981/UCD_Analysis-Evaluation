@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SciConnect - 科学家互动平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: #f0f4f9;
+            color: #1a2332;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ===== 滚动条美化 ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e8ecf1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #b0bcc9;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8fa0b2;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(26, 35, 126, 0.08);
+            padding: 0 2rem;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: box-shadow 0.3s;
+        }
+        .navbar.scrolled {
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a237e;
+            letter-spacing: -0.5px;
+        }
+        .nav-logo i {
+            font-size: 1.7rem;
+            background: linear-gradient(135deg, #1a237e, #4a6cf7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .nav-logo span {
+            background: linear-gradient(135deg, #1a237e, #4a6cf7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+        .nav-links a {
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: #334155;
+            padding: 0.4rem 0;
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #4a6cf7;
+            transition: width 0.3s;
+        }
+        .nav-links a:hover {
+            color: #1a237e;
+        }
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        .nav-links a.active {
+            color: #1a237e;
+        }
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, #1a237e, #4a6cf7);
+            color: #fff !important;
+            padding: 0.5rem 1.4rem !important;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .nav-cta::after {
+            display: none !important;
+        }
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 108, 247, 0.3);
+            color: #fff !important;
+        }
+
+        .mobile-toggle {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: #1a2332;
+            cursor: pointer;
+            padding: 0.3rem;
+        }
+
+        /* ===== 英雄区 ===== */
+        .hero {
+            margin-top: 70px;
+            padding: 5rem 2rem 4rem;
+            background: linear-gradient(135deg, #0b1120 0%, #1a237e 40%, #283593 70%, #0d47a1 100%);
+            color: #fff;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -30%;
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(74, 108, 247, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(ellipse at 70% 80%, rgba(0, 180, 216, 0.12) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, #b3d9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            font-weight: 300;
+        }
+        .hero-search {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 50px;
+            padding: 4px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .hero-search input {
+            flex: 1;
+            padding: 0.9rem 1.5rem;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            border-radius: 50px 0 0 50px;
+        }
+        .hero-search input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .hero-search button {
+            background: #fff;
+            color: #1a237e;
+            border: none;
+            padding: 0 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        .hero-search button:hover {
+            background: #e8edff;
+            transform: scale(1.02);
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .hero-stats .stat {
+            text-align: center;
+        }
+        .hero-stats .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .hero-stats .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== 领域筛选 ===== */
+        .fields-bar {
+            background: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            border-bottom: 1px solid #eef2f7;
+            position: sticky;
+            top: 70px;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+        .fields-bar .field-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            border: 1px solid #e2e8f0;
+            background: transparent;
+            color: #334155;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .fields-bar .field-btn:hover {
+            border-color: #4a6cf7;
+            color: #4a6cf7;
+            background: #f0f4ff;
+        }
+        .fields-bar .field-btn.active {
+            background: linear-gradient(135deg, #1a237e, #4a6cf7);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(74, 108, 247, 0.25);
+        }
+        .fields-bar .field-btn i {
+            margin-right: 6px;
+            font-size: 0.8rem;
+        }
+
+        /* ===== 主要内容区 ===== */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 2rem 4rem;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* ===== 想法列表 ===== */
+        .ideas-section h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1a2332;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ideas-section h2 span {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        .ideas-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .idea-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.6rem 1.8rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            transition: transform 0.2s, box-shadow 0.3s;
+            border: 1px solid #f0f2f5;
+        }
+        .idea-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
+        }
+
+        .idea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+            gap: 1rem;
+        }
+        .idea-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .idea-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #1a237e;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .idea-author-info .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1a2332;
+        }
+        .idea-author-info .time {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .idea-field-tag {
+            background: #eef2ff;
+            color: #4a6cf7;
+            padding: 0.25rem 0.9rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+            border: 1px solid #dce3ff;
+        }
+
+        .idea-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .idea-excerpt {
+            color: #475569;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .idea-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+        }
+        .idea-tags .tag {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 400;
+        }
+
+        .idea-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #f1f5f9;
+        }
+        .idea-actions .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .idea-actions .action-btn:hover {
+            background: #f1f5f9;
+            color: #1a2332;
+        }
+        .idea-actions .action-btn.liked {
+            color: #e74c3c;
+        }
+        .idea-actions .action-btn.liked i {
+            font-weight: 900;
+        }
+        .idea-actions .action-btn.comment-btn:hover {
+            color: #4a6cf7;
+        }
+        .idea-actions .action-btn i {
+            font-size: 1rem;
+        }
+
+        /* 评论区域 */
+        .comment-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            display: none;
+        }
+        .comment-section.open {
+            display: block;
+        }
+        .comment-list {
+            margin-bottom: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .comment-item {
+            display: flex;
+            gap: 10px;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #475569;
+            flex-shrink: 0;
+        }
+        .comment-body .comment-name {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1a2332;
+        }
+        .comment-body .comment-text {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .comment-body .comment-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+
+        .comment-input-wrap {
+            display: flex;
+            gap: 8px;
+        }
+        .comment-input-wrap input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .comment-input-wrap input:focus {
+            border-color: #4a6cf7;
+        }
+        .comment-input-wrap button {
+            background: linear-gradient(135deg, #1a237e, #4a6cf7);
+            color: #fff;
+            border: none;
+            padding: 0 1.2rem;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+        .comment-input-wrap button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.6rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            border: 1px solid #f0f2f5;
+        }
+        .sidebar-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a2332;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-card h3 i {
+            color: #4a6cf7;
+        }
+
+        /* 发布表单 */
+        .publish-form .form-group {
+            margin-bottom: 1rem;
+        }
+        .publish-form label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        .publish-form input,
+        .publish-form select,
+        .publish-form textarea {
+            width: 100%;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: #fafcff;
+            font-family: inherit;
+        }
+        .publish-form input:focus,
+        .publish-form select:focus,
+        .publish-form textarea:focus {
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+            background: #fff;
+        }
+        .publish-form textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+        .publish-form .submit-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #1a237e, #4a6cf7);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .publish-form .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 108, 247, 0.3);
+        }
+
+        /* 热门标签 */
+        .popular-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .popular-tags .tag-pill {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 0.3rem 1rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .popular-tags .tag-pill:hover {
+            background: #e0e7ff;
+            color: #4a6cf7;
+        }
+
+        /* ===== 页脚 ===== */
+        .footer {
+            background: #0b1120;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+        }
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        .footer-logo i {
+            background: linear-gradient(135deg, #4a6cf7, #00b4d8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .footer p {
+            font-size: 0.9rem;
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .footer-links a:hover {
+            color: #fff;
+        }
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+        }
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s;
+            font-size: 1.1rem;
+        }
+        .footer-social a:hover {
+            background: #4a6cf7;
+            color: #fff;
+            transform: translateY(-3px);
+        }
+        .footer-bottom {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ===== 空状态 ===== */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #94a3b8;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        /* ===== Toast 通知 ===== */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+        .toast {
+            background: #1a2332;
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            animation: slideInUp 0.4s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast i {
+            color: #4a6cf7;
+        }
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .toast.removing {
+            animation: slideOutDown 0.3s ease forwards;
+        }
+        @keyframes slideOutDown {
+            to {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                padding: 1rem 2rem;
+                gap: 0.8rem;
+                border-bottom: 1px solid #eef2f7;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            }
+            .nav-links.open {
+                display: flex;
+            }
+            .nav-links a {
+                padding: 0.6rem 0;
+            }
+            .nav-links .nav-cta {
+                text-align: center;
+                padding: 0.7rem !important;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+
+            .hero {
+                padding: 3rem 1.5rem 2.5rem;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+            .hero-search {
+                flex-direction: column;
+                background: transparent;
+                border: none;
+                gap: 8px;
+            }
+            .hero-search input {
+                background: rgba(255, 255, 255, 0.12);
+                border-radius: 30px;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                padding: 0.8rem 1.2rem;
+            }
+            .hero-search button {
+                padding: 0.8rem;
+                border-radius: 30px;
+            }
+            .hero-stats {
+                gap: 1.5rem;
+            }
+            .hero-stats .stat-number {
+                font-size: 1.4rem;
+            }
+
+            .fields-bar {
+                padding: 0.8rem 1rem;
+                gap: 0.4rem;
+                top: 70px;
+                overflow-x: auto;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            .fields-bar .field-btn {
+                font-size: 0.75rem;
+                padding: 0.4rem 1rem;
+                flex-shrink: 0;
+            }
+
+            .main-content {
+                padding: 1.5rem 1rem 3rem;
+            }
+            .idea-card {
+                padding: 1.2rem 1.2rem;
+            }
+            .idea-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .idea-actions {
+                gap: 0.8rem;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-card {
+                padding: 1.2rem;
+            }
+
+            .footer {
+                padding: 2rem 1rem 1.5rem;
+            }
+            .footer-links {
+                gap: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            .hero-stats .stat-number {
+                font-size: 1.2rem;
+            }
+            .idea-title {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <nav class="navbar" id="navbar">
+        <a href="#" class="nav-logo">
+            <i class="fas fa-flask"></i>
+            <span>SciConnect</span>
+        </a>
+        <button class="mobile-toggle" id="mobileToggle" aria-label="菜单">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#" class="active">首页</a></li>
+            <li><a href="#fields">研究领域</a></li>
+            <li><a href="#publish">发布想法</a></li>
+            <li><a href="#about">关于我们</a></li>
+            <li><a href="#join" class="nav-cta">加入我们</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== 英雄区 ===== -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>连接科学思想，激发创新火花</h1>
+            <p>为全球科学家搭建跨越学科壁垒的协作平台，让每一个研究想法都能找到共鸣与伙伴。</p>
+            <div class="hero-search">
+                <input type="text" placeholder="搜索研究想法、领域或科学家..." id="searchInput">
+                <button onclick="searchIdeas()"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat">
+                    <div class="stat-number" id="statIdeas">0</div>
+                    <div class="stat-label">研究想法</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="statScientists">0</div>
+                    <div class="stat-label">科学家</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number" id="statFields">8</div>
+                    <div class="stat-label">研究领域</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 领域筛选栏 ===== -->
+    <div class="fields-bar" id="fields">
+        <button class="field-btn active" data-field="all" onclick="filterByField('all', this)">
+            <i class="fas fa-globe"></i> 全部
+        </button>
+        <button class="field-btn" data-field="物理学" onclick="filterByField('物理学', this)">
+            <i class="fas fa-atom"></i> 物理学
+        </button>
+        <button class="field-btn" data-field="生物学" onclick="filterByField('生物学', this)">
+            <i class="fas fa-dna"></i> 生物学
+        </button>
+        <button class="field-btn" data-field="化学" onclick="filterByField('化学', this)">
+            <i class="fas fa-flask"></i> 化学
+        </button>
+        <button class="field-btn" data-field="计算机科学" onclick="filterByField('计算机科学', this)">
+            <i class="fas fa-microchip"></i> 计算机科学
+        </button>
+        <button class="field-btn" data-field="医学" onclick="filterByField('医学', this)">
+            <i class="fas fa-heartbeat"></i> 医学
+        </button>
+        <button class="field-btn" data-field="工程学" onclick="filterByField('工程学', this)">
+            <i class="fas fa-cogs"></i> 工程学
+        </button>
+        <button class="field-btn" data-field="数学" onclick="filterByField('数学', this)">
+            <i class="fas fa-square-root-variable"></i> 数学
+        </button>
+        <button class="field-btn" data-field="环境科学" onclick="filterByField('环境科学', this)">
+            <i class="fas fa-leaf"></i> 环境科学
+        </button>
+    </div>
+
+    <!-- ===== 主要内容 ===== -->
+    <div class="main-content">
+        <!-- 左侧：想法列表 -->
+        <section class="ideas-section" id="ideasSection">
+            <h2>
+                <i class="fas fa-lightbulb" style="color:#4a6cf7;"></i>
+                最新研究想法
+                <span id="ideaCount"></span>
+            </h2>
+            <div class="ideas-grid" id="ideasGrid">
+                <!-- 由 JavaScript 动态渲染 -->
+            </div>
+        </section>
+
+        <!-- 右侧：侧边栏 -->
+        <aside class="sidebar">
+            <!-- 发布想法 -->
+            <div class="sidebar-card" id="publish">
+                <h3><i class="fas fa-pen-fancy"></i> 发布新想法</h3>
+                <form class="publish-form" id="publishForm">
+                    <div class="form-group">
+                        <label for="ideaTitle">标题</label>
+                        <input type="text" id="ideaTitle" placeholder="为你的研究想法起一个响亮的标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ideaAuthor">你的姓名</label>
+                        <input type="text" id="ideaAuthor" placeholder="姓名或科研机构" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ideaField">研究领域</label>
+                        <select id="ideaField" required>
+                            <option value="">请选择领域</option>
+                            <option value="物理学">物理学</option>
+                            <option value="生物学">生物学</option>
+                            <option value="化学">化学</option>
+                            <option value="计算机科学">计算机科学</option>
+                            <option value="医学">医学</option>
+                            <option value="工程学">工程学</option>
+                            <option value="数学">数学</option>
+                            <option value="环境科学">环境科学</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ideaContent">详细描述</label>
+                        <textarea id="ideaContent" placeholder="分享你的研究思路、方法、预期成果……" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="ideaTags">标签（用逗号分隔）</label>
+                        <input type="text" id="ideaTags" placeholder="例如：量子计算, 药物设计, AI">
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-rocket"></i> 发布想法
+                    </button>
+                </form>
+            </div>
+
+            <!-- 热门标签 -->
+            <div class="sidebar-card">
+                <h3><i class="fas fa-hashtag"></i> 热门标签</h3>
+                <div class="popular-tags" id="popularTags">
+                    <!-- 由 JS 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 平台寄语 -->
+            <div class="sidebar-card" style="background: linear-gradient(135deg, #f0f4ff, #e8ecff); border-color: #dce3ff;">
+                <h3 style="color:#1a237e;"><i class="fas fa-quote-right"></i> 平台愿景</h3>
+                <p style="font-size:0.9rem; color:#334155; font-style: italic; line-height:1.7;">
+                    “科学的进步源于思想的自由碰撞。在这里，每一个微小的灵感都可能引发一场变革。”
+                </p>
+                <p style="font-size:0.8rem; color:#64748b; margin-top:0.8rem; font-weight:500;">
+                    — SciConnect 团队
+                </p>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ===== 页脚 ===== -->
+    <footer class="footer" id="about">
+        <div class="footer-inner">
+            <div class="footer-logo">
+                <i class="fas fa-flask"></i> SciConnect
+            </div>
+            <p>为全球科研工作者打造的开放式思想协作平台。打破学科边界，让创新发生。</p>
+            <div class="footer-links">
+                <a href="#">关于我们</a>
+                <a href="#">隐私政策</a>
+                <a href="#">使用条款</a>
+                <a href="#">帮助中心</a>
+                <a href="#">联系我们</a>
+            </div>
+            <div class="footer-social">
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" aria-label="ResearchGate"><i class="fab fa-researchgate"></i></a>
+                <a href="#" aria-label="邮件"><i class="fas fa-envelope"></i></a>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2025 SciConnect. 以科学之名，携手前行。
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== Toast 容器 ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================================ -->
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // ===== 数据存储 =====
+        let ideas = [];
+        let nextId = 1;
+        let currentFilter = 'all';
+        let currentSearchTerm = '';
+
+        // 科学家姓名池
+        const scientistNames = [
+            '陈思远', '李沐阳', '张静宜', '王北辰', '刘雨桐',
+            '赵一凡', '周若溪', '吴明远', '郑清妍', '林浩然',
+            'Dr. Sarah Chen', 'Prof. James Miller', 'Dr. Maria Silva',
+            'Prof. Kenji Tanaka', 'Dr. Anna Weber'
+        ];
+
+        // 评论者姓名池
+        const commenterNames = [
+            'Alex', 'Jamie', 'Morgan', 'Taylor', 'Jordan',
+            'Casey', 'Riley', 'Quinn', 'Avery', 'Sage'
+        ];
+
+        // 评论模板
+        const commentTemplates = [
+            '非常有趣的研究方向！有没有考虑过使用其他方法？',
+            '这个想法很有启发性，我在类似领域工作，希望能交流一下。',
+            '很好的切入点，建议关注一下最新的文献进展。',
+            '有没有初步的实验数据支持？非常期待后续结果。',
+            '这个跨学科的思路很棒，值得深入探索。',
+            '我也有类似的想法，或许我们可以合作？',
+            '能否分享一下你的方法论细节？很有参考价值。',
+            '这项工作如果结合机器学习，可能会有突破性进展。',
+            '非常认同你的观点，科学需要这样的创新思维。',
+            '建议考虑实际应用中的 scalability 问题。'
+        ];
+
+        // ===== 辅助函数 =====
+        function randomFrom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function timeAgo(date) {
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return Math.floor(diff / 60) + ' 分钟前';
+            if (diff < 86400) return Math.floor(diff / 3600) + ' 小时前';
+            if (diff < 2592000) return Math.floor(diff / 86400) + ' 天前';
+            return Math.floor(diff / 2592000) + ' 个月前';
+        }
+
+        function getInitials(name) {
+            const parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return name.slice(0, 2).toUpperCase();
+        }
+
+        // ===== 生成示例数据 =====
+        function generateSampleIdeas() {
+            const sampleData = [{
+                title: '量子计算在药物分子模拟中的革命性应用',
+                field: '计算机科学',
+                content: '我们提出了一种基于量子计算的药物分子模拟新框架，利用量子比特的叠加态特性，大幅提升分子动力学模拟的效率。初步实验表明，对于中等规模的分子系统，计算速度可提升约100倍，同时保持高精度。该方法有望加速新药研发周期，降低研发成本。',
+                tags: ['量子计算', '药物设计', '分子模拟', 'AI'],
+                author: 'Dr. Sarah Chen',
+                likes: 42,
+                comments: [
+                    { name: 'Alex', text: '非常前沿的方向！请问如何解决量子退相干问题？' },
+                    { name: 'Morgan', text: '期待看到更多实验验证的数据。' }
+                ]
+            }, {
+                title: 'CRISPR 基因编辑技术治疗遗传性疾病的新策略',
+                field: '生物学',
+                content: '本研究开发了一种新型 CRISPR-Cas9 递送系统，通过工程化外泌体实现靶向基因编辑。在动物模型中，成功修复了导致囊性纤维化的 CFTR 基因突变，编辑效率达到 38%，且未检测到明显的脱靶效应。这一策略为遗传性疾病的治疗提供了新的希望。',
+                tags: ['CRISPR', '基因治疗', '囊性纤维化', '外泌体'],
+                author: '李沐阳',
+                likes: 67,
+                comments: [
+                    { name: 'Jamie', text: '外泌体递送是当前的热点，你们的靶向策略很有创新性！' },
+                    { name: 'Taylor', text: '脱靶效应的检测方法能否详细介绍一下？' }
+                ]
+            }, {
+                title: '新型钙钛矿太阳能电池的稳定性突破',
+                field: '化学',
+                content: '我们合成了一种新型二维/三维混合钙钛矿材料，通过引入疏水性有机阳离子层，显著提高了材料在潮湿环境下的稳定性。经过1000小时连续光照测试，光电转换效率保持在初始值的92%以上。这一成果为钙钛矿太阳能电池的商业化应用扫清了重要障碍。',
+                tags: ['钙钛矿', '太阳能电池', '材料科学', '新能源'],
+                author: '张静宜',
+                likes: 55,
+                comments: [
+                    { name: 'Riley', text: '效率保持92%非常了不起！请问制备工艺是否具有可扩展性？' }
+                ]
+            }, {
+                title: '机器学习预测蛋白质构象动态变化',
+                field: '计算机科学',
+                content: '我们开发了一个基于深度学习的模型 AlphaFold-Dyna，能够预测蛋白质在不同条件下的构象动态变化。该模型在标准测试集上的表现超越了现有方法，尤其对 intrinsically disordered proteins 的预测准确性提升了40%。这将极大推动结构生物学和药物发现领域的发展。',
+                tags: ['机器学习', '蛋白质', '结构生物学', 'AlphaFold'],
+                author: 'Prof. James Miller',
+                likes: 81,
+                comments: [
+                    { name: 'Quinn', text: '这项工作太棒了！请问数据集是否公开？' },
+                    { name: 'Casey', text: '建议与实验验证相结合，以增强模型的可信度。' },
+                    { name: 'Jordan', text: '无序蛋白的预测一直是个难题，你们的进展令人振奋！' }
+                ]
+            }, {
+                title: '微塑料在海洋食物链中的传递机制研究',
+                field: '环境科学',
+                content: '本研究通过为期两年的野外采样和室内模拟实验，揭示了微塑料颗粒在海洋浮游生物-鱼类-哺乳动物食物链中的传递规律。研究发现，微塑料在营养级间存在显著的生物放大效应，且表面吸附的持久性有机污染物（POPs）会随着食物链传递而富集，对顶级捕食者构成潜在威胁。',
+                tags: ['微塑料', '海洋生态', '食物链', '环境安全'],
+                author: '王北辰',
+                likes: 38,
+                comments: [
+                    { name: 'Sage', text: '这个研究非常有现实意义！建议关注不同粒径微塑料的差异。' }
+                ]
+            }, {
+                title: '基于脑机接口的神经康复新范式',
+                field: '医学',
+                content: '我们设计了一套结合脑机接口与功能性电刺激的康复训练系统，用于中风后运动功能重建。临床实验显示，经过8周训练，患者的上肢运动功能评分平均提升了45%，显著优于传统康复方法。该系统通过解码运动意图并实时刺激相应肌肉，实现了“意念-动作”的闭环康复。',
+                tags: ['脑机接口', '神经康复', '中风', '电刺激'],
+                author: '刘雨桐',
+                likes: 73,
+                comments: [
+                    { name: 'Alex', text: '闭环康复是未来的方向，你们的系统延迟是多少？' },
+                    { name: 'Morgan', text: '请问是否计划开展多中心临床试验？' }
+                ]
+            }, {
+                title: '拓扑学在数据降维中的新应用',
+                field: '数学',
+                content: '我们提出了一种基于持续同调理论的数据降维算法 TopoMap，能够保留高维数据中的拓扑特征。与传统方法（如 t-SNE、UMAP）相比，TopoMap 在保持全局结构方面具有显著优势，尤其适用于具有复杂流形结构的数据集。理论分析证明了该方法的收敛性保证。',
+                tags: ['拓扑学', '数据降维', '持续同调', '算法'],
+                author: '赵一凡',
+                likes: 49,
+                comments: [
+                    { name: 'Taylor', text: '数学功底扎实！能否在单细胞测序数据上测试一下？' }
+                ]
+            }, {
+                title: '新型仿生软体机器人用于深海探测',
+                field: '工程学',
+                content: '受深海生物（如章鱼、水母）启发，我们开发了一种全软体机器人，采用介电弹性体驱动器，能够在高压、低温的深海环境中灵活运动。原型机在模拟4000米深海环境的压力测试中表现出色，且具备自修复能力。该机器人有望用于深海资源勘探、生物采样和环境监测。',
+                tags: ['仿生机器人', '软体机器人', '深海探测', '自修复材料'],
+                author: '周若溪',
+                likes: 60,
+                comments: [
+                    { name: 'Riley', text: '自修复功能在深海环境中非常实用！驱动器的能耗如何？' },
+                    { name: 'Jamie', text: '建议增加多模态传感模块，以丰富数据采集能力。' }
+                ]
+            }];
+
+            // 用示例数据填充
+            sampleData.forEach((item, index) => {
+                const createdDate = new Date();
+                createdDate.setDate(createdDate.getDate() - randomInt(1, 30));
+                createdDate.setHours(createdDate.getHours() - randomInt(0, 48));
+
+                // 为没有评论的补充一些
+                const comments = item.comments || [];
+                // 随机补充评论
+                const extraCount = randomInt(0, 2);
+                for (let i = 0; i < extraCount; i++) {
+                    comments.push({
+                        name: randomFrom(commenterNames),
+                        text: randomFrom(commentTemplates)
+                    });
+                }
+
+                ideas.push({
+                    id: nextId++,
+                    title: item.title,
+                    author: item.author,
+                    field: item.field,
+                    content: item.content,
+                    tags: item.tags || [],
+                    likes: item.likes + randomInt(0, 20),
+                    liked: false,
+                    comments: comments,
+                    createdAt: createdDate
+                });
+            });
+
+            // 额外随机生成一些
+            const extraFields = ['物理学', '生物学', '化学', '计算机科学', '医学', '工程学', '数学', '环境科学'];
+            const extraTitles = [
+                '暗物质探测新方法的理论探讨',
+                '合成生物学构建人工光合系统',
+                '新型催化剂用于二氧化碳还原',
+                '联邦学习在医疗隐私保护中的应用',
+                '基因调控网络的多尺度建模',
+                '高温超导体的电子结构新解释',
+                '城市生态系统服务功能评估框架',
+                '分布式光纤传感技术在桥梁监测中的应用',
+                '类脑计算芯片的架构设计',
+                '免疫检查点抑制剂的耐药机制研究'
+            ];
+            const extraContents = [
+                '本研究提出了一种全新的理论框架，重新审视了现有实验数据的解释，并预测了新的可观测信号。相关模拟结果支持该理论的可行性。',
+                '我们构建了人工叶绿体系统，将光合作用关键酶与纳米材料结合，实现了太阳能到化学能的高效转化。转化效率达到天然植物的1.5倍。',
+                '开发了一种基于金属有机框架（MOF）的新型催化剂，在温和条件下高效将CO2转化为甲醇，选择性超过95%，为碳中和技术提供了新思路。',
+                '设计了一种去中心化的联邦学习协议，在保护患者隐私的前提下实现多中心医疗数据协作分析，模型性能达到集中式训练的98%。',
+                '通过整合单细胞测序数据和数学建模，揭示了基因调控网络在细胞命运决定中的关键机制，为再生医学提供了理论指导。',
+                '利用角分辨光电子能谱（ARPES）和第一性原理计算，发现了高温超导体中新的电子序，为理解超导机制提供了关键线索。',
+                '构建了城市生态-经济-社会复合系统模型，量化评估了绿色基础设施对城市韧性的贡献，为城市规划提供了科学决策依据。',
+                '提出了一种基于布里渊散射的分布式光纤传感方案，实现了公里级桥梁结构的亚毫米精度变形监测，成本仅为传统方法的1/5。',
+                '设计了一款基于忆阻器的类脑计算芯片，实现了脉冲神经网络的硬件加速，能效比达到传统GPU的100倍以上。',
+                '通过单细胞测序和功能实验，鉴定了一种新的免疫检查点抑制剂耐药相关基因，并提出了联合用药策略以克服耐药。'
+            ];
+
+            for (let i = 0; i < 4; i++) {
+                const idx = randomInt(0, extraTitles.length - 1);
+                const field = randomFrom(extraFields);
+                const author = randomFrom(scientistNames);
+                const tagPool = ['AI', '数据科学', '纳米技术', '生物信息学', '量子物理', '材料科学', '生态学', '机器人', '光电子', '生物医学'];
+                const tags = [];
+                const tagCount = randomInt(2, 4);
+                for (let t = 0; t < tagCount; t++) {
+                    tags.push(randomFrom(tagPool));
+                }
+                const comments = [];
+                const commentCount = randomInt(0, 3);
+                for (let c = 0; c < commentCount; c++) {
+                    comments.push({
+                        name: randomFrom(commenterNames),
+                        text: randomFrom(commentTemplates)
+                    });
+                }
+                const createdDate = new Date();
+                createdDate.setDate(createdDate.getDate() - randomInt(0, 15));
+
+                ideas.push({
+                    id: nextId++,
+                    title: extraTitles[idx],
+                    author: author,
+                    field: field,
+                    content: extraContents[idx],
+                    tags: tags,
+                    likes: randomInt(10, 90),
+                    liked: false,
+                    comments: comments,
+                    createdAt: createdDate
+                });
+            }
+
+            // 按创建时间排序（最新的在前）
+            ideas.sort((a, b) => b.createdAt - a.createdAt);
+        }
+
+        // ===== 渲染 =====
+        function renderIdeas() {
+            const grid = document.getElementById('ideasGrid');
+            const countSpan = document.getElementById('ideaCount');
+
+            let filtered = [...ideas];
+
+            // 领域筛选
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(idea => idea.field === currentFilter);
+            }
+
+            // 搜索
+            if (currentSearchTerm.trim()) {
+                const term = currentSearchTerm.trim().toLowerCase();
+                filtered = filtered.filter(idea =>
+                    idea.title.toLowerCase().includes(term) ||
+                    idea.content.toLowerCase().includes(term) ||
+                    idea.author.toLowerCase().includes(term) ||
+                    idea.field.toLowerCase().includes(term) ||
+                    idea.tags.some(tag => tag.toLowerCase().includes(term))
+                );
+            }
+
+            // 更新统计
+            document.getElementById('statIdeas').textContent = ideas.length;
+            const authorSet = new Set(ideas.map(i => i.author));
+            document.getElementById('statScientists').textContent = authorSet.size;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>没有找到相关的研究想法。<br>试试其他关键词，或<a href="#publish" style="color:#4a6cf7;font-weight:500;">发布你的想法</a>！</p>
+                    </div>
+                `;
+                countSpan.textContent = '(0)';
+                return;
+            }
+
+            countSpan.textContent = `(${filtered.length})`;
+
+            let html = '';
+            filtered.forEach(idea => {
+                const isLiked = idea.liked ? 'liked' : '';
+                const timeStr = timeAgo(idea.createdAt);
+                const initials = getInitials(idea.author);
+                const commentCount = idea.comments.length;
+
+                // 标签
+                let tagsHtml = '';
+                idea.tags.forEach(tag => {
+                    tagsHtml += `<span class="tag">#${tag}</span>`;
+                });
+
+                // 评论列表
+                let commentsHtml = '';
+                if (idea.comments.length > 0) {
+                    idea.comments.forEach((c, idx) => {
+                        const cInitials = getInitials(c.name);
+                        commentsHtml += `
+                            <div class="comment-item">
+                                <div class="comment-avatar">${cInitials}</div>
+                                <div class="comment-body">
+                                    <div class="comment-name">${c.name}</div>
+                                    <div class="comment-text">${c.text}</div>
+                                    <div class="comment-time">刚刚</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    commentsHtml = `<p style="color:#94a3b8;font-size:0.85rem;padding:0.4rem 0;">还没有评论，来发表第一条吧！</p>`;
+                }
+
+                html += `
+                    <div class="idea-card" data-id="${idea.id}">
+                        <div class="idea-header">
+                            <div class="idea-author">
+                                <div class="idea-avatar">${initials}</div>
+                                <div class="idea-author-info">
+                                    <div class="name">${idea.author}</div>
+                                    <div class="time">${timeStr} · ${idea.field}</div>
+                                </div>
+                            </div>
+                            <span class="idea-field-tag"><i class="fas fa-tag"></i> ${idea.field}</span>
+                        </div>
+                        <div class="idea-title">${idea.title}</div>
+                        <div class="idea-excerpt">${idea.content}</div>
+                        ${tagsHtml ? `<div class="idea-tags">${tagsHtml}</div>` : ''}
+                        <div class="idea-actions">
+                            <button class="action-btn ${isLiked}" onclick="toggleLike(${idea.id})">
+                                <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+                                <span>${idea.likes}</span>
+                            </button>
+                            <button class="action-btn comment-btn" onclick="toggleComments(${idea.id})">
+                                <i class="far fa-comment-dots"></i>
+                                <span>${commentCount}</span>
+                            </button>
+                            <button class="action-btn" onclick="shareIdea(${idea.id})">
+                                <i class="far fa-share-square"></i> 分享
+                            </button>
+                        </div>
+                        <div class="comment-section" id="comments-${idea.id}">
+                            <div class="comment-list" id="commentList-${idea.id}">
+                                ${commentsHtml}
+                            </div>
+                            <div class="comment-input-wrap">
+                                <input type="text" id="commentInput-${idea.id}" placeholder="写下你的评论..." 
+                                    onkeypress="if(event.key==='Enter') addComment(${idea.id})">
+                                <button onclick="addComment(${idea.id})">发送</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+            updatePopularTags();
+        }
+
+        // ===== 交互功能 =====
+        // 点赞
+        function toggleLike(id) {
+            const idea = ideas.find(i => i.id === id);
+            if (!idea) return;
+            idea.liked = !idea.liked;
+            idea.likes += idea.liked ? 1 : -1;
+            renderIdeas();
+        }
+
+        // 切换评论显示
+        function toggleComments(id) {
+            const section = document.getElementById(`comments-${id}`);
+            if (section) {
+                section.classList.toggle('open');
+                if (section.classList.contains('open')) {
+                    setTimeout(() => {
+                        const input = document.getElementById(`commentInput-${id}`);
+                        if (input) input.focus();
+                    }, 100);
+                }
+            }
+        }
+
+        // 添加评论
+        function addComment(id) {
+            const input = document.getElementById(`commentInput-${id}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const idea = ideas.find(i => i.id === id);
+            if (!idea) return;
+
+            const name = randomFrom(commenterNames);
+            idea.comments.push({ name, text });
+
+            input.value = '';
+            // 重新渲染评论列表
+            const list = document.getElementById(`commentList-${id}`);
+            if (list) {
+                const cInitials = getInitials(name);
+                const newCommentHtml = `
+                    <div class="comment-item">
+                        <div class="comment-avatar">${cInitials}</div>
+                        <div class="comment-body">
+                            <div class="comment-name">${name}</div>
+                            <div class="comment-text">${text}</div>
+                            <div class="comment-time">刚刚</div>
+                        </div>
+                    </div>
+                `;
+                // 如果之前是空状态，替换内容
+                if (idea.comments.length === 1 && list.querySelector('p')) {
+                    list.innerHTML = newCommentHtml;
+                } else {
+                    list.insertAdjacentHTML('beforeend', newCommentHtml);
+                }
+                // 滚动到底部
+                list.scrollTop = list.scrollHeight;
+            }
+            // 更新评论计数
+            const card = document.querySelector(`.idea-card[data-id="${id}"]`);
+            if (card) {
+                const commentBtn = card.querySelector('.comment-btn span');
+                if (commentBtn) commentBtn.textContent = idea.comments.length;
+            }
+            showToast('评论发表成功！');
+        }
+
+        // 分享
+        function shareIdea(id) {
+            const idea = ideas.find(i => i.id === id);
+            if (!idea) return;
+            if (navigator.share) {
+                navigator.share({
+                    title: idea.title,
+                    text: idea.content.substring(0, 100) + '...',
+                    url: window.location.href,
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(
+                    `【SciConnect】${idea.title} - ${idea.author}\n${idea.content.substring(0, 100)}...\n来自：${window.location.href}`
+                ).then(() => {
+                    showToast('研究想法链接已复制到剪贴板！');
+                }).catch(() => {
+                    showToast('复制失败，请手动分享。');
+                });
+            }
+        }
+
+        // ===== 筛选 =====
+        function filterByField(field, btn) {
+            currentFilter = field;
+            // 更新按钮状态
+            document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            else {
+                document.querySelector(`.field-btn[data-field="${field}"]`)?.classList.add('active');
+            }
+            renderIdeas();
+        }
+
+        // ===== 搜索 =====
+        function searchIdeas() {
+            const input = document.getElementById('searchInput');
+            currentSearchTerm = input.value.trim();
+            renderIdeas();
+            // 如果有搜索结果，滚动到想法区域
+            if (currentSearchTerm) {
+                document.getElementById('ideasSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // 搜索框回车
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchIdeas();
+                }
+            });
+        });
+
+        // ===== 热门标签更新 =====
+        function updatePopularTags() {
+            const container = document.getElementById('popularTags');
+            const tagCount = {};
+            ideas.forEach(idea => {
+                idea.tags.forEach(tag => {
+                    tagCount[tag] = (tagCount[tag] || 0) + 1;
+                });
+            });
+            const sorted = Object.entries(tagCount).sort((a, b) => b[1] - a[1]);
+            const topTags = sorted.slice(0, 12);
+
+            if (topTags.length === 0) {
+                container.innerHTML = '<span style="color:#94a3b8;font-size:0.85rem;">还没有热门标签</span>';
+                return;
+            }
+
+            container.innerHTML = topTags.map(([tag, count]) =>
+                `<span class="tag-pill" onclick="searchTag('${tag}')">#${tag} <span style="color:#94a3b8;font-size:0.7rem;">(${count})</span></span>`
+            ).join('');
+        }
+
+        function searchTag(tag) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = tag;
+            currentSearchTerm = tag;
+            renderIdeas();
+            document.getElementById('ideasSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ===== 发布表单 =====
+        document.getElementById('publishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('ideaTitle').value.trim();
+            const author = document.getElementById('ideaAuthor').value.trim();
+            const field = document.getElementById('ideaField').value;
+            const content = document.getElementById('ideaContent').value.trim();
+            const tagsStr = document.getElementById('ideaTags').value.trim();
+
+            if (!title || !author || !field || !content) {
+                showToast('请填写所有必填字段！');
+                return;
+            }
+
+            const tags = tagsStr ? tagsStr.split(/[,，、]/).map(t => t.trim()).filter(t => t) : [];
+
+            const newIdea = {
+                id: nextId++,
+                title,
+                author,
+                field,
+                content,
+                tags,
+                likes: 0,
+                liked: false,
+                comments: [],
+                createdAt: new Date()
+            };
+
+            ideas.unshift(newIdea);
+            renderIdeas();
+
+            // 重置表单
+            this.reset();
+
+            // 滚动到顶部查看新发布的想法
+            window.scrollTo({ top: document.getElementById('ideasSection').offsetTop - 100, behavior: 'smooth' });
+
+            showToast('🎉 研究想法发布成功！欢迎继续交流。');
+        });
+
+        // ===== Toast 通知 =====
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // ===== 导航栏滚动效果 =====
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // ===== 移动端菜单 =====
+        document.getElementById('mobileToggle').addEventListener('click', () => {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('open');
+        });
+
+        // 点击导航链接关闭菜单
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('open');
+            });
+        });
+
+        // ===== 初始化 =====
+        generateSampleIdeas();
+        renderIdeas();
+
+        // 点击"加入我们"滚动到发布区域
+        document.querySelector('a[href="#join"]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('publish').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        document.querySelector('a[href="#publish"]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('publish').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        document.querySelector('a[href="#fields"]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector('.fields-bar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        document.querySelector('a[href="#about"]')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.querySelector('.footer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        console.log('🚀 SciConnect 已加载完成！');
+    </script>
+</body>
+</html>

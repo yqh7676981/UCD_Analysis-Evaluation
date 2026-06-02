@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>雅致沙龙 - 您的专属造型专家</title>
+    <!-- 引入 Google Fonts 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* 基本重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 基础样式 */
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #FDF9F6; /* 淡米色背景 */
+            scroll-behavior: smooth;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: #B17D62; /* 主色调：暖棕色 */
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 2.8em;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 2em;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-block;
+            background-color: #B17D62;
+            color: #ffffff;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .btn:hover {
+            background-color: #A06C54; /* 按钮深色悬停效果 */
+        }
+
+        /* 头部导航栏 */
+        header {
+            background-color: #ffffff;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.2em;
+            color: #B17D62;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        nav ul {
+            list-style: none;
+        }
+
+        nav ul li {
+            display: inline-block;
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: #333333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: #B17D62;
+        }
+
+        /* Hero 主视觉区域 */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1595475354922-a9ad4848037d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center/cover;
+            height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .hero h2 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            color: #ffffff; /* 确保标题在深色背景上可见 */
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            margin-bottom: 30px;
+        }
+
+        /* 通用区块样式 */
+        .section-padded {
+            padding: 80px 0;
+        }
+
+        .bg-light {
+            background-color: #F8F4F1; /* 浅米色背景 */
+        }
+
+        .bg-dark-text-light {
+            background-color: #333333;
+            color: #fdf9f6;
+        }
+        .bg-dark-text-light h3,
+        .bg-dark-text-light p {
+            color: #fdf9f6;
+        }
+
+
+        /* 服务列表 */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .service-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .service-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        .service-card-content {
+            padding: 25px;
+        }
+
+        .service-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: #B17D62;
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            font-size: 0.95em;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .service-card .price {
+            font-weight: 700;
+            color: #A9B79F; /* 辅助色：鼠尾草绿 */
+            font-size: 1.1em;
+        }
+
+        /* 造型师简介 */
+        .stylist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .stylist-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            padding: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .stylist-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .stylist-card img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid #D3B9A6; /* 浅棕色边框 */
+        }
+
+        .stylist-card h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6em;
+            color: #B17D62;
+            margin-bottom: 5px;
+        }
+
+        .stylist-card .specialty {
+            color: #A9B79F;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .stylist-card p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* 预订表单 */
+        #bookingForm {
+            max-width: 600px;
+            margin: 50px auto 0 auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        #bookingForm label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        #bookingForm input,
+        #bookingForm select,
+        #bookingForm textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #D3B9A6;
+            border-radius: 5px;
+            font-family: 'Roboto', sans-serif;
+            font-size: 1em;
+            color: #333;
+        }
+
+        #bookingForm input[type="submit"] {
+            background-color: #A9B79F; /* 辅助色按钮 */
+            color: #ffffff;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s ease;
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        #bookingForm input[type="submit"]:hover {
+            background-color: #98A78F;
+        }
+
+        .confirmation-message {
+            background-color: #e6ffe6;
+            color: #336633;
+            border: 1px solid #aaddaa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+
+        .error-message {
+            color: #cc0000;
+            font-size: 0.9em;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* 客户评论 */
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .review-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+
+        .review-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .review-card .stars {
+            color: #FFD700; /* 金色星星 */
+            font-size: 1.4em;
+            margin-bottom: 10px;
+        }
+
+        .review-card p {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .review-card .client-name {
+            font-weight: 700;
+            color: #B17D62;
+        }
+
+        /* 联系我们 */
+        #contact p {
+            text-align: center;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .map-placeholder {
+            margin-top: 30px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .map-placeholder iframe {
+            display: block; /* 移除iframe底部空白 */
+        }
+
+        /* 页脚 */
+        footer {
+            background-color: #333333;
+            color: #ffffff;
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        footer .social-links {
+            margin-top: 20px;
+        }
+
+        footer .social-links a {
+            color: #D3B9A6;
+            font-size: 1.5em;
+            margin: 0 10px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer .social-links a:hover {
+            color: #B17D62;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 15px;
+                text-align: center;
+            }
+
+            nav ul li {
+                margin: 0 15px;
+                display: block; /* 垂直堆叠导航项 */
+                margin-bottom: 10px;
+            }
+
+            .hero h2 {
+                font-size: 2.5em;
+            }
+
+            .hero p {
+                font-size: 1em;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            h3 {
+                font-size: 1.7em;
+            }
+
+            .section-padded {
+                padding: 50px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 1.8em;
+            }
+
+            nav ul li {
+                margin: 0 8px;
+            }
+
+            .hero h2 {
+                font-size: 2em;
+            }
+
+            .hero p {
+                font-size: 0.9em;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
+            .service-grid, .stylist-grid, .review-grid {
+                grid-template-columns: 1fr; /* 单列布局 */
+            }
+
+            #bookingForm {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">雅致沙龙</a>
+            <nav>
+                <ul>
+                    <li><a href="#services">服务项目</a></li>
+                    <li><a href="#stylists">造型师</a></li>
+                    <li><a href="#booking">在线预订</a></li>
+                    <li><a href="#reviews">客户评论</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h2>焕然新生，从发型开始</h2>
+            <p>专业的造型师，只为您的完美呈现。</p>
+            <a href="#booking" class="btn">立即预订</a>
+        </div>
+    </section>
+
+    <section id="services" class="section-padded bg-light">
+        <div class="container">
+            <h3>我们的服务项目</h3>
+            <div class="service-grid">
+                <div class="service-card">
+                    <img src="https://images.unsplash.com/photo-1574706771195-234b68019b88?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="剪发造型">
+                    <div class="service-card-content">
+                        <h4>精致剪发与造型</h4>
+                        <p>根据您的脸型和气质，为您量身定制最时尚的剪发与造型。</p>
+                        <span class="price">¥180 - ¥380</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <img src="https://images.unsplash.com/photo-1616335606471-f923b7b25ad3?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="染发">
+                    <div class="service-card-content">
+                        <h4>潮流染发与挑染</h4>
+                        <p>运用最新染发技术，为您打造独一无二的发色，增添光彩。</p>
+                        <span class="price">¥350 - ¥800</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <img src="https://images.unsplash.com/photo-1543886561-c800c0177728?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB4MjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="烫发">
+                    <div class="service-card-content">
+                        <h4>时尚烫发与护理</h4>
+                        <p>无论是大波浪、小卷发，我们都能为您呈现完美弧度，并提供深层护理。</p>
+                        <span class="price">¥400 - ¥900</span>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <img src="https://images.unsplash.com/photo-1621258661642-e1d528f11ecf?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="头发护理">
+                    <div class="service-card-content">
+                        <h4>奢华秀发护理</h4>
+                        <p>多种针对性护理方案，修复受损发质，让您的秀发焕发健康光泽。</p>
+                        <span class="price">¥200 - ¥600</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="stylists" class="section-padded">
+        <div class="container">
+            <h3>我们的专业造型师</h3>
+            <div class="stylist-grid">
+                <div class="stylist-card">
+                    <img src="https://images.unsplash.com/photo-1595475354922-a9ad4848037d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="造型师 Alex">
+                    <h4>Alex</h4>
+                    <p class="specialty">创意总监 / 染发专家</p>
+                    <p>拥有超过15年的行业经验，擅长各类潮流染发和精准剪裁，为您打造独一无二的时尚造型。</p>
+                </div>
+                <div class="stylist-card">
+                    <img src="https://images.unsplash.com/photo-1582236873918-09f19692451f?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="造型师 Bella">
+                    <h4>Bella</h4>
+                    <p class="specialty">高级造型师 / 新娘造型</p>
+                    <p>专注于女士造型设计，尤其擅长自然烫发和精致新娘发型，让您在特殊场合闪耀夺目。</p>
+                </div>
+                <div class="stylist-card">
+                    <img src="https://images.unsplash.com/photo-1558296317-0925203f56f1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="造型师 Chris">
+                    <h4>Chris</h4>
+                    <p class="specialty">资深造型师 / 男士理发</p>
+                    <p>对男士发型有着独到见解，无论是经典油头还是潮流短发，都能精准把握，细节完美。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="booking" class="section-padded bg-light">
+        <div class="container">
+            <h3>预约您的专属服务</h3>
+            <form id="bookingForm">
+                <label for="clientName">您的姓名:</label>
+                <input type="text" id="clientName" name="clientName" placeholder="请输入您的姓名" required>
+                <span class="error-message" id="nameError" style="display:none;">姓名不能为空。</span>
+
+                <label for="clientPhone">联系电话:</label>
+                <input type="tel" id="clientPhone" name="clientPhone" placeholder="请输入您的联系电话" required>
+                <span class="error-message" id="phoneError" style="display:none;">电话号码不能为空。</span>
+
+                <label for="clientEmail">电子邮箱:</label>
+                <input type="email" id="clientEmail" name="clientEmail" placeholder="请输入您的电子邮箱">
+
+                <label for="serviceType">选择服务项目:</label>
+                <select id="serviceType" name="serviceType" required>
+                    <option value="">请选择服务</option>
+                    <option value="剪发造型">精致剪发与造型</option>
+                    <option value="潮流染发">潮流染发与挑染</option>
+                    <option value="时尚烫发">时尚烫发与护理</option>
+                    <option value="奢华护理">奢华秀发护理</option>
+                </select>
+                <span class="error-message" id="serviceError" style="display:none;">请选择服务项目。</span>
+
+                <label for="stylist">选择造型师:</label>
+                <select id="stylist" name="stylist">
+                    <option value="">不指定</option>
+                    <option value="Alex">Alex</option>
+                    <option value="Bella">Bella</option>
+                    <option value="Chris">Chris</option>
+                </select>
+
+                <label for="appointmentDateTime">预约日期和时间:</label>
+                <input type="datetime-local" id="appointmentDateTime" name="appointmentDateTime" required>
+                <span class="error-message" id="dateTimeError" style="display:none;">请选择预约日期和时间。</span>
+
+                <input type="submit" value="确认预约">
+            </form>
+            <div id="bookingConfirmation" class="confirmation-message" style="display: none;">
+                <p>感谢您的预订！我们已收到您的请求。</p>
+                <p>我们将在24小时内与您联系确认，请留意您的电话或邮箱。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="reviews" class="section-padded">
+        <div class="container">
+            <h3>客户评价</h3>
+            <div class="review-grid">
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"第一次来雅致沙龙，体验感非常好！Alex老师的剪发技术太棒了，完全剪出了我想要的效果，朋友们都说好看！"</p>
+                    <p class="client-name">- 李女士</p>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Bella老师做的烫发非常自然，打理起来也很方便，头发变得蓬松有型，强烈推荐！"</p>
+                    <p class="client-name">- 王先生</p>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"Chris老师的男士理发手艺没得说，每次都能给我惊喜，很细致很专业，是我的专属理发师了！"</p>
+                    <p class="client-name">- 张先生</p>
+                </div>
+                <div class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>"这里的环境很舒适，服务也很周到。做了奢华护理后，头发变得特别柔顺光泽，下次还会再来！"</p>
+                    <p class="client-name">- 刘小姐</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section-padded bg-dark-text-light">
+        <div class="container">
+            <h3>联系我们</h3>
+            <p>地址：北京市朝阳区时尚大道888号</p>
+            <p>电话：(010) 1234-5678</p>
+            <p>邮箱：info@elegantsalon.com</p>
+            <div class="map-placeholder">
+                <!-- Google Maps 嵌入代码 (请替换为您的实际地址) -->
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3104.708890060938!2d-77.0368707846497!3d38.90719237956461!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89b7b7bcdec2939f%3A0x67a15180017174d8!2sWhite%20House!5e0!3m2!1sen!2sus!4v1678888888888!5m2!1sen!2sus" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 雅致沙龙. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" class="social-icon">微信</a>
+                <a href="#" class="social-icon">微博</a>
+                <a href="#" class="social-icon">小红书</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingForm = document.getElementById('bookingForm');
+            const bookingConfirmation = document.getElementById('bookingConfirmation');
+
+            bookingForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // 阻止表单默认提交行为
+
+                let isValid = true;
+
+                // 简单的表单验证
+                const clientName = document.getElementById('clientName');
+                const clientPhone = document.getElementById('clientPhone');
+                const serviceType = document.getElementById('serviceType');
+                const appointmentDateTime = document.getElementById('appointmentDateTime');
+
+                const nameError = document.getElementById('nameError');
+                const phoneError = document.getElementById('phoneError');
+                const serviceError = document.getElementById('serviceError');
+                const dateTimeError = document.getElementById('dateTimeError');
+
+                // 重置错误信息
+                nameError.style.display = 'none';
+                phoneError.style.display = 'none';
+                serviceError.style.display = 'none';
+                dateTimeError.style.display = 'none';
+
+                if (clientName.value.trim() === '') {
+                    nameError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (clientPhone.value.trim() === '') {
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (serviceType.value === '') {
+                    serviceError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (appointmentDateTime.value.trim() === '') {
+                    dateTimeError.style.display = 'block';
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    // 模拟提交成功
+                    console.log('表单提交成功:', {
+                        name: clientName.value,
+                        phone: clientPhone.value,
+                        email: document.getElementById('clientEmail').value,
+                        service: serviceType.value,
+                        stylist: document.getElementById('stylist').value,
+                        dateTime: appointmentDateTime.value
+                    });
+
+                    // 显示确认信息
+                    bookingConfirmation.style.display = 'block';
+                    bookingForm.reset(); // 清空表单
+                    
+                    // 滚动到确认信息区域
+                    bookingConfirmation.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                    // 5秒后隐藏确认信息 (可选)
+                    setTimeout(() => {
+                        bookingConfirmation.style.display = 'none';
+                    }, 8000);
+
+                } else {
+                    // 滚动到表单顶部，显示错误
+                    bookingForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+
+            // 平滑滚动到锚点
+            document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

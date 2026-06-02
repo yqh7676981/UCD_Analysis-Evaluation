@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行行程规划</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .container {
+            max-width: 480px;
+            margin: auto;
+            padding: 1rem;
+        }
+        .day {
+            margin-bottom: 1.5rem;
+        }
+        .day-header {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #007bff;
+        }
+        label {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.3rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: none;
+            height: 80px;
+        }
+        .add-day-btn, .generate-btn {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            margin-top: 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-day-btn {
+            background-color: #28a745;
+        }
+        .add-day-btn:hover, .generate-btn:hover {
+            opacity: 0.9;
+        }
+        .output-section {
+            margin-top: 2rem;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        .output-section h2 {
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+        @media (max-width: 480px) {
+            header {
+                font-size: 1.2rem;
+            }
+            input, textarea, .add-day-btn, .generate-btn {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>旅行行程规划</header>
+    <div class="container">
+        <div id="days-container">
+            <div class="day">
+                <div class="day-header">Day 1</div>
+                <label for="day-1-spot">景点安排：</label>
+                <textarea id="day-1-spot" placeholder="填写景点安排"></textarea>
+                <label for="day-1-transport">交通安排：</label>
+                <textarea id="day-1-transport" placeholder="填写交通安排"></textarea>
+                <label for="day-1-restaurant">餐厅安排：</label>
+                <textarea id="day-1-restaurant" placeholder="填写餐厅安排"></textarea>
+            </div>
+        </div>
+        <button class="add-day-btn" id="add-day-btn">新增一天</button>
+        <button class="generate-btn" id="generate-btn">生成旅行手册</button>
+        <div class="output-section" id="output-section">
+            <h2>旅行手册：</h2>
+            <div id="output"></div>
+        </div>
+    </div>
+    <script>
+        let dayCounter = 1;
+
+        document.getElementById('add-day-btn').addEventListener('click', () => {
+            dayCounter++;
+            const dayContainer = document.createElement('div');
+            dayContainer.className = 'day';
+            dayContainer.innerHTML = `
+                <div class="day-header">Day ${dayCounter}</div>
+                <label for="day-${dayCounter}-spot">景点安排：</label>
+                <textarea id="day-${dayCounter}-spot" placeholder="填写景点安排"></textarea>
+                <label for="day-${dayCounter}-transport">交通安排：</label>
+                <textarea id="day-${dayCounter}-transport" placeholder="填写交通安排"></textarea>
+                <label for="day-${dayCounter}-restaurant">餐厅安排：</label>
+                <textarea id="day-${dayCounter}-restaurant" placeholder="填写餐厅安排"></textarea>
+            `;
+            document.getElementById('days-container').appendChild(dayContainer);
+        });
+
+        document.getElementById('generate-btn').addEventListener('click', () => {
+            const outputSection = document.getElementById('output-section');
+            const output = document.getElementById('output');
+            output.innerHTML = '';
+            for (let i = 1; i <= dayCounter; i++) {
+                const spot = document.getElementById(`day-${i}-spot`).value;
+                const transport = document.getElementById(`day-${i}-transport`).value;
+                const restaurant = document.getElementById(`day-${i}-restaurant`).value;
+                const dayContent = `
+                    <div>
+                        <strong>Day ${i}:</strong><br>
+                        景点安排：${spot || '未填写'}<br>
+                        交通安排：${transport || '未填写'}<br>
+                        餐厅安排：${restaurant || '未填写'}<br>
+                    </div>
+                    <hr>
+                `;
+                output.innerHTML += dayContent;
+            }
+            outputSection.style.display = 'block';
+        });
+    </script>
+</body>
+</html>

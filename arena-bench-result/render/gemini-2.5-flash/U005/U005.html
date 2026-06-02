@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爸妈吃药提醒</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #6a67ce; /* 深紫色 */
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            color: #4a4a4a;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        /* 表单样式 */
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="time"] {
+            width: calc(100% - 20px); /* 减去padding */
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            box-sizing: border-box; /* 包含padding和border在width内 */
+            -webkit-appearance: none; /* 移除iOS默认样式 */
+        }
+
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            font-size: 1.2em; /* 调整时间选择器图标大小 */
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .button.primary {
+            background-color: #6a67ce; /* 深紫色 */
+            color: white;
+            margin-top: 20px;
+        }
+
+        .button.primary:active {
+            background-color: #5754b5;
+        }
+
+        /* 药品列表样式 */
+        #medicine-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        .medicine-item {
+            background-color: #ffffff;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .medicine-details {
+            flex-grow: 1;
+        }
+
+        .medicine-details p {
+            margin: 5px 0;
+            font-size: 1.1em;
+            color: #444;
+        }
+
+        .medicine-details .name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #6a67ce; /* 深紫色 */
+        }
+
+        .medicine-details .time {
+            font-weight: bold;
+            color: #e67e22; /* 橙色，更醒目 */
+        }
+
+        .delete-button {
+            background-color: #e74c3c; /* 红色 */
+            color: white;
+            width: auto;
+            padding: 10px 15px;
+            font-size: 1em;
+            margin-left: 15px;
+            flex-shrink: 0; /* 防止按钮被压缩 */
+        }
+
+        .delete-button:active {
+            background-color: #c0392b;
+        }
+
+        #no-medicines-message {
+            text-align: center;
+            color: #888;
+            font-size: 1.1em;
+            margin-top: 30px;
+        }
+
+        /* 提醒弹窗样式 */
+        .reminder-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .reminder-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .reminder-content {
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .reminder-overlay.active .reminder-content {
+            transform: scale(1);
+        }
+
+        .reminder-message {
+            font-size: 3.5em; /* 巨大字号 */
+            color: #e74c3c; /* 红色醒目 */
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .reminder-medicine-name {
+            font-size: 2.5em; /* 大字号 */
+            color: #6a67ce; /* 深紫色 */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .reminder-medicine-dosage {
+            font-size: 2em; /* 大字号 */
+            color: #34495e; /* 深灰色 */
+            margin-bottom: 30px;
+        }
+
+        .button.large {
+            padding: 20px 30px;
+            font-size: 1.5em;
+            background-color: #27ae60; /* 绿色，表示确认 */
+        }
+
+        .button.large:active {
+            background-color: #229954;
+        }
+
+        /* 辅助类 */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>爸妈吃药提醒</h1>
+        </header>
+
+        <main>
+            <section id="add-medicine-section">
+                <h2>添加新药品</h2>
+                <form id="add-medicine-form">
+                    <div class="form-group">
+                        <label for="medicine-name">药品名称：</label>
+                        <input type="text" id="medicine-name" placeholder="例如：降压药" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="medicine-time">服用时间：</label>
+                        <input type="time" id="medicine-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="medicine-dosage">服用剂量：</label>
+                        <input type="text" id="medicine-dosage" placeholder="例如：1片" required>
+                    </div>
+                    <button type="submit" class="button primary">添加药品</button>
+                </form>
+            </section>
+
+            <section id="medicine-list-section">
+                <h2>我的药品清单</h2>
+                <ul id="medicine-list">
+                    <!-- 药品列表将在此处动态生成 -->
+                </ul>
+                <p id="no-medicines-message" class="hidden">暂无药品，请添加。</p>
+            </section>
+        </main>
+    </div>
+
+    <!-- 提醒弹窗 -->
+    <div id="reminder-overlay" class="reminder-overlay">
+        <div class="reminder-content">
+            <p class="reminder-message">该吃药啦！</p>
+            <p id="reminder-medicine-name" class="reminder-medicine-name"></p>
+            <p id="reminder-medicine-dosage" class="reminder-medicine-dosage"></p>
+            <button id="acknowledge-button" class="button primary large">我知道了！</button>
+        </div>
+    </div>
+
+    <script>
+        const addMedicineForm = document.getElementById('add-medicine-form');
+        const medicineNameInput = document.getElementById('medicine-name');
+        const medicineTimeInput = document.getElementById('medicine-time');
+        const medicineDosageInput = document.getElementById('medicine-dosage');
+        const medicineListUL = document.getElementById('medicine-list');
+        const noMedicinesMessage = document.getElementById('no-medicines-message');
+
+        const reminderOverlay = document.getElementById('reminder-overlay');
+        const reminderMedicineName = document.getElementById('reminder-medicine-name');
+        const reminderMedicineDosage = document.getElementById('reminder-medicine-dosage');
+        const acknowledgeButton = document.getElementById('acknowledge-button');
+
+        let medicines = [];
+        let reminderSound = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'); // 可替换为本地或更合适的提醒音
+
+        // 从 localStorage 加载药品数据
+        function loadMedicines() {
+            const storedMedicines = localStorage.getItem('medicineReminders');
+            if (storedMedicines) {
+                medicines = JSON.parse(storedMedicines);
+            }
+        }
+
+        // 将药品数据保存到 localStorage
+        function saveMedicines() {
+            localStorage.setItem('medicineReminders', JSON.stringify(medicines));
+        }
+
+        // 渲染药品列表
+        function renderMedicines() {
+            medicineListUL.innerHTML = ''; // 清空现有列表
+            if (medicines.length === 0) {
+                noMedicinesMessage.classList.remove('hidden');
+                return;
+            } else {
+                noMedicinesMessage.classList.add('hidden');
+            }
+
+            // 按时间排序
+            medicines.sort((a, b) => a.time.localeCompare(b.time));
+
+            medicines.forEach(medicine => {
+                const li = document.createElement('li');
+                li.className = 'medicine-item';
+                li.dataset.id = medicine.id; // 用于删除
+
+                li.innerHTML = `
+                    <div class="medicine-details">
+                        <p class="name">${medicine.name}</p>
+                        <p>时间：<span class="time">${medicine.time}</span></p>
+                        <p>剂量：<span>${medicine.dosage}</span></p>
+                    </div>
+                    <button class="delete-button">删除</button>
+                `;
+
+                const deleteButton = li.querySelector('.delete-button');
+                deleteButton.addEventListener('click', () => deleteMedicine(medicine.id));
+
+                medicineListUL.appendChild(li);
+            });
+        }
+
+        // 添加新药品
+        addMedicineForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = medicineNameInput.value.trim();
+            const time = medicineTimeInput.value;
+            const dosage = medicineDosageInput.value.trim();
+
+            if (name && time && dosage) {
+                const newMedicine = {
+                    id: Date.now().toString(), // 唯一ID
+                    name,
+                    time,
+                    dosage,
+                    lastRemindedDate: null // 记录上次提醒的日期，防止同一天重复提醒
+                };
+                medicines.push(newMedicine);
+                saveMedicines();
+                renderMedicines();
+                addMedicineForm.reset(); // 清空表单
+            } else {
+                alert('请填写所有药品信息！');
+            }
+        });
+
+        // 删除药品
+        function deleteMedicine(id) {
+            if (confirm('确定要删除这个药品提醒吗？')) {
+                medicines = medicines.filter(med => med.id !== id);
+                saveMedicines();
+                renderMedicines();
+            }
+        }
+
+        // 显示提醒弹窗
+        function showReminder(medicine) {
+            reminderMedicineName.textContent = medicine.name;
+            reminderMedicineDosage.textContent = medicine.dosage;
+            reminderOverlay.classList.add('active');
+            
+            // 尝试播放声音
+            reminderSound.currentTime = 0; // 从头播放
+            reminderSound.play().catch(error => {
+                console.warn("声音播放失败:", error);
+                // 可能是浏览器阻止自动播放，提示用户手动开启
+            });
+
+            // 更新药品的 lastRemindedDate，防止当天再次提醒
+            const today = new Date().toDateString();
+            const medIndex = medicines.findIndex(med => med.id === medicine.id);
+            if (medIndex !== -1) {
+                medicines[medIndex].lastRemindedDate = today;
+                saveMedicines(); // 保存更新后的状态
+            }
+        }
+
+        // 隐藏提醒弹窗
+        acknowledgeButton.addEventListener('click', () => {
+            reminderOverlay.classList.remove('active');
+            reminderSound.pause(); // 停止播放声音
+        });
+
+        // 检查提醒
+        let currentReminderTimeout = null; // 用于存储当前活跃的提醒，防止重复弹出
+
+        function checkReminders() {
+            const now = new Date();
+            const currentTime = now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }); // 格式化为 HH:MM
+            const todayDateString = now.toDateString(); // 例如 "Mon Dec 25 2023"
+
+            medicines.forEach(medicine => {
+                // 如果当前时间匹配药品设定时间，并且当天尚未提醒过该药品
+                if (medicine.time === currentTime && medicine.lastRemindedDate !== todayDateString) {
+                    if (!reminderOverlay.classList.contains('active')) { // 避免在已有提醒时再次弹出
+                        showReminder(medicine);
+                    }
+                }
+            });
+        }
+
+        // 启动提醒检查 (每分钟检查一次)
+        setInterval(checkReminders, 1000 * 30); // 每30秒检查一次，确保能捕获到分钟变化
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMedicines();
+            renderMedicines();
+            // 在页面加载时，如果当前时间点有未处理的提醒，也应该触发
+            checkReminders(); 
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>墨香阁 - 同人小说门户</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0d0d0f;
+      --bg-secondary: #151519;
+      --bg-card: #1a1a1f;
+      --bg-elevated: #222228;
+      --fg-primary: #f5f5f7;
+      --fg-secondary: #a0a0a8;
+      --fg-muted: #6b6b75;
+      --accent: #c9a66b;
+      --accent-glow: #e8c078;
+      --accent-dim: #8b7355;
+      --danger: #c94a4a;
+      --success: #4a9c6b;
+      --border: rgba(201, 166, 107, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: var(--bg-primary);
+      color: var(--fg-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .font-serif {
+      font-family: 'Noto Serif SC', serif;
+    }
+
+    /* Background Effects */
+    .bg-pattern {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(201, 166, 107, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139, 115, 85, 0.05) 0%, transparent 50%);
+    }
+
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 1; /* fixed: was 0 */
+      animation: float-up 8s ease-in-out infinite;
+    }
+
+    @keyframes float-up {
+      0% {
+        opacity: 0;
+        transform: translateY(100vh) scale(0);
+      }
+      10% {
+        opacity: 0.6;
+      }
+      90% {
+        opacity: 0.3;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-20vh) scale(1);
+      }
+    }
+
+    /* Navigation */
+    .nav-link {
+      position: relative;
+      padding: 0.5rem 1rem;
+      color: var(--fg-secondary);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--accent);
+    }
+
+    .nav-link:hover::after, .nav-link.active::after {
+      width: 60%;
+    }
+
+    /* Cards */
+    .story-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .story-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(201, 166, 107, 0.3);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 60px rgba(201, 166, 107, 0.08);
+    }
+
+    .story-card:hover::before {
+      opacity: 1;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: var(--bg-primary);
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(201, 166, 107, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--fg-primary);
+      padding: 0.75rem 1.75rem;
+      border-radius: 8px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Tags */
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--fg-secondary);
+      transition: all 0.2s ease;
+    }
+
+    .tag:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tag-accent {
+      background: rgba(201, 166, 107, 0.15);
+      border-color: rgba(201, 166, 107, 0.3);
+      color: var(--accent);
+    }
+
+    /* Filter buttons */
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--fg-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--bg-elevated);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Search */
+    .search-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: var(--fg-primary);
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(201, 166, 107, 0.15);
+    }
+
+    .search-box::placeholder {
+      color: var(--fg-muted);
+    }
+
+    /* Page transitions */
+    .page {
+      display: none;
+      opacity: 1; /* fixed: was 0 */
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stats */
+    .stat-item {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--bg-primary);
+      font-size: 1.25rem;
+    }
+
+    .avatar-lg {
+      width: 80px;
+      height: 80px;
+      font-size: 2rem;
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-glow));
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-elevated);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-dim);
+    }
+
+    /* Hero entrance */
+    .hero-title {
+      opacity: 1; /* fixed: was 0 */
+      transform: translateY(30px);
+      animation: hero-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .hero-title-delay {
+      animation-delay: 0.2s;
+    }
+
+    @keyframes hero-enter {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Live indicator */
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse-live 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-live {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+      }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none;
+      }
+      .mobile-menu {
+        display: block;
+      }
+    }
+  </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+  <div class="bg-pattern"></div>
+  <div class="noise-overlay"></div>
+  
+  <!-- Floating Particles -->
+  <div id="particles"></div>
+
+  <!-- Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-[#0d0d0f]/80 border-b border-[rgba(201,166,107,0.1)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
+          <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-[#c9a66b] to-[#8b7355] flex items-center justify-center">
+            <svg class="w-6 h-6 text-[#0d0d0f]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="font-serif text-xl font-bold tracking-wide">墨香阁</span>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="desktop-nav hidden md:flex items-center gap-1">
+          <div class="nav-link active" data-page="home" onclick="showPage('home')">首页</div>
+          <div class="nav-link" data-page="feed" onclick="showPage('feed')">故事流</div>
+          <div class="nav-link" data-page="fandoms" onclick="showPage('fandoms')">同人圈</div>
+          <div class="nav-link" data-page="authors" onclick="showPage('authors')">作者</div>
+          <div class="nav-link" data-page="profile" onclick="showPage('profile')">个人中心</div>
+        </nav>
+
+        <!-- Search & Actions -->
+        <div class="flex items-center gap-4">
+          <div class="hidden sm:block relative">
+            <input type="text" class="search-box w-48 lg:w-64 pl-10" placeholder="搜索故事、作者...">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b6b75]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+          <button class="btn-primary hidden sm:block">发布故事</button>
+          
+          <!-- Mobile menu button -->
+          <button class="mobile-menu p-2" onclick="toggleMobileMenu()">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div id="mobileNav" class="hidden md:hidden border-t border-[rgba(201,166,107,0.1)] bg-[#0d0d0f]">
+      <div class="px-4 py-3 space-y-2">
+        <div class="block py-2 text-[#f5f5f7] hover:text-[#c9a66b] cursor-pointer" onclick="showPage('home'); toggleMobileMenu()">首页</div>
+        <div class="block py-2 text-[#f5f5f7] hover:text-[#c9a66b] cursor-pointer" onclick="showPage('feed'); toggleMobileMenu()">故事流</div>
+        <div class="block py-2 text-[#f5f5f7] hover:text-[#c9a66b] cursor-pointer" onclick="showPage('fandoms'); toggleMobileMenu()">同人圈</div>
+        <div class="block py-2 text-[#f5f5f7] hover:text-[#c9a66b] cursor-pointer" onclick="showPage('authors'); toggleMobileMenu()">作者</div>
+        <div class="block py-2 text-[#f5f5f7] hover:text-[#c9a66b] cursor-pointer" onclick="showPage('profile'); toggleMobileMenu()">个人中心</div>
+        <input type="text" class="search-box mt-2" placeholder="搜索...">
+        <button class="btn-primary w-full mt-2">发布故事</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="relative z-10 pt-16">
+    
+    <!-- HOME PAGE -->
+    <div id="page-home" class="page active">
+      <!-- Hero Section -->
+      <section class="min-h-[80vh] flex items-center justify-center px-4 py-20">
+        <div class="max-w-4xl mx-auto text-center">
+          <h1 class="font-serif text-5xl sm:text-6xl lg:text-7xl font-black leading-tight hero-title">
+            让想象<span class="text-[#c9a66b]">自由驰骋</span>
+          </h1>
+          <p class="mt-6 text-lg sm:text-xl text-[#a0a0a8] max-w-2xl mx-auto hero-title hero-title-delay">
+            探索无限可能的故事世界，与百万创作者共同书写属于你的篇章
+          </p>
+          <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center hero-title hero-title-delay">
+            <button class="btn-primary text-lg px-8 py-4" onclick="showPage('feed')">开始探索</button>
+            <button class="btn-secondary text-lg px-8 py-4">了解更多</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stats Section -->
+      <section class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <div class="stat-item">
+              <div class="stat-number" id="stat-stories">0</div>
+              <div class="text-[#6b6b75] mt-2">故事作品</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="stat-authors">0</div>
+              <div class="text-[#6b6b75] mt-2">活跃作者</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="stat-fandoms">0</div>
+              <div class="text-[#6b6b75] mt-2">同人圈子</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number" id="stat-reads">0</div>
+              <div class="text-[#6b6b75] mt-2">总阅读量</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Top Rated Stories -->
+      <section class="py-16 px-4 bg-[#151519]">
+        <div class="max-w-6xl mx-auto">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold">最受好评的故事</h2>
+            <button class="text-[#c9a66b] hover:underline" onclick="showPage('feed')">查看全部</button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="top-stories"></div>
+        </div>
+      </section>
+
+      <!-- Featured Fandoms -->
+      <section class="py-16 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h2 class="font-serif text-2xl sm:text-3xl font-bold mb-8">热门同人圈</h2>
+          <div class="flex flex-wrap gap-3" id="featured-fandoms"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- FEED PAGE -->
+    <div id="page-feed" class="page">
+      <section class="py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+          <!-- Filters -->
+          <div class="flex flex-col lg:flex-row gap-4 mb-8">
+            <div class="flex-1">
+              <input type="text" class="search-box w-full" placeholder="搜索故事..." id="feed-search" oninput="filterStories()">
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button class="filter-btn active" data-filter="recent" onclick="setFilter('recent')">最新发布</button>
+              <button class="filter-btn" data-filter="popular" onclick="setFilter('popular')">最受欢迎</button>
+              <button class="filter-btn" data-filter="updated" onclick="setFilter('updated')">最近更新</button>
+              <button class="filter-btn" data-filter="completed" onclick="setFilter('completed')">已完结</button>
+            </div>
+          </div>
+
+          <!-- Live Feed Indicator -->
+          <div class="flex items-center gap-2 mb-6 text-sm text-[#6b6b75]">
+            <div class="live-dot"></div>
+            <span>实时更新中</span>
+            <span class="ml-auto">共 <span id="story-count">0</span> 篇故事</span>
+          </div>
+
+          <!-- Stories Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="feed-stories"></div>
+
+          <!-- Load More -->
+          <div class="text-center mt-8">
+            <button class="btn-secondary" onclick="loadMoreStories()">加载更多</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- FANDOMS PAGE -->
+    <div id="page-fandoms" class="page">
+      <section class="py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h1 class="font-serif text-3xl font-bold mb-8">同人圈与角色</h1>
+          
+          <!-- Fandom Categories -->
+          <div class="flex flex-wrap gap-2 mb-8">
+            <button class="filter-btn active" data-fandom-filter="all" onclick="filterFandoms('all')">全部</button>
+            <button class="filter-btn" data-fandom-filter="anime" onclick="filterFandoms('anime')">动漫</button>
+            <button class="filter-btn" data-fandom-filter="game" onclick="filterFandoms('game')">游戏</button>
+            <button class="filter-btn" data-fandom-filter="novel" onclick="filterFandoms('novel')">小说</button>
+            <button class="filter-btn" data-fandom-filter="movie" onclick="filterFandoms('movie')">影视</button>
+          </div>
+
+          <!-- Fandoms Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="fandoms-grid"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- AUTHORS PAGE -->
+    <div id="page-authors" class="page">
+      <section class="py-8 px-4">
+        <div class="max-w-6xl mx-auto">
+          <h1 class="font-serif text-3xl font-bold mb-8">活跃作者</h1>
+          
+          <!-- Authors List -->
+          <div class="space-y-4" id="authors-list"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="page-profile" class="page">
+      <section class="py-8 px-4">
+        <div class="max-w-4xl mx-auto">
+          <!-- Profile Header -->
+          <div class="bg-[#1a1a1f] rounded-2xl p-6 sm:p-8 border border-[rgba(201,166,107,0.15)] mb-8">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              <div class="avatar-lg font-serif">墨</div>
+              <div class="flex-1 text-center sm:text-left">
+                <h1 class="font-serif text-2xl font-bold">墨染青衫</h1>
+                <p class="text-[#a0a0a8] mt-1">@moran_qingshan</p>
+                <p class="text-[#6b6b75] mt-3 max-w-md">热爱文字，钟情故事。专注原创古风同人，希望用笔触传递温暖。</p>
+                <div class="flex flex-wrap gap-4 mt-4 justify-center sm:justify-start">
+                  <div><span class="text-[#c9a66b] font-bold">28</span> <span class="text-[#6b6b75]">故事</span></div>
+                  <div><span class="text-[#c9a66b] font-bold">1.2k</span> <span class="text-[#6b6b75]">粉丝</span></div>
+                  <div><span class="text-[#c9a66b] font-bold">56k</span> <span class="text-[#6b6b75]">阅读</span></div>
+                </div>
+              </div>
+              <button class="btn-primary">编辑资料</button>
+            </div>
+          </div>
+
+          <!-- Profile Tabs -->
+          <div class="flex gap-4 mb-6 border-b border-[rgba(201,166,107,0.15)]">
+            <button class="profile-tab pb-4 text-[#c9a66b] border-b-2 border-[#c9a66b]" data-profile-tab="stories" onclick="switchProfileTab('stories')">我的故事</button>
+            <button class="profile-tab pb-4 text-[#6b6b75] hover:text-[#a0a0a8]" data-profile-tab="drafts" onclick="switchProfileTab('drafts')">草稿箱</button>
+            <button class="profile-tab pb-4 text-[#6b6b75] hover:text-[#a0a0a8]" data-profile-tab="favorites" onclick="switchProfileTab('favorites')">收藏夹</button>
+          </div>
+
+          <!-- Profile Content -->
+          <div id="profile-content"></div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-[rgba(201,166,107,0.1)] py-12 px-4 mt-20">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded bg-gradient-to-br from-[#c9a66b] to-[#8b7355] flex items-center justify-center">
+            <svg class="w-4 h-4 text-[#0d0d0f]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="font-serif font-bold">墨香阁</span>
+        </div>
+        <div class="flex gap-6 text-sm text-[#6b6b75]">
+          <a href="#" class="hover:text-[#c9a66b]">关于我们</a>
+          <a href="#" class="hover:text-[#c9a66b]">使用条款</a>
+          <a href="#" class="hover:text-[#c9a66b]">隐私政策</a>
+          <a href="#" class="hover:text-[#c9a66b]">联系我们</a>
+        </div>
+        <div class="text-sm text-[#6b6b75]">2024 墨香阁. 保留所有权利.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Data
+    const stories = [
+      { id: 1, title: '浮生若梦', author: '墨染青衫', authorId: 1, fandom: '原神', fandomCat: 'game', chars: ['钟离', '胡桃'], rating: 4.9, reads: 12500, chapters: 32, status: 'ongoing', tags: ['古风', '虐恋', 'HE'], summary: '岩王帝君与往生堂堂主的前世今生，一段跨越千年的羁绊...', date: '2024-01-15', updateDate: '2024-01-20' },
+      { id: 2, title: '星海彼岸', author: '云中歌', authorId: 2, fandom: '崩坏星穹铁道', fandomCat: 'game', chars: ['刃', '卡芙卡'], rating: 4.8, reads: 8900, chapters: 18, status: 'completed', tags: ['科幻', '正剧'], summary: '在群星的彼端，寻找那抹遗失的记忆...', date: '2024-01-10', updateDate: '2024-01-18' },
+      { id: 3, title: '春日宴', author: '桃花扇', authorId: 3, fandom: '咒术回战', fandomCat: 'anime', chars: ['五条悟', '夏油杰'], rating: 4.7, reads: 6700, chapters: 24, status: 'ongoing', tags: ['现代', '友情', 'AU'], summary: '若那年春天没有错过，结局是否会不同...', date: '2024-01-12', updateDate: '2024-01-19' },
+      { id: 4, title: '长安旧事', author: '墨染青衫', authorId: 1, fandom: '王者荣耀', fandomCat: 'game', chars: ['李白', '杜甫'], rating: 4.9, reads: 15200, chapters: 45, status: 'completed', tags: ['古风', '历史', '正剧'], summary: '盛唐长安全景，诗仙与诗圣的知己情谊...', date: '2023-12-01', updateDate: '2024-01-15' },
+      { id: 5, title: '深海之约', author: '夜雨声', authorId: 4, fandom: '原神', fandomCat: 'game', chars: ['那维莱特', '芙宁娜'], rating: 4.6, reads: 4300, chapters: 12, status: 'ongoing', tags: ['奇幻', '虐恋'], summary: '枫丹的水神与龙皇，一段被遗忘的契约...', date: '2024-01-18', updateDate: '2024-01-20' },
+      { id: 6, title: '雪落无声', author: '云中歌', authorId: 2, fandom: '鬼灭之刃', fandomCat: 'anime', chars: ['炼狱杏寿郎', '灶门炭治郎'], rating: 4.8, reads: 9100, chapters: 28, status: 'completed', tags: ['热血', '正剧', '治愈'], summary: '如果那场战斗有不同的结局...', date: '2023-11-20', updateDate: '2024-01-10' },
+      { id: 7, title: '明月几时有', author: '清风徐', authorId: 5, fandom: '三体', fandomCat: 'novel', chars: ['罗辑', '庄颜'], rating: 4.5, reads: 3800, chapters: 15, status: 'ongoing', tags: ['科幻', '正剧'], summary: '面壁者心中的月光...', date: '2024-01-14', updateDate: '2024-01-17' },
+      { id: 8, title: '花间一壶酒', author: '桃花扇', authorId: 3, fandom: '魔道祖师', fandomCat: 'novel', chars: ['魏无羡', '蓝忘机'], rating: 4.9, reads: 18900, chapters: 56, status: 'completed', tags: ['古风', '甜宠', 'HE'], summary: '姑苏蓝氏二公子与夷陵老祖的前世今生...', date: '2023-10-15', updateDate: '2024-01-05' },
+      { id: 9, title: '星际迷途', author: '夜雨声', authorId: 4, fandom: '流浪地球', fandomCat: 'movie', chars: ['刘培强', 'MOSS'], rating: 4.4, reads: 2100, chapters: 8, status: 'ongoing', tags: ['科幻', '正剧'], summary: '在无尽的宇宙中寻找回家的路...', date: '2024-01-19', updateDate: '2024-01-20' },
+      { id: 10, title: '暗夜微光', author: '清风徐', authorId: 5, fandom: '名侦探柯南', fandomCat: 'anime', chars: ['安室透', '赤井秀一'], rating: 4.7, reads: 7200, chapters: 22, status: 'ongoing', tags: ['推理', '正剧', '双雄'], summary: '公安与FBI的暗中博弈...', date: '2024-01-08', updateDate: '2024-01-16' }
+    ];
+
+    const authors = [
+      { id: 1, name: '墨染青衫', avatar: '墨', bio: '古风创作者，专注原神与王者同人', stories: 28, fans: 1200, signature: true },
+      { id: 2, name: '云中歌', avatar: '云', bio: '科幻与奇幻的双面爱好者', stories: 15, fans: 890, signature: false },
+      { id: 3, name: '桃花扇', avatar: '桃', bio: '偏爱正剧向，偶尔写甜文', stories: 42, fans: 2100, signature: true },
+      { id: 4, name: '夜雨声', avatar: '夜', bio: '深夜码字党，更新随缘', stories: 9, fans: 320, signature: false },
+      { id: 5, name: '清风徐', avatar: '清', bio: '新人作者，请多指教', stories: 6, fans: 180, signature: false }
+    ];
+
+    const fandoms = [
+      { name: '原神', cat: 'game', stories: 12500, authors: 320, hot: true, color: '#c9a66b' },
+      { name: '崩坏星穹铁道', cat: 'game', stories: 8900, authors: 210, hot: true, color: '#e8c078' },
+      { name: '王者荣耀', cat: 'game', stories: 15200, authors: 450, hot: true, color: '#8b7355' },
+      { name: '咒术回战', cat: 'anime', stories: 6700, authors: 180, hot: true, color: '#a08855' },
+      { name: '鬼灭之刃', cat: 'anime', stories: 9100, authors: 260, hot: false, color: '#b89860' },
+      { name: '名侦探柯南', cat: 'anime', stories: 7200, authors: 190, hot: false, color: '#987845' },
+      { name: '魔道祖师', cat: 'novel', stories: 18900, authors: 520, hot: true, color: '#c9a66b' },
+      { name: '三体', cat: 'novel', stories: 3800, authors: 85, hot: false, color: '#786840' },
+      { name: '流浪地球', cat: 'movie', stories: 2100, authors: 45, hot: false, color: '#585835' }
+    ];
+
+    const drafts = [
+      { id: 101, title: '未命名作品', lastEdit: '2024-01-20', words: 2340, progress: 15 },
+      { id: 102, title: '初稿', lastEdit: '2024-01-18', words: 890, progress: 8 },
+      { id: 103, title: '新故事构思', lastEdit: '2024-01-15', words: 120, progress: 2 }
+    ];
+
+    const favorites = [
+      stories[0], stories[2], stories[7]
+    ];
+
+    // Current filter state
+    let currentFilter = 'recent';
+    let currentFandomFilter = 'all';
+    let currentProfileTab = 'stories';
+    let loadedStories = 6;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      animateStats();
+      renderTopStories();
+      renderFeaturedFandoms();
+      renderFeedStories();
+      renderFandoms();
+      renderAuthors();
+      renderProfileContent();
+      startLiveUpdates();
+    });
+
+    // Create floating particles
+    function createParticles() {
+      const container = document.getElementById('particles');
+      if (!container) return;
+      
+      for (let i = 0; i < 20; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 8 + 's';
+        particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+        container.appendChild(particle);
+      }
+    }
+
+    // Animate stats
+    function animateStats() {
+      const stats = [
+        { el: 'stat-stories', target: 128500, suffix: '' },
+        { el: 'stat-authors', target: 8420, suffix: '' },
+        { el: 'stat-fandoms', target: 320, suffix: '' },
+        { el: 'stat-reads', target: 2.8, suffix: 'M', decimal: true }
+      ];
+
+      stats.forEach(stat => {
+        const el = document.getElementById(stat.el);
+        if (!el) return;
+        
+        let current = 0;
+        const increment = stat.target / 60;
+        const interval = setInterval(() => {
+          current += increment;
+          if (current >= stat.target) {
+            current = stat.target;
+            clearInterval(interval);
+          }
+          el.textContent = stat.decimal 
+            ? current.toFixed(1) + stat.suffix 
+            : Math.floor(current).toLocaleString() + stat.suffix;
+        }, 20);
+      });
+    }
+
+    // Render story card
+    function renderStoryCard(story, compact = false) {
+      return `
+        <div class="story-card" onclick="showStoryDetail(${story.id})">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="font-serif text-lg font-bold text-[#f5f5f7] hover:text-[#c9a66b] transition-colors">${story.title}</h3>
+              <p class="text-sm text-[#6b6b75] mt-1">${story.fandom}</p>
+            </div>
+            <div class="flex items-center gap-1 text-[#c9a66b]">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+              </svg>
+              <span class="text-sm font-medium">${story.rating}</span>
+            </div>
+          </div>
+          ${!compact ? `<p class="text-sm text-[#a0a0a8] mb-4 line-clamp-2">${story.summary}</p>` : ''}
+          <div class="flex flex-wrap gap-2 mb-4">
+            ${story.chars.map(c => `<span class="tag">${c}</span>`).join('')}
+          </div>
+          <div class="flex items-center justify-between text-sm text-[#6b6b75]">
+            <div class="flex items-center gap-4">
+              <span class="flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                ${(story.reads / 1000).toFixed(1)}k
+              </span>
+              <span>${story.chapters}章</span>
+              <span class="tag-accent text-xs">${story.status === 'completed' ? '已完结' : '连载中'}</span>
+            </div>
+            <span>${story.updateDate}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render top stories
+    function renderTopStories() {
+      const container = document.getElementById('top-stories');
+      if (!container) return;
+      
+      const topRated = [...stories].sort((a, b) => b.rating - a.rating).slice(0, 6);
+      container.innerHTML = topRated.map(s => renderStoryCard(s)).join('');
+    }
+
+    // Render featured fandoms
+    function renderFeaturedFandoms() {
+      const container = document.getElementById('featured-fandoms');
+      if (!container) return;
+      
+      container.innerHTML = fandoms.filter(f => f.hot).map(f => `
+        <button class="tag tag-accent text-sm cursor-pointer" onclick="filterByFandom('${f.name}')">
+          ${f.name}
+          <span class="ml-2 text-xs opacity-70">${(f.stories / 1000).toFixed(1)}k</span>
+        </button>
+      `).join('');
+    }
+
+    // Render feed stories
+    function renderFeedStories() {
+      const container = document.getElementById('feed-stories');
+      if (!container) return;
+      
+      let filtered = [...stories];
+      const searchTerm = document.getElementById('feed-search')?.value?.toLowerCase() || '';
+      
+      if (searchTerm) {
+        filtered = filtered.filter(s => 
+          s.title.toLowerCase().includes(searchTerm) ||
+          s.author.toLowerCase().includes(searchTerm) ||
+          s.fandom.toLowerCase().includes(searchTerm)
+        );
+      }
+
+      switch (currentFilter) {
+        case 'popular':
+          filtered.sort((a, b) => b.reads - a.reads);
+          break;
+        case 'updated':
+          filtered.sort((a, b) => new Date(b.updateDate) - new Date(a.updateDate));
+          break;
+        case 'completed':
+          filtered = filtered.filter(s => s.status === 'completed');
+          break;
+        default:
+          filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+      }
+
+      const countEl = document.getElementById('story-count');
+      if (countEl) countEl.textContent = filtered.length;
+
+      container.innerHTML = filtered.slice(0, loadedStories).map(s => renderStoryCard(s)).join('');
+    }
+
+    // Filter stories
+    function filterStories() {
+      loadedStories = 6;
+      renderFeedStories();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('[data-filter]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.filter === filter);
+      });
+      loadedStories = 6;
+      renderFeedStories();
+    }
+
+    function loadMoreStories() {
+      loadedStories += 4;
+      renderFeedStories();
+    }
+
+    // Render fandoms
+    function renderFandoms() {
+      const container = document.getElementById('fandoms-grid');
+      if (!container) return;
+      
+      let filtered = [...fandoms];
+      
+      if (currentFandomFilter !== 'all') {
+        filtered = filtered.filter(f => f.cat === currentFandomFilter);
+      }
+
+      container.innerHTML = filtered.map(f => `
+        <div class="story-card cursor-pointer" onclick="filterByFandom('${f.name}')">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="font-serif text-xl font-bold" style="color: ${f.color}">${f.name}</h3>
+            ${f.hot ? '<span class="tag tag-accent text-xs">热门</span>' : ''}
+          </div>
+          <p class="text-sm text-[#6b6b75] mb-4">${f.stories.toLocaleString()} 篇故事 · ${f.authors} 位作者</p>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${Math.min(100, f.stories / 200)}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterFandoms(cat) {
+      currentFandomFilter = cat;
+      document.querySelectorAll('[data-fandom-filter]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.fandomFilter === cat);
+      });
+      renderFandoms();
+    }
+
+    function filterByFandom(name) {
+      showPage('feed');
+      currentFilter = 'recent';
+      document.getElementById('feed-search').value = name;
+      renderFeedStories();
+    }
+
+    // Render authors
+    function renderAuthors() {
+      const container = document.getElementById('authors-list');
+      if (!container) return;
+      
+      container.innerHTML = authors.map(a => `
+        <div class="story-card flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div class="avatar" style="background: linear-gradient(135deg, ${['#c9a66b', '#8b7355', '#a08855', '#b89860', '#786840'][a.id - 1] || '#c9a66b'}, #585835)">
+            ${a.avatar}
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2">
+              <h3 class="font-serif text-lg font-bold">${a.name}</h3>
+              ${a.signature ? '<span class="tag tag-accent text-xs">签约作者</span>' : ''}
+            </div>
+            <p class="text-sm text-[#6b6b75] mt-1">${a.bio}</p>
+          </div>
+          <div class="flex gap-6 text-sm text-[#6b6b75]">
+            <div><span class="text-[#c9a66b] font-bold">${a.stories}</span> 作品</div>
+            <div><span class="text-[#c9a66b] font-bold">${a.fans}</span> 粉丝</div>
+          </div>
+          <button class="btn-secondary text-sm px-4 py-2" onclick="followAuthor(${a.id})">关注</button>
+        </div>
+      `).join('');
+    }
+
+    function followAuthor(id) {
+      const btn = event.target;
+      btn.textContent = '已关注';
+      btn.classList.add('tag-accent');
+      btn.disabled = true;
+    }
+
+    // Profile content
+    function renderProfileContent() {
+      const container = document.getElementById('profile-content');
+      if (!container) return;
+      
+      let content = '';
+      
+      switch (currentProfileTab) {
+        case 'stories':
+          const myStories = stories.filter(s => s.authorId === 1);
+          content = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              ${myStories.map(s => renderStoryCard(s)).join('')}
+            </div>
+          `;
+          break;
+        case 'drafts':
+          content = `
+            <div class="space-y-4">
+              ${drafts.map(d => `
+                <div class="story-card flex items-center justify-between">
+                  <div>
+                    <h3 class="font-serif font-bold">${d.title}</h3>
+                    <p class="text-sm text-[#6b6b75] mt-1">${d.words} 字 · 上次编辑 ${d.lastEdit}</p>
+                    <div class="progress-bar mt-3 w-48">
+                      <div class="progress-fill" style="width: ${d.progress}%"></div>
+                    </div>
+                  </div>
+                  <button class="btn-secondary text-sm">继续编辑</button>
+                </div>
+              `).join('')}
+              <button class="story-card w-full text-center text-[#6b6b75] hover:text-[#c9a66b] transition-colors">
+                <svg class="w-6 h-6 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                创建新草稿
+              </button>
+            </div>
+          `;
+          break;
+        case 'favorites':
+          content = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              ${favorites.map(s => renderStoryCard(s)).join('')}
+            </div>
+          `;
+          break;
+      }
+      
+      container.innerHTML = content;
+    }
+
+    function switchProfileTab(tab) {
+      currentProfileTab = tab;
+      document.querySelectorAll('.profile-tab').forEach(btn => {
+        if (btn.dataset.profileTab === tab) {
+          btn.classList.add('text-[#c9a66b]', 'border-b-2', 'border-[#c9a66b]');
+          btn.classList.remove('text-[#6b6b75]');
+        } else {
+          btn.classList.remove('text-[#c9a66b]', 'border-b-2', 'border-[#c9a66b]');
+          btn.classList.add('text-[#6b6b75]');
+        }
+      });
+      renderProfileContent();
+    }
+
+    // Page navigation
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const pageEl = document.getElementById(`page-${page}`);
+      if (pageEl) {
+        pageEl.classList.add('active');
+      }
+      
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.toggle('active', link.dataset.page === page);
+      });
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleMobileMenu() {
+      const nav = document.getElementById('mobileNav');
+      if (nav) nav.classList.toggle('hidden');
+    }
+
+    // Live updates simulation
+    function startLiveUpdates() {
+      setInterval(() => {
+        const countEl = document.getElementById('story-count');
+        if (countEl && document.getElementById('page-feed').classList.contains('active')) {
+          const count = parseInt(countEl.textContent);
+          if (Math.random() > 0.7) {
+            // Simulate new story notification
+          }
+        }
+      }, 5000);
+    }
+
+    // Story detail (placeholder)
+    function showStoryDetail(id) {
+      // In real app, navigate to story detail page
+    }
+  </script>
+</body>
+</html>

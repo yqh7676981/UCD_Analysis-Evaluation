@@ -1,0 +1,33 @@
+{
+  "index": 283,
+  "id": "H002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个每日喝水追踪工具，设定每天目标杯数，每喝一杯点一下按钮，可视化展示当前完成度(比如水位上升)。",
+  "evaluation": {
+    "total_score": 79,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The interface has a coherent dark aqua-blue visual system with consistent rounded cards, glow treatment, and a health-oriented tone. The central tank visualization creates a clear focal point, but the style is somewhat generic and relies heavily on the common blue neon gradient aesthetic."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography is clean, spacing is mostly even, and controls have consistent radius, stroke, and padding. The large numeric progress is well rendered. Minor issues include small low-contrast side percentage labels and a slightly empty-feeling tank area that reduces perceived finish."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the main task: set target, tap to log water, and view progress. The primary CTA is prominent and the reading path is straightforward. However, the large empty visualization dominates the screen while current actionable information is relatively sparse, so information density is not fully optimized."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "The labels and controls are intuitive: plus/minus for goal adjustment, clear progress count, and a direct 'drank one cup' button. The water-level metaphor fits the task. The main limitation is that behavior and state feedback are not visible in the screenshot—for example, no indication of max/min limits, success feedback, or confirmation for reset."
+      }
+    },
+    "summary": "This is a solid, mobile-appropriate hydration tracker with a clear single-task flow and polished visual consistency. It succeeds in making the core action obvious and uses an appropriate progress metaphor. The score is capped below top-tier because the design is somewhat generic, the tank area feels under-informative in the shown state, and operational feedback and safeguards are not strongly evidenced."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/H002_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:21:28.001084"
+}

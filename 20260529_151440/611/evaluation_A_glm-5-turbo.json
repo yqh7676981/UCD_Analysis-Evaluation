@@ -1,0 +1,33 @@
+{
+  "index": 268,
+  "id": "611",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "创建一个为大学生提供免费资源的网站。它应该包括学习笔记、视频讲座和过去的试卷及答案，按学期和科目组织。",
+  "evaluation": {
+    "total_score": 74,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "The page has a coherent modern education-product style with consistent blue accents, rounded cards, and repeated glow/dot background motifs. The system feels unified, though the heavy generic blue AI-style gradients and decorative halos are overused and reduce distinctiveness for a practical student resource site."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Component construction is mostly polished: cards, pills, buttons, and spacing are fairly consistent, and the layout grid is clean. However, text in several areas is small and low-contrast, some card interiors feel cramped, and fine-detail readability suffers in the screenshot, especially metadata and secondary descriptions."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "The page establishes a clear top-down structure: hero, semester/subject browsing, benefits, stats, testimonials, FAQ, and CTA. The main resource-browsing section is visible and prominent. But content priority is diluted by many marketing sections, while actual resource utility cues such as clear filters, counts, and stronger differentiation between notes/videos/exams are not emphasized enough."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "Labels largely match the scenario: semesters, subjects, notes, videos, and exam papers are understandable, and the card/list pattern is familiar. Search and category chips are predictable. The main weakness is that some actions and item affordances are subtle, and the interface appears more like a landing page than a fully operable resource retrieval tool, limiting task confidence."
+      }
+    },
+    "summary": "This is a solid, launch-near desktop landing page for a university free-resources platform, with good visual consistency and understandable browsing structure. The strongest part is the organized semester-and-subject section, which fits the request. The hard cap comes from weak small-text readability, overly decorative blue-glow styling, and a product experience that leans too much toward marketing sections instead of making notes, lecture videos, and past papers feel immediately actionable and efficiently discoverable."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/611_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:18:25.034320"
+}

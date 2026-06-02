@@ -1,0 +1,33 @@
+{
+  "index": 255,
+  "id": "705",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为天气应用程序创建一个界面，提供火星天气状况（而不是地球天气状况）的更新，展示火星上的温度、风速和大气变化。",
+  "evaluation": {
+    "total_score": 84,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 9,
+        "reason": "The interface has a strong, cohesive Mars-specific visual system: dark atmospheric background, restrained orange/red accents, consistent card treatment, and a sci-fi tone that fits a planetary weather dashboard. Layout rhythm is stable and the main temperature block is a clear focal point. Minor deductions for relying on familiar dark-gradient dashboard aesthetics and for the right-side KPI cards feeling slightly detached from the central narrative."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography, spacing, borders, and card interiors are generally precise and polished. Data cards use consistent padding and icon framing, and the forecast strip is visually tidy. Small issues remain: some low-contrast secondary text is faint on the dark background, a few labels are small for comfortable desktop reading, and decorative line graphics in the wind card add little functional value."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the core status: current Mars temperature, station, supporting metrics, atmospheric composition, forecast, and alert. The reading path is mostly clear from hero metric to supporting cards to forecast and warning. However, the upper-right metric cluster competes somewhat with the main content, and some secondary indicators like UV/radiation draw attention despite being less central to the requested task than wind and atmospheric change."
+      },
+      "easy_to_understand": {
+        "score": 8,
+        "reason": "Labels are mostly clear and domain-appropriate, and key values such as temperature, wind speed, pressure, and composition are understandable at a glance. Forecast cards use familiar patterns, and the alert block is semantically obvious. Deduction for including Earth-weather-like concepts such as UV index and radiation level without much context for a Mars weather app, and for the pressure trend text being slightly interpretive rather than purely operationally clear."
+      }
+    },
+    "summary": "This is a strong desktop weather dashboard with a coherent Mars-specific aesthetic, clear primary metric emphasis, and solid card-based organization. It successfully presents Mars temperature, wind, and atmospheric information in a polished, readable way. The score is capped below top-tier because some secondary metrics compete for attention, a few text elements are low-contrast or small, and certain semantics lean toward decorative sci-fi dashboard conventions rather than the clearest task-focused weather communication."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/705_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:15:43.457918"
+}

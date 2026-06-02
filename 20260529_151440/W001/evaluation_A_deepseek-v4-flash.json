@@ -1,0 +1,33 @@
+{
+  "index": 109,
+  "id": "W001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做一个简洁的待办事项工具，可以添加任务、设置优先级、勾选完成,完成的任务会划线置底。",
+  "evaluation": {
+    "total_score": 72,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Clean, coherent mobile card layout with restrained colors and a consistent soft-radius component style. The purple primary button and red/orange/green priority system fit the simple to-do scenario, though the visual language is somewhat generic and the large empty lower screen weakens compositional balance."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is readable, spacing is mostly even, and task rows are neatly padded. However, checkbox styling is basic, some text/button alignment feels slightly loose, and the completed task row appears visually disabled rather than clearly struck through as requested."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify the title, input area, add button, priority selector, and task list. The reading path is straightforward and density is controlled. Main limitations are that selected priority state is not strongly obvious and completed-item separation relies more on color/fade than strong hierarchy."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Core operations are familiar: type a task, choose priority, tap plus, check to complete. Priority chips and task badges are easy to interpret. But the screenshot does not clearly demonstrate the required 'completed tasks move to bottom with strikethrough' behavior, and the plus icon lacks a text label, leaving minor ambiguity around state and action results."
+      }
+    },
+    "summary": "This is a solid, usable mobile to-do UI with clear core actions, appropriate simplicity, and decent visual polish. It succeeds at basic task entry and priority communication, but it does not fully prove the requested completion behavior visually: the completed task is dimmed at the bottom, yet the strikethrough is weak or absent. Minor state clarity and detail polish issues keep it from higher launch-quality scores."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/W001_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:39:10.525118"
+}

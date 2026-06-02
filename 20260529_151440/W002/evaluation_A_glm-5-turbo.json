@@ -1,0 +1,33 @@
+{
+  "index": 299,
+  "id": "W002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个事件倒计时工具，可以添加多个未来事件(生日、考试、项目截止)，主页醒目显示距离最近事件还有多少天。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The interface has a coherent dark neon-green visual direction with consistent rounded cards, subtle glow, and a focused floating add button. However, the style is quite generic and sparse, and the large empty areas make it feel more like a concept screen than a complete event tool."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, card padding, corner radius, and alignment are mostly clean and consistent. The empty-state icon matches the system. But secondary text contrast is weak, the visual weight between sections is uneven, and the bottom floating button feels slightly detached from the content structure."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly identify the page title, empty state, event list section, and add entry point. Still, the requested core priority—prominently showing the nearest countdown—is not demonstrated here, and the screen spends most of its space on decorative emptiness rather than helping users anticipate the main workflow."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The plus button is a familiar add pattern, and labels like '全部事件' and '0个事件' are clear. But there is no visible form entry, filter, or interaction guidance beyond a generic empty-state sentence, so the multi-event countdown workflow remains only partially explained and not fully evident from the interface."
+      }
+    },
+    "summary": "This is a visually coherent and reasonably polished mobile empty state, with a clear add action and a consistent dark theme. Its hard cap is task completeness: the requested product should emphasize the nearest upcoming event and support managing multiple future events, but the shown experience is mostly an attractive placeholder with limited information hierarchy and workflow clarity. Usable in direction, but not yet a strong, fully task-supportive countdown tool."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/W002_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:24:51.853622"
+}

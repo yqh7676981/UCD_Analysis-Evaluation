@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynthMind - 科学家协作平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f0d;
+            --bg-elevated: #111916;
+            --card: #151d19;
+            --border: #243d32;
+            --accent: #00d4aa;
+            --accent-dim: #00a88a;
+            --fg: #e8f5f0;
+            --muted: #7a9a8a;
+            --danger: #ff6b6b;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            background-image: 
+                linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+        
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .glow-1 {
+            width: 600px;
+            height: 600px;
+            background: rgba(0, 212, 170, 0.15);
+            top: -200px;
+            right: -100px;
+        }
+        
+        .glow-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(0, 168, 138, 0.1);
+            bottom: 10%;
+            left: -100px;
+        }
+        
+        .glass-card {
+            background: rgba(21, 29, 25, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px rgba(0, 212, 170, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+            color: var(--bg);
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            font-weight: 500;
+            padding: 12px 28px;
+            border-radius: 8px;
+            border: 1px solid var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 212, 170, 0.1);
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+        
+        .field-tag {
+            background: rgba(255, 180, 100, 0.15);
+            color: #ffb464;
+            border-color: rgba(255, 180, 100, 0.3);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: rgba(0, 212, 170, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #00ffcc);
+            border-radius: 2px;
+            transition: width 1s ease;
+        }
+        
+        .nav-link {
+            position: relative;
+            color: var(--muted);
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--fg);
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .idea-card {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .idea-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .avatar-ring {
+            padding: 2px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+            border-radius: 50%;
+        }
+        
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--fg) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .input-field {
+            background: rgba(21, 29, 25, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            color: var(--fg);
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+        }
+        
+        .input-field::placeholder {
+            color: var(--muted);
+        }
+        
+        .tab-btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: transparent;
+            color: var(--muted);
+            border: none;
+        }
+        
+        .tab-btn.active {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--accent);
+        }
+        
+        .tab-btn:hover:not(.active) {
+            color: var(--fg);
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .live-indicator {
+            position: relative;
+        }
+        
+        .live-indicator::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse-ring 2s ease-out infinite;
+        }
+        
+        .discussion-item {
+            border-left: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .discussion-item:hover {
+            border-left-color: var(--accent);
+            background: rgba(0, 212, 170, 0.05);
+        }
+        
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #00ffcc);
+            z-index: 100;
+            transition: width 0.1s ease;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stat-number {
+                font-size: 1.8rem;
+            }
+            .glow-orb {
+                opacity: 0.5;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="min-h-screen">
+    <div class="grid-bg"></div>
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+    <div class="scroll-indicator" id="scrollIndicator"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-card border-0 border-b" style="border-radius: 0;">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0a0f0d" stroke-width="2.5">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+                        <path d="m4.93 4.93 2.83 2.83m8.48 8.48 2.83 2.83M4.93 19.07l2.83-2.83m8.48-8.48 2.83-2.83"/>
+                    </svg>
+                </div>
+                <span class="text-xl font-semibold" style="font-family: 'Space Grotesk', sans-serif;">SynthMind</span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#discover" class="nav-link">发现</a>
+                <a href="#projects" class="nav-link">项目</a>
+                <a href="#discussions" class="nav-link">讨论</a>
+                <a href="#collaborate" class="nav-link">协作</a>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button class="btn-secondary text-sm hidden sm:block" onclick="openModal('login')">登录</button>
+                <button class="btn-primary text-sm" onclick="openModal('signup')">加入社区</button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center pt-20">
+        <div class="max-w-7xl mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-center relative z-10">
+            <div>
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6" style="background: rgba(0, 212, 170, 0.1); border: 1px solid rgba(0, 212, 170, 0.2);">
+                    <span class="w-2 h-2 rounded-full live-indicator" style="background: var(--accent);"></span>
+                    <span class="text-sm" style="color: var(--accent);">已有 2,847 位科学家加入</span>
+                </div>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                    跨越学科边界<br>
+                    <span style="color: var(--accent);">加速科学发现</span>
+                </h1>
+                
+                <p class="text-lg mb-8 max-w-lg" style="color: var(--muted);">
+                    SynthMind 连接全球研究人员，提供智能协作工具，让你的研究想法找到志同道合的合作伙伴。
+                </p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 mb-12">
+                    <button class="btn-primary text-base" onclick="openModal('signup')">
+                        开始探索
+                    </button>
+                    <button class="btn-secondary text-base flex items-center justify-center gap-2">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polygon points="10,8 16,12 10,16" fill="currentColor"/>
+                        </svg>
+                        观看介绍
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <div class="flex -space-x-3">
+                        <div class="avatar-ring"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600"></div></div>
+                        <div class="avatar-ring"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-600"></div></div>
+                        <div class="avatar-ring"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600"></div></div>
+                        <div class="avatar-ring"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-purple-600"></div></div>
+                    </div>
+                    <div>
+                        <p class="text-sm" style="color: var(--muted);">来自全球顶尖机构</p>
+                        <p class="text-sm font-medium">MIT, Stanford, Oxford, 中科院...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative floating">
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-emerald-600"></div>
+                        <div>
+                            <h4 class="font-semibold">Dr. Sarah Chen</h4>
+                            <p class="text-sm" style="color: var(--muted);">计算神经科学 - MIT</p>
+                        </div>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">寻找合作者：脑机接口信号解码优化</h3>
+                    <p class="text-sm mb-4" style="color: var(--muted);">我们的团队正在开发新一代脑机接口解码算法，需要机器学习背景的研究者协助优化深度学习模型...</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="tag">神经科学</span>
+                        <span class="tag field-tag">机器学习</span>
+                        <span class="tag">信号处理</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm" style="color: var(--muted);">
+                                <svg class="inline w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                已有 4 人加入
+                            </span>
+                        </div>
+                        <button class="btn-primary text-sm py-2 px-4">申请协作</button>
+                    </div>
+                </div>
+                
+                <div class="absolute -bottom-6 -right-6 glass-card rounded-xl p-4 max-w-xs">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                        </svg>
+                        <span class="text-sm font-medium">新匹配建议</span>
+                    </div>
+                    <p class="text-xs" style="color: var(--muted);">根据你的研究兴趣，我们发现了 12 个潜在合作机会</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="relative z-10 py-16" style="background: var(--bg-elevated);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="stat-number" data-target="2847">0</div>
+                    <p style="color: var(--muted);">活跃研究者</p>
+                </div>
+                <div>
+                    <div class="stat-number" data-target="156">0</div>
+                    <p style="color: var(--muted);">学科领域</p>
+                </div>
+                <div>
+                    <div class="stat-number" data-target="892">0</div>
+                    <p style="color: var(--muted);">进行中项目</p>
+                </div>
+                <div>
+                    <div class="stat-number" data-target="34">0</div>
+                    <p style="color: var(--muted);">发表论文</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Ideas Section -->
+    <section id="discover" class="relative z-10 py-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">最新研究想法</h2>
+                    <p style="color: var(--muted);">发现来自各领域研究者的创新想法和合作机会</p>
+                </div>
+                
+                <div class="flex gap-2 p-1 rounded-lg" style="background: var(--card);">
+                    <button class="tab-btn active" data-tab="all">全部</button>
+                    <button class="tab-btn" data-tab="physical">物理</button>
+                    <button class="tab-btn" data-tab="bio">生物</button>
+                    <button class="tab-btn" data-tab="cs">计算机</button>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="ideasGrid">
+                <!-- Cards will be inserted here -->
+            </div>
+        </div>
+    </section>
+    
+    <!-- Discussions Section -->
+    <section id="discussions" class="relative z-10 py-24" style="background: var(--bg-elevated);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">热门讨论</h2>
+                    <p class="mb-8" style="color: var(--muted);">参与跨学科讨论，碰撞思想火花</p>
+                    
+                    <div class="space-y-4" id="discussionsList">
+                        <!-- Discussions will be inserted here -->
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="glass-card rounded-2xl p-6 mb-6">
+                        <h3 class="font-semibold text-lg mb-4">发起讨论</h3>
+                        <input type="text" class="input-field mb-4" placeholder="讨论标题">
+                        <textarea class="input-field mb-4" rows="4" placeholder="分享你的想法或问题..."></textarea>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="tag cursor-pointer" onclick="this.classList.toggle('field-tag')">量子计算</span>
+                            <span class="tag cursor-pointer" onclick="this.classList.toggle('field-tag')">生物信息</span>
+                            <span class="tag cursor-pointer" onclick="this.classList.toggle('field-tag')">气候模型</span>
+                            <span class="tag cursor-pointer" onclick="this.classList.toggle('field-tag')">神经科学</span>
+                        </div>
+                        <button class="btn-primary w-full">发布讨论</button>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="font-semibold mb-4">趋势话题</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">#量子纠错算法</span>
+                                <span class="text-xs" style="color: var(--muted);">128 讨论</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">#AI药物发现</span>
+                                <span class="text-xs" style="color: var(--muted);">96 讨论</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">#可解释AI</span>
+                                <span class="text-xs" style="color: var(--muted);">84 讨论</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm">#基因编辑伦理</span>
+                                <span class="text-xs" style="color: var(--muted);">72 讨论</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Collaboration Section -->
+    <section id="collaborate" class="relative z-10 py-24">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">智能匹配，精准协作</h2>
+            <p class="max-w-2xl mx-auto mb-12" style="color: var(--muted);">
+                我们的 AI 系统分析你的研究背景、兴趣和技能，为你推荐最合适的合作者和项目
+            </p>
+            
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center" style="background: rgba(0, 212, 170, 0.15);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">创建研究档案</h3>
+                    <p class="text-sm" style="color: var(--muted);">详细描述你的研究领域、技能和兴趣方向</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center" style="background: rgba(0, 212, 170, 0.15);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">获取智能推荐</h3>
+                    <p class="text-sm" style="color: var(--muted);">系统自动匹配最适合的研究伙伴和项目机会</p>
+                </div>
+                
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center" style="background: rgba(0, 212, 170, 0.15);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-3">开始协作</h3>
+                    <p class="text-sm" style="color: var(--muted);">使用内置工具进行高效沟通和项目管理</p>
+                </div>
+            </div>
+            
+            <button class="btn-primary text-lg px-8 py-4">立即加入</button>
+        </div>
+    </section>
+    
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(10, 15, 13, 0.9);">
+        <div class="glass-card rounded-2xl p-8 max-w-md w-full relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4" style="color: var(--muted);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+            
+            <div id="modalContent">
+                <!-- Modal content will be inserted here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="relative z-10 py-12" style="border-top: 1px solid var(--border);">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0a0f0d" stroke-width="2.5">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+                            </svg>
+                        </div>
+                        <span class="font-semibold" style="font-family: 'Space Grotesk', sans-serif;">SynthMind</span>
+                    </div>
+                    <p class="text-sm" style="color: var(--muted);">连接全球科学家，加速创新发现</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">平台</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--muted);">
+                        <li><a href="#" class="hover:text-white transition-colors">发现项目</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">寻找合作者</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">学术资源</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">社区</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--muted);">
+                        <li><a href="#" class="hover:text-white transition-colors">讨论区</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">活动</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">帮助中心</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">关于</h4>
+                    <ul class="space-y-2 text-sm" style="color: var(--muted);">
+                        <li><a href="#" class="hover:text-white transition-colors">我们的使命</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">隐私政策</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">使用条款</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center pt-8" style="border-top: 1px solid var(--border);">
+                <p class="text-sm" style="color: var(--muted);">2024 SynthMind. 推动科学进步，连接全球智慧。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Data
+        const ideas = [
+            {
+                id: 1,
+                author: 'Dr. Michael Torres',
+                institution: 'Stanford University',
+                avatar: 'from-blue-400 to-indigo-600',
+                title: '量子机器学习算法在药物分子筛选中的应用',
+                description: '探索量子计算加速分子对接模拟的可能性，寻找对量子化学有理解的合作者...',
+                tags: ['量子计算', '药物发现', '机器学习'],
+                collaborators: 6,
+                field: 'physical'
+            },
+            {
+                id: 2,
+                author: 'Prof. 李明华',
+                institution: '中科院生物物理所',
+                avatar: 'from-emerald-400 to-teal-600',
+                title: '单细胞测序数据分析Pipeline优化',
+                description: '开发更高效的scRNA-seq数据处理流程，需要分布式计算背景的研究者...',
+                tags: ['生物信息', '单细胞', '数据分析'],
+                collaborators: 3,
+                field: 'bio'
+            },
+            {
+                id: 3,
+                author: 'Dr. Emma Watson',
+                institution: 'Oxford University',
+                avatar: 'from-amber-400 to-orange-600',
+                title: '大语言模型在科学文献综述中的可靠性评估',
+                description: '系统研究LLM生成科学综述的准确性和潜在偏见，需要NLP专家合作...',
+                tags: ['NLP', '文献挖掘', 'AI伦理'],
+                collaborators: 4,
+                field: 'cs'
+            },
+            {
+                id: 4,
+                author: 'Dr. 王建国',
+                institution: '北京大学',
+                avatar: 'from-rose-400 to-pink-600',
+                title: '高温超导材料的机器学习势函数开发',
+                description: '使用深度学习构建铜氧化物超导体的原子间势，加速新材料发现...',
+                tags: ['凝聚态物理', '深度学习', '材料科学'],
+                collaborators: 2,
+                field: 'physical'
+            },
+            {
+                id: 5,
+                author: 'Prof. Aiko Tanaka',
+                institution: 'Tokyo University',
+                avatar: 'from-sky-400 to-cyan-600',
+                title: 'CRISPR脱靶效应的深度学习预测模型',
+                description: '开发更准确的sgRNA脱靶预测工具，降低基因编辑风险...',
+                tags: ['基因编辑', '深度学习', '基因组学'],
+                collaborators: 5,
+                field: 'bio'
+            },
+            {
+                id: 6,
+                author: 'Dr. Alex Chen',
+                institution: 'Google DeepMind',
+                avatar: 'from-violet-400 to-purple-600',
+                title: '可解释AI在医疗诊断决策中的信任度研究',
+                description: '研究医生对AI辅助诊断系统的信任因素，需要认知科学背景的合作者...',
+                tags: ['可解释AI', '医疗AI', '人机交互'],
+                collaborators: 3,
+                field: 'cs'
+            }
+        ];
+
+        const discussions = [
+            {
+                title: '量子纠错码的最新进展：表面码 vs 颜色码？',
+                author: 'Dr. 张伟',
+                replies: 47,
+                views: 892,
+                time: '2小时前'
+            },
+            {
+                title: '如何评估AI生成科学代码的可靠性？',
+                author: 'Prof. Sarah Miller',
+                replies: 32,
+                views: 654,
+                time: '5小时前'
+            },
+            {
+                title: '跨学科合作中的沟通障碍如何解决？',
+                author: 'Dr. 李芳',
+                replies: 28,
+                views: 521,
+                time: '1天前'
+            },
+            {
+                title: '气候变化模型的参数不确定性量化方法讨论',
+                author: 'Prof. James Wilson',
+                replies: 19,
+                views: 398,
+                time: '2天前'
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderIdeas('all');
+            renderDiscussions();
+            setupScrollObserver();
+            setupScrollIndicator();
+            animateStats();
+            setupTabs();
+        });
+
+        // Render ideas
+        function renderIdeas(filter) {
+            const grid = document.getElementById('ideasGrid');
+            const filtered = filter === 'all' 
+                ? ideas 
+                : ideas.filter(i => i.field === filter);
+            
+            grid.innerHTML = filtered.map((idea, index) => `
+                <div class="idea-card glass-card rounded-2xl p-6" style="transition-delay: ${index * 100}ms">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="avatar-ring">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br ${idea.avatar}"></div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-sm">${idea.author}</h4>
+                            <p class="text-xs" style="color: var(--muted);">${idea.institution}</p>
+                        </div>
+                    </div>
+                    <h3 class="font-semibold mb-2 line-clamp-2">${idea.title}</h3>
+                    <p class="text-sm mb-4 line-clamp-2" style="color: var(--muted);">${idea.description}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${idea.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-fill" style="width: ${Math.min(idea.collaborators * 15, 100)}%"></div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs" style="color: var(--muted);">${idea.collaborators} 位合作者</span>
+                        <button class="text-sm font-medium" style="color: var(--accent);">了解更多</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Trigger animation
+            setTimeout(() => {
+                document.querySelectorAll('.idea-card').forEach(card => {
+                    card.classList.add('visible');
+                });
+            }, 100);
+        }
+
+        // Render discussions
+        function renderDiscussions() {
+            const list = document.getElementById('discussionsList');
+            list.innerHTML = discussions.map(disc => `
+                <div class="discussion-item glass-card rounded-xl p-4 cursor-pointer">
+                    <h4 class="font-medium mb-2">${disc.title}</h4>
+                    <div class="flex items-center gap-4 text-sm" style="color: var(--muted);">
+                        <span>${disc.author}</span>
+                        <span>${disc.replies} 回复</span>
+                        <span>${disc.views} 浏览</span>
+                        <span>${disc.time}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Scroll observer for animations
+        function setupScrollObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.idea-card').forEach(card => {
+                observer.observe(card);
+            });
+        }
+
+        // Scroll indicator
+        function setupScrollIndicator() {
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                document.getElementById('scrollIndicator').style.width = scrolled + '%';
+            });
+        }
+
+        // Animate stats
+        function animateStats() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const target = parseInt(el.dataset.target);
+                        let current = 0;
+                        const increment = target / 50;
+                        const timer = setInterval(() => {
+                            current += increment;
+                            if (current >= target) {
+                                current = target;
+                                clearInterval(timer);
+                            }
+                            el.textContent = Math.floor(current).toLocaleString();
+                        }, 30);
+                        observer.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('.stat-number').forEach(stat => {
+                observer.observe(stat);
+            });
+        }
+
+        // Tabs
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    renderIdeas(this.dataset.tab);
+                });
+            });
+        }
+
+        // Modal
+        function openModal(type) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modalContent');
+            
+            if (type === 'login') {
+                content.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-6">欢迎回来</h2>
+                    <input type="email" class="input-field mb-4" placeholder="邮箱地址">
+                    <input type="password" class="input-field mb-6" placeholder="密码">
+                    <button class="btn-primary w-full mb-4">登录</button>
+                    <p class="text-center text-sm" style="color: var(--muted);">
+                        还没有账号？<a href="#" onclick="openModal('signup')" style="color: var(--accent);">注册</a>
+                    </p>
+                `;
+            } else {
+                content.innerHTML = `
+                    <h2 class="text-2xl font-bold mb-6">加入社区</h2>
+                    <input type="text" class="input-field mb-4" placeholder="姓名">
+                    <input type="email" class="input-field mb-4" placeholder="邮箱地址">
+                    <input type="text" class="input-field mb-4" placeholder="研究机构">
+                    <input type="password" class="input-field mb-6" placeholder="设置密码">
+                    <button class="btn-primary w-full mb-4">创建账号</button>
+                    <p class="text-center text-sm" style="color: var(--muted);">
+                        已有账号？<a href="#" onclick="openModal('login')" style="color: var(--accent);">登录</a>
+                    </p>
+                `;
+            }
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Close modal on outside click
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

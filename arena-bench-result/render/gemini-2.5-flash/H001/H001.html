@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日热量记录</title>
+    <style>
+        /* CSS Reset & Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+            background-color: #f4f7f6;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+        }
+
+        .container {
+            max-width: 600px; /* Max width for content, typical mobile screen is narrower */
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            flex-grow: 1; /* Allow container to grow and fill space */
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.8em; /* Slightly larger for mobile headers */
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        h2 {
+            font-size: 1.4em;
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        /* Daily Summary & Progress Section */
+        .daily-summary {
+            background-color: #e8f5e9; /* Light green background */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #d0f0d2;
+        }
+
+        .daily-summary p {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .daily-target-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+        .daily-target-input label {
+            margin-right: 10px;
+            color: #555;
+        }
+        .daily-target-input input[type="number"] {
+            width: 80px;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            text-align: center;
+            -moz-appearance: textfield; /* Firefox hides arrow buttons */
+        }
+        /* Hide spin buttons for number input on Webkit browsers */
+        .daily-target-input input[type="number"]::-webkit-outer-spin-button,
+        .daily-target-input input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            height: 25px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: #4CAF50; /* Green */
+            border-radius: 15px;
+            transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        .progress-bar-fill.over-target {
+            background-color: #FF5722; /* Orange-Red when over target */
+        }
+
+        /* Food Input Section */
+        .food-input-section {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically on mobile */
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .food-input-controls {
+            display: flex;
+            flex-direction: column; /* Stack select and quantity */
+            gap: 10px;
+        }
+
+        select, input[type="number"], button {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%; /* Full width */
+            -webkit-appearance: none; /* Remove default styling for select on iOS */
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        select {
+            background-color: #fff;
+            /* Custom dropdown arrow for better mobile appearance */
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bb6%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-5.4H18.2c-4.1%200-7.9%201.5-10.9%204.6-3.1%203.2-4.6%207.3-4.6%2011.6%200%204.3%201.5%208.4%204.6%2011.6l128.8%20132.8c3.1%203.2%207.2%204.9%2011.4%204.9s8.3-1.7%2011.4-4.9l128.8-132.8c3.1-3.2%204.6-7.3%204.6-11.6S290.1%2072.6%20287%2069.4z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px; /* Make space for the arrow */
+        }
+        select:focus, input[type="number"]:focus, button:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Added Food Log */
+        .food-log-list {
+            list-style-type: none;
+            margin-top: 20px;
+            padding: 0;
+            max-height: 300px; /* Limit height for scrollability on small screens */
+            overflow-y: auto;
+            background-color: #fdfdfd;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+
+        .food-log-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 1em;
+        }
+
+        .food-log-list li:last-child {
+            border-bottom: none;
+        }
+
+        .food-item-details {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .food-item-name {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .food-item-calories {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .remove-food-btn {
+            background-color: #dc3545; /* Red */
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            margin-left: 15px;
+            transition: background-color 0.3s ease;
+            width: auto; /* Override general button width */
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+
+        .remove-food-btn:hover {
+            background-color: #c82333;
+        }
+
+        .clear-log-btn-container {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .clear-log-btn {
+            background-color: #6c757d; /* Grey */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+            width: auto; /* Override general button width */
+            margin: 0 auto; /* Center button */
+        }
+
+        .clear-log-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Media Queries for potential tablet/desktop */
+        @media (min-width: 768px) {
+            .food-input-section {
+                flex-direction: row; /* Horizontal layout on wider screens */
+                align-items: center;
+            }
+            .food-input-controls {
+                flex-direction: row;
+                flex-grow: 1; /* Allow controls to take more space */
+                gap: 15px;
+            }
+            select, input[type="number"] {
+                width: auto; /* Allow elements to size based on content */
+                flex-grow: 1; /* Make them grow */
+            }
+            button {
+                width: auto; /* Allow button to size based on content */
+                flex-grow: 0; /* Do not grow */
+            }
+            .daily-target-input input[type="number"] {
+                width: 100px; /* Slightly wider input for target */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>每日热量记录</h1>
+
+        <div class="daily-summary">
+            <div class="daily-target-input">
+                <label for="dailyTargetInput">每日目标热量:</label>
+                <input type="number" id="dailyTargetInput" value="2000" min="1000" step="50"> kcal
+            </div>
+            <p id="calorieSummary">已摄入: 0 kcal / 目标: 2000 kcal</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBarFill">0%</div>
+            </div>
+        </div>
+
+        <div class="food-input-section">
+            <div class="food-input-controls">
+                <select id="foodSelect">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <input type="number" id="foodQuantity" value="1" min="1">
+            </div>
+            <button id="addFoodBtn">添加食物</button>
+        </div>
+
+        <h2>今日已摄入</h2>
+        <ul id="foodLogList" class="food-log-list">
+            <!-- Added food items will be listed here -->
+            <li class="empty-log-message">还没有记录哦，快来添加吧！</li>
+        </ul>
+
+        <div class="clear-log-btn-container">
+            <button id="clearLogBtn" class="clear-log-btn">清空今日记录</button>
+        </div>
+    </div>
+
+    <script>
+        const dailyTargetInput = document.getElementById('dailyTargetInput');
+        const calorieSummary = document.getElementById('calorieSummary');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const foodSelect = document.getElementById('foodSelect');
+        const foodQuantity = document.getElementById('foodQuantity');
+        const addFoodBtn = document.getElementById('addFoodBtn');
+        const foodLogList = document.getElementById('foodLogList');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+
+        // Food Database (common foods with approximate calories per serving)
+        // Values are per unit/serving. Quantity input will multiply this.
+        const foodsDatabase = [
+            { name: '苹果 (中等)', calories: 95 },
+            { name: '香蕉 (中等)', calories: 105 },
+            { name: '米饭 (100g)', calories: 130 },
+            { name: '面条 (100g 煮熟)', calories: 138 },
+            { name: '鸡蛋 (1个)', calories: 70 },
+            { name: '鸡胸肉 (100g)', calories: 165 },
+            { name: '鱼肉 (100g 蒸)', calories: 130 },
+            { name: '牛奶 (200ml)', calories: 100 },
+            { name: '酸奶 (100g 原味)', calories: 60 },
+            { name: '面包 (1片)', calories: 80 },
+            { name: '薯片 (30g)', calories: 160 },
+            { name: '巧克力 (30g)', calories: 150 },
+            { name: '西兰花 (100g)', calories: 34 },
+            { name: '西红柿 (100g)', calories: 18 },
+            { name: '豆腐 (100g)', calories: 76 }
+        ];
+
+        // Load daily target from localStorage or set a default
+        let dailyTarget = parseInt(localStorage.getItem('dailyTarget')) || 2000;
+        // Load daily intake from localStorage or initialize as empty array
+        let dailyIntake = JSON.parse(localStorage.getItem('dailyIntake')) || []; 
+        let currentCalories = 0;
+
+        // Initialize App
+        function init() {
+            populateFoodSelect();
+            dailyTargetInput.value = dailyTarget;
+            dailyTargetInput.addEventListener('change', updateDailyTarget);
+            addFoodBtn.addEventListener('click', addFood);
+            clearLogBtn.addEventListener('click', clearDailyLog);
+            
+            recalculateCurrentCalories(); // Recalculate based on loaded dailyIntake
+            renderFoodLog();
+            updateProgressBar();
+        }
+
+        // Populate the food dropdown with items from foodsDatabase
+        function populateFoodSelect() {
+            foodSelect.innerHTML = ''; // Clear existing options
+            foodsDatabase.forEach(food => {
+                const option = document.createElement('option');
+                option.value = food.calories; // Store calories in value for easy access
+                option.textContent = `${food.name} (${food.calories} kcal)`;
+                foodSelect.appendChild(option);
+            });
+        }
+
+        // Update Daily Target when input changes
+        function updateDailyTarget() {
+            const newTarget = parseInt(dailyTargetInput.value);
+            if (!isNaN(newTarget) && newTarget >= 1000) { // Ensure target is a valid number
+                dailyTarget = newTarget;
+                localStorage.setItem('dailyTarget', dailyTarget);
+                updateProgressBar();
+            } else {
+                dailyTargetInput.value = dailyTarget; // Revert to old value if invalid
+                alert('每日目标热量必须是一个大于或等于1000的数字！');
+            }
+        }
+
+        // Add Selected Food to Log
+        function addFood() {
+            const selectedOption = foodSelect.options[foodSelect.selectedIndex];
+            if (!selectedOption) {
+                alert('请选择一种食物！');
+                return; // No food selected
+            }
+
+            const foodName = selectedOption.textContent.split('(')[0].trim(); // Get name without calories
+            const caloriesPerServing = parseInt(selectedOption.value);
+            const servings = parseInt(foodQuantity.value);
+
+            if (isNaN(servings) || servings <= 0) {
+                alert('请填写有效的数量 (至少为1)');
+                return;
+            }
+
+            const totalCalories = caloriesPerServing * servings;
+
+            dailyIntake.push({
+                foodName: foodName,
+                caloriesPerServing: caloriesPerServing,
+                servings: servings,
+                totalCalories: totalCalories
+            });
+
+            currentCalories += totalCalories;
+            saveDailyIntake();
+            renderFoodLog();
+            updateProgressBar();
+            foodQuantity.value = 1; // Reset quantity after adding
+        }
+
+        // Remove Food from Log by index
+        function removeFood(index) {
+            const removedFood = dailyIntake.splice(index, 1)[0]; // Remove item and get the removed item
+            currentCalories -= removedFood.totalCalories;
+            saveDailyIntake();
+            renderFoodLog();
+            updateProgressBar();
+        }
+
+        // Recalculate total calories from dailyIntake array (useful on load or after complex manipulations)
+        function recalculateCurrentCalories() {
+            currentCalories = dailyIntake.reduce((sum, item) => sum + item.totalCalories, 0);
+        }
+
+        // Render Food Log List UI
+        function renderFoodLog() {
+            foodLogList.innerHTML = ''; // Clear current list
+
+            if (dailyIntake.length === 0) {
+                const emptyMessage = document.createElement('li');
+                emptyMessage.className = 'empty-log-message';
+                emptyMessage.textContent = '还没有记录哦，快来添加吧！';
+                foodLogList.appendChild(emptyMessage);
+                return;
+            }
+
+            dailyIntake.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'food-item-details';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'food-item-name';
+                nameSpan.textContent = `${item.foodName} x${item.servings}`;
+                
+                const caloriesSpan = document.createElement('span');
+                caloriesSpan.className = 'food-item-calories';
+                caloriesSpan.textContent = `${item.totalCalories} kcal`;
+
+                detailsDiv.appendChild(nameSpan);
+                detailsDiv.appendChild(caloriesSpan);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-food-btn';
+                removeBtn.textContent = '删除';
+                removeBtn.onclick = () => removeFood(index); // Attach event listener directly
+
+                listItem.appendChild(detailsDiv);
+                listItem.appendChild(removeBtn);
+                foodLogList.appendChild(listItem);
+            });
+        }
+
+        // Update Progress Bar and Summary Text
+        function updateProgressBar() {
+            calorieSummary.textContent = `已摄入: ${currentCalories} kcal / 目标: ${dailyTarget} kcal`;
+
+            const percentage = (currentCalories / dailyTarget) * 100;
+            progressBarFill.style.width = Math.min(percentage, 100) + '%'; // Cap visual width at 100%
+
+            // Display calories within the bar if there's space, or a percentage
+            if (currentCalories > 0) {
+                 progressBarFill.textContent = `${currentCalories} / ${dailyTarget} kcal`;
+            } else {
+                 progressBarFill.textContent = '';
+            }
+
+            // Change color if current calories exceed the daily target
+            if (currentCalories > dailyTarget) {
+                progressBarFill.classList.add('over-target');
+            } else {
+                progressBarFill.classList.remove('over-target');
+            }
+        }
+
+        // Clear All Daily Log entries
+        function clearDailyLog() {
+            if (confirm('确定要清空今日所有记录吗？此操作不可撤销！')) {
+                dailyIntake = [];
+                currentCalories = 0;
+                saveDailyIntake();
+                renderFoodLog();
+                updateProgressBar();
+            }
+        }
+
+        // Save daily intake array to Local Storage for persistence
+        function saveDailyIntake() {
+            localStorage.setItem('dailyIntake', JSON.stringify(dailyIntake));
+        }
+
+        // Initialize the app when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

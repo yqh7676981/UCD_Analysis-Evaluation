@@ -1,0 +1,33 @@
+{
+  "index": 71,
+  "id": "H001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个每日热量记录工具，可以从常见食物库里选择，自动累加今天摄入的卡路里，对比每日目标显示进度条。",
+  "evaluation": {
+    "total_score": 52,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The interface has a simple, consistent orange-and-gray theme and a stable single-column mobile layout, but it feels generic and unfinished. The large header dominates while the rest of the page lacks supporting visual structure or product-specific character."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Basic spacing and alignment are acceptable, and controls are readable, but typography hierarchy is weak, the progress bar text is cramped and low-contrast, and the page has large empty areas that make the composition feel incomplete rather than intentionally spacious."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly find the goal input, food selector, add button, and progress bar in a straightforward top-to-bottom flow. However, the main status area is under-emphasized, the progress information is visually weak, and there is no clear distinction between setup, action, and results."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The labels and controls follow common mental models, so the basic task is understandable. But the experience lacks feedback richness: there is no visible food list/history, no indication of how totals update after adding items, and no clearer affordance for setting or confirming the daily goal."
+      }
+    },
+    "summary": "This is a usable but very basic calorie tracker. It supports the core scenario at a minimal level with clear labels and a simple mobile flow, but the visual hierarchy, state communication, and completion level are weak. The biggest limits are the generic styling, underdeveloped progress/result area, and lack of supporting context such as selected-food history or stronger feedback after actions, which keep it in the average range rather than feeling product-ready."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/H001_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:29:55.785345"
+}

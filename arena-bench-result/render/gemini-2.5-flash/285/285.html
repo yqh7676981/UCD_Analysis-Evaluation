@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Microblog - A Simple Social Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CSS Global Variables --- */
+        :root {
+            --primary-color: #1DA1F2; /* Twitter blue */
+            --secondary-color: #14171A; /* Dark gray */
+            --light-gray: #E1E8ED; /* Light background for hover */
+            --white: #FFFFFF;
+            --dark-bg: #F5F8FA; /* Overall page background */
+            --border-color: #EBEEF0;
+            --red-heart: #E0245E; /* For liked posts */
+            --text-muted: #657786; /* For timestamps and secondary text */
+        }
+
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--dark-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--secondary-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        header p {
+            margin-top: 0.5rem;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* --- Main Content Area --- */
+        main {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        /* --- Post Creation Section --- */
+        .post-creator {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        #postContent {
+            width: calc(100% - 20px); /* Account for padding */
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+            box-sizing: border-box; /* Include padding in width */
+            font-family: inherit; /* Inherit font from body */
+        }
+
+        #postContent:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+        }
+
+        #postButton {
+            align-self: flex-end; /* Push button to the right */
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        #postButton:hover {
+            background-color: #0E77B8; /* Slightly darker blue */
+            transform: translateY(-1px);
+        }
+
+        #postButton:active {
+            transform: translateY(0);
+        }
+
+        /* --- Feed Section --- */
+        .feed {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .tweet-card {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .tweet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .tweet-author {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .tweet-time {
+            color: var(--text-muted);
+        }
+
+        .tweet-content {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+            word-wrap: break-word; /* Ensure long words break */
+        }
+
+        .tweet-actions {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            background-color: var(--light-gray);
+        }
+
+        .like-btn.liked {
+            color: var(--red-heart);
+            font-weight: bold;
+        }
+        .like-btn.liked:hover {
+            background-color: var(--light-gray); /* still allow hover effect */
+        }
+
+        /* --- Comments Section Styling --- */
+        .comments-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .comments-input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        .comment-input {
+            flex-grow: 1;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px rgba(29, 161, 242, 0.2);
+        }
+
+        .add-comment-btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-comment-btn:hover {
+            background-color: #0E77B8;
+        }
+
+        .comments-list {
+            margin-top: 10px;
+            max-height: 200px; /* Limit height for many comments */
+            overflow-y: auto; /* Scroll for many comments */
+            padding-right: 5px; /* Prevent scrollbar from overlapping content */
+        }
+
+        .comment {
+            background-color: var(--dark-bg);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            border: 1px solid var(--border-color);
+        }
+
+        .comment strong {
+            color: var(--primary-color);
+            margin-right: 5px;
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            main {
+                margin: 15px auto;
+                padding: 0 10px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            .tweet-card {
+                padding: 15px;
+            }
+
+            .tweet-content {
+                font-size: 1em;
+            }
+
+            .action-btn {
+                padding: 6px 10px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Microblog</h1>
+        <p>Share your thoughts with the world!</p>
+    </header>
+
+    <main>
+        <section class="post-creator">
+            <textarea id="postContent" placeholder="What's happening?" rows="4" maxlength="280"></textarea>
+            <button id="postButton">Post</button>
+        </section>
+
+        <section class="feed" id="tweetFeed">
+            <!-- Tweets will be dynamically loaded here by JavaScript -->
+        </section>
+    </main>
+
+    <script>
+        // --- Global Data Store ---
+        let tweets = []; // Array to store all tweet objects
+
+        // --- Helper Function to format date/time ---
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            if (seconds < 60) {
+                return seconds === 0 ? "just now" : `${seconds}s ago`;
+            }
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) {
+                return `${minutes}m ago`;
+            }
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) {
+                return `${hours}h ago`;
+            }
+            const days = Math.floor(hours / 24);
+            if (days < 30) {
+                return `${days}d ago`;
+            }
+            const months = Math.floor(days / 30);
+            if (months < 12) {
+                return `${months}mo ago`;
+            }
+            const years = Math.floor(months / 12);
+            return `${years}y ago`;
+        }
+
+        // --- Tweet Rendering Functions ---
+
+        /**
+         * Creates an HTML element for a single tweet.
+         * @param {Object} tweet - The tweet object.
+         * @returns {HTMLElement} The created tweet card element.
+         */
+        function createTweetElement(tweet) {
+            const tweetCard = document.createElement('div');
+            tweetCard.className = 'tweet-card';
+            tweetCard.dataset.tweetId = tweet.id; // Store ID for easy lookup
+
+            tweetCard.innerHTML = `
+                <div class="tweet-header">
+                    <span class="tweet-author">${tweet.author}</span>
+                    <span class="tweet-time">${formatTimeAgo(tweet.timestamp)}</span>
+                </div>
+                <p class="tweet-content">${tweet.content}</p>
+                <div class="tweet-actions">
+                    <button class="action-btn like-btn ${tweet.isLiked ? 'liked' : ''}" data-tweet-id="${tweet.id}">
+                        ❤️ <span class="like-count">${tweet.likes}</span>
+                    </button>
+                    <button class="action-btn comment-btn" data-tweet-id="${tweet.id}">
+                        💬 <span class="comment-count">${tweet.comments.length}</span>
+                    </button>
+                    <button class="action-btn retweet-btn" data-tweet-id="${tweet.id}">
+                        🔁 <span class="retweet-count">${tweet.retweets}</span>
+                    </button>
+                </div>
+                <div class="comments-section" style="display: none;">
+                    <div class="comments-input-area">
+                        <input type="text" class="comment-input" placeholder="Write a comment..." maxlength="140">
+                        <button class="add-comment-btn">Add</button>
+                    </div>
+                    <div class="comments-list">
+                        <!-- Comments will be rendered here -->
+                    </div>
+                </div>
+            `;
+
+            // Attach Event Listeners to interaction buttons
+            const likeBtn = tweetCard.querySelector('.like-btn');
+            likeBtn.addEventListener('click', () => handleLike(tweet.id));
+
+            const commentBtn = tweetCard.querySelector('.comment-btn');
+            commentBtn.addEventListener('click', () => toggleCommentsSection(tweet.id));
+
+            const retweetBtn = tweetCard.querySelector('.retweet-btn');
+            retweetBtn.addEventListener('click', () => handleRetweet(tweet.id));
+
+            const addCommentBtn = tweetCard.querySelector('.add-comment-btn');
+            // Using a closure to capture the comment input for this specific card
+            addCommentBtn.addEventListener('click', () => {
+                const commentInput = tweetCard.querySelector('.comment-input');
+                handleAddComment(tweet.id, commentInput);
+            });
+
+            // Render existing comments when the card is created
+            renderComments(tweet.id, tweetCard.querySelector('.comments-list'));
+
+            return tweetCard;
+        }
+
+        /**
+         * Renders the comments for a specific tweet into its comments list element.
+         * @param {number} tweetId - The ID of the tweet.
+         * @param {HTMLElement} commentsListElement - The DOM element where comments should be listed.
+         */
+        function renderComments(tweetId, commentsListElement) {
+            const tweet = tweets.find(t => t.id === tweetId);
+            if (!tweet || !commentsListElement) return;
+
+            commentsListElement.innerHTML = ''; // Clear previous comments
+
+            tweet.comments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                commentDiv.innerHTML = `<strong>${comment.author}:</strong> ${comment.text}`;
+                commentsListElement.appendChild(commentDiv);
+            });
+        }
+
+        /**
+         * Clears the feed and re-renders all tweets from the `tweets` array.
+         * Tweets are rendered in reverse chronological order (newest first).
+         */
+        function renderTweets() {
+            const tweetFeed = document.getElementById('tweetFeed');
+            tweetFeed.innerHTML = ''; // Clear existing feed
+
+            // Render tweets in reverse chronological order (newest first)
+            // Using spread operator to create a shallow copy for reversing, without modifying original 'tweets' array order
+            [...tweets].reverse().forEach(tweet => {
+                tweetFeed.appendChild(createTweetElement(tweet));
+            });
+        }
+
+        // --- Interaction Handlers ---
+
+        /**
+         * Handles the 'like' action for a tweet.
+         * Toggles the `isLiked` status and updates the like count.
+         * @param {number} tweetId - The ID of the tweet to like/unlike.
+         */
+        function handleLike(tweetId) {
+            const tweet = tweets.find(t => t.id === tweetId);
+            if (tweet) {
+                tweet.isLiked = !tweet.isLiked;
+                tweet.likes += tweet.isLiked ? 1 : -1;
+                renderTweets(); // Re-render the feed to update UI
+            }
+        }
+
+        /**
+         * Toggles the visibility of the comments section for a specific tweet.
+         * @param {number} tweetId - The ID of the tweet whose comments section to toggle.
+         */
+        function toggleCommentsSection(tweetId) {
+            const tweetCard = document.querySelector(`.tweet-card[data-tweet-id="${tweetId}"]`);
+            if (tweetCard) {
+                const commentsSection = tweetCard.querySelector('.comments-section');
+                commentsSection.style.display = commentsSection.style.display === 'none' || commentsSection.style.display === '' ? 'flex' : 'none';
+            }
+        }
+
+        /**
+         * Adds a new comment to a tweet.
+         * @param {number} tweetId - The ID of the tweet to add a comment to.
+         * @param {HTMLInputElement} commentInput - The input element containing the comment text.
+         */
+        function handleAddComment(tweetId, commentInput) {
+            const tweet = tweets.find(t => t.id === tweetId);
+            const commentText = commentInput.value.trim();
+
+            if (tweet && commentText) {
+                const newComment = {
+                    author: "You", // For simplicity, current user is "You"
+                    text: commentText,
+                    timestamp: new Date().toISOString()
+                };
+                tweet.comments.push(newComment);
+                commentInput.value = ''; // Clear input field
+
+                // Update comment count on the button and re-render comments list for this tweet
+                const tweetCard = document.querySelector(`.tweet-card[data-tweet-id="${tweetId}"]`);
+                if (tweetCard) {
+                    tweetCard.querySelector('.comment-count').textContent = tweet.comments.length;
+                    renderComments(tweetId, tweetCard.querySelector('.comments-list')); // Re-render only comments for this tweet
+                }
+            } else if (!commentText) {
+                alert("Please write a comment before adding!");
+            }
+        }
+
+        /**
+         * Handles the 'retweet' action for a tweet.
+         * Increments the retweet count.
+         * @param {number} tweetId - The ID of the tweet to retweet.
+         */
+        function handleRetweet(tweetId) {
+            const tweet = tweets.find(t => t.id === tweetId);
+            if (tweet) {
+                tweet.retweets++;
+                renderTweets(); // Re-render the feed to update UI
+            }
+        }
+
+        // --- Post New Tweet Functionality ---
+        const postButton = document.getElementById('postButton');
+        const postContent = document.getElementById('postContent');
+
+        postButton.addEventListener('click', () => {
+            const content = postContent.value.trim();
+            if (content) {
+                const newTweet = {
+                    id: Date.now(), // Unique ID based on timestamp
+                    author: "You", // Default author for new posts
+                    content: content,
+                    timestamp: new Date().toISOString(),
+                    likes: 0,
+                    comments: [],
+                    retweets: 0,
+                    isLiked: false
+                };
+                tweets.push(newTweet);
+                postContent.value = ''; // Clear the textarea
+                renderTweets(); // Update the feed with the new tweet
+            } else {
+                alert("Please enter some content to post!");
+            }
+        });
+
+        // --- Initial Data and Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sample tweets to pre-populate the feed
+            tweets = [
+                {
+                    id: 1,
+                    author: "Microblog Admin",
+                    content: "Welcome to My Microblog! Feel free to share your thoughts and interact with others. This is a great place to connect! 😊",
+                    timestamp: new Date(Date.now() - 3600 * 1000 * 2).toISOString(), // 2 hours ago
+                    likes: 5,
+                    comments: [
+                        { author: "You", text: "Great initiative!", timestamp: new Date(Date.now() - 3000 * 1000).toISOString() },
+                        { author: "User123", text: "Looks promising!", timestamp: new Date(Date.now() - 2500 * 1000).toISOString() }
+                    ],
+                    retweets: 2,
+                    isLiked: false
+                },
+                {
+                    id: 2,
+                    author: "Coding Enthusiast",
+                    content: "Just finished building a simple web app! It's so rewarding to see your code come to life. The debugging was tough but worth it! #webdev #coding #javascript",
+                    timestamp: new Date(Date.now() - 3600 * 1000 * 0.5).toISOString(), // 30 minutes ago
+                    likes: 12,
+                    comments: [
+                        { author: "Microblog Admin", text: "Awesome! What technologies did you use?", timestamp: new Date(Date.now() - 1500 * 1000).toISOString() },
+                        { author: "You", text: "Congrats! Share your repo!", timestamp: new Date(Date.now() - 1200 * 1000).toISOString() }
+                    ],
+                    retweets: 3,
+                    isLiked: true
+                },
+                {
+                    id: 3,
+                    author: "Thought Provoker",
+                    content: "The only true wisdom is in knowing you know nothing. - Socrates. A timeless quote that always makes me reflect on how much there is still to learn.",
+                    timestamp: new Date(Date.now() - 3600 * 1000 * 24).toISOString(), // 1 day ago
+                    likes: 8,
+                    comments: [],
+                    retweets: 1,
+                    isLiked: false
+                },
+                {
+                    id: 4,
+                    author: "Nature Lover",
+                    content: "Enjoying a beautiful sunset at the beach. Nature's artistry is truly breathtaking. Wishing everyone a peaceful evening! 🌅",
+                    timestamp: new Date(Date.now() - 3600 * 1000 * 48).toISOString(), // 2 days ago
+                    likes: 20,
+                    comments: [
+                        { author: "User123", text: "Looks stunning!", timestamp: new Date(Date.now() - 3600 * 1000 * 24 - 100000).toISOString() }
+                    ],
+                    retweets: 5,
+                    isLiked: false
+                }
+            ];
+
+            renderTweets(); // Populate the feed on page load
+        });
+    </script>
+</body>
+</html>

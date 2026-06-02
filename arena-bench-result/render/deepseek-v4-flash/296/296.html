@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绅履 · 手工商务鞋</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== 基础重置 & 全局 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #2d2d2d;
+            background-color: #fcfcfc;
+            line-height: 1.6;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        .section {
+            padding: 5rem 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2.5rem;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: #c9a961;
+            margin: 1rem auto 0;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #1e2a3a;
+            color: #fff;
+            padding: 0.9rem 2.5rem;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #c9a961;
+            color: #1e2a3a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: #c9a961;
+            color: #1e2a3a;
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            background: #b8954d;
+            color: #fff;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(30, 42, 58, 0.92);
+            backdrop-filter: blur(8px);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .navbar .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: #c9a961;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .navbar .logo span {
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #f0f0f0;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #c9a961;
+            border-bottom-color: #c9a961;
+        }
+
+        /* 汉堡菜单 */
+        .hamburger {
+            display: none;
+            font-size: 1.8rem;
+            color: #fff;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+            .nav-links {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(30, 42, 58, 0.98);
+                flex-direction: column;
+                align-items: center;
+                padding: 1.5rem 0;
+                gap: 1.2rem;
+                transform: scaleY(0);
+                transform-origin: top;
+                transition: transform 0.3s ease;
+                opacity: 0;
+                pointer-events: none;
+            }
+            .nav-links.active {
+                transform: scaleY(1);
+                opacity: 1;
+                pointer-events: auto;
+            }
+            .nav-links a {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* ===== 英雄区 ===== */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            background-attachment: fixed;
+            color: #fff;
+            padding: 0 2rem;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .hero h1 span {
+            color: #c9a961;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            font-weight: 300;
+            margin: 1.8rem 0 2.8rem;
+            opacity: 0.9;
+        }
+
+        .hero .btn {
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+
+        /* ===== 产品区 ===== */
+        .products {
+            background: #fff;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: #fafafa;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+
+        .product-card .img-wrap {
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .product-card .img-wrap img {
+            transition: transform 0.5s ease;
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        .product-card:hover .img-wrap img {
+            transform: scale(1.08);
+        }
+
+        .product-info {
+            padding: 1.5rem 1rem 2rem;
+        }
+
+        .product-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .product-info .price {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #1e2a3a;
+            margin: 0.5rem 0 1rem;
+        }
+
+        .product-info .price span {
+            color: #c9a961;
+        }
+
+        .product-info .btn {
+            font-size: 0.9rem;
+            padding: 0.7rem 2rem;
+        }
+
+        /* ===== 工艺区 ===== */
+        .craft {
+            background: linear-gradient(135deg, #f5f0eb 0%, #e8dfd6 100%);
+        }
+
+        .craft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .craft-item {
+            padding: 2rem 1rem;
+            background: rgba(255,255,255,0.7);
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+            transition: transform 0.3s;
+        }
+
+        .craft-item:hover {
+            transform: scale(1.03);
+        }
+
+        .craft-item i {
+            font-size: 2.8rem;
+            color: #c9a961;
+            margin-bottom: 1rem;
+        }
+
+        .craft-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .craft-item p {
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        /* ===== 评价区 ===== */
+        .testimonials {
+            background: #fcfcfc;
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: #fff;
+            padding: 2.2rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border-left: 4px solid #c9a961;
+        }
+
+        .testimonial-card i {
+            color: #c9a961;
+            font-size: 1.2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .testimonial-card p {
+            font-style: italic;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-card .author {
+            font-weight: 500;
+            color: #1e2a3a;
+        }
+
+        .testimonial-card .author span {
+            font-weight: 300;
+            color: #888;
+        }
+
+        /* ===== 行动号召区 ===== */
+        .cta {
+            background: #1e2a3a;
+            color: #fff;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 2.5rem;
+            opacity: 0.85;
+        }
+
+        .cta .btn {
+            background: #c9a961;
+            color: #1e2a3a;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .cta .btn:hover {
+            background: #fff;
+            color: #1e2a3a;
+        }
+
+        /* ===== 页脚 ===== */
+        .footer {
+            background: #141d29;
+            color: #bbb;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .footer .social a {
+            display: inline-block;
+            color: #bbb;
+            font-size: 1.5rem;
+            margin: 0 0.8rem;
+            transition: color 0.3s;
+        }
+
+        .footer .social a:hover {
+            color: #c9a961;
+        }
+
+        .footer p {
+            margin-top: 1.2rem;
+        }
+
+        .footer p i {
+            color: #c9a961;
+        }
+
+        /* ===== 回到顶部按钮 ===== */
+        #back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 48px;
+            height: 48px;
+            background: #c9a961;
+            color: #1e2a3a;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 999;
+        }
+
+        #back-to-top.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #back-to-top:hover {
+            background: #fff;
+            color: #c9a961;
+        }
+
+        /* ===== 响应式调整 ===== */
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <nav class="navbar" id="navbar">
+        <a href="#" class="logo">绅<span>履</span></a>
+        <button class="hamburger" id="hamburger" aria-label="菜单">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#hero">首页</a></li>
+            <li><a href="#products">精品</a></li>
+            <li><a href="#craft">工艺</a></li>
+            <li><a href="#testimonials">口碑</a></li>
+            <li><a href="#cta">尊享</a></li>
+        </ul>
+    </nav>
+
+    <!-- ===== 英雄区 ===== -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <h1>步履之间 <span>非凡</span> 质感</h1>
+            <p>每一针每一线，皆为匠心传承。精选顶级皮革，手工打造专属于您的大器之履。</p>
+            <a href="#products" class="btn btn-primary">探索系列</a>
+        </div>
+    </section>
+
+    <!-- ===== 产品区 ===== -->
+    <section class="products section" id="products">
+        <div class="container">
+            <h2 class="section-title">经典 · 系列</h2>
+            <div class="product-grid">
+                <!-- 产品卡 1 -->
+                <div class="product-card">
+                    <div class="img-wrap">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600&q=80" alt="牛津皮鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>温莎公爵 · 牛津鞋</h3>
+                        <p>手工擦色，小牛皮革</p>
+                        <div class="price"><span>¥</span>3,280</div>
+                        <a href="#" class="btn">立即购买</a>
+                    </div>
+                </div>
+                <!-- 产品卡 2 -->
+                <div class="product-card">
+                    <div class="img-wrap">
+                        <img src="https://images.unsplash.com/photo-1608236415407-36e4b325acd5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600&q=80" alt="德比皮鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>摄政王 · 德比鞋</h3>
+                        <p>固特异工艺，复古质感</p>
+                        <div class="price"><span>¥</span>2,980</div>
+                        <a href="#" class="btn">立即购买</a>
+                    </div>
+                </div>
+                <!-- 产品卡 3 -->
+                <div class="product-card">
+                    <div class="img-wrap">
+                        <img src="https://images.unsplash.com/photo-1560769629-975ec94e6a09?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600&q=80" alt="乐福皮鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>逍遥 · 乐福鞋</h3>
+                        <p>柔软舒适，马衔扣装饰</p>
+                        <div class="price"><span>¥</span>2,680</div>
+                        <a href="#" class="btn">立即购买</a>
+                    </div>
+                </div>
+                <!-- 产品卡 4 -->
+                <div class="product-card">
+                    <div class="img-wrap">
+                        <img src="https://images.unsplash.com/photo-1608346128025-1896b2b0a0e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=600&q=80" alt="布洛克皮鞋">
+                    </div>
+                    <div class="product-info">
+                        <h3>绅士 · 布洛克鞋</h3>
+                        <p>雕花工艺，优雅典范</p>
+                        <div class="price"><span>¥</span>3,580</div>
+                        <a href="#" class="btn">立即购买</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 工艺区 ===== -->
+    <section class="craft section" id="craft">
+        <div class="container">
+            <h2 class="section-title">百年 · 匠心</h2>
+            <div class="craft-grid">
+                <div class="craft-item">
+                    <i class="fas fa-hand-holding-heart"></i>
+                    <h3>手工缝制</h3>
+                    <p>由经验丰富的匠人一针一线缝制，每双鞋耗时72小时以上。</p>
+                </div>
+                <div class="craft-item">
+                    <i class="fas fa-leaf"></i>
+                    <h3>精选皮料</h3>
+                    <p>只选用意大利进口小牛皮，自然粒面，透气耐用。</p>
+                </div>
+                <div class="craft-item">
+                    <i class="fas fa-crown"></i>
+                    <h3>固特异工艺</h3>
+                    <p>采用固特异沿条结构，可换底，一双鞋陪伴二十年。</p>
+                </div>
+                <div class="craft-item">
+                    <i class="fas fa-feather-alt"></i>
+                    <h3>舒适科技</h3>
+                    <p>内置记忆棉鞋垫与天然软木层，行走如履云端。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 评价区 ===== -->
+    <section class="testimonials section" id="testimonials">
+        <div class="container">
+            <h2 class="section-title">真诚 · 赞誉</h2>
+            <div class="testimonial-grid">
+                <div class="testimonial-card">
+                    <i class="fas fa-quote-left"></i>
+                    <p>“这双牛津鞋的皮质和做工完全超出了我的预期，穿上它走进会议室，自信感油然而生。” </p>
+                    <div class="author">陈 先生 <span>丨 金融行业 高管</span></div>
+                </div>
+                <div class="testimonial-card">
+                    <i class="fas fa-quote-left"></i>
+                    <p>“一向挑剔的我被它的细节征服了。鞋底的缝线、皮边处理都透着高级感，值得收藏。”</p>
+                    <div class="author">李 先生 <span>丨 绅士品位 主理人</span></div>
+                </div>
+                <div class="testimonial-card">
+                    <i class="fas fa-quote-left"></i>
+                    <p>“从第一双到现在已经买了四双，每一双都是艺术品。固特异工艺让我再也不用频繁换鞋。”</p>
+                    <div class="author">王 先生 <span>丨 企业创始人</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== 行动号召区 ===== -->
+    <section class="cta section" id="cta">
+        <div class="container">
+            <h2>尊享手工定制</h2>
+            <p>即刻预约专属量脚服务，感受百年匠艺与当代设计的完美融合。</p>
+            <a href="#" class="btn">预约体验</a>
+        </div>
+    </section>
+
+    <!-- ===== 页脚 ===== -->
+    <footer class="footer">
+        <div class="social">
+            <a href="#" aria-label="微信"><i class="fab fa-weixin"></i></a>
+            <a href="#" aria-label="微博"><i class="fab fa-weibo"></i></a>
+            <a href="#" aria-label="小红书"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="抖音"><i class="fab fa-tiktok"></i></a>
+        </div>
+        <p>&copy; 2025 绅履 · 手工商务鞋   |   <i class="fas fa-heart"></i>  匠心出品</p>
+    </footer>
+
+    <!-- ===== 回到顶部按钮 ===== -->
+    <button id="back-to-top" aria-label="回到顶部"><i class="fas fa-chevron-up"></i></button>
+
+    <!-- ===== JavaScript ===== -->
+    <script>
+        // 汉堡菜单切换
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            navLinks.classList.toggle('active');
+            // 切换图标
+            const icon = this.querySelector('i');
+            if (navLinks.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+
+        // 点击导航链接后关闭菜单（移动端）
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                const icon = hamburger.querySelector('i');
+                icon.className = 'fas fa-bars';
+            });
+        });
+
+        // 点击页面其他区域关闭菜单
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.navbar')) {
+                navLinks.classList.remove('active');
+                const icon = hamburger.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            }
+        });
+
+        // 回到顶部按钮显示/隐藏
+        const backToTop = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 500) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+
+        backToTop.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 平滑滚动（原生scroll-behavior已支持，但兜底对于部分浏览器）
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === '#') return;
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // 购买按钮点击提示（演示用途）
+        document.querySelectorAll('.product-card .btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('感谢您的青睐！此系列为手工定制款，请联系专属顾问选购。');
+            });
+        });
+
+        // CTA按钮提示
+        document.querySelector('.cta .btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('请拨打贵宾专线 400-888-8888 或前往线下体验店预约。');
+        });
+    </script>
+</body>
+</html>

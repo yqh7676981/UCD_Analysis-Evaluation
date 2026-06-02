@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars Weather Updates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #0b3d91, #305085, #1e1e24);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #weather-container {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        }
+        .info {
+            margin: 15px 0;
+            font-size: 1.2rem;
+        }
+        button {
+            background-color: #ff4500;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #e03e00;
+        }
+        #loading {
+            display: none;
+            font-style: italic;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mars Weather Updates</h1>
+    <div id="weather-container">
+        <div id="temperature" class="info">Temperature: -- °C</div>
+        <div id="wind" class="info">Wind Speed: -- m/s</div>
+        <div id="atmosphere" class="info">Atmosphere: --</div>
+        <button id="update-weather">Update Weather</button>
+        <div id="loading">Fetching data...</div>
+    </div>
+
+    <script>
+        const temperatureEl = document.getElementById('temperature');
+        const windEl = document.getElementById('wind');
+        const atmosphereEl = document.getElementById('atmosphere');
+        const updateButton = document.getElementById('update-weather');
+        const loadingEl = document.getElementById('loading');
+        
+        // Mock Mars weather data (in a real app, fetch from an API)
+        const mockGetMarsWeather = () => {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        temperature: Math.round((Math.random() * 100 - 50) * 10) / 10, // Random -50 to +50 C
+                        windSpeed: Math.round(Math.random() * 20 * 10) / 10, // Random 0 to 20 m/s
+                        atmosphere: ['Clear', 'Thin', 'Dusty'][Math.floor(Math.random() * 3)]
+                    });
+                }, 1500);
+            });
+        };
+
+        async function updateWeather() {
+            loadingEl.style.display = 'block';
+            try {
+                const data = await mockGetMarsWeather();
+                temperatureEl.textContent = `Temperature: ${data.temperature} °C`;
+                windEl.textContent = `Wind Speed: ${data.windSpeed} m/s`;
+                atmosphereEl.textContent = `Atmosphere: ${data.atmosphere}`;
+            } catch (e) {
+                alert('Failed to fetch weather data');
+            } finally {
+                loadingEl.style.display = 'none';
+            }
+        }
+
+        updateButton.addEventListener('click', updateWeather);
+    </script>
+</body>
+</html>

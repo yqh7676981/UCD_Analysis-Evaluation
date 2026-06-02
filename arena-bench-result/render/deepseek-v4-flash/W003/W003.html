@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>番茄计时器</title>
+    <style>
+        /* ========== CSS 变量 ========== */
+        :root {
+            --work-hue: 12;
+            --work-sat: 80%;
+            --work-lit: 55%;
+            --work-color: hsl(var(--work-hue), var(--work-sat), var(--work-lit));
+            --work-light: hsl(var(--work-hue), var(--work-sat), 92%);
+            --work-dark: hsl(var(--work-hue), 60%, 25%);
+
+            --break-hue: 182;
+            --break-sat: 60%;
+            --break-lit: 42%;
+            --break-color: hsl(var(--break-hue), var(--break-sat), var(--break-lit));
+            --break-light: hsl(var(--break-hue), 50%, 90%);
+            --break-dark: hsl(var(--break-hue), 50%, 20%);
+
+            --bg: #F7F2ED;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --card-border: rgba(255, 255, 255, 0.5);
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            --text: #2B2D42;
+            --text-secondary: #6B6F82;
+            --radius: 32px;
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --mono: "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, monospace;
+        }
+
+        /* ========== Reset & Base ========== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: -webkit-fill-available;
+            padding: 16px;
+            background: linear-gradient(145deg, #F7F2ED 0%, #EDE5DC 100%);
+            background-attachment: fixed;
+        }
+
+        /* ========== Container ========== */
+        .container {
+            width: 100%;
+            max-width: 420px;
+            min-height: 600px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--card-border);
+            padding: 24px 20px 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ========== 顶部状态栏 ========== */
+        .header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+        }
+
+        .date-info {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+        }
+
+        .pomodoro-count {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px 14px 4px 10px;
+            border-radius: 100px;
+        }
+
+        .pomodoro-count .icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .pomodoro-count .num {
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* ========== 计时器主体 ========== */
+        .timer-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 16px 0 8px;
+            position: relative;
+        }
+
+        .timer-circle {
+            position: relative;
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-circle svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle .bg-ring {
+            fill: none;
+            stroke: rgba(0, 0, 0, 0.06);
+            stroke-width: 6;
+        }
+
+        .timer-circle .progress-ring {
+            fill: none;
+            stroke: var(--work-color);
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-dasharray: 628.32;
+            stroke-dashoffset: 0;
+            transition: stroke 0.6s ease, stroke-dashoffset 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .timer-circle .progress-ring.break-mode {
+            stroke: var(--break-color);
+        }
+
+        .timer-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .timer-content .time {
+            font-family: var(--mono);
+            font-size: clamp(3rem, 15vw, 4.8rem);
+            font-weight: 700;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            letter-spacing: 2px;
+            color: var(--text);
+            transition: color 0.4s ease;
+        }
+
+        .timer-content .label {
+            font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 8px;
+            padding: 4px 16px;
+            border-radius: 100px;
+            transition: background 0.4s ease, color 0.4s ease;
+            color: var(--work-color);
+            background: var(--work-light);
+        }
+
+        .timer-content .label.break-label {
+            color: var(--break-color);
+            background: var(--break-light);
+        }
+
+        /* ========== 模式过渡消息 ========== */
+        .mode-flash {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: white;
+            background: var(--work-color);
+            padding: 16px 32px;
+            border-radius: 20px;
+            opacity: 1; /* fixed: was 0 */
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 10;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
+        }
+
+        .mode-flash.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: none;
+        }
+
+        .mode-flash.break-flash {
+            background: var(--break-color);
+        }
+
+        /* ========== 控制按钮 ========== */
+        .controls {
+            width: 100%;
+            display: flex;
+            gap: 14px;
+            padding-top: 16px;
+            flex-shrink: 0;
+            justify-content: center;
+        }
+
+        .btn {
+            flex: 1;
+            max-width: 180px;
+            height: 56px;
+            border: none;
+            border-radius: 16px;
+            font-family: var(--font);
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: var(--work-color);
+            color: white;
+            box-shadow: 0 4px 16px hsla(var(--work-hue), var(--work-sat), var(--work-lit), 0.35);
+        }
+
+        .btn-primary:active {
+            box-shadow: 0 2px 8px hsla(var(--work-hue), var(--work-sat), var(--work-lit), 0.25);
+        }
+
+        .btn-primary.break-btn {
+            background: var(--break-color);
+            box-shadow: 0 4px 16px hsla(var(--break-hue), var(--break-sat), var(--break-lit), 0.35);
+        }
+
+        .btn-primary.break-btn:active {
+            box-shadow: 0 2px 8px hsla(var(--break-hue), var(--break-sat), var(--break-lit), 0.25);
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-secondary);
+            box-shadow: none;
+        }
+
+        .btn-secondary:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            transform: none !important;
+            pointer-events: none;
+        }
+
+        .btn .icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* ========== 底部状态 ========== */
+        .footer {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 18px;
+            margin-top: 12px;
+            border-top: 1px solid rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+        }
+
+        .footer .mode-status {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer .mode-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background 0.4s ease;
+            background: var(--work-color);
+        }
+
+        .footer .mode-status .dot.break-dot {
+            background: var(--break-color);
+        }
+
+        .footer .count-today {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .footer .count-today span {
+            font-weight: 700;
+            color: var(--text);
+            font-feature-settings: "tnum";
+        }
+
+        /* ========== 动画 ========== */
+        @keyframes pulse-ring {
+            0%,
+            100% {
+                stroke-opacity: 1;
+            }
+            50% {
+                stroke-opacity: 0.6;
+            }
+        }
+
+        .timer-circle .progress-ring.running {
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        /* ========== 完成庆祝 ========== */
+        @keyframes celebrate {
+            0% {
+                transform: scale(1);
+            }
+            30% {
+                transform: scale(1.04);
+            }
+            60% {
+                transform: scale(0.98);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .container.celebrate .timer-circle {
+            animation: celebrate 0.5s ease;
+        }
+
+        .container.celebrate {
+            animation: celebrate 0.5s ease;
+        }
+
+        /* ========== 响应式适配 ========== */
+        @media (max-width: 420px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 18px 16px 24px;
+                border-radius: 24px;
+                min-height: 560px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                height: 50px;
+                font-size: 15px;
+                border-radius: 14px;
+                max-width: 160px;
+            }
+
+            .timer-content .time {
+                font-size: clamp(2.6rem, 14vw, 3.8rem);
+            }
+
+            .timer-content .label {
+                font-size: clamp(0.75rem, 3vw, 0.95rem);
+                letter-spacing: 3px;
+                margin-top: 6px;
+                padding: 3px 14px;
+            }
+
+            .mode-flash {
+                font-size: 1.1rem;
+                padding: 12px 24px;
+                border-radius: 16px;
+                white-space: normal;
+                max-width: 80%;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                padding: 14px 12px 20px;
+                min-height: 480px;
+                border-radius: 20px;
+            }
+
+            .btn {
+                height: 46px;
+                font-size: 14px;
+                border-radius: 12px;
+                max-width: 140px;
+            }
+
+            .timer-content .time {
+                font-size: clamp(2.2rem, 12vw, 3rem);
+            }
+
+            .header .pomodoro-count {
+                font-size: 13px;
+                padding: 3px 10px 3px 8px;
+            }
+
+            .header .date-info {
+                font-size: 11px;
+            }
+        }
+
+        @media (min-width: 421px) {
+            .container {
+                padding: 32px 28px 36px;
+            }
+        }
+
+        /* 安全区域适配 */
+        @supports (padding: env(safe-area-inset-top)) {
+            body {
+                padding-left: calc(16px + env(safe-area-inset-left));
+                padding-right: calc(16px + env(safe-area-inset-right));
+                padding-top: calc(16px + env(safe-area-inset-top));
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+        }
+
+        /* 暗色模式适配 - 可选优雅降级 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1C1B1F;
+                --card-bg: rgba(40, 39, 44, 0.92);
+                --card-border: rgba(255, 255, 255, 0.06);
+                --text: #E6E1E8;
+                --text-secondary: #9D95A6;
+                --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            }
+
+            .timer-circle .bg-ring {
+                stroke: rgba(255, 255, 255, 0.08);
+            }
+
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--text-secondary);
+            }
+
+            .btn-secondary:active {
+                background: rgba(255, 255, 255, 0.14);
+            }
+
+            .header {
+                border-bottom-color: rgba(255, 255, 255, 0.06);
+            }
+
+            .footer {
+                border-top-color: rgba(255, 255, 255, 0.06);
+            }
+
+            .pomodoro-count {
+                background: rgba(255, 255, 255, 0.08);
+            }
+
+            .timer-content .label {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .timer-content .label.break-label {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .container {
+                background: var(--card-bg);
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(30px);
+            }
+
+            body {
+                background: linear-gradient(145deg, #1C1B1F 0%, #2A272E 100%);
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <div class="container" id="app" role="main" aria-label="番茄工作法计时器">
+
+        <!-- ===== 顶部 ===== -->
+        <header class="header">
+            <span class="date-info" id="dateDisplay"></span>
+            <div class="pomodoro-count">
+                <span class="icon">🍅</span>
+                <span class="num" id="countDisplay">0</span>
+            </div>
+        </header>
+
+        <!-- ===== 计时器 ===== -->
+        <div class="timer-wrapper">
+            <div class="timer-circle" id="timerCircle">
+                <svg viewBox="0 0 220 220" aria-hidden="true">
+                    <circle class="bg-ring" cx="110" cy="110" r="100" />
+                    <circle class="progress-ring" id="progressRing" cx="110" cy="110" r="100" />
+                </svg>
+                <div class="timer-content">
+                    <span class="time" id="timeDisplay">25:00</span>
+                    <span class="label" id="modeLabel">WORK</span>
+                </div>
+            </div>
+            <!-- 模式切换提示 -->
+            <div class="mode-flash" id="modeFlash"></div>
+        </div>
+
+        <!-- ===== 控制按钮 ===== -->
+        <div class="controls">
+            <button class="btn btn-primary" id="mainBtn" aria-label="开始计时">
+                <span class="icon">▶</span>
+                <span id="mainBtnText">开始</span>
+            </button>
+            <button class="btn btn-secondary" id="resetBtn" aria-label="重置计时器">
+                <span class="icon">↻</span>
+                <span>重置</span>
+            </button>
+        </div>
+
+        <!-- ===== 底部 ===== -->
+        <footer class="footer">
+            <div class="mode-status">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">工作中</span>
+            </div>
+            <div class="count-today">
+                今日完成 <span id="footerCount">0</span> 个
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== 常量 =====
+            const WORK_TIME = 25 * 60; // 1500 秒
+            const BREAK_TIME = 5 * 60; // 300 秒
+            const CIRCUMFERENCE = 2 * Math.PI * 100; // ~628.32
+
+            const STATE = {
+                IDLE: 'idle',
+                RUNNING: 'running',
+                PAUSED: 'paused',
+                FINISHED: 'finished'
+            };
+
+            const MODE = {
+                WORK: 'work',
+                BREAK: 'break'
+            };
+
+            // ===== DOM 引用 =====
+            const app = document.getElementById('app');
+            const timeDisplay = document.getElementById('timeDisplay');
+            const modeLabel = document.getElementById('modeLabel');
+            const progressRing = document.getElementById('progressRing');
+            const mainBtn = document.getElementById('mainBtn');
+            const mainBtnText = document.getElementById('mainBtnText');
+            const resetBtn = document.getElementById('resetBtn');
+            const countDisplay = document.getElementById('countDisplay');
+            const footerCount = document.getElementById('footerCount');
+            const dateDisplay = document.getElementById('dateDisplay');
+            const statusText = document.getElementById('statusText');
+            const statusDot = document.getElementById('statusDot');
+            const modeFlash = document.getElementById('modeFlash');
+            const timerCircle = document.getElementById('timerCircle');
+
+            // ===== 状态 =====
+            let state = STATE.IDLE;
+            let mode = MODE.WORK;
+            let timeRemaining = WORK_TIME;
+            let timerEnd = null;
+            let timerInterval = null;
+            let todayCount = 0;
+            let flashTimeout = null;
+            let celebrateTimeout = null;
+
+            // ===== 初始化进度环 =====
+            progressRing.style.strokeDasharray = CIRCUMFERENCE;
+            progressRing.style.strokeDashoffset = 0;
+
+            // ===== 工具函数 =====
+            function formatTime(seconds) {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }
+
+            function getTodayKey() {
+                const d = new Date();
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `pomodoro_${y}-${m}-${day}`;
+            }
+
+            function getTodayDateString() {
+                const d = new Date();
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${y} 年 ${m} 月 ${day} 日`;
+            }
+
+            function loadTodayCount() {
+                try {
+                    const key = getTodayKey();
+                    const val = localStorage.getItem(key);
+                    todayCount = val ? parseInt(val, 10) : 0;
+                    if (isNaN(todayCount) || todayCount < 0) todayCount = 0;
+                } catch (e) {
+                    todayCount = 0;
+                }
+                updateCountDisplay();
+            }
+
+            function saveTodayCount() {
+                try {
+                    const key = getTodayKey();
+                    localStorage.setItem(key, String(todayCount));
+                } catch (e) {
+                    // 静默失败
+                }
+                updateCountDisplay();
+            }
+
+            function updateCountDisplay() {
+                countDisplay.textContent = todayCount;
+                footerCount.textContent = todayCount;
+            }
+
+            // ===== 音频提示 =====
+            function playBeep() {
+                try {
+                    const ctx = new(window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.value = 880;
+                    osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.6);
+
+                    // 第二声
+                    const osc2 = ctx.createOscillator();
+                    const gain2 = ctx.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(ctx.destination);
+                    osc2.frequency.value = 1108;
+                    osc2.type = 'sine';
+                    gain2.gain.setValueAtTime(0.3, ctx.currentTime + 0.2);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+                    osc2.start(ctx.currentTime + 0.2);
+                    osc2.stop(ctx.currentTime + 0.8);
+                } catch (e) {
+                    // 静默降级
+                }
+            }
+
+            function vibrateDevice() {
+                try {
+                    if (navigator.vibrate) {
+                        navigator.vibrate([200, 100, 200]);
+                    }
+                } catch (e) {
+                    // 静默降级
+                }
+            }
+
+            // ===== 模式切换 =====
+            function switchMode(newMode) {
+                const oldMode = mode;
+                mode = newMode;
+
+                // 更新进度环颜色
+                if (mode === MODE.BREAK) {
+                    progressRing.classList.add('break-mode');
+                    modeLabel.classList.add('break-label');
+                    statusDot.classList.add('break-dot');
+                    mainBtn.classList.add('break-btn');
+                } else {
+                    progressRing.classList.remove('break-mode');
+                    modeLabel.classList.remove('break-label');
+                    statusDot.classList.remove('break-dot');
+                    mainBtn.classList.remove('break-btn');
+                }
+
+                // 更新标签文字
+                if (mode === MODE.WORK) {
+                    modeLabel.textContent = 'WORK';
+                    statusText.textContent = '工作中';
+                } else {
+                    modeLabel.textContent = 'BREAK';
+                    statusText.textContent = '休息中';
+                }
+
+                // 更新计时器颜色 (CSS 变量)
+                updateRingColor();
+
+                // 如果模式有变且不是初始化，显示闪屏
+                if (oldMode !== newMode && state !== STATE.FINISHED) {
+                    showModeFlash(mode === MODE.WORK ? '🍅 工作时间' : '☕ 休息时间');
+                }
+            }
+
+            function updateRingColor() {
+                const color = mode === MODE.WORK ?
+                    getComputedStyle(document.documentElement).getPropertyValue('--work-color').trim() :
+                    getComputedStyle(document.documentElement).getPropertyValue('--break-color').trim();
+                // progressRing 颜色通过 class 控制，这里不需要额外操作
+            }
+
+            // ===== 闪屏提示 =====
+            function showModeFlash(text) {
+                if (flashTimeout) {
+                    clearTimeout(flashTimeout);
+                    modeFlash.classList.remove('show');
+                }
+                modeFlash.textContent = text;
+                modeFlash.className = 'mode-flash';
+                if (mode === MODE.BREAK) {
+                    modeFlash.classList.add('break-flash');
+                }
+                // 强制回流后添加 show
+                void modeFlash.offsetWidth;
+                modeFlash.classList.add('show');
+
+                flashTimeout = setTimeout(() => {
+                    modeFlash.classList.remove('show');
+                    flashTimeout = null;
+                }, 1800);
+            }
+
+            // ===== 计时器完成 =====
+            function handleTimerComplete() {
+                state = STATE.FINISHED;
+                clearInterval(timerInterval);
+                timerInterval = null;
+
+                // 播放提示
+                playBeep();
+                vibrateDevice();
+
+                // 完成庆祝动画
+                app.classList.add('celebrate');
+                if (celebrateTimeout) clearTimeout(celebrateTimeout);
+                celebrateTimeout = setTimeout(() => {
+                    app.classList.remove('celebrate');
+                    celebrateTimeout = null;
+                }, 600);
+
+                if (mode === MODE.WORK) {
+                    // 工作完成：记录番茄
+                    todayCount++;
+                    saveTodayCount();
+                    showModeFlash('🎉 完成！休息一下吧');
+                    // 切换到休息
+                    switchMode(MODE.BREAK);
+                    timeRemaining = BREAK_TIME;
+                } else {
+                    // 休息完成
+                    showModeFlash('⏰ 休息结束！开始工作');
+                    switchMode(MODE.WORK);
+                    timeRemaining = WORK_TIME;
+                }
+
+                // 重置状态为 IDLE
+                state = STATE.IDLE;
+                timerEnd = null;
+                updateDisplay();
+                updateButtonState();
+            }
+
+            // ===== 更新显示 =====
+            function updateDisplay() {
+                // 更新时间
+                timeDisplay.textContent = formatTime(timeRemaining);
+
+                // 更新进度环
+                const totalTime = (mode === MODE.WORK) ? WORK_TIME : BREAK_TIME;
+                const progress = totalTime > 0 ? timeRemaining / totalTime : 0;
+                const offset = CIRCUMFERENCE * (1 - progress);
+                progressRing.style.strokeDashoffset = offset;
+
+                // 更新模式（已经由 switchMode 处理）
+                // 但需要确保标签正确
+                if (mode === MODE.WORK) {
+                    modeLabel.textContent = 'WORK';
+                    statusText.textContent = '工作中';
+                } else {
+                    modeLabel.textContent = 'BREAK';
+                    statusText.textContent = '休息中';
+                }
+            }
+
+            // ===== 按钮状态 =====
+            function updateButtonState() {
+                const mainIcon = mainBtn.querySelector('.icon');
+                switch (state) {
+                    case STATE.IDLE:
+                        mainBtnText.textContent = '开始';
+                        mainIcon.textContent = '▶';
+                        mainBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        break;
+                    case STATE.RUNNING:
+                        mainBtnText.textContent = '暂停';
+                        mainIcon.textContent = '⏸';
+                        mainBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        break;
+                    case STATE.PAUSED:
+                        mainBtnText.textContent = '继续';
+                        mainIcon.textContent = '▶';
+                        mainBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        break;
+                    case STATE.FINISHED:
+                        mainBtnText.textContent = '开始';
+                        mainIcon.textContent = '▶';
+                        mainBtn.disabled = false;
+                        resetBtn.disabled = false;
+                        break;
+                    default:
+                        break;
+                }
+
+                // 根据模式调整主按钮样式
+                if (mode === MODE.BREAK) {
+                    mainBtn.classList.add('break-btn');
+                } else {
+                    mainBtn.classList.remove('break-btn');
+                }
+            }
+
+            // ===== 计时器心跳 =====
+            function tick() {
+                if (!timerEnd) return;
+                const now = Date.now();
+                const remaining = Math.max(0, Math.ceil((timerEnd - now) / 1000));
+
+                if (remaining <= 0) {
+                    timeRemaining = 0;
+                    updateDisplay();
+                    handleTimerComplete();
+                    return;
+                }
+
+                timeRemaining = remaining;
+                updateDisplay();
+            }
+
+            // ===== 控制函数 =====
+            function startTimer() {
+                if (state === STATE.IDLE || state === STATE.PAUSED || state === STATE.FINISHED) {
+                    // 如果已经完成或 idle，确保 timeRemaining 正确
+                    if (state === STATE.FINISHED || state === STATE.IDLE) {
+                        // 如果 timeRemaining 为 0 或者不匹配，重置为当前模式的全时
+                        const total = (mode === MODE.WORK) ? WORK_TIME : BREAK_TIME;
+                        if (timeRemaining <= 0 || timeRemaining > total) {
+                            timeRemaining = total;
+                        }
+                    }
+
+                    state = STATE.RUNNING;
+                    timerEnd = Date.now() + timeRemaining * 1000;
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(tick, 100);
+                    updateDisplay();
+                    updateButtonState();
+
+                    // 添加运行动画
+                    progressRing.classList.add('running');
+                }
+            }
+
+            function pauseTimer() {
+                if (state === STATE.RUNNING) {
+                    state = STATE.PAUSED;
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    // 精确计算剩余时间
+                    const now = Date.now();
+                    timeRemaining = Math.max(0, Math.ceil((timerEnd - now) / 1000));
+                    timerEnd = null;
+                    updateDisplay();
+                    updateButtonState();
+                    progressRing.classList.remove('running');
+                }
+            }
+
+            function resetTimer() {
+                // 清除运行状态
+                clearInterval(timerInterval);
+                timerInterval = null;
+                timerEnd = null;
+                progressRing.classList.remove('running');
+
+                // 重置为当前模式的完整时间
+                if (mode === MODE.WORK) {
+                    timeRemaining = WORK_TIME;
+                } else {
+                    timeRemaining = BREAK_TIME;
+                }
+
+                state = STATE.IDLE;
+                updateDisplay();
+                updateButtonState();
+
+                // 取消庆祝
+                app.classList.remove('celebrate');
+                if (celebrateTimeout) {
+                    clearTimeout(celebrateTimeout);
+                    celebrateTimeout = null;
+                }
+            }
+
+            function toggleMain() {
+                if (state === STATE.RUNNING) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            }
+
+            // ===== 事件绑定 =====
+            mainBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                toggleMain();
+            });
+
+            resetBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                resetTimer();
+            });
+
+            // 触摸优化：防止双击缩放
+            document.addEventListener('dblclick', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            // ===== 初始化 =====
+            function init() {
+                // 日期
+                dateDisplay.textContent = getTodayDateString();
+
+                // 加载今日计数
+                loadTodayCount();
+
+                // 设置初始模式
+                switchMode(MODE.WORK);
+                timeRemaining = WORK_TIME;
+                state = STATE.IDLE;
+                updateDisplay();
+                updateButtonState();
+
+                // 额外检查：如果 localStorage 不可用，计数仍为 0
+                console.log('🍅 番茄计时器已加载 | 今日完成:', todayCount);
+            }
+
+            init();
+
+            // ===== 页面可见性变化：保持时间准确 =====
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // 页面隐藏，不需要特殊处理，setInterval 可能会被节流
+                    // 但我们在 tick 中基于 Date.now() 计算，所以恢复时自动修正
+                } else {
+                    // 页面可见，如果正在运行，强制刷新一次
+                    if (state === STATE.RUNNING && timerEnd) {
+                        tick();
+                    }
+                }
+            });
+
+            // ===== 窗口尺寸变化 =====
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    // 什么都不做，只是防抖
+                }, 200);
+            });
+
+        })();
+    </script>
+
+</body>
+</html>

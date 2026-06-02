@@ -1,0 +1,33 @@
+{
+  "index": 57,
+  "id": "U006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做个今晚吃啥的抽签小工具，我可以自己加候选餐厅或菜品,点一下按钮随机抽一个,带个简单的转盘动画。",
+  "evaluation": {
+    "total_score": 41,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The page has a simple, coherent single-purpose style: centered title, roulette wheel, and one CTA. However, the visual language is very basic, with default-looking typography, flat pastel slices, and a generic orange accent. It lacks a stronger product character or a more polished mobile tool feel."
+      },
+      "local_details": {
+        "score": 4,
+        "reason": "Element craftsmanship is uneven. The wheel labels appear rotated awkwardly and are not equally readable across slices. Text hierarchy is minimal, spacing is acceptable but sparse, and the button looks serviceable rather than refined. There is little evidence of detailed component finishing or state design."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can immediately see the main purpose: pick what to eat by tapping the button. The layout is uncluttered and the primary action is obvious. But there is no visible pointer or result area, no candidate-management area, and much of the screen is empty while key supporting information is missing."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The core interaction is partly understandable, but the requested task is not fully supported in the visible interface. There is no visible way to add or edit restaurant/dish candidates, and no clear indicator showing how the wheel determines the selected item. Without a pointer, result state, or management controls, users must infer too much."
+      }
+    },
+    "summary": "This is a recognizable but very minimal random dinner picker. Its strongest quality is immediate simplicity: users see a wheel and a draw button. The hard cap comes from scenario incompleteness and semantic ambiguity: the requested self-added candidates are missing from the visible UI, and the wheel lacks a clear selection indicator or result feedback. Usable as a rough demo, but not a complete or polished mobile tool."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/U006_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:27:05.651237"
+}

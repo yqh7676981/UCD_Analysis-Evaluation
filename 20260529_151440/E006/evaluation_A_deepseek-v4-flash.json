@@ -1,0 +1,33 @@
+{
+  "index": 148,
+  "id": "E006",
+  "group": "A",
+  "class": "Mobile",
+  "model": "deepseek-v4-flash",
+  "question": "做一个产品经理岗位的模拟面试工具，预置 8 个常见面试问题，答完一题进入下一题，最后生成简单评估。",
+  "evaluation": {
+    "total_score": 64,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "Style is coherent and calm for a mobile quiz tool: soft blue accent, rounded cards, and consistent light surfaces. However, it is visually generic, lacks a strong focal point or product-specific personality, and the large empty lower area makes the page feel unfinished."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography is readable, option cards are aligned, spacing is mostly consistent, and the progress bar/button follow the same visual language. But contrast is somewhat weak in secondary text and the disabled-looking primary button style reduces perceived completion quality."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly identify the title, progress, question, options, and main CTA in a simple top-to-bottom flow. Still, the selected state is not visible in the screenshot, the CTA is visually low-emphasis despite being primary, and too much blank space reduces density efficiency on mobile."
+      },
+      "easy_to_understand": {
+        "score": 6,
+        "reason": "The quiz pattern is familiar and the labels '第 1 / 8 题' and '提交并下一题' communicate the main flow clearly. But the interface reads more like a multiple-choice test than a simulated interview tool, and there is no visible feedback/state guidance for answering, advancing, or final evaluation expectations."
+      }
+    },
+    "summary": "This is a usable but basic mobile quiz interface. It succeeds at simple question answering with clear sequencing and acceptable visual consistency, but it falls short of a richer '模拟面试工具' experience: there is no visible interview framing, answer state feedback, or evaluation-related affordance, and the primary action lacks emphasis. The result feels competent but generic, with enough clarity to complete the task yet not enough polish or scenario-fit to score higher."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/E006_A_deepseek-v4-flash/screenshot_mobile.png",
+  "time": "2026-05-29T15:50:07.690632"
+}

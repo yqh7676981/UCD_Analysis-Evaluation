@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibrant To-Do List</title>
+    <!-- Optionally, you can link to Google Fonts for more specific typography.
+         For a fully self-contained file, we'll stick to system fonts.
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    -->
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Arial', sans-serif; /* Fallback font */
+            background: linear-gradient(135deg, #FF6B6B, #FFD166, #06D6A0, #118AB2, #073B4C); /* Vibrant gradient */
+            background-size: 400% 400%; /* For animating the gradient */
+            animation: gradientAnimation 15s ease infinite; /* Smooth, continuous background animation */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Keyframes for gradient background animation */
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Main Container Styling */
+        .container {
+            background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            backdrop-filter: blur(5px); /* Frosted glass effect */
+            animation: fadeInScale 0.8s ease-out; /* Initial animation for the container */
+        }
+
+        /* Keyframes for container fade-in and scale */
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Header Styling */
+        h1 {
+            color: #FF6B6B; /* A vibrant primary color */
+            margin-bottom: 30px;
+            font-size: 2.8em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+            animation: textPop 1.5s ease-out infinite alternate; /* Dynamic header text */
+        }
+
+        /* Keyframes for header text pop animation */
+        @keyframes textPop {
+            0% { transform: scale(1); color: #FF6B6B; }
+            50% { transform: scale(1.02); color: #FFD166; } /* Subtle color and scale change */
+            100% { transform: scale(1); color: #FF6B6B; }
+        }
+
+        /* To-Do Input Section */
+        .todo-input-container {
+            display: flex;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            animation: slideInFromTop 1s ease-out; /* Animation for input container */
+        }
+
+        /* Keyframes for input container slide-in */
+        @keyframes slideInFromTop {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        #todoInput {
+            flex-grow: 1;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            outline: none;
+            background-color: #f8f8f8;
+            transition: all 0.3s ease;
+            color: #444;
+        }
+
+        #todoInput::placeholder {
+            color: #aaa;
+        }
+
+        #todoInput:focus {
+            background-color: #fff;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #addTodoBtn {
+            background-color: #118AB2; /* A strong accent color */
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+
+        #addTodoBtn:hover {
+            background-color: #06D6A0; /* Another vibrant color on hover */
+            transform: translateY(-2px); /* Lift effect */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        #addTodoBtn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        /* To-Do List Styling */
+        #todoList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .todo-item {
+            background-color: #fff;
+            padding: 18px 25px;
+            margin-bottom: 15px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.4s ease, transform 0.3s ease;
+            position: relative;
+            transform-origin: center;
+        }
+
+        .todo-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .todo-item.completed {
+            background-color: #f0f0f0;
+            color: #888;
+            text-decoration: line-through;
+            opacity: 0.7;
+            transform: scale(0.98); /* Slightly shrink completed items */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .todo-item span {
+            flex-grow: 1;
+            text-align: left;
+            font-size: 1.15em;
+            color: #444;
+            transition: color 0.3s ease, text-decoration 0.3s ease;
+            word-break: break-word; /* Prevents long words from overflowing */
+        }
+
+        .todo-item.completed span {
+            color: #888;
+        }
+
+        .todo-item .actions {
+            display: flex;
+            gap: 10px;
+            margin-left: 15px; /* Space between text and buttons */
+        }
+
+        .todo-item button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.4em;
+            padding: 5px;
+            transition: transform 0.2s ease, color 0.3s ease;
+            outline: none;
+        }
+
+        .todo-item button:hover {
+            transform: scale(1.15); /* Enlarge button on hover */
+        }
+
+        .complete-btn {
+            color: #06D6A0; /* Green for complete */
+        }
+
+        .complete-btn:hover {
+            color: #05ae80;
+        }
+
+        .delete-btn {
+            color: #FF6B6B; /* Red for delete */
+        }
+
+        .delete-btn:hover {
+            color: #d15656;
+        }
+
+        /* Animations for adding and removing items */
+        @keyframes appearAnimation {
+            from { opacity: 0; transform: translateX(-100px) scale(0.8); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .todo-item.appear-animation {
+            animation: appearAnimation 0.6s ease-out forwards;
+        }
+
+        @keyframes fadeOutRight {
+            from { opacity: 1; transform: translateX(0); height: auto; padding: 18px 25px; margin-bottom: 15px; }
+            to { opacity: 0; transform: translateX(100%); height: 0; padding: 0; margin-bottom: 0; }
+        }
+        .todo-item.fade-out {
+            animation: fadeOutRight 0.5s ease-out forwards;
+        }
+
+        /* Keyframes for shake animation (for empty input) */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Basic Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+                border-radius: 15px;
+            }
+            h1 {
+                font-size: 2.2em;
+                margin-bottom: 20px;
+            }
+            .todo-input-container {
+                flex-direction: column;
+                border-radius: 10px;
+                margin-bottom: 20px;
+            }
+            #todoInput {
+                padding: 12px 15px;
+                font-size: 1em;
+                border-radius: 10px 10px 0 0;
+            }
+            #addTodoBtn {
+                padding: 12px 15px;
+                font-size: 1em;
+                border-radius: 0 0 10px 10px;
+            }
+            .todo-item {
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+            .todo-item button {
+                font-size: 1.2em;
+                padding: 3px;
+            }
+            .todo-item .actions {
+                margin-left: 10px;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                border-radius: 10px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .todo-item span {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Vibrant To-Do List</h1>
+        <div class="todo-input-container">
+            <input type="text" id="todoInput" placeholder="Add a new sparkling task...">
+            <button id="addTodoBtn">Add Task</button>
+        </div>
+        <ul id="todoList">
+            <!-- To-do items will be dynamically added here -->
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const todoInput = document.getElementById('todoInput');
+            const addTodoBtn = document.getElementById('addTodoBtn');
+            const todoList = document.getElementById('todoList');
+
+            // Load todos from localStorage when the page loads
+            loadTodos();
+
+            // Event listener for adding a task via button click
+            addTodoBtn.addEventListener('click', addTodo);
+
+            // Event listener for adding a task via Enter key press in input
+            todoInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTodo();
+                }
+            });
+
+            // Event delegation for complete and delete buttons on the todoList
+            // This is efficient as it only attaches one listener to the parent
+            todoList.addEventListener('click', (e) => {
+                const target = e.target;
+                const todoItem = target.closest('.todo-item');
+
+                // If the click wasn't on a todo item, or its child buttons, do nothing
+                if (!todoItem) return;
+
+                if (target.classList.contains('complete-btn')) {
+                    toggleComplete(todoItem);
+                } else if (target.classList.contains('delete-btn')) {
+                    deleteTodo(todoItem);
+                }
+            });
+
+            /**
+             * Adds a new to-do item to the list.
+             */
+            function addTodo() {
+                const todoText = todoInput.value.trim();
+
+                // If input is empty, show a shake animation and return
+                if (todoText === '') {
+                    todoInput.style.animation = 'shake 0.3s';
+                    setTimeout(() => todoInput.style.animation = '', 300); // Clear animation after it finishes
+                    return;
+                }
+
+                // Create a new list item element
+                const todoItem = document.createElement('li');
+                todoItem.classList.add('todo-item');
+                // Add a class for the entry animation
+                todoItem.classList.add('appear-animation');
+
+                // Populate the list item with content and action buttons
+                todoItem.innerHTML = `
+                    <span>${todoText}</span>
+                    <div class="actions">
+                        <button class="complete-btn" title="Mark as Complete">✔️</button>
+                        <button class="delete-btn" title="Delete Task">✖️</button>
+                    </div>
+                `;
+
+                // Add the new item to the top of the list
+                todoList.prepend(todoItem);
+                todoInput.value = ''; // Clear the input field
+
+                // Remove the animation class after the animation completes
+                // This prevents the animation from re-triggering on subsequent changes
+                todoItem.addEventListener('animationend', () => {
+                    todoItem.classList.remove('appear-animation');
+                }, { once: true }); // 'once: true' ensures the listener is removed after one execution
+
+                saveTodos(); // Save the updated list to localStorage
+            }
+
+            /**
+             * Toggles the 'completed' state of a to-do item.
+             * @param {HTMLElement} item - The to-do list item element.
+             */
+            function toggleComplete(item) {
+                item.classList.toggle('completed');
+                saveTodos(); // Save the updated list to localStorage
+            }
+
+            /**
+             * Deletes a to-do item from the list with an animation.
+             * @param {HTMLElement} item - The to-do list item element.
+             */
+            function deleteTodo(item) {
+                item.classList.add('fade-out'); // Add fade-out animation class
+
+                // Remove the item from the DOM after the animation finishes
+                item.addEventListener('animationend', () => {
+                    item.remove();
+                    saveTodos(); // Save the updated list to localStorage
+                }, { once: true }); // Ensures the listener is removed after one execution
+            }
+
+            /**
+             * Saves the current list of to-do items to localStorage.
+             */
+            function saveTodos() {
+                const todos = [];
+                // Iterate through all todo items and store their text and completion status
+                todoList.querySelectorAll('.todo-item').forEach(item => {
+                    todos.push({
+                        text: item.querySelector('span').textContent,
+                        completed: item.classList.contains('completed')
+                    });
+                });
+                localStorage.setItem('todos', JSON.stringify(todos));
+            }
+
+            /**
+             * Loads to-do items from localStorage and displays them.
+             */
+            function loadTodos() {
+                const todos = JSON.parse(localStorage.getItem('todos') || '[]');
+                // Reverse the array if you want the newest items (which are prepended) to appear first
+                // when loaded (assuming they were saved in creation order).
+                todos.reverse().forEach(todo => {
+                    const todoItem = document.createElement('li');
+                    todoItem.classList.add('todo-item'); // Add base class
+                    if (todo.completed) {
+                        todoItem.classList.add('completed'); // Apply completed class if necessary
+                    }
+                    todoItem.innerHTML = `
+                        <span>${todo.text}</span>
+                        <div class="actions">
+                            <button class="complete-btn" title="Mark as Complete">✔️</button>
+                            <button class="delete-btn" title="Delete Task">✖️</button>
+                        </div>
+                    `;
+                    todoList.prepend(todoItem); // Prepend loaded todos to maintain newest-first order
+                });
+            }
+        });
+    </script>
+</body>
+</html>

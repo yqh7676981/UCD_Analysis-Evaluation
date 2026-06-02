@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>考研政治刷题工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #d32f2f;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            font-size: 1.1rem;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+        }
+        .option:hover {
+            background-color: #e8e8e8;
+        }
+        .option.selected {
+            background-color: #ffebee;
+            border-color: #ef9a9a;
+            color: #c62828;
+        }
+        .option.correct {
+            background-color: #e8f5e9;
+            border-color: #81c784;
+            color: #2e7d32;
+        }
+        .option.incorrect {
+            background-color: #ffebee;
+            border-color: #ef9a9a;
+            color: #c62828;
+        }
+        .result-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #d32f2f;
+            margin: 15px 0;
+        }
+        .analysis {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .analysis-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        .analysis-question {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        .analysis-answer {
+            color: #2e7d32;
+            font-weight: 500;
+        }
+        .analysis-explanation {
+            margin-top: 8px;
+            color: #555;
+            font-style: italic;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        .hidden {
+            display: none;
+        }
+        .btn-restart {
+            background-color: #1976d2;
+        }
+        .btn-restart:hover {
+            background-color: #0d47a1;
+        }
+        .btn-submit {
+            margin-top: 20px;
+        }
+        @media (min-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+            .option {
+                padding: 14px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>考研政治刷题工具</h1>
+        <div id="quiz-container">
+            <!-- 题目将由JS生成 -->
+        </div>
+        <button id="submit-btn" class="btn-submit">提交答案</button>
+        <div id="result-container" class="result-container hidden">
+            <h2>答题完成！</h2>
+            <div class="score" id="score">得分：8/10</div>
+            <div class="analysis" id="analysis"></div>
+            <button id="restart-btn" class="btn-restart">再来一组</button>
+        </div>
+    </div>
+
+    <script>
+        // 题库数据
+        const questionBank = [
+            {
+                question: "马克思主义最根本的世界观和方法论是？",
+                options: ["辩证唯物主义与历史唯物主义", "唯物主义与辩证法", "实事求是", "解放思想"],
+                correct: 0,
+                explanation: "马克思主义最根本的世界观和方法论是辩证唯物主义与历史唯物主义。这是马克思主义哲学的核心内容。"
+            },
+            {
+                question: "商品经济的基本矛盾是？",
+                options: ["使用价值与价值的矛盾", "具体劳动与抽象劳动的矛盾", "私人劳动与社会劳动的矛盾", "简单劳动与复杂劳动的矛盾"],
+                correct: 2,
+                explanation: "私人劳动与社会劳动的矛盾是商品经济的基本矛盾，它决定着商品经济的本质及其发展过程。"
+            },
+            {
+                question: "社会主义初级阶段的主要矛盾是？",
+                options: ["无产阶级与资产阶级的矛盾", "人民日益增长的物质文化需要同落后的社会生产之间的矛盾", "生产力与生产关系的矛盾", "经济基础与上层建筑的矛盾"],
+                correct: 1,
+                explanation: "在社会主义初级阶段，主要矛盾是人民日益增长的物质文化需要同落后的社会生产之间的矛盾。"
+            },
+            {
+                question: "毛泽东思想活的灵魂是？",
+                options: ["实事求是、群众路线、独立自主", "武装斗争、统一战线、党的建设", "理论联系实际、密切联系群众、批评与自我批评", "自力更生、艰苦奋斗、勤俭建国"],
+                correct: 0,
+                explanation: "实事求是、群众路线、独立自主是毛泽东思想活的灵魂的三个基本方面。"
+            },
+            {
+                question: "中国特色社会主义最本质的特征是？",
+                options: ["共同富裕", "人民当家作主", "中国共产党的领导", "依法治国"],
+                correct: 2,
+                explanation: "中国共产党的领导是中国特色社会主义最本质的特征，是中国特色社会主义制度的最大优势。"
+            },
+            {
+                question: "新民主主义革命的三大法宝是？",
+                options: ["统一战线、武装斗争、党的建设", "土地革命、武装割据、根据地建设", "群众路线、独立自主、实事求是", "理论创新、实践创新、制度创新"],
+                correct: 0,
+                explanation: "统一战线、武装斗争、党的建设是新民主主义革命的三大法宝，是毛泽东对中国革命经验的概括总结。"
+            },
+            {
+                question: "科学发展观的第一要义是？",
+                options: ["以人为本", "发展", "全面协调可持续", "统筹兼顾"],
+                correct: 1,
+                explanation: "科学发展观的第一要义是发展，核心是以人为本，基本要求是全面协调可持续，根本方法是统筹兼顾。"
+            },
+            {
+                question: "社会主义核心价值观中，属于国家层面的是？",
+                options: ["富强、民主、文明、和谐", "自由、平等、公正、法治", "爱国、敬业、诚信、友善", "团结、奋斗、创新、发展"],
+                correct: 0,
+                explanation: "社会主义核心价值观分为三个层面：国家层面是富强、民主、文明、和谐；社会层面是自由、平等、公正、法治；公民个人层面是爱国、敬业、诚信、友善。"
+            },
+            {
+                question: "我国的根本政治制度是？",
+                options: ["人民代表大会制度", "中国共产党领导的多党合作和政治协商制度", "民族区域自治制度", "基层群众自治制度"],
+                correct: 0,
+                explanation: "人民代表大会制度是我国的根本政治制度，是符合中国国情和实际、体现社会主义国家性质、保证人民当家作主的根本政治制度安排。"
+            },
+            {
+                question: "新时代我国社会主要矛盾已经转化为？",
+                options: ["人民日益增长的物质文化需要同落后的社会生产之间的矛盾", "无产阶级与资产阶级的矛盾", "人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾", "先进工业国的要求与落后农业国的现实之间的矛盾"],
+                correct: 2,
+                explanation: "党的十九大报告指出，新时代我国社会主要矛盾已经转化为人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。"
+            }
+        ];
+
+        // 全局变量
+        let currentQuiz = [];
+        let userAnswers = [];
+
+        // 初始化函数
+        function initQuiz() {
+            // 随机选择10道题（这里直接使用全部题目）
+            currentQuiz = [...questionBank];
+            userAnswers = new Array(currentQuiz.length).fill(null);
+
+            // 渲染题目
+            renderQuestions();
+
+            // 显示答题界面，隐藏结果
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('result-container').classList.add('hidden');
+        }
+
+        // 渲染题目
+        function renderQuestions() {
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = '';
+
+            currentQuiz.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <div class="question-text">${index + 1}. ${q.question}</div>
+                    <div class="options" id="options-${index}">
+                        ${q.options.map((option, optIndex) => `
+                            <div class="option" data-index="${optIndex}" onclick="selectOption(${index}, ${optIndex})">
+                                ${String.fromCharCode(65 + optIndex)}. ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                quizContainer.appendChild(questionDiv);
+            });
+        }
+
+        // 选择选项
+        function selectOption(questionIndex, optionIndex) {
+            // 更新用户答案数组
+            userAnswers[questionIndex] = optionIndex;
+
+            // 更新UI
+            const options = document.querySelectorAll(`#options-${questionIndex} .option`);
+            options.forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            options[optionIndex].classList.add('selected');
+        }
+
+        // 提交答案
+        function submitAnswers() {
+            // 计算得分
+            let score = 0;
+            const resultDetails = [];
+
+            currentQuiz.forEach((q, index) => {
+                if (userAnswers[index] === q.correct) {
+                    score++;
+                }
+
+                resultDetails.push({
+                    question: q.question,
+                    userAnswer: userAnswers[index],
+                    correctAnswer: q.correct,
+                    options: q.options,
+                    explanation: q.explanation,
+                    isCorrect: userAnswers[index] === q.correct
+                });
+            });
+
+            // 显示结果
+            document.getElementById('score').textContent = `得分：${score}/${currentQuiz.length}`;
+
+            // 显示错题解析
+            const analysisContainer = document.getElementById('analysis');
+            analysisContainer.innerHTML = '<h3>错题解析：</h3>';
+
+            const incorrectQuestions = resultDetails.filter(item => !item.isCorrect);
+            
+            if (incorrectQuestions.length === 0) {
+                analysisContainer.innerHTML += '<p>全部答对！太棒了！</p>';
+            } else {
+                incorrectQuestions.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'analysis-item';
+                    itemDiv.innerHTML = `
+                        <div class="analysis-question">${item.question}</div>
+                        <div>你的答案：${item.userAnswer !== null ? String.fromCharCode(65 + item.userAnswer) + '. ' + item.options[item.userAnswer] : '未作答'}</div>
+                        <div class="analysis-answer">正确答案：${String.fromCharCode(65 + item.correctAnswer)}. ${item.options[item.correctAnswer]}</div>
+                        <div class="analysis-explanation">${item.explanation}</div>
+                    `;
+                    analysisContainer.appendChild(itemDiv);
+                });
+            }
+
+            // 显示正确答案（用于反馈）
+            currentQuiz.forEach((q, index) => {
+                const options = document.querySelectorAll(`#options-${index} .option`);
+                options.forEach((opt, i) => {
+                    if (i === q.correct) {
+                        opt.classList.add('correct');
+                    }
+                    if (userAnswers[index] !== null && userAnswers[index] !== q.correct && i === userAnswers[index]) {
+                        opt.classList.add('incorrect');
+                    }
+                });
+            });
+
+            // 切换显示
+            document.getElementById('result-container').classList.remove('hidden');
+            document.getElementById('submit-btn').disabled = true;
+        }
+
+        // 重新开始
+        function restartQuiz() {
+            initQuiz();
+            document.getElementById('submit-btn').disabled = false;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定按钮事件
+            document.getElementById('submit-btn').addEventListener('click', submitAnswers);
+            document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+
+            // 初始化测验
+            initQuiz();
+        });
+    </script>
+</body>
+</html>

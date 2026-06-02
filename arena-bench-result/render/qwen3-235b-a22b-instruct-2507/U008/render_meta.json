@@ -1,0 +1,10 @@
+{
+  "id": "U008",
+  "class": "Mobile",
+  "width": 390,
+  "height": 844,
+  "status": "success",
+  "error": null,
+  "html_path": "arena-bench-result/render/qwen3-235b-a22b-instruct-2507/U008/U008.html",
+  "screenshot_path": "arena-bench-result/render/qwen3-235b-a22b-instruct-2507/U008/U008.png"
+}

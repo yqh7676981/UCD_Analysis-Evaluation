@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>考研政治刷题</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1419;
+            --bg-card: #1a2332;
+            --fg: #e8edf4;
+            --muted: #6b7d93;
+            --accent: #00d4aa;
+            --accent-dim: rgba(0, 212, 170, 0.15);
+            --correct: #22c55e;
+            --wrong: #ef4444;
+            --border: #2a3a4d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+        }
+        
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 0%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg) 0%, #0a0f14 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 100%;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0 24px;
+        }
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--accent);
+        }
+        
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent), #3b82f6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .progress-bar {
+            background: var(--bg-card);
+            border-radius: 100px;
+            height: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #3b82f6);
+            border-radius: 100px;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .progress-text {
+            font-size: 13px;
+            color: var(--muted);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .question-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 20px;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            line-height: 1.7;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            touch-action: manipulation;
+        }
+        
+        .option:hover:not(.disabled) {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--muted);
+        }
+        
+        .option:active:not(.disabled) {
+            transform: scale(0.98);
+        }
+        
+        .option.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        
+        .option.correct {
+            border-color: var(--correct);
+            background: rgba(34, 197, 94, 0.15);
+        }
+        
+        .option.wrong {
+            border-color: var(--wrong);
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        .option.disabled {
+            pointer-events: none;
+        }
+        
+        .option-letter {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--muted);
+            transition: all 0.2s ease;
+        }
+        
+        .option.selected .option-letter {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        
+        .option.correct .option-letter {
+            background: var(--correct);
+            color: white;
+        }
+        
+        .option.wrong .option-letter {
+            background: var(--wrong);
+            color: white;
+        }
+        
+        .option-text {
+            font-size: 15px;
+            line-height: 1.6;
+            padding-top: 2px;
+        }
+        
+        .analysis {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #3b82f6;
+            border-radius: 0 12px 12px 0;
+            font-size: 14px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .analysis-title {
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #00b894);
+            color: var(--bg);
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--fg);
+            border: 1.5px solid var(--border);
+        }
+        
+        .result-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .score-circle {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+        
+        .score-circle svg {
+            transform: rotate(-90deg);
+        }
+        
+        .score-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 8;
+        }
+        
+        .score-progress {
+            fill: none;
+            stroke: url(#scoreGradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .score-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .score-number {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent), #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .score-label {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .result-subtitle {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .stat-value.correct {
+            color: var(--correct);
+        }
+        
+        .stat-value.wrong {
+            color: var(--wrong);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        
+        .wrong-questions {
+            text-align: left;
+            margin-top: 32px;
+        }
+        
+        .wrong-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .wrong-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+        
+        .wrong-question {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        
+        .wrong-answer {
+            font-size: 13px;
+            padding: 12px;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .wrong-answer span {
+            color: var(--correct);
+            font-weight: 600;
+        }
+        
+        .floating-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.3;
+            }
+            90% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .question-card,
+            .particle,
+            .score-progress {
+                animation: none;
+                transition: none;
+            }
+            
+            .question-card {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+    <div class="grid-overlay"></div>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                        <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                考研政治刷题
+            </div>
+        </header>
+        
+        <div id="quizScreen">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <p class="progress-text" id="progressText">第 1 题 / 共 10 题</p>
+            
+            <div id="questionsContainer"></div>
+            
+            <button class="btn btn-primary" id="nextBtn" disabled onclick="nextQuestion()">
+                <span id="nextBtnText">下一题</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+        
+        <div id="resultScreen" class="result-screen hidden">
+            <div class="score-circle">
+                <svg width="160" height="160" viewBox="0 0 160 160">
+                    <defs>
+                        <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4aa"/>
+                            <stop offset="100%" style="stop-color:#3b82f6"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="score-bg" cx="80" cy="80" r="70"/>
+                    <circle class="score-progress" id="scoreProgress" cx="80" cy="80" r="70"/>
+                </svg>
+                <div class="score-text">
+                    <span class="score-number" id="scoreNumber">0</span>
+                    <span class="score-label">得分</span>
+                </div>
+            </div>
+            
+            <h2 class="result-title" id="resultTitle">答题完成</h2>
+            <p class="result-subtitle" id="resultSubtitle">继续加油!</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value correct" id="correctCount">0</div>
+                    <div class="stat-label">答对</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value wrong" id="wrongCount">0</div>
+                    <div class="stat-label">答错</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="restartQuiz()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M1 4v6h6M23 20v-6h-6"/>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                </svg>
+                再来一组
+            </button>
+            
+            <div class="wrong-questions hidden" id="wrongSection">
+                <h3 class="wrong-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 8v4M12 16h.01"/>
+                    </svg>
+                    错题解析
+                </h3>
+                <div id="wrongList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const allQuestions = [
+            {
+                question: "马克思主义哲学认为，世界的本原是",
+                options: ["物质", "意识", "存在", "思维"],
+                answer: 0,
+                analysis: "马克思主义哲学认为物质是世界的本原，物质决定意识，这是唯物主义的基本观点。物质是不依赖于人的意识并能为人的意识所反映的客观实在。"
+            },
+            {
+                question: "实践作为检验真理的标准，既是确定的，又是不确定的，其不确定性是因为",
+                options: ["实践是客观的物质性活动", "实践是历史的发展的活动", "实践是自觉能动的活动", "实践是社会历史性的活动"],
+                answer: 1,
+                analysis: "实践标准的确定性是指实践是检验真理的唯一标准。不确定性是指一定历史阶段上的具体实践具有局限性，它往往不能在当下充分证实或驳倒一切认识。"
+            },
+            {
+                question: "唯物辩证法的总特征是",
+                options: ["联系的观点和发展的观点", "矛盾的观点", "全面的观点", "具体的观点"],
+                answer: 0,
+                analysis: "联系的观点和发展的观点是唯物辩证法的总特征。矛盾观点是唯物辩证法的实质和核心，是唯物辩证法的根本观点。"
+            },
+            {
+                question: "商品的使用价值和价值的关系是",
+                options: ["对立统一的关系", "相互排斥的关系", "完全一致的关系", "互不相关的关系"],
+                answer: 0,
+                analysis: "商品的使用价值和价值是对立统一的关系。对立性表现在：两者相互排斥，不可兼得。统一性表现在：两者共存于一个统一体中，缺一就不成为商品。"
+            },
+            {
+                question: "剩余价值产生的唯一源泉是",
+                options: ["雇佣工人的剩余劳动", "雇佣工人的必要劳动", "机器设备的先进程度", "资本家的经营管理"],
+                answer: 0,
+                analysis: "剩余价值是由雇佣工人在生产过程中创造的，是雇佣工人创造的超过劳动力价值的那部分价值。剩余价值的唯一源泉是雇佣工人的剩余劳动。"
+            },
+            {
+                question: "毛泽东思想的活的灵魂是",
+                options: ["实事求是、群众路线、独立自主", "武装斗争、统一战线、党的建设", "理论联系实际、密切联系群众、批评与自我批评", "解放思想、实事求是、与时俱进"],
+                answer: 0,
+                analysis: "毛泽东思想的活的灵魂是贯穿于毛泽东思想各个组成部分的立场、观点和方法，它包括三个基本方面：实事求是、群众路线、独立自主。"
+            },
+            {
+                question: "中国特色社会主义理论体系的开篇之作是",
+                options: ["邓小平理论", "三个代表重要思想", "科学发展观", "习近平新时代中国特色社会主义思想"],
+                answer: 0,
+                analysis: "邓小平理论是中国特色社会主义理论体系的开篇之作，是马克思列宁主义的基本原理同当代中国实践和时代特征相结合的产物。"
+            },
+            {
+                question: "我国社会主义初级阶段的起始时间是",
+                options: ["从1956年社会主义改造基本完成到社会主义现代化基本实现", "从1949年新中国成立到社会主义现代化基本实现", "从1978年改革开放到社会主义现代化基本实现", "从20世纪中叶到21世纪中叶"],
+                answer: 0,
+                analysis: "我国社会主义初级阶段，是指从1956年生产资料私有制的社会主义改造基本完成，到社会主义现代化基本实现这一历史阶段。"
+            },
+            {
+                question: "社会主义核心价值观在社会层面的价值取向是",
+                options: ["自由、平等、公正、法治", "富强、民主、文明、和谐", "爱国、敬业、诚信、友善", "创新、协调、绿色、开放"],
+                answer: 0,
+                analysis: "社会主义核心价值观分为三个层面：国家层面是富强、民主、文明、和谐；社会层面是自由、平等、公正、法治；个人层面是爱国、敬业、诚信、友善。"
+            },
+            {
+                question: "构建新发展格局，关键在于",
+                options: ["经济循环畅通无阻", "扩大内需", "供给侧结构性改革", "高水平的自立自强"],
+                answer: 0,
+                analysis: "构建新发展格局的关键在于经济循环畅通无阻。经济活动是一个动态的周而复始的循环过程，需要通过深化供给侧结构性改革，使生产、分配、流通、消费更多依托国内市场，实现国民经济良性循环。"
+            },
+            {
+                question: "物质的唯一特性是",
+                options: ["客观实在性", "运动性", "规律性", "可知性"],
+                answer: 0,
+                analysis: "物质的唯一特性是客观实在性，它存在于人的意识之外，为人的意识所反映。运动是物质的根本属性，客观实在性是物质的唯一特性。"
+            },
+            {
+                question: "认识的本质是",
+                options: ["主体在实践基础上对客体的能动反映", "主体对客体的直观反映", "主体对客体的消极反映", "主体对客体的机械反映"],
+                answer: 0,
+                analysis: "认识的本质是主体在实践基础上对客体的能动反映。这种反映具有摹写性和创造性两个基本特点，是摹写与创造的统一。"
+            },
+            {
+                question: "社会发展的根本动力是",
+                options: ["社会基本矛盾", "阶级斗争", "科学技术革命", "社会革命"],
+                answer: 0,
+                analysis: "社会基本矛盾是社会发展的根本动力。社会基本矛盾是指生产力和生产关系、经济基础和上层建筑之间的矛盾。阶级斗争是阶级社会发展的直接动力。"
+            },
+            {
+                question: "资本有机构成的提高意味着",
+                options: ["不变资本所占比重增大，可变资本所占比重减小", "可变资本所占比重增大，不变资本所占比重减小", "不变资本和可变资本所占比重同时增大", "不变资本和可变资本所占比重同时减小"],
+                answer: 0,
+                analysis: "资本有机构成是指由资本技术构成决定并反映技术构成变化的资本价值构成，通常用c:v表示。资本有机构成提高意味着在全部资本中，不变资本所占比重增大，可变资本所占比重减小。"
+            },
+            {
+                question: "新民主主义革命的性质是",
+                options: ["资产阶级民主革命", "社会主义革命", "无产阶级革命", "农民革命"],
+                answer: 0,
+                analysis: "新民主主义革命的性质是资产阶级民主革命，而不是无产阶级社会主义革命。这是因为革命的任务是反帝反封建，而不是反对资本主义。"
+            },
+            {
+                question: "党的十八大以来，中国特色社会主义进入新时代，我国社会主要矛盾已经转化为",
+                options: ["人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾", "人民日益增长的物质文化需要同落后的社会生产之间的矛盾", "人民对于经济文化迅速发展的需要同当前经济文化不能满足人民需要的状况之间的矛盾", "人民对于建立先进的工业国的要求同落后的农业国的现实之间的矛盾"],
+                answer: 0,
+                analysis: "中国特色社会主义进入新时代，我国社会主要矛盾已经转化为人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。"
+            },
+            {
+                question: "新发展理念中，解决发展动力问题的是",
+                options: ["创新", "协调", "绿色", "开放"],
+                answer: 0,
+                analysis: "新发展理念中：创新注重解决发展动力问题；协调注重解决发展不平衡问题；绿色注重解决人与自然和谐问题；开放注重解决发展内外联动问题；共享注重解决社会公平正义问题。"
+            },
+            {
+                question: "经济体制改革的重点和核心问题是",
+                options: ["处理好政府和市场的关系", "处理好中央和地方的关系", "处理好城市和农村的关系", "处理好国内和国际的关系"],
+                answer: 0,
+                analysis: "党的十八届三中全会提出，经济体制改革是全面深化改革的重点，核心问题是处理好政府和市场的关系，使市场在资源配置中起决定性作用和更好发挥政府作用。"
+            },
+            {
+                question: "新时代党的建设的根本方针是",
+                options: ["坚持党要管党、全面从严治党", "坚持党的领导", "坚持全心全意为人民服务", "坚持民主集中制"],
+                answer: 0,
+                analysis: "新时代党的建设的根本方针是坚持党要管党、全面从严治党。这是由党的性质、党在国家和社会生活中的地位以及党所肩负的历史使命决定的。"
+            },
+            {
+                question: "矛盾的基本属性是",
+                options: ["同一性和斗争性", "普遍性和特殊性", "绝对性和相对性", "对抗性和非对抗性"],
+                answer: 0,
+                analysis: "矛盾的基本属性是同一性和斗争性。矛盾的同一性是指矛盾双方相互依存、相互贯通的性质和趋势；矛盾的斗争性是指矛盾双方相互排斥、相互对立的性质和趋势。"
+            }
+        ];
+        
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        
+        function initParticles() {
+            const container = document.getElementById('particles');
+            container.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+        
+        function initQuiz() {
+            currentQuestions = shuffleArray(allQuestions).slice(0, 10);
+            currentIndex = 0;
+            userAnswers = new Array(10).fill(-1);
+            score = 0;
+            
+            document.getElementById('quizScreen').classList.remove('hidden');
+            document.getElementById('resultScreen').classList.add('hidden');
+            
+            renderQuestion();
+            updateProgress();
+        }
+        
+        function renderQuestion() {
+            const container = document.getElementById('questionsContainer');
+            const q = currentQuestions[currentIndex];
+            const answered = userAnswers[currentIndex] !== -1;
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question-number">${currentIndex + 1}</div>
+                    <p class="question-text">${q.question}</p>
+                    <div class="options">
+                        ${q.options.map((opt, i) => {
+                            let className = 'option';
+                            if (answered) {
+                                className += ' disabled';
+                                if (i === q.answer) className += ' correct';
+                                else if (i === userAnswers[currentIndex] && i !== q.answer) className += ' wrong';
+                            } else if (userAnswers[currentIndex] === i) {
+                                className += ' selected';
+                            }
+                            return `
+                                <div class="${className}" onclick="selectOption(${i})">
+                                    <span class="option-letter">${String.fromCharCode(65 + i)}</span>
+                                    <span class="option-text">${opt}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    ${answered ? `<div class="analysis"><div class="analysis-title">解析</div>${q.analysis}</div>` : ''}
+                </div>
+            `;
+            
+            const nextBtn = document.getElementById('nextBtn');
+            const nextBtnText = document.getElementById('nextBtnText');
+            
+            if (answered) {
+                nextBtn.disabled = false;
+                nextBtnText.textContent = currentIndex === 9 ? '查看结果' : '下一题';
+            } else {
+                nextBtn.disabled = true;
+                nextBtnText.textContent = '请选择答案';
+            }
+        }
+        
+        function selectOption(index) {
+            if (userAnswers[currentIndex] !== -1) return;
+            
+            userAnswers[currentIndex] = index;
+            const q = currentQuestions[currentIndex];
+            
+            if (index === q.answer) {
+                score += 10;
+            }
+            
+            renderQuestion();
+        }
+        
+        function updateProgress() {
+            const progress = ((currentIndex + (userAnswers[currentIndex] !== -1 ? 1 : 0)) / 10) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `第 ${currentIndex + 1} 题 / 共 10 题`;
+        }
+        
+        function nextQuestion() {
+            if (currentIndex < 9) {
+                currentIndex++;
+                renderQuestion();
+                updateProgress();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                showResult();
+            }
+        }
+        
+        function showResult() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultScreen').classList.remove('hidden');
+            
+            const wrongCount = 10 - score / 10;
+            
+            document.getElementById('correctCount').textContent = score / 10;
+            document.getElementById('wrongCount').textContent = wrongCount;
+            document.getElementById('scoreNumber').textContent = score;
+            
+            const resultTitle = document.getElementById('resultTitle');
+            const resultSubtitle = document.getElementById('resultSubtitle');
+            
+            if (score === 100) {
+                resultTitle.textContent = '太棒了，满分';
+                resultSubtitle.textContent = '你对政治理论掌握得非常好';
+            } else if (score >= 80) {
+                resultTitle.textContent = '表现优秀';
+                resultSubtitle.textContent = '继续保持，更上一层楼';
+            } else if (score >= 60) {
+                resultTitle.textContent = '及格啦';
+                resultSubtitle.textContent = '还有进步空间，继续努力';
+            } else {
+                resultTitle.textContent = '需要加油';
+                resultSubtitle.textContent = '多做练习，熟能生巧';
+            }
+            
+            setTimeout(() => {
+                const progressCircle = document.getElementById('scoreProgress');
+                const circumference = 2 * Math.PI * 70;
+                const offset = circumference - (score / 100) * circumference;
+                progressCircle.style.strokeDashoffset = offset;
+            }, 100);
+            
+            if (wrongCount > 0) {
+                const wrongSection = document.getElementById('wrongSection');
+                const wrongList = document.getElementById('wrongList');
+                wrongSection.classList.remove('hidden');
+                
+                wrongList.innerHTML = currentQuestions
+                    .map((q, i) => userAnswers[i] !== q.answer ? `
+                        <div class="wrong-card">
+                            <p class="wrong-question">${i + 1}. ${q.question}</p>
+                            <div class="wrong-answer">正确答案：<span>${String.fromCharCode(65 + q.answer)}</span></div>
+                        </div>
+                    ` : '')
+                    .filter(Boolean)
+                    .join('');
+            } else {
+                document.getElementById('wrongSection').classList.add('hidden');
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function restartQuiz() {
+            initQuiz();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        initParticles();
+        initQuiz();
+    </script>
+</body>
+</html>

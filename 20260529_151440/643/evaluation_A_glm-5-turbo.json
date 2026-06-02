@@ -1,0 +1,11 @@
+{
+  "index": 295,
+  "id": "643",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "开发一个网站，展示通过视觉辅助实现复合增长的概念。包括说明标准普尔 500 指数投资长期增长的图表，突出几十年来的趋势。",
+  "evaluation": "error",
+  "screenshot": "arena-bench-result/render/gpt-5.4/643_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:24:01.019502"
+}

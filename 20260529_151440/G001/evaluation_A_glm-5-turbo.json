@@ -1,0 +1,33 @@
+{
+  "index": 293,
+  "id": "G001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个简单的飞机大战小游戏，玩家飞机用键盘方向键控制,自动发射子弹击落从上方飞来的敌机,显示得分。",
+  "evaluation": {
+    "total_score": 42,
+    "score_band": "30-49",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The dark sci-fi palette and neon cyan headline/button are coherent and fit a shooting game theme, but the page feels like a sparse landing screen rather than a complete game interface. There is little visual structure beyond centered text and one button."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Typography is clean, alignment is stable, and the button styling is consistent with the title. However, the subtitle contrast is weak, the screen is overly empty, and there are no supporting game elements, score area, or control indicators that would make the interface feel finished."
+      },
+      "easy_to_perceive": {
+        "score": 4,
+        "reason": "Users can quickly spot the title and primary button, but the requested core task is not visible: no player plane, enemies, bullets, or score display appear in the screenshot. The interface communicates entry, not gameplay, so task-relevant information hierarchy is incomplete."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The label '出击' suggests starting the game, and the subtitle hints at controls, but this is a mobile context while the original request specifies keyboard arrow controls, creating a scenario mismatch. There is no visible score, no gameplay feedback, and no clear indication of how the game will operate after tapping."
+      }
+    },
+    "summary": "This is a visually acceptable but very incomplete mobile game experience. The style is coherent and readable, but the screenshot shows only a minimal start screen rather than the requested playable airplane shooter with visible score and gameplay state. The strongest qualities are clean typography and a fitting neon game tone; the hard cap comes from missing core task evidence, weak scenario fit for mobile versus keyboard controls, and lack of gameplay information or operational clarity."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G001_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:23:36.117883"
+}

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>每日喝水追踪</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a1628;
+            --bg-card: rgba(20, 40, 70, 0.6);
+            --water-light: #00e5c7;
+            --water-dark: #0066aa;
+            --accent: #00ffd0;
+            --accent-glow: rgba(0, 255, 208, 0.3);
+            --text-primary: #e8f4f8;
+            --text-muted: #7a9ab0;
+            --border: rgba(0, 229, 199, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-deep);
+            min-height: 100vh;
+            min-height: 100dvh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 背景动态 */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient {
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0, 100, 150, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 20% 100%, rgba(0, 180, 160, 0.15) 0%, transparent 50%),
+                linear-gradient(180deg, #0a1628 0%, #0d1f35 50%, #0a1825 100%);
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 200px;
+            height: 200px;
+            background: rgba(0, 229, 199, 0.12);
+            top: 10%;
+            right: -50px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 150px;
+            height: 150px;
+            background: rgba(0, 150, 200, 0.1);
+            bottom: 20%;
+            left: -30px;
+            animation-delay: -3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* 水杯容器 */
+        .cup-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+            position: relative;
+        }
+
+        .cup-container {
+            position: relative;
+            width: 180px;
+            height: 280px;
+        }
+
+        /* 水杯外形 */
+        .cup {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px 8px 36px 36px;
+            background: linear-gradient(135deg, 
+                rgba(255,255,255,0.08) 0%, 
+                rgba(255,255,255,0.02) 50%,
+                rgba(255,255,255,0.05) 100%);
+            border: 2px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 
+                0 8px 32px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        /* 杯口高光 */
+        .cup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255,255,255,0.2) 50%, 
+                transparent 100%);
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* 水体 */
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 0%;
+            background: linear-gradient(180deg, 
+                var(--water-light) 0%, 
+                var(--water-dark) 100%);
+            border-radius: 0 0 34px 34px;
+            transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        /* 水面波纹 */
+        .water-surface {
+            position: absolute;
+            top: -12px;
+            left: -10%;
+            width: 120%;
+            height: 24px;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88'%3E%3Cpath d='M0 22 Q200 44 400 22 T800 22 L800 88 L0 88 Z' fill='%2300e5c7' opacity='0.6'/%3E%3C/svg%3E") repeat-x;
+            background-size: 400px 24px;
+            animation: wave 3s linear infinite;
+        }
+
+        .wave:nth-child(2) {
+            opacity: 0.5;
+            animation-duration: 4s;
+            animation-direction: reverse;
+            top: 4px;
+        }
+
+        @keyframes wave {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+
+        /* 气泡 */
+        .bubbles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border-radius: 0 0 34px 34px;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            animation: rise 3s ease-in infinite;
+            opacity: 1; /* fixed: was 0 */
+        }
+
+        @keyframes rise {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0);
+            }
+            10% {
+                opacity: 0.8;
+                transform: translateY(-10px) scale(1);
+            }
+            90% {
+                opacity: 0.4;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-150px) scale(0.5);
+            }
+        }
+
+        /* 容量标记 */
+        .cup-marks {
+            position: absolute;
+            right: -35px;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .mark {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
+            opacity: 0.6;
+        }
+
+        /* 进度显示 */
+        .progress-display {
+            margin-top: 32px;
+            text-align: center;
+        }
+
+        .progress-number {
+            font-size: 64px;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, var(--accent) 0%, #00aa99 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        /* 底部控制区 */
+        .controls {
+            padding: 20px 0;
+        }
+
+        /* 目标设置 */
+        .goal-setting {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            background: var(--bg-card);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .goal-label {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .goal-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: rgba(0, 229, 199, 0.05);
+            color: var(--accent);
+            font-size: 24px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .goal-btn:active {
+            transform: scale(0.92);
+            background: rgba(0, 229, 199, 0.15);
+        }
+
+        .goal-value {
+            font-size: 24px;
+            font-weight: 700;
+            min-width: 50px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        /* 主要按钮 */
+        .drink-btn {
+            width: 100%;
+            height: 64px;
+            border-radius: 20px;
+            border: none;
+            background: linear-gradient(135deg, var(--water-light) 0%, var(--water-dark) 100%);
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 20px rgba(0, 229, 199, 0.3),
+                0 0 0 0 rgba(0, 229, 199, 0.4);
+        }
+
+        .drink-btn:active {
+            transform: scale(0.96);
+            box-shadow: 
+                0 2px 10px rgba(0, 229, 199, 0.2),
+                0 0 0 4px rgba(0, 229, 199, 0.15);
+        }
+
+        .drink-btn.complete {
+            background: linear-gradient(135deg, #00c9a7 0%, #008877 100%);
+            box-shadow: 
+                0 4px 20px rgba(0, 201, 167, 0.4);
+        }
+
+        /* 按钮波纹效果 */
+        .drink-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), 
+                rgba(255,255,255,0.3) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .drink-btn:active::after {
+            opacity: 1;
+        }
+
+        /* 重置按钮 */
+        .reset-btn {
+            width: 100%;
+            height: 48px;
+            margin-top: 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:active {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-primary);
+        }
+
+        /* 成就提示 */
+        .achievement {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(10, 30, 50, 0.95);
+            padding: 32px 48px;
+            border-radius: 24px;
+            text-align: center;
+            opacity: 1; /* fixed: was 0 */
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 100;
+            border: 1px solid var(--accent);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .achievement.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .achievement-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        /* 减少动画 */
+        @media (prefers-reduced-motion: reduce) {
+            .wave, .bubble, .floating-orb {
+                animation: none;
+            }
+            .water {
+                transition: height 0.3s ease;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+    <div class="bg-layer bg-gradient"></div>
+    <div class="bg-layer">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1 class="title">每日喝水追踪</h1>
+            <p class="subtitle">保持健康，从每一杯水开始</p>
+        </header>
+
+        <div class="cup-wrapper">
+            <div class="cup-container">
+                <div class="cup">
+                    <div class="water" id="water">
+                        <div class="water-surface">
+                            <div class="wave"></div>
+                            <div class="wave"></div>
+                        </div>
+                        <div class="bubbles" id="bubbles"></div>
+                    </div>
+                </div>
+                <div class="cup-marks">
+                    <span class="mark">100%</span>
+                    <span class="mark">75%</span>
+                    <span class="mark">50%</span>
+                    <span class="mark">25%</span>
+                    <span class="mark">0%</span>
+                </div>
+            </div>
+
+            <div class="progress-display">
+                <div class="progress-number" id="progressNumber">0</div>
+                <div class="progress-label">已完成 <span id="progressCups">0</span> / <span id="totalCups">8</span> 杯</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="goal-setting">
+                <span class="goal-label">每日目标</span>
+                <button class="goal-btn" id="decreaseGoal" aria-label="减少目标">−</button>
+                <span class="goal-value" id="goalValue">8</span>
+                <button class="goal-btn" id="increaseGoal" aria-label="增加目标">+</button>
+            </div>
+            <button class="drink-btn" id="drinkBtn">喝了一杯水</button>
+            <button class="reset-btn" id="resetBtn">重置今日记录</button>
+        </div>
+    </div>
+
+    <div class="achievement" id="achievement">
+        <div class="achievement-icon">🎉</div>
+        <div class="achievement-text">今日目标达成</div>
+    </div>
+
+    <script>
+        // 初始化状态
+        let goal = 8;
+        let current = 0;
+
+        // DOM 元素
+        const water = document.getElementById('water');
+        const bubbles = document.getElementById('bubbles');
+        const progressNumber = document.getElementById('progressNumber');
+        const progressCups = document.getElementById('progressCups');
+        const totalCups = document.getElementById('totalCups');
+        const goalValue = document.getElementById('goalValue');
+        const drinkBtn = document.getElementById('drinkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const decreaseGoal = document.getElementById('decreaseGoal');
+        const increaseGoal = document.getElementById('increaseGoal');
+        const achievement = document.getElementById('achievement');
+
+        // 从本地存储加载数据
+        function loadData() {
+            const today = new Date().toDateString();
+            const savedData = localStorage.getItem('waterTracker');
+            
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.date === today) {
+                    current = data.current;
+                    goal = data.goal || 8;
+                } else {
+                    current = 0;
+                }
+            }
+            
+            goalValue.textContent = goal;
+            updateUI();
+        }
+
+        // 保存数据
+        function saveData() {
+            const today = new Date().toDateString();
+            localStorage.setItem('waterTracker', JSON.stringify({
+                date: today,
+                current: current,
+                goal: goal
+            }));
+        }
+
+        // 更新界面
+        function updateUI() {
+            const percentage = Math.min((current / goal) * 100, 100);
+            
+            // 更新水位
+            water.style.height = percentage + '%';
+            
+            // 更新数字
+            progressNumber.textContent = current;
+            progressCups.textContent = current;
+            totalCups.textContent = goal;
+            
+            // 更新按钮状态
+            if (current >= goal) {
+                drinkBtn.classList.add('complete');
+                drinkBtn.textContent = '已完成今日目标';
+            } else {
+                drinkBtn.classList.remove('complete');
+                drinkBtn.textContent = '喝了一杯水';
+            }
+            
+            // 检查成就
+            if (current === goal && current > 0) {
+                showAchievement();
+            }
+        }
+
+        // 创建气泡
+        function createBubble() {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const size = Math.max(4, Math.random() * 8 + 4);
+            bubble.style.width = size + 'px';
+            bubble.style.height = size + 'px';
+            bubble.style.left = Math.random() * 80 + 10 + '%';
+            bubble.style.bottom = '0';
+            bubble.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            bubble.style.animationDelay = Math.random() * 0.5 + 's';
+            bubbles.appendChild(bubble);
+            
+            setTimeout(() => {
+                bubble.remove();
+            }, 4000);
+        }
+
+        // 显示成就
+        function showAchievement() {
+            achievement.classList.add('show');
+            setTimeout(() => {
+                achievement.classList.remove('show');
+            }, 2500);
+        }
+
+        // 喝水事件
+        drinkBtn.addEventListener('click', (e) => {
+            if (current < goal) {
+                current++;
+                updateUI();
+                saveData();
+                
+                // 创建气泡效果
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(createBubble, i * 100);
+                }
+                
+                // 按钮波纹位置
+                const rect = drinkBtn.getBoundingClientRect();
+                drinkBtn.style.setProperty('--x', ((e.clientX - rect.left) / rect.width * 100) + '%');
+                drinkBtn.style.setProperty('--y', ((e.clientY - rect.top) / rect.height * 100) + '%');
+            }
+        });
+
+        // 重置事件
+        resetBtn.addEventListener('click', () => {
+            current = 0;
+            updateUI();
+            saveData();
+        });
+
+        // 目标调整
+        decreaseGoal.addEventListener('click', () => {
+            if (goal > 1) {
+                goal--;
+                goalValue.textContent = goal;
+                updateUI();
+                saveData();
+            }
+        });
+
+        increaseGoal.addEventListener('click', () => {
+            if (goal < 20) {
+                goal++;
+                goalValue.textContent = goal;
+                updateUI();
+                saveData();
+            }
+        });
+
+        // 持续生成气泡
+        setInterval(() => {
+            if (current > 0) {
+                createBubble();
+            }
+        }, 1500);
+
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>

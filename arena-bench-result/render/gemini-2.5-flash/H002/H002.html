@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>每日喝水追踪</title>
+    <style>
+        /* 全局样式和响应式基础 */
+        :root {
+            --primary-blue: #4dc3ff;
+            --light-blue: #a3d9ff;
+            --background-gradient: linear-gradient(to bottom, #e0f7fa, #bbdefb);
+            --text-color: #333;
+            --button-bg: var(--primary-blue);
+            --button-text: white;
+            --card-bg: white;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 15px;
+            --font-size-base: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            margin: 0;
+            padding: 20px;
+            background: var(--background-gradient);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 420px; /* 适合大多数手机屏幕 */
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+        }
+
+        /* 目标设置区域 */
+        #target-setting {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #target-setting label {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        #target-input {
+            width: 80px;
+            padding: 10px;
+            font-size: 1.1rem;
+            border: 1px solid var(--light-blue);
+            border-radius: 8px;
+            text-align: center;
+            -moz-appearance: textfield; /* Firefox */
+        }
+        /* 隐藏 Chrome, Safari, Edge, Opera 的上下箭头 */
+        #target-input::-webkit-outer-spin-button,
+        #target-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--button-text);
+            background-color: var(--button-bg);
+            border: none;
+            border-radius: 50px; /* 圆角按钮 */
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            touch-action: manipulation; /* 优化移动端触摸响应 */
+        }
+
+        .button:hover {
+            background-color: #3aa6d9;
+        }
+
+        .button:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 水杯可视化区域 */
+        #water-glass-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 水杯底部对齐 */
+            margin: 20px auto 30px auto;
+            width: 100%;
+            height: 300px; /* 确保水杯有足够高度 */
+            position: relative;
+        }
+
+        #water-glass {
+            width: 150px;
+            height: 250px;
+            border: 5px solid var(--light-blue);
+            border-bottom: none; /* 底部不画边框，由底部圆弧填充 */
+            border-radius: 0 0 75px 75px / 0 0 25px 25px; /* 底部圆弧，顶部直角 */
+            position: relative;
+            overflow: hidden;
+            background-color: #f0f8ff; /* 空杯时的背景色 */
+            display: flex;
+            flex-direction: column-reverse; /* 让水从底部往上填充 */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* 模拟水杯底部 */
+        #water-glass::after {
+            content: '';
+            position: absolute;
+            bottom: -5px; /* 稍微盖住底部，与边框重合 */
+            left: -5px;
+            right: -5px;
+            height: 30px; /* 底部圆弧的高度 */
+            border-radius: 0 0 75px 75px / 0 0 25px 25px;
+            background-color: var(--light-blue);
+            z-index: 0; /* 确保在水层下面 */
+        }
+
+
+        #water-level {
+            width: 100%;
+            height: 0%; /* 初始高度为0 */
+            background-color: var(--primary-blue);
+            position: relative;
+            transition: height 0.6s ease-out; /* 平滑过渡效果 */
+            border-radius: 0 0 70px 70px / 0 0 20px 20px; /* 适配水杯的底部圆弧 */
+            z-index: 1; /* 确保在水杯底部模拟层之上 */
+            will-change: height; /* 告知浏览器 height 属性会改变，优化动画 */
+        }
+
+        /* 水面的波浪效果 (可选，但更逼真) */
+        #water-level::before {
+            content: '';
+            position: absolute;
+            top: -10px; /* 位于水面之上 */
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3); /* 半透明白色波浪 */
+            border-radius: 50%;
+            opacity: 0.8;
+            filter: blur(2px);
+            transform: scaleX(1.2); /* 略微超出水杯边缘 */
+        }
+        /* 更复杂的波浪效果，可以结合 animation */
+        /* @keyframes wave {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        } */
+
+
+        /* 状态显示和按钮 */
+        #status-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>💧 每日喝水追踪 💧</h1>
+
+        <div id="target-setting">
+            <label for="target-input">设定每日目标杯数：</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="number" id="target-input" value="8" min="1" max="20" aria-label="设定每日目标杯数">
+                <button class="button" id="set-target-button">设定</button>
+            </div>
+        </div>
+
+        <div id="water-glass-container">
+            <div id="water-glass">
+                <div id="water-level"></div>
+            </div>
+        </div>
+
+        <div id="status-display">
+            已喝：0 / 8 杯
+        </div>
+
+        <button class="button" id="drink-button">喝一杯！</button>
+    </div>
+
+    <script>
+        // DOM 元素引用
+        const targetInput = document.getElementById('target-input');
+        const setTargetButton = document.getElementById('set-target-button');
+        const drinkButton = document.getElementById('drink-button');
+        const statusDisplay = document.getElementById('status-display');
+        const waterLevel = document.getElementById('water-level');
+
+        // 状态变量
+        let currentCups = 0;
+        let targetCups = parseInt(targetInput.value); // 初始从 input 读取
+
+        // 更新显示
+        function updateDisplay() {
+            // 更新文本
+            statusDisplay.textContent = `已喝：${currentCups} / ${targetCups} 杯`;
+
+            // 更新水杯水位
+            const percentage = (currentCups / targetCups) * 100;
+            waterLevel.style.height = `${Math.min(100, percentage)}%`; // 确保不超过100%
+
+            // 如果达到目标，可以添加一些视觉反馈
+            if (currentCups >= targetCups) {
+                drinkButton.textContent = '目标达成！🎉';
+                drinkButton.disabled = true;
+                drinkButton.style.backgroundColor = '#28a745'; /* 绿色 */
+            } else {
+                drinkButton.textContent = '喝一杯！';
+                drinkButton.disabled = false;
+                drinkButton.style.backgroundColor = 'var(--primary-blue)';
+            }
+        }
+
+        // 设定目标杯数
+        function setTarget() {
+            const newTarget = parseInt(targetInput.value);
+            if (isNaN(newTarget) || newTarget <= 0) {
+                alert('请设定一个有效的目标杯数 (大于0)');
+                targetInput.value = targetCups; // 恢复旧值
+                return;
+            }
+            targetCups = newTarget;
+            currentCups = 0; // 设定新目标后，重置已喝杯数
+            updateDisplay();
+        }
+
+        // 喝一杯水
+        function drinkCup() {
+            if (currentCups < targetCups) {
+                currentCups++;
+                updateDisplay();
+            }
+        }
+
+        // 事件监听器
+        setTargetButton.addEventListener('click', setTarget);
+        drinkButton.addEventListener('click', drinkCup);
+
+        // 初始化显示
+        document.addEventListener('DOMContentLoaded', updateDisplay);
+
+        // 允许用户按回车键设定目标
+        targetInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                setTargetButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

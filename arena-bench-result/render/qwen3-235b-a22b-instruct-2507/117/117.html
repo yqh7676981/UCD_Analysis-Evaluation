@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>科学协作平台 - 科学家交流与合作中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1a6dcc, #0d47a1);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .logo span {
+            color: #81d4fa;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 30px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: #81d4fa;
+        }
+        
+        .hero {
+            background: url('https://images.unsplash.com/photo-1507146153580-69a1fe6d8aa1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+            height: 500px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+        }
+        
+        .hero-content {
+            z-index: 1;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: #1a6dcc;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn:hover {
+            background-color: #0d47a1;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title h2 {
+            font-size: 36px;
+            color: #1a6dcc;
+            margin-bottom: 15px;
+        }
+        
+        .section-title p {
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a6dcc, #0d47a1);
+            color: white;
+            font-size: 40px;
+        }
+        
+        .feature-content {
+            padding: 30px;
+        }
+        
+        .feature-content h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #1a6dcc;
+        }
+        
+        .research-feed {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .post {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+        
+        .user-info h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .user-info span {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .post-content p {
+            margin-bottom: 15px;
+            color: #444;
+        }
+        
+        .post-footer {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #1a6dcc;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .action-btn i {
+            margin-right: 5px;
+        }
+        
+        .collaborate {
+            background-color: #e3f2fd;
+            text-align: center;
+        }
+        
+        .cta-form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        footer {
+            background-color: #1a6dcc;
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #81d4fa;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: #bbdefb;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: #81d4fa;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 14px;
+            color: #bbdefb;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            nav ul {
+                margin-top: 20px;
+            }
+            
+            nav ul li {
+                margin: 0 10px;
+            }
+            
+            .hero h1 {
+                font-size: 36px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            section {
+                padding: 60px 0;
+            }
+            
+            .section-title h2 {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">Sci<span>Connect</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#features">功能</a></li>
+                    <li><a href="#research">研究动态</a></li>
+                    <li><a href="#collaborate">合作</a></li>
+                    <li><a href="#about">关于</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>连接科学，共创未来</h1>
+            <p>为全球科学家打造的互动平台，促进跨领域合作与知识共享，加速科学发现的进程</p>
+            <button class="btn" onclick="document.getElementById('collaborate').scrollIntoView({behavior: 'smooth'})">立即加入</button>
+        </div>
+    </section>
+
+    <section id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>平台特色</h2>
+                <p>我们为科学家提供全面的工具和资源，支持从想法分享到项目合作的完整科研流程</p>
+            </div>
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">💡</div>
+                    <div class="feature-content">
+                        <h3>想法分享</h3>
+                        <p>发布您的初步研究构想，获得同行反馈，完善研究方案。我们的平台鼓励开放科学，让创新思想自由流动。</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <div class="feature-content">
+                        <h3>跨领域合作</h3>
+                        <p>连接不同学科的专家，组建多元化研究团队。突破传统学科界限，激发创新性解决方案。</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-content">
+                        <h3>数据共享</h3>
+                        <p>安全地共享研究数据和实验结果，避免重复工作，加速科学发现。支持多种数据格式和隐私设置。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="research">
+        <div class="container">
+            <div class="section-title">
+                <h2>最新研究动态</h2>
+                <p>查看来自全球科学家的最新想法和研究成果，参与讨论，拓展您的科研视野</p>
+            </div>
+            <div class="research-feed">
+                <div class="post">
+                    <div class="post-header">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像" class="avatar">
+                        <div class="user-info">
+                            <h4>张明华 博士</h4>
+                            <span>分子生物学研究员 · 北京大学</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>正在探索CRISPR-Cas9在治疗遗传性眼病中的应用。初步实验显示，在小鼠模型中成功修复了RPE65基因突变。目前正在寻找临床医学合作伙伴，推进下一阶段的人体试验研究。</p>
+                    </div>
+                    <div class="post-footer">
+                        <span>2小时前 • 分子生物学</span>
+                        <div>
+                            <button class="action-btn"><i>💬</i> 评论 (12)</button>
+                            <button class="action-btn"><i>❤️</i> 点赞 (24)</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="用户头像" class="avatar">
+                        <div class="user-info">
+                            <h4>李伟 教授</h4>
+                            <span>气候科学主任 · 中科院大气物理研究所</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>需要跨学科合作！我们团队开发了一套新的气候模型算法，预测精度提高了30%。现在需要计算机科学家帮助优化算法效率，以及生态学家验证模型在生物多样性方面的预测准确性。有意合作者请私信联系。</p>
+                    </div>
+                    <div class="post-footer">
+                        <span>5小时前 • 气候科学</span>
+                        <div>
+                            <button class="action-btn"><i>💬</i> 评论 (8)</button>
+                            <button class="action-btn"><i>❤️</i> 点赞 (41)</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="用户头像" class="avatar">
+                        <div class="user-info">
+                            <h4>王雪 博士</h4>
+                            <span>材料科学专家 · 清华大学</span>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <p>新型纳米复合材料研发进展分享：我们合成了一种具有自修复特性的高分子材料，断裂后在室温下24小时内可恢复95%的原始强度。正在寻找应用领域的合作伙伴，特别是在航空航天和柔性电子设备方面。</p>
+                    </div>
+                    <div class="post-footer">
+                        <span>昨天 • 材料科学</span>
+                        <div>
+                            <button class="action-btn"><i>💬</i> 评论 (15)</button>
+                            <button class="action-btn"><i>❤️</i> 点赞 (33)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="collaborate" class="collaborate">
+        <div class="container">
+            <div class="section-title">
+                <h2>开始您的科研合作之旅</h2>
+                <p>填写以下表格，告诉我们您的研究兴趣和合作需求，我们将为您匹配最合适的合作伙伴</p>
+            </div>
+            <div class="cta-form">
+                <form id="collaborationForm">
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" id="name" placeholder="请输入您的全名" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" id="email" placeholder="请输入您的学术邮箱" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="institution">所属机构</label>
+                        <input type="text" id="institution" placeholder="例如：北京大学生命科学学院" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="field">研究领域</label>
+                        <select id="field" required>
+                            <option value="">选择您的主要研究领域</option>
+                            <option value="biology">生物学</option>
+                            <option value="chemistry">化学</option>
+                            <option value="physics">物理学</option>
+                            <option value="medicine">医学</option>
+                            <option value="environmental">环境科学</option>
+                            <option value="materials">材料科学</option>
+                            <option value="computer">计算机科学</option>
+                            <option value="mathematics">数学</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="interest">合作意向</label>
+                        <textarea id="interest" placeholder="简要描述您当前的研究项目、想法或寻求的合作类型..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn">提交申请</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>SciConnect</h3>
+                    <p>致力于为全球科学家构建一个开放、包容、高效的协作平台，推动人类知识边界不断扩展。</p>
+                </div>
+                <div class="footer-column">
+                    <h3>快速链接</h3>
+                    <ul>
+                        <li><a href="#home">首页</a></li>
+                        <li><a href="#features">平台功能</a></li>
+                        <li><a href="#research">研究动态</a></li>
+                        <li><a href="#collaborate">合作申请</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>研究领域</h3>
+                    <ul>
+                        <li><a href="#">生命科学</a></li>
+                        <li><a href="#">物理科学</a></li>
+                        <li><a href="#">地球与环境</a></li>
+                        <li><a href="#">医学健康</a></li>
+                        <li><a href="#">工程与技术</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>联系我们</h3>
+                    <ul>
+                        <li>📧 contact@sciconnect.org</li>
+                        <li>📞 +86 123 4567 8900</li>
+                        <li>🏢 北京市海淀区中关村大街1号</li>
+                        <li class="social-links">
+                            <a href="#" title="Twitter">𝕏</a>
+                            <a href="#" title="LinkedIn">in</a>
+                            <a href="#" title="WeChat">W</a>
+                            <a href="#" title="ResearchGate">RG</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 SciConnect 科学协作平台. 保留所有权利.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 表单提交处理
+        document.getElementById('collaborationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 简单的表单验证和提交模拟
+            const name = document.getElementById('name').value;
+            alert(`感谢您，${name}！\n您的合作申请已成功提交。我们的团队将在24小时内通过邮件与您联系，为您匹配合适的合作伙伴。`);
+            
+            // 重置表单
+            this.reset();
+        });
+        
+        // 平滑滚动导航
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                document.querySelector(targetId).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+        
+        // 点赞和评论交互模拟
+        document.querySelectorAll('.action-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.innerHTML.includes('❤️')) {
+                    const likeText = this.innerHTML;
+                    const [icon, count] = likeText.split(' ');
+                    this.innerHTML = `${icon} ${parseInt(count) + 1}`;
+                } else if (this.innerHTML.includes('💬')) {
+                    alert('登录后即可发表评论。此演示版本中评论功能仅作展示。');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

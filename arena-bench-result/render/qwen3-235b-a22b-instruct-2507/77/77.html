@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美味快餐 - 快速、新鲜、美味</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        section {
+            margin-bottom: 3rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        h2 {
+            background-color: #ff6b6b;
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .menu-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .menu-item-info {
+            padding: 1rem;
+        }
+        
+        .menu-item h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .price {
+            font-weight: bold;
+            color: #ff6b6b;
+            font-size: 1.1rem;
+        }
+        
+        .special-offer {
+            background: linear-gradient(135deg, #ffd93d, #ffab00);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .special-offer::before {
+            content: "限时优惠";
+            position: absolute;
+            top: 10px;
+            right: -30px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 30px;
+            transform: rotate(45deg);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .offer-details {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .offer-image {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .offer-image img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .offer-text {
+            flex: 2;
+        }
+        
+        .order-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .order-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .offer-details {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            background-color: #ee5a24;
+        }
+        
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>美味快餐</h1>
+        <p class="tagline">快速 · 新鲜 · 美味</p>
+    </header>
+    
+    <div class="container">
+        <section id="special-offers">
+            <h2>特别优惠</h2>
+            <div class="section-content">
+                <div class="special-offer">
+                    <div class="offer-details">
+                        <div class="offer-image">
+                            <img src="https://images.unsplash.com/photo-1559715541-d4f328670c90?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="超级套餐优惠">
+                        </div>
+                        <div class="offer-text">
+                            <h3>夏日狂欢套餐</h3>
+                            <p>现在订购我们的夏日狂欢套餐，立享5折优惠！包含汉堡、薯条和饮料，原价¥58，现仅需¥29！</p>
+                            <p><strong>优惠有效期：</strong>即日起至2023年12月31日</p>
+                            <button onclick="alert('已添加夏日狂欢套餐到订单！')">立即订购</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="special-offer">
+                    <div class="offer-details">
+                        <div class="offer-image">
+                            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="家庭套餐优惠">
+                        </div>
+                        <div class="offer-text">
+                            <h3>家庭欢乐套餐</h3>
+                            <p>适合3-4人享用的家庭套餐，包含4个主食、3份小食和4杯饮料，原价¥128，现仅需¥88！</p>
+                            <p><strong>优惠有效期：</strong>周末及节假日有效</p>
+                            <button onclick="alert('已添加家庭欢乐套餐到订单！')">立即订购</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="menu">
+            <h2>菜单精选</h2>
+            <div class="section-content">
+                <div class="menu-grid">
+                    <div class="menu-item">
+                        <img src="https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="经典汉堡">
+                        <div class="menu-item-info">
+                            <h3>经典牛肉汉堡</h3>
+                            <p>新鲜牛肉饼搭配生菜、番茄和特制酱料</p>
+                            <p class="price">¥22</p>
+                            <button onclick="addToOrder('经典牛肉汉堡', 22)">加入订单</button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="炸鸡桶">
+                        <div class="menu-item-info">
+                            <h3>香辣炸鸡桶</h3>
+                            <p>秘制配方腌制，外酥里嫩的美味炸鸡</p>
+                            <p class="price">¥38</p>
+                            <button onclick="addToOrder('香辣炸鸡桶', 38)">加入订单</button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <img src="https://images.unsplash.com/photo-1630384060421-cb20d0e0649d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="芝士薯条">
+                        <div class="menu-item-info">
+                            <h3>芝士薯条</h3>
+                            <p>金黄酥脆的薯条配上浓郁芝士酱</p>
+                            <p class="price">¥15</p>
+                            <button onclick="addToOrder('芝士薯条', 15)">加入订单</button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <img src="https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="鸡肉卷">
+                        <div class="menu-item-info">
+                            <h3>照烧鸡肉卷</h3>
+                            <p>嫩滑鸡肉搭配新鲜蔬菜和照烧酱</p>
+                            <p class="price">¥18</p>
+                            <button onclick="addToOrder('照烧鸡肉卷', 18)">加入订单</button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <img src="https://images.unsplash.com/photo-1579954115545-a95591f28bfc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="沙拉">
+                        <div class="menu-item-info">
+                            <h3>凯撒沙拉</h3>
+                            <p>新鲜罗马生菜搭配帕玛森芝士和烤面包丁</p>
+                            <p class="price">¥20</p>
+                            <button onclick="addToOrder('凯撒沙拉', 20)">加入订单</button>
+                        </div>
+                    </div>
+                    
+                    <div class="menu-item">
+                        <img src="https://images.unsplash.com/photo-1554866585-cd94860890b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="奶昔">
+                        <div class="menu-item-info">
+                            <h3>巧克力奶昔</h3>
+                            <p>浓郁巧克力与香草冰淇淋的完美结合</p>
+                            <p class="price">¥16</p>
+                            <button onclick="addToOrder('巧克力奶昔', 16)">加入订单</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="order">
+            <h2>在线订购</h2>
+            <div class="section-content">
+                <form id="orderForm">
+                    <div class="order-form">
+                        <div>
+                            <div class="form-group">
+                                <label for="name">姓名</label>
+                                <input type="text" id="name" placeholder="请输入您的姓名" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone">电话</label>
+                                <input type="tel" id="phone" placeholder="请输入您的电话号码" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="address">地址</label>
+                                <input type="text" id="address" placeholder="请输入您的送餐地址" required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="form-group">
+                                <label for="time">送达时间</label>
+                                <select id="time" required>
+                                    <option value="">选择送达时间</option>
+                                    <option value="asap">尽快送达</option>
+                                    <option value="30">30分钟后</option>
+                                    <option value="60">1小时后</option>
+                                    <option value="90">1.5小时后</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="payment">支付方式</label>
+                                <select id="payment" required>
+                                    <option value="">选择支付方式</option>
+                                    <option value="cash">货到付款</option>
+                                    <option value="wechat">微信支付</option>
+                                    <option value="alipay">支付宝</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="notes">备注</label>
+                                <textarea id="notes" rows="3" placeholder="如：不要香菜、微辣等"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="orderSummary" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;">
+                        <h3>订单详情</h3>
+                        <p id="orderItems">暂无商品</p>
+                        <p id="totalPrice"><strong>总计：¥0</strong></p>
+                    </div>
+                    
+                    <button type="button" onclick="submitOrder()">提交订单</button>
+                </form>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <h3>美味快餐</h3>
+            <p>为您提供快速、新鲜、美味的餐饮体验</p>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <span>📞</span>
+                    <span>订餐热线：400-123-4567</span>
+                </div>
+                <div class="contact-item">
+                    <span>🕒</span>
+                    <span>营业时间：每天 10:00 - 22:00</span>
+                </div>
+                <div class="contact-item">
+                    <span>📍</span>
+                    <span>地址：北京市朝阳区美食街88号</span>
+                </div>
+            </div>
+            <p style="margin-top: 1rem; color: #aaa;">© 2023 美味快餐版权所有</p>
+        </div>
+    </footer>
+
+    <script>
+        // 订单相关功能
+        let order = [];
+        const totalPriceElement = document.getElementById('totalPrice');
+        const orderItemsElement = document.getElementById('orderItems');
+        
+        function addToOrder(itemName, price) {
+            // 检查是否已存在相同商品
+            const existingItem = order.find(item => item.name === itemName);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                order.push({
+                    name: itemName,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            updateOrderSummary();
+            alert(`${itemName} 已加入订单！`);
+        }
+        
+        function updateOrderSummary() {
+            if (order.length === 0) {
+                orderItemsElement.textContent = '暂无商品';
+                totalPriceElement.innerHTML = '<strong>总计：¥0</strong>';
+                return;
+            }
+            
+            // 更新订单商品列表
+            orderItemsElement.innerHTML = '';
+            order.forEach(item => {
+                const itemLine = document.createElement('p');
+                itemLine.textContent = `${item.name} × ${item.quantity} = ¥${item.price * item.quantity}`;
+                orderItemsElement.appendChild(itemLine);
+            });
+            
+            // 计算总价
+            const total = order.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalPriceElement.innerHTML = `<strong>总计：¥${total}</strong>`;
+        }
+        
+        function submitOrder() {
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const time = document.getElementById('time').value;
+            const payment = document.getElementById('payment').value;
+            
+            if (!name || !phone || !address || !time || !payment) {
+                alert('请填写所有必填信息！');
+                return;
+            }
+            
+            if (order.length === 0) {
+                alert('您的订单为空，请先选择商品！');
+                return;
+            }
+            
+            alert(`感谢您的订单！\n我们将尽快为您配送。\n订单号：MFC${Date.now().toString().substr(-6)}`);
+            
+            // 这里可以添加实际的订单提交逻辑
+            console.log('订单提交:', { name, phone, address, time, payment, order });
+            
+            // 重置表单
+            document.getElementById('orderForm').reset();
+            order = [];
+            updateOrderSummary();
+        }
+    </script>
+</body>
+</html>

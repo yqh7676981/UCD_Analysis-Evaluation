@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臻匠 · 高端商务鞋履</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Instrument Serif', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: #030305;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::selection {
+            background: rgba(255,255,255,0.3);
+            color: #FFFFFF;
+        }
+
+        /* Background grid */
+        .bg-grid {
+            background-image:
+                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+
+        /* Title gradient */
+        .text-gradient {
+            background: linear-gradient(to bottom, #FFFFFF 0%, #FFFFFF 50%, rgba(255,255,255,0.4) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 3D Sphere */
+        .perspective-container { perspective: 1200px; }
+        .dyson-sphere {
+            transform-style: preserve-3d;
+            animation: rotateSphere 25s linear infinite;
+        }
+        .ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            box-shadow: 0 0 25px rgba(255,255,255,0.15), inset 0 0 10px rgba(255,255,255,0.05);
+        }
+        @keyframes rotateSphere {
+            0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            100% { transform: rotateX(360deg) rotateY(180deg) rotateZ(360deg); }
+        }
+        @keyframes pulseCore {
+            0% { opacity: 0.6; transform: translate(-50%,-50%) scale(0.8); }
+            100% { opacity: 0.9; transform: translate(-50%,-50%) scale(1.1); }
+        }
+        .core-glow {
+            animation: pulseCore 3s ease-in-out infinite alternate;
+        }
+
+        /* Fade in up */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        .delay-100 { animation-delay: 0.1s; opacity: 1; /* fixed: was 0 */ }
+        .delay-200 { animation-delay: 0.2s; opacity: 1; /* fixed: was 0 */ }
+        .delay-300 { animation-delay: 0.3s; opacity: 1; /* fixed: was 0 */ }
+        .delay-400 { animation-delay: 0.4s; opacity: 1; /* fixed: was 0 */ }
+        .delay-500 { animation-delay: 0.5s; opacity: 1; /* fixed: was 0 */ }
+
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+
+        /* Product card hover */
+        .product-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .product-card:hover {
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.04);
+        }
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+        .product-img {
+            transition: transform 0.5s ease;
+        }
+
+        /* Feature card */
+        .feature-card {
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Process step */
+        .process-step {
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .process-step:hover {
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        /* CTA button */
+        .btn-primary {
+            background: #FFFFFF;
+            color: #000000;
+            transition: all 0.15s ease;
+        }
+        .btn-primary:hover {
+            background: #E2E8F0;
+        }
+        .btn-secondary {
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.15s ease;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        /* Nav link */
+        .nav-link {
+            color: #94A3B8;
+            transition: color 0.15s ease;
+        }
+        .nav-link:hover {
+            color: #FFFFFF;
+        }
+
+        /* Toast */
+        .toast {
+            animation: slideInRight 0.4s ease-out forwards;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideOutRight {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(100%); }
+        }
+
+        /* Mobile menu */
+        .mobile-menu {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        .mobile-menu.open {
+            transform: translateY(0);
+        }
+
+        /* Size selector */
+        .size-btn {
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.15s ease;
+        }
+        .size-btn:hover, .size-btn.active {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        /* Testimonial */
+        .testimonial-card {
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+        .testimonial-card:hover {
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        /* Scroll indicator */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+        .scroll-indicator {
+            animation: bounce 2s ease-in-out infinite;
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body class="antialiased overflow-x-hidden">
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-20 right-6 z-[100] flex flex-col gap-3"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-16 flex items-center" style="background: rgba(3,3,5,0.8); backdrop-filter: blur(12px);">
+        <div class="max-w-7xl mx-auto w-full px-6 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-2.5">
+                <div class="w-4 h-4 bg-white rounded-full"></div>
+                <span class="text-sm font-medium tracking-wide">臻匠</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#products" class="nav-link text-sm">产品系列</a>
+                <a href="#craftsmanship" class="nav-link text-sm">匠心工艺</a>
+                <a href="#process" class="nav-link text-sm">制作流程</a>
+                <a href="#testimonials" class="nav-link text-sm">客户评价</a>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <button onclick="showToast('搜索功能即将上线')" class="nav-link">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </button>
+                <button onclick="showToast('购物车为空')" class="nav-link relative">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                    <span id="cart-badge" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 bg-white text-black text-[8px] font-medium rounded-full flex items-center justify-center">0</span>
+                </button>
+                <a href="#products" class="btn-primary text-sm font-medium px-6 py-2 rounded-full inline-block">立即选购</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden nav-link" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed inset-0 z-40 pt-16" style="background: rgba(3,3,5,0.95); backdrop-filter: blur(12px);">
+        <div class="flex flex-col items-center justify-center h-full gap-8">
+            <a href="#products" onclick="toggleMobileMenu()" class="text-2xl font-light text-slate-300 hover:text-white transition-colors">产品系列</a>
+            <a href="#craftsmanship" onclick="toggleMobileMenu()" class="text-2xl font-light text-slate-300 hover:text-white transition-colors">匠心工艺</a>
+            <a href="#process" onclick="toggleMobileMenu()" class="text-2xl font-light text-slate-300 hover:text-white transition-colors">制作流程</a>
+            <a href="#testimonials" onclick="toggleMobileMenu()" class="text-2xl font-light text-slate-300 hover:text-white transition-colors">客户评价</a>
+            <a href="#products" onclick="toggleMobileMenu()" class="btn-primary text-sm font-medium px-8 py-3 rounded-full mt-4">立即选购</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex flex-col items-center justify-center pt-24 pb-12 px-6 overflow-hidden">
+        <!-- Background Grid -->
+        <div class="absolute inset-0 bg-grid"></div>
+        <!-- Background Glow -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full" style="background: rgba(255,255,255,0.04); filter: blur(100px);"></div>
+
+        <!-- 3D Sphere -->
+        <div class="perspective-container mb-12 animate-fade-in-up">
+            <div class="relative w-48 h-48 md:w-80 md:h-80">
+                <div class="dyson-sphere absolute inset-0">
+                    <div class="ring" style="transform: rotateY(0deg);"></div>
+                    <div class="ring" style="transform: rotateY(30deg);"></div>
+                    <div class="ring" style="transform: rotateY(60deg);"></div>
+                    <div class="ring" style="transform: rotateY(90deg);"></div>
+                    <div class="ring" style="transform: rotateY(120deg);"></div>
+                    <div class="ring" style="transform: rotateY(150deg);"></div>
+                    <div class="ring" style="transform: rotateX(45deg);"></div>
+                    <div class="ring" style="transform: rotateX(90deg);"></div>
+                    <div class="ring" style="transform: rotateX(135deg);"></div>
+                    <div class="ring" style="transform: rotateX(-45deg);"></div>
+                </div>
+                <!-- Core -->
+                <div class="core-glow absolute top-1/2 left-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full" style="background: radial-gradient(circle at center, rgba(255,255,255,1) 0%, rgba(255,255,255,0.5) 20%, transparent 70%); filter: blur(20px);"></div>
+            </div>
+        </div>
+
+        <!-- Badge -->
+        <div class="animate-fade-in-up delay-100 mb-6">
+            <span class="inline-flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-slate-400 px-4 py-1.5 rounded-full" style="border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                始于1987 · 匠心传承
+            </span>
+        </div>
+
+        <!-- Title -->
+        <h1 class="animate-fade-in-up delay-200 text-gradient text-5xl md:text-7xl font-medium tracking-tight text-center leading-[1.1] mb-6">
+            每一步，皆是<br>
+            <span class="font-serif italic">非凡格调</span>
+        </h1>
+
+        <!-- Subtitle -->
+        <p class="animate-fade-in-up delay-300 text-lg md:text-xl font-light text-slate-400 text-center max-w-2xl leading-relaxed mb-10">
+            精选顶级皮革，历经200道手工工序，只为打造一双值得信赖的商务鞋履。<br class="hidden md:block">从会议室到晚宴，从容应对每一个重要时刻。
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="animate-fade-in-up delay-400 flex flex-col sm:flex-row items-center gap-4">
+            <a href="#products" class="btn-primary text-sm font-medium px-8 py-3 rounded-full inline-flex items-center gap-2">
+                探索系列
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="#craftsmanship" class="btn-secondary text-sm font-medium px-8 py-3 rounded-full text-white inline-flex items-center gap-2">
+                了解工艺
+            </a>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 scroll-indicator">
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-500"></i>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="relative py-16 px-6" style="border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+                <div class="text-3xl md:text-4xl font-medium tracking-tight mb-1">37</div>
+                <div class="text-xs font-medium tracking-widest uppercase text-slate-500">年匠心传承</div>
+            </div>
+            <div>
+                <div class="text-3xl md:text-4xl font-medium tracking-tight mb-1">200+</div>
+                <div class="text-xs font-medium tracking-widest uppercase text-slate-500">手工工序</div>
+            </div>
+            <div>
+                <div class="text-3xl md:text-4xl font-medium tracking-tight mb-1">98%</div>
+                <div class="text-xs font-medium tracking-widest uppercase text-slate-500">客户满意度</div>
+            </div>
+            <div>
+                <div class="text-3xl md:text-4xl font-medium tracking-tight mb-1">50K+</div>
+                <div class="text-xs font-medium tracking-widest uppercase text-slate-500">全球精英之选</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section id="products" class="relative py-24 md:py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <span class="inline-block text-xs font-medium tracking-widest uppercase text-slate-500 mb-4">产品系列</span>
+                <h2 class="text-gradient text-3xl md:text-4xl font-medium tracking-tight mb-4">经典之作，<span class="font-serif italic">永恒之选</span></h2>
+                <p class="text-slate-400 text-base max-w-xl mx-auto">每一双臻匠商务鞋，都是对品质的极致追求</p>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Product 1 -->
+                <div class="product-card rounded-3xl overflow-hidden" style="background: rgba(255,255,255,0.02);">
+                    <div class="aspect-[4/3] overflow-hidden relative">
+                        <img src="https://picsum.photos/seed/oxford-black/800/600.jpg" alt="经典牛津" class="product-img w-full h-full object-cover">
+                        <div class="absolute top-4 left-4">
+                            <span class="text-xs font-medium tracking-widest uppercase px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);">畅销款</span>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-medium tracking-tight mb-1">经典牛津</h3>
+                                <p class="text-sm text-slate-500">Classic Oxford</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-medium">¥3,680</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400 leading-relaxed mb-5">采用意大利小牛皮，固特异缝线工艺，经典闭口鞋舌设计，是正式商务场合的不二之选。</p>
+                        <div class="flex items-center gap-2 mb-5">
+                            <span class="text-xs text-slate-500">尺码：</span>
+                            <div class="flex gap-1.5">
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">39</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">40</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md active" onclick="selectSize(this)">41</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">42</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">43</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">44</button>
+                            </div>
+                        </div>
+                        <button onclick="addToCart('经典牛津', 3680)" class="btn-primary w-full text-sm font-medium py-3 rounded-full flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            加入购物车
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card rounded-3xl overflow-hidden" style="background: rgba(255,255,255,0.02);">
+                    <div class="aspect-[4/3] overflow-hidden relative">
+                        <img src="https://picsum.photos/seed/derby-brown/800/600.jpg" alt="德比鞋" class="product-img w-full h-full object-cover">
+                        <div class="absolute top-4 left-4">
+                            <span class="text-xs font-medium tracking-widest uppercase px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);">新品</span>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-medium tracking-tight mb-1">德比鞋</h3>
+                                <p class="text-sm text-slate-500">Derby Shoe</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-medium">¥3,280</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400 leading-relaxed mb-5">开口鞋舌设计，更适合宽脚型。法国植鞣牛皮，布莱克快速缝线，商务休闲两相宜。</p>
+                        <div class="flex items-center gap-2 mb-5">
+                            <span class="text-xs text-slate-500">尺码：</span>
+                            <div class="flex gap-1.5">
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">39</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">40</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">41</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md active" onclick="selectSize(this)">42</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">43</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">44</button>
+                            </div>
+                        </div>
+                        <button onclick="addToCart('德比鞋', 3280)" class="btn-primary w-full text-sm font-medium py-3 rounded-full flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            加入购物车
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card rounded-3xl overflow-hidden" style="background: rgba(255,255,255,0.02);">
+                    <div class="aspect-[4/3] overflow-hidden relative">
+                        <img src="https://picsum.photos/seed/monk-strap/800/600.jpg" alt="僧侣扣" class="product-img w-full h-full object-cover">
+                    </div>
+                    <div class="p-8">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-medium tracking-tight mb-1">僧侣扣</h3>
+                                <p class="text-sm text-slate-500">Monk Strap</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-medium">¥3,980</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400 leading-relaxed mb-5">双扣设计，彰显独特品味。西班牙手工擦色皮面，固特异缝线，兼具优雅与个性。</p>
+                        <div class="flex items-center gap-2 mb-5">
+                            <span class="text-xs text-slate-500">尺码：</span>
+                            <div class="flex gap-1.5">
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">39</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">40</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md active" onclick="selectSize(this)">41</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">42</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">43</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">44</button>
+                            </div>
+                        </div>
+                        <button onclick="addToCart('僧侣扣', 3980)" class="btn-primary w-full text-sm font-medium py-3 rounded-full flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            加入购物车
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="product-card rounded-3xl overflow-hidden" style="background: rgba(255,255,255,0.02);">
+                    <div class="aspect-[4/3] overflow-hidden relative">
+                        <img src="https://picsum.photos/seed/chelsea-boot/800/600.jpg" alt="切尔西靴" class="product-img w-full h-full object-cover">
+                        <div class="absolute top-4 left-4">
+                            <span class="text-xs font-medium tracking-widest uppercase px-3 py-1 rounded-full" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(4px);">限量款</span>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex items-start justify-between mb-3">
+                            <div>
+                                <h3 class="text-xl font-medium tracking-tight mb-1">切尔西靴</h3>
+                                <p class="text-sm text-slate-500">Chelsea Boot</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xl font-medium">¥4,580</div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-400 leading-relaxed mb-5">英伦经典靴型，弹性侧边设计。阿根廷顶级小牛皮，手工上色，秋冬商务首选。</p>
+                        <div class="flex items-center gap-2 mb-5">
+                            <span class="text-xs text-slate-500">尺码：</span>
+                            <div class="flex gap-1.5">
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">39</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">40</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">41</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md active" onclick="selectSize(this)">42</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">43</button>
+                                <button class="size-btn text-xs px-2.5 py-1 rounded-md" onclick="selectSize(this)">44</button>
+                            </div>
+                        </div>
+                        <button onclick="addToCart('切尔西靴', 4580)" class="btn-primary w-full text-sm font-medium py-3 rounded-full flex items-center justify-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                            加入购物车
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Craftsmanship Section -->
+    <section id="craftsmanship" class="relative py-24 md:py-32 px-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block text-xs font-medium tracking-widest uppercase text-slate-500 mb-4">匠心工艺</span>
+                <h2 class="text-gradient text-3xl md:text-4xl font-medium tracking-tight mb-4">极致品质，<span class="font-serif italic">源于细节</span></h2>
+                <p class="text-slate-400 text-base max-w-xl mx-auto">从选材到成品，每一步都承载着匠人的心血与坚持</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Feature 1 -->
+                <div class="feature-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="gem" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-medium tracking-tight mb-3">顶级皮革</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">甄选意大利、法国、西班牙顶级小牛皮，每张皮革经过严格筛选，确保纹理细腻、色泽均匀。仅使用A级皮料，拒绝任何瑕疵。</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="pen-tool" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-medium tracking-tight mb-3">手工缝制</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">传承固特异缝线工艺，每双鞋经历200余道手工工序。匠人用双手感受皮革的呼吸，每一针都倾注了对完美的执着追求。</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-medium tracking-tight mb-3">终身保修</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">我们对品质充满信心，提供终身保修服务。从换底到翻新，让您的臻匠鞋履历久弥新，陪伴您走过每一段重要旅程。</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="footprints" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-medium tracking-tight mb-3">人体工学</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">基于亚洲人脚型数据，经过3年研发的舒适鞋楦。记忆海绵内垫，天然乳胶鞋底，让每一步都如履云端。</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="palette" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-medium tracking-tight mb-3">手工上色</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">每双鞋面由资深匠人手工上色，层层叠加的染料赋予皮革独特的深度与光泽。世上没有两双完全相同的臻匠鞋。</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="leaf" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-medium tracking-tight mb-3">环保承诺</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">采用植物鞣制工艺，减少化学污染。包装使用可降解材料，每售出一双鞋即种植一棵树，践行可持续发展理念。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section id="process" class="relative py-24 md:py-32 px-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block text-xs font-medium tracking-widest uppercase text-slate-500 mb-4">制作流程</span>
+                <h2 class="text-gradient text-3xl md:text-4xl font-medium tracking-tight mb-4">从选材到成品，<span class="font-serif italic">步步匠心</span></h2>
+                <p class="text-slate-400 text-base max-w-xl mx-auto">每一双臻匠商务鞋，需要经历8周时间精心打造</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Step 1 -->
+                <div class="process-step rounded-3xl p-8 text-center relative" style="background: rgba(255,255,255,0.02);">
+                    <div class="text-5xl font-medium text-white/5 mb-4 font-serif">01</div>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="scan" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-base font-medium tracking-tight mb-2">精选皮料</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">从全球顶级皮料中甄选，仅5%的皮革能通过我们的品质标准</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="process-step rounded-3xl p-8 text-center relative" style="background: rgba(255,255,255,0.02);">
+                    <div class="text-5xl font-medium text-white/5 mb-4 font-serif">02</div>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="scissors" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-base font-medium tracking-tight mb-2">手工裁剪</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">资深匠人根据皮革纹理走向手工裁剪，确保每块皮料都发挥最佳效果</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="process-step rounded-3xl p-8 text-center relative" style="background: rgba(255,255,255,0.02);">
+                    <div class="text-5xl font-medium text-white/5 mb-4 font-serif">03</div>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="target" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-base font-medium tracking-tight mb-2">缝线组装</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">固特异缝线工艺，每英寸8针的精密缝制，确保鞋面与鞋底牢固结合</p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="process-step rounded-3xl p-8 text-center relative" style="background: rgba(255,255,255,0.02);">
+                    <div class="text-5xl font-medium text-white/5 mb-4 font-serif">04</div>
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background: rgba(255,255,255,0.05);">
+                        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <h3 class="text-base font-medium tracking-tight mb-2">打磨抛光</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">手工上色与多层抛光，赋予鞋面独特的光泽与深度，呈现艺术品般的质感</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="relative py-24 md:py-32 px-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block text-xs font-medium tracking-widest uppercase text-slate-500 mb-4">客户评价</span>
+                <h2 class="text-gradient text-3xl md:text-4xl font-medium tracking-tight mb-4">他们选择了<span class="font-serif italic">臻匠</span></h2>
+                <p class="text-slate-400 text-base max-w-xl mx-auto">来自全球精英人士的真实反馈</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Testimonial 1 -->
+                <div class="testimonial-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-6">"穿过很多品牌的商务鞋，臻匠的脚感是最好的。第一次穿就像量身定做一样，完全没有磨合期。三年了，依然如新。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-medium">陈</div>
+                        <div>
+                            <div class="text-sm font-medium">陈志远</div>
+                            <div class="text-xs text-slate-500">某投资银行 董事总经理</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="testimonial-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-6">"细节决定成败，这句话在臻匠身上得到了完美诠释。从鞋面的光泽到鞋底的舒适度，每一个细节都经得起推敲。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-medium">李</div>
+                        <div>
+                            <div class="text-sm font-medium">李明轩</div>
+                            <div class="text-xs text-slate-500">某律所 合伙人</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="testimonial-card rounded-3xl p-8" style="background: rgba(255,255,255,0.02);">
+                    <div class="flex items-center gap-1 mb-4">
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                        <i data-lucide="star" class="w-4 h-4 fill-white text-white"></i>
+                    </div>
+                    <p class="text-sm text-slate-300 leading-relaxed mb-6">"作为经常出差的商务人士，一双好鞋太重要了。臻匠的切尔西靴陪我走过了20多个城市，依然舒适如初。终身保修更是让人安心。"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-xs font-medium">王</div>
+                        <div>
+                            <div class="text-sm font-medium">王思远</div>
+                            <div class="text-xs text-slate-500">某科技公司 CEO</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative py-24 md:py-32 px-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="relative">
+                <!-- Glow -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full" style="background: rgba(255,255,255,0.03); filter: blur(80px);"></div>
+                
+                <span class="inline-block text-xs font-medium tracking-widest uppercase text-slate-500 mb-4 relative z-10">限时礼遇</span>
+                <h2 class="text-gradient text-3xl md:text-5xl font-medium tracking-tight mb-6 relative z-10">
+                    首次购买<br><span class="font-serif italic">享专属礼遇</span>
+                </h2>
+                <p class="text-slate-400 text-base md:text-lg font-light leading-relaxed mb-10 relative z-10 max-w-xl mx-auto">
+                    新客首单立减¥500，赠送定制鞋撑与高级护理套装。<br>让您的臻匠鞋履，从第一天起便备受呵护。
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
+                    <button onclick="showToast('优惠码已复制：ZENJIANG500')" class="btn-primary text-sm font-medium px-8 py-3 rounded-full inline-flex items-center gap-2">
+                        领取优惠
+                        <i data-lucide="gift" class="w-4 h-4"></i>
+                    </button>
+                    <a href="#products" class="btn-secondary text-sm font-medium px-8 py-3 rounded-full text-white inline-flex items-center gap-2">
+                        浏览全部产品
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="relative py-16 px-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-xl mx-auto text-center">
+            <h3 class="text-lg font-medium tracking-tight mb-2">订阅臻匠通讯</h3>
+            <p class="text-sm text-slate-500 mb-6">获取新品发布、穿搭灵感与独家优惠</p>
+            <form id="newsletter-form" class="flex gap-3" onsubmit="handleNewsletter(event)">
+                <input type="email" required placeholder="输入您的邮箱" class="flex-1 bg-transparent text-sm px-5 py-3 rounded-full outline-none placeholder:text-slate-600" style="border: 1px solid rgba(255,255,255,0.15);" onfocus="this.style.borderColor='rgba(255,255,255,0.3)'" onblur="this.style.borderColor='rgba(255,255,255,0.15)'">
+                <button type="submit" class="btn-primary text-sm font-medium px-6 py-3 rounded-full whitespace-nowrap">订阅</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="relative py-16 px-6" style="border-top: 1px solid rgba(255,255,255,0.05);">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <!-- Brand -->
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-2.5 mb-4">
+                        <div class="w-3 h-3 bg-white rounded-full"></div>
+                        <span class="text-sm font-medium tracking-wide">臻匠</span>
+                    </div>
+                    <p class="text-xs text-slate-500 leading-relaxed">始于1987，专注高端商务鞋履。<br>每一双，都是对品质的承诺。</p>
+                </div>
+
+                <!-- Products -->
+                <div>
+                    <h4 class="text-xs font-medium tracking-widest uppercase text-slate-400 mb-4">产品</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#products" class="text-sm text-slate-500 hover:text-white transition-colors">经典牛津</a></li>
+                        <li><a href="#products" class="text-sm text-slate-500 hover:text-white transition-colors">德比鞋</a></li>
+                        <li><a href="#products" class="text-sm text-slate-500 hover:text-white transition-colors">僧侣扣</a></li>
+                        <li><a href="#products" class="text-sm text-slate-500 hover:text-white transition-colors">切尔西靴</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="text-xs font-medium tracking-widest uppercase text-slate-400 mb-4">关于</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#craftsmanship" class="text-sm text-slate-500 hover:text-white transition-colors">品牌故事</a></li>
+                        <li><a href="#process" class="text-sm text-slate-500 hover:text-white transition-colors">匠心工艺</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('门店信息页面即将上线')">门店信息</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('加入我们页面即将上线')">加入我们</a></li>
+                    </ul>
+                </div>
+
+                <!-- Support -->
+                <div>
+                    <h4 class="text-xs font-medium tracking-widest uppercase text-slate-400 mb-4">服务</h4>
+                    <ul class="space-y-2.5">
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('尺码指南页面即将上线')">尺码指南</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('保养指南页面即将上线')">保养指南</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('退换政策页面即将上线')">退换政策</a></li>
+                        <li><a href="#" class="text-sm text-slate-500 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('客服将在工作日24小时内回复')">联系客服</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom -->
+            <div class="flex flex-col md:flex-row items-center justify-between pt-8 gap-4" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                <p class="text-xs text-slate-600">© 2024 臻匠. All rights reserved.</p>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="text-slate-600 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('隐私政策页面即将上线')">
+                        <span class="text-xs">隐私政策</span>
+                    </a>
+                    <a href="#" class="text-slate-600 hover:text-white transition-colors" onclick="event.preventDefault(); showToast('使用条款页面即将上线')">
+                        <span class="text-xs">使用条款</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Cart count
+        let cartCount = 0;
+
+        // Add to cart
+        function addToCart(name, price) {
+            cartCount++;
+            const badge = document.getElementById('cart-badge');
+            badge.textContent = cartCount;
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+            showToast(`已将「${name}」加入购物车 · ¥${price.toLocaleString()}`);
+        }
+
+        // Size selector
+        function selectSize(btn) {
+            const siblings = btn.parentElement.querySelectorAll('.size-btn');
+            siblings.forEach(s => s.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast flex items-center gap-3 px-5 py-3 rounded-2xl text-sm max-w-sm';
+            toast.style.cssText = 'background: rgba(255,255,255,0.1); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1);';
+            toast.innerHTML = `
+                <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0 text-white"></i>
+                <span class="text-slate-200">${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Newsletter
+        function handleNewsletter(e) {
+            e.preventDefault();
+            const form = e.target;
+            const email = form.querySelector('input').value;
+            showToast(`订阅成功！我们将发送最新资讯至 ${email}`);
+            form.reset();
+        }
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('open');
+            document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+        }
+
+        // Scroll-based fade-in animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('section > div').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            observer.observe(el);
+        });
+
+        // Navbar background on scroll
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+            } else {
+                nav.style.borderBottom = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

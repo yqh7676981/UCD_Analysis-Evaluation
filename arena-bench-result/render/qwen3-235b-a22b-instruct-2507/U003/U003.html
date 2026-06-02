@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>旅行打包清单</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #4a6fa5;
+            font-size: 1.8rem;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .add-item-section {
+            background-color: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        select, input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            flex: 1;
+            margin-right: 8px;
+        }
+
+        input {
+            flex: 2;
+        }
+
+        button {
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #3a5a8c;
+        }
+
+        .category-tabs {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            scrollbar-width: thin;
+        }
+
+        .tab {
+            white-space: nowrap;
+            padding: 10px 16px;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background-color: #4a6fa5;
+            color: white;
+        }
+
+        .item-list {
+            list-style-type: none;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .item {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #4a6fa5;
+            border-radius: 6px;
+            margin-right: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .checkbox.checked {
+            background-color: #4a6fa5;
+        }
+
+        .checkmark {
+            opacity: 0;
+            color: white;
+            font-weight: bold;
+        }
+
+        .checkbox.checked .checkmark {
+            opacity: 1;
+        }
+
+        .item-text {
+            flex: 1;
+            font-size: 1rem;
+        }
+
+        .item-text.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 隐藏默认的 checkbox */
+        .hidden-checkbox {
+            display: none;
+        }
+
+        /* 确保在小屏幕上也能正常显示 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+            select, input, button {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎒 旅行打包清单</h1>
+
+        <div class="add-item-section">
+            <div class="input-group">
+                <select id="category-select">
+                    <option value="clothes">衣物</option>
+                    <option value="hygiene">洗漱</option>
+                    <option value="electronics">电子</option>
+                    <option value="documents">证件</option>
+                </select>
+                <input type="text" id="item-input" placeholder="添加物品...">
+            </div>
+            <button id="add-button">添加</button>
+        </div>
+
+        <div class="category-tabs" id="category-tabs">
+            <div class="tab active" data-category="all">全部</div>
+            <div class="tab" data-category="clothes">衣物</div>
+            <div class="tab" data-category="hygiene">洗漱</div>
+            <div class="tab" data-category="electronics">电子</div>
+            <div class="tab" data-category="documents">证件</div>
+        </div>
+
+        <ul class="item-list" id="item-list"></ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const categorySelect = document.getElementById('category-select');
+            const itemInput = document.getElementById('item-input');
+            const addButton = document.getElementById('add-button');
+            const categoryTabs = document.getElementById('category-tabs');
+            const itemList = document.getElementById('item-list');
+
+            // Categories mapping for display
+            const categoryNames = {
+                all: '全部',
+                clothes: '衣物',
+                hygiene: '洗漱',
+                electronics: '电子',
+                documents: '证件'
+            };
+
+            // Load items from localStorage
+            let items = JSON.parse(localStorage.getItem('packingListItems')) || [];
+            
+            // Current active category
+            let activeCategory = 'all';
+
+            // Render items based on current filter
+            function renderItems() {
+                // Clear current list
+                itemList.innerHTML = '';
+
+                // Filter items by active category
+                const filteredItems = activeCategory === 'all' 
+                    ? items 
+                    : items.filter(item => item.category === activeCategory);
+
+                if (filteredItems.length === 0) {
+                    const emptyItem = document.createElement('li');
+                    emptyItem.textContent = activeCategory === 'all' 
+                        ? '暂无物品，快添加一些吧！' 
+                        : `暂无${categoryNames[activeCategory]}物品`;
+                    emptyItem.style.padding = '20px';
+                    emptyItem.style.textAlign = 'center';
+                    emptyItem.style.color = '#888';
+                    emptyItem.style.fontStyle = 'italic';
+                    itemList.appendChild(emptyItem);
+                    return;
+                }
+
+                // Add filtered items
+                filteredItems.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.className = 'item';
+                    if (item.completed) {
+                        li.classList.add('completed');
+                    }
+
+                    li.innerHTML = `
+                        <div class="checkbox ${item.completed ? 'checked' : ''}">
+                            <span class="checkmark">✓</span>
+                        </div>
+                        <span class="item-text ${item.completed ? 'completed' : ''}">${item.name}</span>
+                    `;
+
+                    // Add click event for toggling check
+                    li.addEventListener('click', () => {
+                        toggleItemCompleted(item.id);
+                    });
+
+                    itemList.appendChild(li);
+                });
+            }
+
+            // Toggle item completed status
+            function toggleItemCompleted(id) {
+                items = items.map(item => {
+                    if (item.id === id) {
+                        return { ...item, completed: !item.completed };
+                    }
+                    return item;
+                });
+
+                // Save to localStorage
+                saveItems();
+
+                // Re-render
+                renderItems();
+            }
+
+            // Add new item
+            function addItem() {
+                const name = itemInput.value.trim();
+                const category = categorySelect.value;
+
+                if (name === '') {
+                    alert('请输入物品名称！');
+                    return;
+                }
+
+                const newItem = {
+                    id: Date.now().toString(),
+                    name,
+                    category,
+                    completed: false
+                };
+
+                items.unshift(newItem); // Add to beginning of array
+
+                // Save to localStorage
+                saveItems();
+
+                // Clear input
+                itemInput.value = '';
+
+                // Re-render
+                renderItems();
+            }
+
+            // Save items to localStorage
+            function saveItems() {
+                localStorage.setItem('packingListItems', JSON.stringify(items));
+            }
+
+            // Event listeners
+            addButton.addEventListener('click', addItem);
+
+            itemInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addItem();
+                }
+            });
+
+            // Category tab switching
+            categoryTabs.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tab')) {
+                    const category = e.target.dataset.category;
+                    
+                    // Update active tab
+                    document.querySelectorAll('.tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    
+                    // Update active category and re-render
+                    activeCategory = category;
+                    renderItems();
+                }
+            });
+
+            // Initial render
+            renderItems();
+        });
+    </script>
+</body>
+</html>

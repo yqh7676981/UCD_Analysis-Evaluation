@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片对比工具 - Render vs RenderOld</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: #16213e;
+            padding: 20px;
+            border-bottom: 2px solid #0f3460;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .controls label {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .controls input, .controls select {
+            padding: 8px 12px;
+            background: #0f3460;
+            border: 1px solid #533483;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .controls button {
+            padding: 8px 16px;
+            background: #e94560;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .controls button:hover {
+            background: #ff6b6b;
+        }
+        
+        .view-mode {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+        
+        .view-mode button {
+            background: #0f3460;
+            border: 1px solid #533483;
+        }
+        
+        .view-mode button.active {
+            background: #533483;
+        }
+        
+        .main-content {
+            padding: 20px;
+        }
+        
+        /* 列表模式 */
+        .list-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 20px;
+        }
+        
+        .compare-card {
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #0f3460;
+        }
+        
+        .compare-card .card-header {
+            padding: 12px 15px;
+            background: #0f3460;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .compare-card .card-header h3 {
+            font-size: 16px;
+        }
+        
+        .compare-card .card-header .diff-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            background: #2d6a4f;
+        }
+        
+        .compare-card .card-header .diff-badge.diff {
+            background: #e94560;
+        }
+        
+        .image-pair {
+            display: flex;
+            gap: 0;
+        }
+        
+        .image-box {
+            flex: 1;
+            position: relative;
+        }
+        
+        .image-box label {
+            display: block;
+            padding: 8px;
+            background: #0f3460;
+            font-size: 12px;
+            text-align: center;
+            color: #aaa;
+        }
+        
+        .image-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+            background: #000;
+            cursor: zoom-in;
+        }
+        
+        .image-box img.error {
+            height: 150px;
+            object-fit: contain;
+            background: #1a1a2e;
+        }
+        
+        /* 单个对比模式 */
+        .single-view {
+            display: none;
+        }
+        
+        .single-view.active {
+            display: block;
+        }
+        
+        .single-compare-container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 180px);
+        }
+        
+        .single-image-box {
+            flex: 1;
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .single-image-box .img-header {
+            padding: 12px;
+            background: #0f3460;
+            font-size: 14px;
+        }
+        
+        .single-image-box .img-content {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 20px;
+            background: #0a0a14;
+        }
+        
+        .single-image-box img {
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        
+        .nav-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .nav-controls button {
+            padding: 10px 20px;
+            background: #533483;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .nav-controls button:disabled {
+            background: #333;
+            cursor: not-allowed;
+        }
+        
+        .nav-controls span {
+            font-size: 16px;
+        }
+        
+        /* 叠加对比模式 */
+        .overlay-view {
+            display: none;
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .overlay-view.active {
+            display: block;
+        }
+        
+        .overlay-container {
+            position: relative;
+            display: inline-block;
+            background: #0a0a14;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .overlay-container img {
+            max-width: 100%;
+            display: block;
+        }
+        
+        .overlay-container .img-old {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            clip-path: inset(0 50% 0 0);
+        }
+        
+        .overlay-slider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: #e94560;
+            cursor: ew-resize;
+            z-index: 10;
+        }
+        
+        .overlay-slider::before {
+            content: '◀ ▶';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #e94560;
+            color: #fff;
+            padding: 8px 4px;
+            border-radius: 20px;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .overlay-labels {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        
+        .overlay-labels span {
+            background: rgba(0,0,0,0.7);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #533483;
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .checkbox-select {
+            margin-right: 10px;
+        }
+        
+        .batch-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .filter-section {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .stats {
+            background: #0f3460;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>图片对比工具</h1>
+        <div class="controls">
+            <label>模型:</label>
+            <select id="modelSelect" onchange="refreshList()">
+                <option value="claude-opus-4-7-thinking" selected>claude-opus-4-7-thinking</option>
+                <option value="deepseek-v4-flash">deepseek-v4-flash</option>
+                <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+                <option value="glm-5-turbo">glm-5-turbo</option>
+                <option value="gpt-4o">gpt-4o</option>
+                <option value="qwen3-235b-a22b-instruct-2507">qwen3-235b-a22b-instruct-2507</option>
+            </select>
+            
+            <label>文件夹A:</label>
+            <select id="folderA" onchange="refreshList()">
+                <option value="render" selected>render</option>
+                <option value="renderold">renderold</option>
+                <option value="render2">render2</option>
+            </select>
+            
+            <label>文件夹B:</label>
+            <select id="folderB" onchange="refreshList()">
+                <option value="render">render</option>
+                <option value="renderold" selected>renderold</option>
+                <option value="render2">render2</option>
+            </select>
+            
+            <button onclick="refreshList()">刷新列表</button>
+            
+            <div class="view-mode">
+                <button id="listModeBtn" class="active" onclick="setViewMode('list')">列表模式</button>
+                <button id="singleModeBtn" onclick="setViewMode('single')">单图模式</button>
+                <button id="overlayModeBtn" onclick="setViewMode('overlay')">叠加对比</button>
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <label>筛选:</label>
+            <select id="filterSelect" onchange="applyFilter()">
+                <option value="all">全部</option>
+                <option value="diff">仅显示有差异</option>
+            </select>
+            
+            <label style="margin-left: 15px;">搜索ID:</label>
+            <input type="text" id="searchId" placeholder="输入ID" onkeyup="applyFilter()">
+            
+            <div class="stats" id="stats">总计: 0</div>
+            
+            <div class="batch-actions" style="margin-left: auto;">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <label for="selectAll">全选</label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <!-- 列表模式 -->
+        <div id="listView" class="list-view"></div>
+        
+        <!-- 单图模式 -->
+        <div id="singleView" class="single-view">
+            <div class="nav-controls">
+                <button onclick="prevImage()">← 上一个</button>
+                <span id="currentId">-</span>
+                <button onclick="nextImage()">下一个 →</button>
+            </div>
+            <div class="single-compare-container">
+                <div class="single-image-box">
+                    <div class="img-header" id="singleHeaderA">文件夹 A</div>
+                    <div class="img-content">
+                        <img id="singleImgA" src="" alt="Image A">
+                    </div>
+                </div>
+                <div class="single-image-box">
+                    <div class="img-header" id="singleHeaderB">文件夹 B</div>
+                    <div class="img-content">
+                        <img id="singleImgB" src="" alt="Image B">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 叠加对比模式 -->
+        <div id="overlayView" class="overlay-view">
+            <div class="nav-controls">
+                <button onclick="prevImage()">← 上一个</button>
+                <span id="overlayCurrentId">-</span>
+                <button onclick="nextImage()">下一个 →</button>
+            </div>
+            <div style="text-align: center;">
+                <div class="overlay-container" id="overlayContainer">
+                    <img id="overlayImgNew" src="" alt="New">
+                    <img id="overlayImgOld" src="" alt="Old" class="img-old">
+                    <div class="overlay-slider" id="overlaySlider"></div>
+                    <div class="overlay-labels">
+                        <span id="overlayLabelA">A</span>
+                        <span id="overlayLabelB">B</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置
+        const basePath = '../arena-bench-result';
+        let imageIds = [];
+        let filteredIds = [];
+        let currentIndex = 0;
+        let currentViewMode = 'list';
+        let imageDiffStatus = {};
+        let selectedIds = new Set();
+        
+        // 可用模型列表
+        const availableModels = [
+            'claude-opus-4-7-thinking',
+            'deepseek-v4-flash',
+            'gemini-2.5-flash',
+            'glm-5-turbo',
+            'gpt-4o',
+            'qwen3-235b-a22b-instruct-2507'
+        ];
+        
+        // 获取图片路径
+        function getImagePath(folder, id) {
+            const model = document.getElementById('modelSelect').value;
+            return `${basePath}/${folder}/${model}/${id}/${id}.png`;
+        }
+        
+        // 加载图片列表 - 扫描目录
+        async function scanDirectory(folder) {
+            const model = document.getElementById('modelSelect').value;
+            const path = `${basePath}/${folder}/${model}`;
+            
+            // 由于无法直接访问文件系统，使用预定义的ID列表
+            // 在实际使用时，可以通过后端API或Node.js来获取真实文件列表
+            const knownIds = [
+                '58', '77', '81', '97', '117', '197', '250', '252', '259', 
+                '285', '296', '316', '395', '437', '439', '451', '490',
+                '582', '611', '633', '643', '705', 'E002', 'E004'
+            ];
+            
+            // 尝试检测哪些ID实际存在
+            const existingIds = [];
+            for (const id of knownIds) {
+                try {
+                    const exists = await checkImageExists(getImagePath(folder, id));
+                    if (exists) existingIds.push(id);
+                } catch (e) {
+                    // 如果检查失败，假设存在
+                    existingIds.push(id);
+                }
+            }
+            
+            return existingIds;
+        }
+        
+        // 检查图片是否存在
+        function checkImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+                // 超时处理
+                setTimeout(() => resolve(false), 3000);
+            });
+        }
+        
+        // 动态获取两个文件夹的共同ID
+        async function getCommonIds() {
+            const folderA = document.getElementById('folderA').value;
+            const folderB = document.getElementById('folderB').value;
+            const model = document.getElementById('modelSelect').value;
+            
+            // 尝试从A文件夹获取ID列表
+            let idsA = [];
+            let idsB = [];
+            
+            try {
+                idsA = await fetchDirectoryIds(folderA, model);
+            } catch (e) {
+                console.warn('Failed to fetch folder A IDs:', e);
+            }
+            
+            try {
+                idsB = await fetchDirectoryIds(folderB, model);
+            } catch (e) {
+                console.warn('Failed to fetch folder B IDs:', e);
+            }
+            
+            // 如果没有获取到，使用通用ID列表
+            if (idsA.length === 0 && idsB.length === 0) {
+                return getDefaultIds();
+            }
+            
+            // 取两个文件夹的ID交集
+            const setA = new Set(idsA);
+            const setB = new Set(idsB);
+            const commonIds = [...setA].filter(id => setB.has(id));
+            
+            // 如果交集为空，使用任意一个文件夹的ID
+            const allIds = commonIds.length > 0 ? commonIds : [...new Set([...idsA, ...idsB])];
+            
+            // 排序：数字ID按数字排序，字母ID按字母排序
+            allIds.sort((a, b) => {
+                const numA = parseInt(a);
+                const numB = parseInt(b);
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                }
+                return a.localeCompare(b);
+            });
+            
+            return allIds;
+        }
+        
+        // 默认ID列表作为后备
+        function getDefaultIds() {
+            const allIds = [
+                // 数字ID
+                '58', '77', '81', '97', '117', '197', '250', '252', '259', 
+                '285', '296', '316', '395', '437', '439', '451', '490',
+                '582', '611', '633', '643', '705', '782', '825', '840',
+                // E系列
+                'E001', 'E002', 'E003', 'E004', 'E005', 'E006',
+                // G系列
+                'G001', 'G002', 'G003', 'G004', 'G005',
+                // H系列
+                'H001', 'H002',
+                // U系列
+                'U001', 'U002', 'U003', 'U004', 'U005', 'U006', 'U007', 'U008',
+                // W系列
+                'W001', 'W002', 'W003', 'W004'
+            ];
+            allIds.sort((a, b) => {
+                const numA = parseInt(a);
+                const numB = parseInt(b);
+                if (!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB;
+                }
+                // 数字优先，字母按字母顺序
+                if (!isNaN(numA)) return -1;
+                if (!isNaN(numB)) return 1;
+                return a.localeCompare(b);
+            });
+            return allIds;
+        }
+        
+        // 尝试获取目录中的ID列表
+        async function fetchDirectoryIds(folder, model) {
+            // 由于浏览器无法直接读取文件系统，尝试通过预检图片存在性来获取ID
+            const testIds = [
+                // 数字ID
+                '58', '77', '81', '97', '117', '197', '250', '252', '259', 
+                '285', '296', '316', '395', '437', '439', '451', '490',
+                '582', '611', '633', '643', '705', '782', '825', '840',
+                // E系列
+                'E001', 'E002', 'E003', 'E004', 'E005', 'E006',
+                // G系列
+                'G001', 'G002', 'G003', 'G004', 'G005',
+                // H系列
+                'H001', 'H002',
+                // U系列
+                'U001', 'U002', 'U003', 'U004', 'U005', 'U006', 'U007', 'U008',
+                // W系列
+                'W001', 'W002', 'W003', 'W004'
+            ];
+            
+            const existingIds = [];
+            
+            // 并发检查前10个ID，如果存在则认为有更多
+            const checkPromises = testIds.slice(0, 10).map(async (id) => {
+                const path = `${basePath}/${folder}/${model}/${id}/${id}.png`;
+                const exists = await checkImageExistsFast(path);
+                return exists ? id : null;
+            });
+            
+            const results = await Promise.all(checkPromises);
+            const foundIds = results.filter(id => id !== null);
+            
+            if (foundIds.length > 0) {
+                // 如果找到了ID，检查完整的列表
+                const allChecks = testIds.map(async (id) => {
+                    const path = `${basePath}/${folder}/${model}/${id}/${id}.png`;
+                    const exists = await checkImageExistsFast(path);
+                    return exists ? id : null;
+                });
+                
+                const allResults = await Promise.all(allChecks);
+                return allResults.filter(id => id !== null);
+            }
+            
+            return [];
+        }
+        
+        // 快速检查图片是否存在（带超时）
+        function checkImageExistsFast(url, timeout = 1000) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                let resolved = false;
+                
+                const cleanup = () => {
+                    resolved = true;
+                    img.onload = null;
+                    img.onerror = null;
+                };
+                
+                img.onload = () => {
+                    if (!resolved) {
+                        cleanup();
+                        resolve(true);
+                    }
+                };
+                
+                img.onerror = () => {
+                    if (!resolved) {
+                        cleanup();
+                        resolve(false);
+                    }
+                };
+                
+                img.src = url;
+                
+                setTimeout(() => {
+                    if (!resolved) {
+                        cleanup();
+                        resolve(false);
+                    }
+                }, timeout);
+            });
+        }
+        
+        // 刷新列表
+        async function refreshList() {
+            const listView = document.getElementById('listView');
+            listView.innerHTML = '<div class="empty-state"><div class="loading"></div>加载中...</div>';
+            
+            imageIds = await getCommonIds();
+            applyFilter();
+        }
+        
+        // 检查两张图片是否有差异
+        async function checkDiff(id) {
+            const folderA = document.getElementById('folderA').value;
+            const folderB = document.getElementById('folderB').value;
+            
+            const pathA = getImagePath(folderA, id);
+            const pathB = getImagePath(folderB, id);
+            
+            // 这里可以添加实际的图片对比逻辑
+            // 目前返回未知状态
+            return 'unknown';
+        }
+        
+        // 渲染列表
+        function renderList(ids) {
+            const listView = document.getElementById('listView');
+            const folderA = document.getElementById('folderA').value;
+            const folderB = document.getElementById('folderB').value;
+            
+            if (ids.length === 0) {
+                listView.innerHTML = '<div class="empty-state">没有找到匹配的图片</div>';
+                return;
+            }
+            
+            listView.innerHTML = ids.map(id => {
+                const pathA = getImagePath(folderA, id);
+                const pathB = getImagePath(folderB, id);
+                const isSelected = selectedIds.has(id);
+                
+                return `
+                    <div class="compare-card" data-id="${id}">
+                        <div class="card-header">
+                            <div>
+                                <input type="checkbox" class="checkbox-select" 
+                                       ${isSelected ? 'checked' : ''} 
+                                       onchange="toggleSelect('${id}')">
+                                <h3 style="display: inline; margin-left: 8px;">ID: ${id}</h3>
+                            </div>
+                            <span class="diff-badge">待检测</span>
+                        </div>
+                        <div class="image-pair">
+                            <div class="image-box">
+                                <label>${folderA}/${id}.png</label>
+                                <img src="${pathA}" alt="${id} - ${folderA}" 
+                                     onerror="this.classList.add('error'); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23666%22>加载失败</text></svg>';"
+                                     onclick="openSingleView('${id}')">
+                            </div>
+                            <div class="image-box">
+                                <label>${folderB}/${id}.png</label>
+                                <img src="${pathB}" alt="${id} - ${folderB}" 
+                                     onerror="this.classList.add('error'); this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 fill=%22%23666%22>加载失败</text></svg>';"
+                                     onclick="openSingleView('${id}')">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+        
+        // 应用筛选
+        function applyFilter() {
+            const filter = document.getElementById('filterSelect').value;
+            const searchId = document.getElementById('searchId').value.trim();
+            
+            filteredIds = imageIds.filter(id => {
+                // 搜索筛选
+                if (searchId && !id.includes(searchId)) {
+                    return false;
+                }
+                return true;
+            });
+            
+            if (currentViewMode === 'list') {
+                renderList(filteredIds);
+            } else {
+                currentIndex = 0;
+                if (filteredIds.length > 0) {
+                    loadSingleView(filteredIds[0]);
+                }
+            }
+            
+            updateStats();
+        }
+        
+        // 更新统计
+        function updateStats() {
+            const stats = document.getElementById('stats');
+            stats.textContent = `总计: ${imageIds.length} | 显示: ${filteredIds.length} | 选中: ${selectedIds.size}`;
+        }
+        
+        // 切换选择
+        function toggleSelect(id) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+            } else {
+                selectedIds.add(id);
+            }
+            updateStats();
+        }
+        
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const checkbox = document.getElementById('selectAll');
+            if (checkbox.checked) {
+                filteredIds.forEach(id => selectedIds.add(id));
+            } else {
+                filteredIds.forEach(id => selectedIds.delete(id));
+            }
+            applyFilter();
+        }
+        
+        // 设置视图模式
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.view-mode button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(mode + 'ModeBtn').classList.add('active');
+            
+            // 显示/隐藏对应视图
+            document.getElementById('listView').style.display = mode === 'list' ? 'grid' : 'none';
+            document.getElementById('singleView').classList.toggle('active', mode === 'single');
+            document.getElementById('overlayView').classList.toggle('active', mode === 'overlay');
+            
+            if (mode !== 'list' && filteredIds.length > 0) {
+                loadSingleView(filteredIds[currentIndex]);
+            }
+        }
+        
+        // 打开单图视图
+        function openSingleView(id) {
+            currentIndex = filteredIds.indexOf(id);
+            if (currentIndex === -1) currentIndex = 0;
+            setViewMode('single');
+        }
+        
+        // 加载单图视图
+        function loadSingleView(id) {
+            if (!id) return;
+            
+            const folderA = document.getElementById('folderA').value;
+            const folderB = document.getElementById('folderB').value;
+            
+            document.getElementById('currentId').textContent = id;
+            document.getElementById('overlayCurrentId').textContent = id;
+            
+            document.getElementById('singleHeaderA').textContent = `${folderA}/${id}.png`;
+            document.getElementById('singleHeaderB').textContent = `${folderB}/${id}.png`;
+            
+            document.getElementById('overlayLabelA').textContent = folderA;
+            document.getElementById('overlayLabelB').textContent = folderB;
+            
+            document.getElementById('singleImgA').src = getImagePath(folderA, id);
+            document.getElementById('singleImgB').src = getImagePath(folderB, id);
+            
+            document.getElementById('overlayImgNew').src = getImagePath(folderA, id);
+            document.getElementById('overlayImgOld').src = getImagePath(folderB, id);
+        }
+        
+        // 上一个图片
+        function prevImage() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadSingleView(filteredIds[currentIndex]);
+            }
+        }
+        
+        // 下一个图片
+        function nextImage() {
+            if (currentIndex < filteredIds.length - 1) {
+                currentIndex++;
+                loadSingleView(filteredIds[currentIndex]);
+            }
+        }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            if (currentViewMode === 'list') return;
+            
+            if (e.key === 'ArrowLeft') {
+                prevImage();
+            } else if (e.key === 'ArrowRight') {
+                nextImage();
+            } else if (e.key === 'Escape') {
+                setViewMode('list');
+            }
+        });
+        
+        // 叠加对比滑块拖拽
+        let isDragging = false;
+        const overlaySlider = document.getElementById('overlaySlider');
+        const overlayContainer = document.getElementById('overlayContainer');
+        const overlayImgOld = document.getElementById('overlayImgOld');
+        
+        overlaySlider.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const rect = overlayContainer.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            
+            const percent = (x / rect.width) * 100;
+            overlaySlider.style.left = percent + '%';
+            overlayImgOld.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        });
+        
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+        
+        // 触摸支持
+        overlaySlider.addEventListener('touchstart', (e) => {
+            isDragging = true;
+        });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const touch = e.touches[0];
+            const rect = overlayContainer.getBoundingClientRect();
+            let x = touch.clientX - rect.left;
+            x = Math.max(0, Math.min(x, rect.width));
+            
+            const percent = (x / rect.width) * 100;
+            overlaySlider.style.left = percent + '%';
+            overlayImgOld.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+        });
+        
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+        
+        // 初始化
+        window.onload = () => {
+            refreshList();
+        };
+    </script>
+</body>
+</html>

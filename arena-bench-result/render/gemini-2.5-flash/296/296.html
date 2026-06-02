@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>卓越之履 - 顶级商务鞋</title>
+    <!-- Favicon (使用SVG emoji作为简单的图标，无需外部文件) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👞</text></svg>">
+    <style>
+        /* General Styles */
+        :root {
+            --primary-color: #A0522D; /* Sienna - 一种浓郁的红棕色，用于点缀 */
+            --secondary-color: #5C4033; /* Darker brown - 用于强调文本/元素 */
+            --text-dark: #333; /* 主体文本颜色 */
+            --text-light: #f8f8f8; /* 深色背景上的文本颜色 */
+            --bg-light: #f8f8f8; /* 区域的浅色背景 */
+            --bg-dark: #222; /* 页脚/客户评价的深色背景 */
+            --accent-gold: #D4AF37; /* Gold - 用于微妙的奢华感 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth; /* 启用平滑滚动 */
+        }
+
+        body {
+            font-family: 'Georgia', serif; /* 经典的、优雅的衬线字体 */
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: #fff;
+            -webkit-font-smoothing: antialiased; /* 字体抗锯齿优化 */
+            -moz-osx-font-smoothing: grayscale; /* 字体抗锯齿优化 */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Georgia', serif; /* 标题使用优雅的衬线字体 */
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            font-weight: normal; /* 标题采用较柔和的字重，更显高端 */
+        }
+
+        h1 {
+            font-size: 3.5em;
+            line-height: 1.1;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        a {
+            text-decoration: none;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            border: none;
+            font-family: 'Georgia', serif;
+        }
+
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: 2px solid var(--primary-color);
+        }
+
+        .primary-btn:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .secondary-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .secondary-btn:hover {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        /* Header */
+        header {
+            background-color: #fff;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-family: 'Georgia', serif;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 30px;
+        }
+
+        nav ul li a {
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 1.1em;
+            position: relative;
+        }
+
+        nav ul li a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover::after {
+            width: 100%;
+        }
+
+        .cart-icon {
+            font-size: 1.2em;
+            position: relative;
+            display: flex;
+            align-items: center;
+            color: var(--text-dark);
+            margin-left: 30px; /* 与最后一个导航项的间距 */
+        }
+
+        .cart-icon #cart-count {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7em;
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            min-width: 20px;
+            text-align: center;
+            line-height: 1; /* 更好的垂直对齐 */
+        }
+
+        .menu-toggle {
+            display: none; /* 桌面端隐藏 */
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 5px 10px;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            height: 80vh;
+            background: url('https://images.unsplash.com/photo-1600269460593-6c843f545a27?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 60px;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* 深色覆盖层 */
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5em;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            color: var(--text-light);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Section Spacing */
+        section {
+            padding: 80px 0;
+        }
+
+        /* About Section */
+        .about-section {
+            background-color: var(--bg-light);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .about-item {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .about-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .about-item h3 {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .about-item p {
+            font-size: 1em;
+            color: var(--text-dark);
+        }
+
+        /* Products Section */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .product-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .product-card h3 {
+            font-size: 1.6em;
+            margin: 20px 0 10px;
+            color: var(--secondary-color);
+        }
+
+        .product-card .price {
+            font-size: 1.3em;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .product-card .btn {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            font-size: 0.95em;
+        }
+
+        .view-all-products {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        /* Testimonials Section */
+        .testimonials-section {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        .testimonials-section h2 {
+            color: var(--text-light);
+        }
+
+        .testimonials-section h2::after {
+            background-color: var(--accent-gold);
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .testimonial-card {
+            background-color: #333;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            text-align: left; /* 卡片内文本左对齐 */
+        }
+
+        .testimonial-card blockquote {
+            font-style: italic;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .testimonial-card .customer-name {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1em;
+            text-align: right; /* 客户姓名右对齐 */
+            display: block; /* 确保占据完整宽度 */
+        }
+
+        /* Contact Section */
+        .contact-section {
+            text-align: center;
+            background-color: var(--bg-light);
+        }
+
+        .contact-section p {
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .contact-section .phone {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 60px 0 30px;
+            font-size: 0.9em;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .footer-col h4 {
+            font-size: 1.2em;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+            position: relative;
+            font-weight: bold; /* 页脚标题保持粗体 */
+        }
+
+        .footer-col h4::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent-gold);
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-col ul li a {
+            color: #ccc;
+            font-weight: normal;
+        }
+
+        .footer-col ul li a:hover {
+            color: var(--primary-color);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-icons a {
+            color: var(--text-light);
+            font-size: 1.5em;
+            transition: color 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            color: var(--primary-color);
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            color: #bbb;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3em;
+            }
+
+            h2 {
+                font-size: 2em;
+            }
+
+            .hero-section {
+                height: 60vh;
+            }
+
+            header .container {
+                flex-wrap: wrap; /* 允许项目换行 */
+            }
+
+            .logo {
+                flex-basis: auto; /* Logo占据自然宽度 */
+                margin-right: auto; /* 将菜单切换按钮推到右侧 */
+            }
+
+            nav {
+                display: none; /* 移动端默认隐藏导航 */
+                width: 100%; /* 激活时占据全部宽度 */
+                order: 3; /* 将导航推到logo和切换按钮的下一行 */
+                margin-top: 15px;
+            }
+
+            nav.active {
+                display: block; /* 激活时显示导航 */
+            }
+
+            nav ul {
+                flex-direction: column;
+                text-align: center;
+                background-color: #fff;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                padding: 15px 0;
+                border-radius: 5px;
+            }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .cart-icon {
+                margin-left: 0; /* 小屏幕上移除额外间距 */
+                order: 2; /* 将购物车图标定位在切换按钮旁边 */
+            }
+
+            .menu-toggle {
+                display: block; /* 显示切换按钮 */
+            }
+
+            .about-grid, .product-grid, .testimonial-grid, .footer-links {
+                grid-template-columns: 1fr; /* 小屏幕上单列布局 */
+            }
+
+            .footer-col {
+                text-align: center;
+            }
+
+            .footer-col h4::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .social-icons {
+                justify-content: center; /* 社交图标居中 */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 2.5em;
+            }
+
+            .hero-content p {
+                font-size: 1.2em;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#" class="logo">卓越之履</a>
+            <button class="menu-toggle" aria-label="Toggle navigation">☰</button>
+            <nav>
+                <ul>
+                    <li><a href="#hero">首页</a></li>
+                    <li><a href="#about">关于我们</a></li>
+                    <li><a href="#products">产品</a></li>
+                    <li><a href="#testimonials">客户评价</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                    <li><a href="#" class="cart-icon">🛒 <span id="cart-count">0</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1>步入非凡，彰显品味</h1>
+                <p>精湛工艺与优质选材，只为卓越的您。</p>
+                <a href="#products" class="btn primary-btn">立即选购</a>
+            </div>
+        </section>
+
+        <section id="about" class="about-section container">
+            <h2> uncompromising quality</h2>
+            <div class="about-grid">
+                <div class="about-item">
+                    <h3>精选皮革</h3>
+                    <p>只选用全球顶级全粒面皮革，确保鞋履的天然纹理、柔软触感与卓越耐用性。</p>
+                </div>
+                <div class="about-item">
+                    <h3>匠心手作</h3>
+                    <p>每一双鞋都由经验丰富的鞋匠手工打造，传承百年古法工艺，注重每一个细节。</p>
+                </div>
+                <div class="about-item">
+                    <h3>舒适体验</h3>
+                    <p>人体工学设计结合记忆泡沫鞋垫，提供无与伦比的舒适感，即使长时间穿着也轻松自如。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="products" class="products-section container">
+            <h2>我们的产品系列</h2>
+            <div class="product-grid">
+                <div class="product-card">
+                    <img src="https://via.placeholder.com/400x300/A0522D/FFFFFF?text=经典牛津鞋" alt="经典牛津鞋">
+                    <h3>经典牛津鞋</h3>
+                    <p class="price">¥ 1899.00</p>
+                    <button class="btn add-to-cart-btn" data-product="经典牛津鞋">加入购物车</button>
+                </div>
+                <div class="product-card">
+                    <img src="https://via.placeholder.com/400x300/8B4513/FFFFFF?text=优雅乐福鞋" alt="优雅乐福鞋">
+                    <h3>优雅乐福鞋</h3>
+                    <p class="price">¥ 1699.00</p>
+                    <button class="btn add-to-cart-btn" data-product="优雅乐福鞋">加入购物车</button>
+                </div>
+                <div class="product-card">
+                    <img src="https://via.placeholder.com/400x300/696969/FFFFFF?text=现代德比鞋" alt="现代德比鞋">
+                    <h3>现代德比鞋</h3>
+                    <p class="price">¥ 1799.00</p>
+                    <button class="btn add-to-cart-btn" data-product="现代德比鞋">加入购物车</button>
+                </div>
+                <div class="product-card">
+                    <img src="https://via.placeholder.com/400x300/2F4F4F/FFFFFF?text=精致孟克鞋" alt="精致孟克鞋">
+                    <h3>精致孟克鞋</h3>
+                    <p class="price">¥ 1999.00</p>
+                    <button class="btn add-to-cart-btn" data-product="精致孟克鞋">加入购物车</button>
+                </div>
+            </div>
+            <div class="view-all-products">
+                <a href="#" class="btn secondary-btn">查看所有产品</a>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonials-section">
+            <div class="container">
+                <h2>客户如是说</h2>
+                <div class="testimonial-grid">
+                    <div class="testimonial-card">
+                        <blockquote>“我购买的牛津鞋是无与伦比的。舒适度、美观度和耐用性都超出了我的预期。这是我穿过的最好的商务鞋！”</blockquote>
+                        <p class="customer-name">- 王先生, 企业家</p>
+                    </div>
+                    <div class="testimonial-card">
+                        <blockquote>“卓越之履的乐福鞋完美诠释了优雅与舒适。无论是商务会议还是休闲时光，它都是我的首选。”</blockquote>
+                        <p class="customer-name">- 李女士, 高级经理</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <h2>与我们联系</h2>
+                <p>有任何疑问或需要个性化定制？请随时联系我们的专业团队。</p>
+                <a href="mailto:info@excellencefootwear.com" class="btn primary-btn">发送邮件</a>
+                <p class="phone">或致电：+86 123 4567 8900</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>关于我们</h4>
+                    <ul>
+                        <li><a href="#about">品牌故事</a></li>
+                        <li><a href="#">隐私政策</a></li>
+                        <li><a href="#">条款与条件</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>客户服务</h4>
+                    <ul>
+                        <li><a href="#">常见问题</a></li>
+                        <li><a href="#">退换货政策</a></li>
+                        <li><a href="#contact">联系我们</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>关注我们</h4>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Facebook">📘</a>
+                        <a href="#" aria-label="Instagram">📸</a>
+                        <a href="#" aria-label="Twitter">🐦</a>
+                    </div>
+                </div>
+            </div>
+            <p class="copyright">&copy; 2023 卓越之履. 保留所有权利。</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为导航链接添加平滑滚动效果
+            document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        const headerOffset = document.querySelector('header').offsetHeight; // 考虑固定头部的高度
+                        const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                        const offsetPosition = elementPosition - headerOffset - 20; // 在头部下方留出一些额外空间
+
+                        window.scrollTo({
+                            top: offsetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+
+                    // 如果是移动导航，点击后关闭菜单
+                    if (window.innerWidth <= 768) {
+                        const nav = document.querySelector('nav');
+                        nav.classList.remove('active');
+                    }
+                });
+            });
+
+            // 移动端导航菜单切换功能
+            const menuToggle = document.querySelector('.menu-toggle');
+            const nav = document.querySelector('nav');
+
+            if (menuToggle && nav) {
+                menuToggle.addEventListener('click', function() {
+                    nav.classList.toggle('active');
+                });
+            }
+
+            // 简单的加入购物车功能（只更新计数器和弹出提示）
+            let cartCount = 0;
+            const cartCountElement = document.getElementById('cart-count');
+            const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    cartCount++;
+                    if (cartCountElement) {
+                        cartCountElement.textContent = cartCount;
+                    }
+                    const productName = this.dataset.product;
+                    alert(`${productName} 已加入购物车！🛒`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

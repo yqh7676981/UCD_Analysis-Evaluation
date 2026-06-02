@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TitanPC - 预组装高性能电脑</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+    background: #0a0e1a;
+    color: #e8ecf4;
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  /* Navigation */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: rgba(10, 14, 26, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(100, 180, 255, 0.1);
+    z-index: 100;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    font-size: 24px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #00d4ff, #7b61ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+  }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: #00d4ff; }
+  .cart-btn {
+    background: linear-gradient(90deg, #00d4ff, #7b61ff);
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    padding: 120px 40px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.15), transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(123, 97, 255, 0.15), transparent 40%);
+  }
+  .hero-content {
+    max-width: 1200px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .hero h1 {
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+  .hero h1 span {
+    background: linear-gradient(90deg, #00d4ff, #7b61ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 18px;
+    color: #9ca3af;
+    margin-bottom: 32px;
+  }
+  .btn-primary {
+    background: linear-gradient(90deg, #00d4ff, #7b61ff);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-right: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+  }
+  .btn-outline {
+    background: transparent;
+    color: #e8ecf4;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .hero-visual {
+    position: relative;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pc-glow {
+    width: 320px;
+    height: 380px;
+    background: linear-gradient(145deg, #1a1f35, #2a3150);
+    border-radius: 20px;
+    position: relative;
+    box-shadow:
+      0 0 80px rgba(0, 212, 255, 0.3),
+      inset 0 0 40px rgba(123, 97, 255, 0.1);
+    border: 1px solid rgba(100, 180, 255, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .pc-glow::before {
+    content: '';
+    position: absolute;
+    inset: 20px;
+    border: 2px solid rgba(0, 212, 255, 0.2);
+    border-radius: 12px;
+  }
+  .rgb-bar {
+    width: 80%;
+    height: 4px;
+    background: linear-gradient(90deg, #ff0080, #ff8c00, #ffdd00, #00ff88, #00d4ff, #7b61ff, #ff0080);
+    border-radius: 2px;
+    margin: 8px 0;
+    animation: rgbFlow 3s linear infinite;
+    background-size: 300% 100%;
+  }
+  @keyframes rgbFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+  }
+  .pc-fan {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    border: 3px solid rgba(0, 212, 255, 0.5);
+    margin: 12px;
+    position: relative;
+    animation: spin 3s linear infinite;
+  }
+  .pc-fan::before, .pc-fan::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 80%; height: 8px;
+    background: rgba(0, 212, 255, 0.3);
+    transform-origin: center;
+    transform: translate(-50%, -50%);
+  }
+  .pc-fan::after { transform: translate(-50%, -50%) rotate(90deg); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Sections */
+  section { padding: 80px 40px; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .section-title {
+    font-size: 40px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .section-subtitle {
+    text-align: center;
+    color: #9ca3af;
+    margin-bottom: 56px;
+    font-size: 16px;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+  }
+  .feature-card {
+    background: linear-gradient(145deg, rgba(26, 31, 53, 0.6), rgba(42, 49, 80, 0.3));
+    border: 1px solid rgba(100, 180, 255, 0.1);
+    border-radius: 16px;
+    padding: 32px 24px;
+    transition: transform 0.3s, border-color 0.3s;
+  }
+  .feature-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0, 212, 255, 0.4);
+  }
+  .feature-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, #00d4ff, #7b61ff);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 20px;
+  }
+  .feature-card h3 { font-size: 18px; margin-bottom: 10px; }
+  .feature-card p { color: #9ca3af; font-size: 14px; }
+
+  /* Products */
+  .products-section {
+    background: linear-gradient(180deg, transparent, rgba(26, 31, 53, 0.3), transparent);
+  }
+  .products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 28px;
+  }
+  .product-card {
+    background: rgba(26, 31, 53, 0.5);
+    border: 1px solid rgba(100, 180, 255, 0.15);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 212, 255, 0.15);
+  }
+  .product-image {
+    height: 200px;
+    background: linear-gradient(135deg, #1a1f35, #2a3150);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 72px;
+    position: relative;
+  }
+  .product-badge {
+    position: absolute;
+    top: 12px; right: 12px;
+    background: linear-gradient(90deg, #ff6b6b, #ffa500);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .product-info { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+  .product-info h3 { font-size: 22px; margin-bottom: 8px; }
+  .product-tier {
+    display: inline-block;
+    font-size: 12px;
+    color: #00d4ff;
+    background: rgba(0, 212, 255, 0.1);
+    padding: 3px 10px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    align-self: flex-start;
+  }
+  .specs { list-style: none; margin-bottom: 20px; flex: 1; }
+  .specs li {
+    font-size: 14px;
+    color: #9ca3af;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+  }
+  .specs li::before { content: '✓'; color: #00d4ff; margin-right: 8px; font-weight: bold; }
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .price { font-size: 28px; font-weight: 800; color: #00d4ff; }
+  .old-price { font-size: 14px; color: #6b7280; text-decoration: line-through; }
+  .buy-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #00d4ff, #7b61ff);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .buy-btn:hover { opacity: 0.9; }
+
+  /* Reviews */
+  .reviews {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .review-card {
+    background: linear-gradient(145deg, rgba(26, 31, 53, 0.6), rgba(42, 49, 80, 0.3));
+    border: 1px solid rgba(100, 180, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .stars { color: #ffd700; margin-bottom: 12px; font-size: 18px; }
+  .review-text { color: #d1d5db; font-size: 15px; margin-bottom: 20px; font-style: italic; }
+  .reviewer { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d4ff, #7b61ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .reviewer-info h4 { font-size: 15px; }
+  .reviewer-info p { font-size: 12px; color: #9ca3af; }
+
+  /* CTA */
+  .cta-section {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(123, 97, 255, 0.08));
+    border-radius: 20px;
+    margin: 40px;
+    padding: 60px 40px;
+  }
+  .cta-section h2 { font-size: 36px; margin-bottom: 16px; }
+  .cta-section p { color: #9ca3af; margin-bottom: 28px; font-size: 16px; }
+
+  /* Footer */
+  footer {
+    padding: 40px;
+    text-align: center;
+    border-top: 1px solid rgba(100, 180, 255, 0.1);
+    color: #6b7280;
+    font-size: 14px;
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #1a1f35;
+    border: 1px solid rgba(100, 180, 255, 0.3);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+    animation: popIn 0.3s ease;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .modal h3 { font-size: 22px; margin-bottom: 16px; }
+  .modal p { color: #9ca3af; margin-bottom: 20px; }
+  .modal-close {
+    background: linear-gradient(90deg, #00d4ff, #7b61ff);
+    color: white; border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 14px 20px; }
+    .nav-links { display: none; }
+    .hero-content { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 36px; }
+    .section-title { font-size: 28px; }
+    section { padding: 60px 20px; }
+    .cta-section { margin: 20px; }
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<nav>
+  <div class="logo">TITAN<span style="color:#fff">PC</span></div>
+  <div class="nav-links">
+    <a href="#features">特色</a>
+    <a href="#products">产品</a>
+    <a href="#reviews">评价</a>
+    <a href="#contact">联系</a>
+  </div>
+  <button class="cart-btn" onclick="openModal('购物车', '您的购物车当前是空的，快去选一台心仪的电脑吧！')">🛒 购物车</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div>
+      <h1>为<span>极致性能</span>而生的<br>预组装电脑</h1>
+      <p>精选顶级硬件，专业工程师组装与测试。开箱即用，畅玩一切 3A 大作与高强度创作任务。</p>
+      <button class="btn-primary" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">立即选购</button>
+      <button class="btn-outline" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">了解更多</button>
+    </div>
+    <div class="hero-visual">
+      <div class="pc-glow">
+        <div class="rgb-bar"></div>
+        <div class="pc-fan"></div>
+        <div class="pc-fan" style="animation-duration:4s"></div>
+        <div class="rgb-bar"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <h2 class="section-title">为什么选择 TitanPC</h2>
+    <p class="section-subtitle">我们不仅提供电脑，更提供值得信赖的体验</p>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>顶级性能</h3>
+        <p>最新 Intel & AMD 处理器搭配 NVIDIA RTX 40 系显卡，全面释放硬件潜力。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛠️</div>
+        <h3>专业组装</h3>
+        <p>认证工程师手工组装，严格走线规范，经过 48 小时稳定性压力测试。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3>3 年质保</h3>
+        <p>整机三年保修，一年免费上门服务。让您购买无忧，使用放心。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🚚</div>
+        <h3>顺丰包邮</h3>
+        <p>48 小时内发货，定制防震包装，全国顺丰包邮到家。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="products" class="products-section">
+  <div class="container">
+    <h2 class="section-title">精选机型</h2>
+    <p class="section-subtitle">从入门到旗舰，总有一款适合你</p>
+    <div class="products">
+      <div class="product-card">
+        <div class="product-image">
+          💻<div class="product-badge">热销</div>
+        </div>
+        <div class="product-info">
+          <span class="product-tier">入门游戏</span>
+          <h3>Titan Starter</h3>
+          <ul class="specs">
+            <li>Intel i5-13400F</li>
+            <li>NVIDIA RTX 4060 8GB</li>
+            <li>16GB DDR5 / 1TB NVMe</li>
+            <li>650W 金牌电源</li>
+          </ul>
+          <div class="price-row">
+            <div>
+              <div class="price">¥6,999</div>
+              <div class="old-price">¥7,599</div>
+            </div>
+          </div>
+          <button class="buy-btn" onclick="buyProduct('Titan Starter', 6999)">立即购买</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image" style="background:linear-gradient(135deg,#2a1f45,#4a2150)">
+          🖥️<div class="product-badge">推荐</div>
+        </div>
+        <div class="product-info">
+          <span class="product-tier">高端游戏</span>
+          <h3>Titan Pro</h3>
+          <ul class="specs">
+            <li>Intel i7-14700KF</li>
+            <li>NVIDIA RTX 4070 Ti 12GB</li>
+            <li>32GB DDR5 / 2TB NVMe</li>
+            <li>850W 金牌全模组</li>
+          </ul>
+          <div class="price-row">
+            <div>
+              <div class="price">¥12,499</div>
+              <div class="old-price">¥13,299</div>
+            </div>
+          </div>
+          <button class="buy-btn" onclick="buyProduct('Titan Pro', 12499)">立即购买</button>
+        </div>
+      </div>
+
+      <div class="product-card">
+        <div class="product-image" style="background:linear-gradient(135deg,#451f2a,#502133)">
+          ⚙️<div class="product-badge">旗舰</div>
+        </div>
+        <div class="product-info">
+          <span class="product-tier">旗舰工作站</span>
+          <h3>Titan Ultra</h3>
+          <ul class="specs">
+            <li>Intel i9-14900K</li>
+            <li>NVIDIA RTX 4090 24GB</li>
+            <li>64GB DDR5 / 4TB NVMe</li>
+            <li>1000W 白金全模组</li>
+          </ul>
+          <div class="price-row">
+            <div>
+              <div class="price">¥25,999</div>
+              <div class="old-price">¥27,499</div>
+            </div>
+          </div>
+          <button class="buy-btn" onclick="buyProduct('Titan Ultra', 25999)">立即购买</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="container">
+    <h2 class="section-title">用户怎么说</h2>
+    <p class="section-subtitle">超过 10,000+ 满意用户的真实评价</p>
+    <div class="reviews">
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"Titan Pro 性能超出预期，走线非常整齐，开机直接吃鸡 240 帧稳如泰山。客服响应也很及时。"</p>
+        <div class="reviewer">
+          <div class="avatar">李</div>
+          <div class="reviewer-info">
+            <h4>李先生</h4>
+            <p>北京 · 游戏玩家</p>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"作为视频剪辑师，Ultra 机型在 4K 剪辑中几乎感受不到延迟。钱花得值！"</p>
+        <div class="reviewer">
+          <div class="avatar">王</div>
+          <div class="reviewer-info">
+            <h4>王小姐</h4>
+            <p>上海 · 内容创作者</p>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p class="review-text">"第一次买预组装电脑，没想到这么省心。包装很到位，运输中完全没问题。强烈推荐！"</p>
+        <div class="reviewer">
+          <div class="avatar">张</div>
+          <div class="reviewer-info">
+            <h4>张同学</h4>
+            <p>广州 · 大学生</p>
+          </div>
+        </div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★☆</div>
+        <p class="review-text">"Starter 用了半年，运行各种单机都很流畅。性价比很高，唯一建议是机箱可以再丰富点选项。"</p>
+        <div class="reviewer">
+          <div class="avatar">陈</div>
+          <div class="reviewer-info">
+            <h4>陈先生</h4>
+            <p>深圳 · 程序员</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="cta-section">
+    <h2>准备好升级你的装备了吗？</h2>
+    <p>现在下单，立享新客 ¥500 优惠券</p>
+    <button class="btn-primary" onclick="openModal('优惠券已领取 🎉', '您的 ¥500 新客优惠券已存入账户，下单时自动抵扣。')">立即领取</button>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 TitanPC. 保留所有权利 · 客服热线 400-888-8888 · 工作日 9:00-21:00</p>
+</footer>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">标题</h3>
+    <p id="modalText">内容</p>
+    <button class="modal-close" onclick="closeModal()">好的</button>
+  </div>
+</div>
+
+<script>
+  function openModal(title, text) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalText').textContent = text;
+    document.getElementById('modal').classList.add('active');
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+  function buyProduct(name, price) {
+    openModal('订单确认', `您即将购买 ${name}，金额 ¥${price.toLocaleString()}。点击确定前往结算页面。`);
+  }
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target.id === 'modal') closeModal();
+  });
+
+  // Smooth reveal on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .product-card, .review-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+
+</body>
+</html>

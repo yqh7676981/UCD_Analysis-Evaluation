@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>像素画板</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:12px;color:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+.container{max-width:480px;margin:0 auto;}
+h1{text-align:center;font-size:22px;margin-bottom:12px;text-shadow:0 2px 8px rgba(0,0,0,0.2);letter-spacing:2px;}
+.canvas-wrap{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);padding:8px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.2);margin-bottom:14px;}
+#canvas{display:grid;grid-template-columns:repeat(16,1fr);grid-template-rows:repeat(16,1fr);width:100%;aspect-ratio:1/1;background:#fff;border-radius:8px;overflow:hidden;touch-action:none;}
+.cell{background:#fff;border:0.5px solid #f0f0f0;transition:transform 0.05s;}
+.cell.no-grid{border:none;}
+.panel{background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);padding:14px;border-radius:14px;margin-bottom:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);}
+.label{font-size:13px;margin-bottom:8px;opacity:0.9;font-weight:500;}
+.colors{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:10px;}
+.color{width:100%;aspect-ratio:1/1;border-radius:8px;border:2px solid rgba(255,255,255,0.3);cursor:pointer;transition:all 0.2s;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
+.color.active{transform:scale(1.15);border-color:#fff;box-shadow:0 0 0 2px #ffd700,0 4px 10px rgba(0,0,0,0.3);}
+.tool-row{display:flex;gap:8px;align-items:center;}
+.custom-color{display:flex;align-items:center;gap:8px;flex:1;background:rgba(255,255,255,0.2);padding:6px 10px;border-radius:10px;}
+.custom-color input[type=color]{width:36px;height:36px;border:none;border-radius:8px;background:none;cursor:pointer;padding:0;}
+.custom-color input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+.custom-color input[type=color]::-webkit-color-swatch{border:none;border-radius:6px;}
+.custom-color span{font-size:13px;}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn{padding:12px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;color:#fff;letter-spacing:1px;}
+.btn:active{transform:scale(0.96);}
+.btn-eraser{background:linear-gradient(135deg,#f093fb,#f5576c);}
+.btn-eraser.active{box-shadow:0 0 0 3px #ffd700;}
+.btn-clear{background:linear-gradient(135deg,#fa709a,#fee140);}
+.btn-preview{background:linear-gradient(135deg,#4facfe,#00f2fe);grid-column:span 2;padding:14px;font-size:15px;}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99;align-items:center;justify-content:center;padding:20px;}
+.modal.show{display:flex;flex-direction:column;}
+.modal-title{color:#fff;font-size:18px;margin-bottom:16px;letter-spacing:2px;}
+#preview{width:min(90vw,400px);aspect-ratio:1/1;display:grid;grid-template-columns:repeat(16,1fr);background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,0.5);image-rendering:pixelated;}
+#preview .pcell{width:100%;height:100%;}
+.modal-close{margin-top:20px;padding:12px 32px;background:#fff;color:#333;border:none;border-radius:24px;font-size:15px;font-weight:600;cursor:pointer;}
+.current{display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid #fff;vertical-align:middle;margin-left:6px;box-shadow:0 2px 4px rgba(0,0,0,0.2);}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🎨 像素画板</h1>
+<div class="canvas-wrap"><div id="canvas"></div></div>
+<div class="panel">
+<div class="label">选择颜色 <span class="current" id="currentColor"></span></div>
+<div class="colors" id="palette"></div>
+<div class="tool-row">
+<div class="custom-color">
+<input type="color" id="customColor" value="#ff6b6b">
+<span>自定义</span>
+</div>
+</div>
+</div>
+<div class="panel">
+<div class="label">工具</div>
+<div class="btns">
+<button class="btn btn-eraser" id="eraserBtn">🧹 橡皮擦</button>
+<button class="btn btn-clear" id="clearBtn">🗑️ 清空</button>
+<button class="btn btn-preview" id="previewBtn">👁️ 预览作品</button>
+</div>
+</div>
+</div>
+<div class="modal" id="modal">
+<div class="modal-title">✨ 作品预览 ✨</div>
+<div id="preview"></div>
+<button class="modal-close" id="closeBtn">关闭</button>
+</div>
+<script>
+const SIZE=16;
+const colors=['#000000','#ffffff','#ff4757','#ff6b6b','#ffa502','#ffd700','#7bed9f','#2ed573','#1e90ff','#3742fa','#a55eea','#ff6b9d','#8b4513','#c0c0c0','#ff7f50','#40e0d0'];
+const canvas=document.getElementById('canvas');
+const palette=document.getElementById('palette');
+const customColor=document.getElementById('customColor');
+const currentColorEl=document.getElementById('currentColor');
+const eraserBtn=document.getElementById('eraserBtn');
+const clearBtn=document.getElementById('clearBtn');
+const previewBtn=document.getElementById('previewBtn');
+const modal=document.getElementById('modal');
+const closeBtn=document.getElementById('closeBtn');
+const preview=document.getElementById('preview');
+
+let currentColor='#000000';
+let isErasing=false;
+let isDrawing=false;
+const grid=Array(SIZE*SIZE).fill('#ffffff');
+
+function updateCurrentDisplay(){
+  currentColorEl.style.background=isErasing?'#ffffff':currentColor;
+}
+
+colors.forEach((c,i)=>{
+  const d=document.createElement('div');
+  d.className='color';
+  d.style.background=c;
+  if(i===0)d.classList.add('active');
+  d.addEventListener('click',()=>{
+    document.querySelectorAll('.color').forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');
+    currentColor=c;
+    isErasing=false;
+    eraserBtn.classList.remove('active');
+    updateCurrentDisplay();
+  });
+  palette.appendChild(d);
+});
+
+customColor.addEventListener('input',e=>{
+  currentColor=e.target.value;
+  document.querySelectorAll('.color').forEach(x=>x.classList.remove('active'));
+  isErasing=false;
+  eraserBtn.classList.remove('active');
+  updateCurrentDisplay();
+});
+
+function paint(idx){
+  const color=isErasing?'#ffffff':currentColor;
+  grid[idx]=color;
+  const cell=canvas.children[idx];
+  if(cell)cell.style.background=color;
+}
+
+function getIdxFromTouch(x,y){
+  const el=document.elementFromPoint(x,y);
+  if(el&&el.classList.contains('cell')){
+    return parseInt(el.dataset.idx);
+  }
+  return -1;
+}
+
+for(let i=0;i<SIZE*SIZE;i++){
+  const c=document.createElement('div');
+  c.className='cell';
+  c.dataset.idx=i;
+  c.addEventListener('mousedown',e=>{e.preventDefault();isDrawing=true;paint(i);});
+  c.addEventListener('mouseenter',()=>{if(isDrawing)paint(i);});
+  canvas.appendChild(c);
+}
+
+document.addEventListener('mouseup',()=>isDrawing=false);
+
+canvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  isDrawing=true;
+  const t=e.touches[0];
+  const idx=getIdxFromTouch(t.clientX,t.clientY);
+  if(idx>=0)paint(idx);
+},{passive:false});
+
+canvas.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  if(!isDrawing)return;
+  const t=e.touches[0];
+  const idx=getIdxFromTouch(t.clientX,t.clientY);
+  if(idx>=0)paint(idx);
+},{passive:false});
+
+canvas.addEventListener('touchend',()=>isDrawing=false);
+
+eraserBtn.addEventListener('click',()=>{
+  isErasing=!isErasing;
+  if(isErasing){
+    eraserBtn.classList.add('active');
+    document.querySelectorAll('.color').forEach(x=>x.classList.remove('active'));
+  }else{
+    eraserBtn.classList.remove('active');
+  }
+  updateCurrentDisplay();
+});
+
+clearBtn.addEventListener('click',()=>{
+  if(confirm('确定要清空画板吗？')){
+    for(let i=0;i<grid.length;i++){
+      grid[i]='#ffffff';
+      canvas.children[i].style.background='#ffffff';
+    }
+  }
+});
+
+previewBtn.addEventListener('click',()=>{
+  preview.innerHTML='';
+  grid.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='pcell';
+    d.style.background=c;
+    preview.appendChild(d);
+  });
+  modal.classList.add('show');
+});
+
+closeBtn.addEventListener('click',()=>modal.classList.remove('show'));
+
+updateCurrentDisplay();
+</script>
+</body>
+</html>

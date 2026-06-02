@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>番茄工作法计时器</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f6f6;
+      color: #333;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #ff6347;
+    }
+
+    .timer {
+      font-size: 48px;
+      margin: 20px 0;
+      color: #555;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      background-color: #ff6347;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e5533d;
+    }
+
+    button:active {
+      background-color: #cc4733;
+    }
+
+    .completed {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .timer {
+        font-size: 36px;
+      }
+
+      button {
+        padding: 8px 16px;
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>番茄工作法计时器</h1>
+  <div class="timer" id="timer">25:00</div>
+  <div class="buttons">
+    <button id="startPauseBtn">开始</button>
+    <button id="resetBtn">重置</button>
+  </div>
+  <div class="completed" id="completedTomatoes">今日完成番茄数：0</div>
+  <script>
+    let timerDuration = 25 * 60; // Initial timer duration in seconds
+    let breakDuration = 5 * 60; // Break timer duration in seconds
+    let timeRemaining = timerDuration; // Remaining time
+    let isRunning = false; // Is the timer running
+    let isWorkSession = true; // Is it work session or break
+    let interval = null; // Interval ID for setInterval
+    let completedTomatoCount = 0; // Number of tomatoes completed
+    
+    const timerElement = document.getElementById('timer');
+    const startPauseBtn = document.getElementById('startPauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const completedTomatoesElement = document.getElementById('completedTomatoes');
+    
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    
+    function updateTimerDisplay() {
+      timerElement.textContent = formatTime(timeRemaining);
+    }
+    
+    function toggleTimer() {
+      if (isRunning) {
+        clearInterval(interval);
+        isRunning = false;
+        startPauseBtn.textContent = '开始';
+      } else {
+        isRunning = true;
+        startPauseBtn.textContent = '暂停';
+        interval = setInterval(() => {
+          timeRemaining--;
+          updateTimerDisplay();
+          
+          if (timeRemaining <= 0) {
+            clearInterval(interval);
+            isRunning = false;
+            startPauseBtn.textContent = '开始';
+            
+            if (isWorkSession) {
+              completedTomatoCount++;
+              completedTomatoesElement.textContent = `今日完成番茄数：${completedTomatoCount}`;
+              timeRemaining = breakDuration;
+            } else {
+              timeRemaining = timerDuration;
+            }
+            
+            isWorkSession = !isWorkSession;
+            updateTimerDisplay();
+          }
+        }, 1000);
+      }
+    }
+    
+    function resetTimer() {
+      clearInterval(interval);
+      isRunning = false;
+      isWorkSession = true;
+      timeRemaining = timerDuration;
+      startPauseBtn.textContent = '开始';
+      updateTimerDisplay();
+    }
+    
+    startPauseBtn.addEventListener('click', toggleTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    
+    updateTimerDisplay();
+  </script>
+</body>
+</html>

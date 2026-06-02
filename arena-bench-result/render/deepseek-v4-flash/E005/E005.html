@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>光的折射物理演示</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(145deg, #2b5a7a 0%, #1b3a4a 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #container {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 22px 18px 28px;
+            margin: 16px auto;
+            width: calc(100% - 32px);
+            max-width: 460px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0 0 14px 0;
+            font-weight: 600;
+            font-size: 1.6rem;
+            color: #1f3a4b;
+            letter-spacing: 1px;
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 66.67%;
+            background: #eef2f7;
+            border-radius: 18px;
+            overflow: hidden;
+            touch-action: none;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        #refractionCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 18px;
+            background: transparent;
+        }
+
+        #controls {
+            margin-top: 18px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f4f9fc;
+            padding: 8px 16px 8px 14px;
+            border-radius: 40px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .slider-row label {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #1f4b6e;
+            flex-shrink: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .slider-row input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 4px;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            outline: none;
+            touch-action: none;
+            min-width: 0;
+        }
+
+        .slider-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            transition: 0.1s;
+        }
+
+        .slider-row input[type="range"]::-moz-range-thumb {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        .slider-row input[type="range"]::-webkit-slider-thumb:active {
+            transform: scale(1.05);
+            border-color: #2d8cf0;
+        }
+
+        .slider-row .angle-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1f3a4b;
+            min-width: 46px;
+            text-align: right;
+        }
+
+        #info {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 12px 16px 14px;
+            background: #f0f6fc;
+            border-radius: 16px;
+            font-size: 0.95rem;
+        }
+
+        .info-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 6px 12px;
+        }
+
+        .info-row .item {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .info-row strong {
+            font-weight: 700;
+            color: #1a3d5a;
+        }
+
+        #formula-box {
+            width: 100%;
+            text-align: center;
+            padding: 6px 0 2px 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0e2a3a;
+            letter-spacing: 1px;
+            border-top: 1px solid rgba(0,0,0,0.06);
+            margin-top: 4px;
+        }
+
+        #calc-detail {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #3d5a70;
+            background: rgba(255,255,255,0.5);
+            border-radius: 8px;
+            padding: 4px 10px;
+            margin-top: 2px;
+            word-break: break-all;
+        }
+
+        @media (max-width: 400px) {
+            h2 { font-size: 1.3rem; }
+            .slider-row { padding: 6px 12px 6px 10px; }
+            .slider-row label { font-size: 0.95rem; }
+            .slider-row .angle-value { font-size: 1rem; min-width: 40px; }
+            .slider-row input[type="range"] { height: 5px; }
+            .slider-row input[type="range"]::-webkit-slider-thumb { width: 26px; height: 26px; }
+            .slider-row input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; }
+            #info { padding: 10px 12px; font-size: 0.85rem; }
+            #formula-box { font-size: 1.05rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h2>🌊 光的折射</h2>
+        <div id="canvas-wrapper">
+            <canvas id="refractionCanvas"></canvas>
+        </div>
+        <div id="controls">
+            <div class="slider-row">
+                <label>入射角</label>
+                <input type="range" id="angleSlider" min="0" max="89" value="30" step="0.5">
+                <span class="angle-value" id="angleDisplay">30.0°</span>
+            </div>
+            <div id="info">
+                <div class="info-row">
+                    <span class="item">入射角 <strong id="infoAngle1">30.0°</strong></span>
+                    <span class="item">折射角 <strong id="infoAngle2">22.1°</strong></span>
+                    <span class="item">n₂ = <strong>1.33</strong></span>
+                </div>
+                <div id="formula-box">
+                    n₁ sin θ₁ = n₂ sin θ₂
+                </div>
+                <div id="calc-detail">
+                    1.00·sin(30.0°) = 1.33·sin(22.1°)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('refractionCanvas');
+            const ctx = canvas.getContext('2d');
+            const slider = document.getElementById('angleSlider');
+            const angleDisplay = document.getElementById('angleDisplay');
+            const infoAngle1 = document.getElementById('infoAngle1');
+            const infoAngle2 = document.getElementById('infoAngle2');
+            const calcDetail = document.getElementById('calc-detail');
+
+            const n1 = 1.00;
+            const n2 = 1.33;
+
+            // 确保画布尺寸与CSS匹配，处理高清屏，返回逻辑宽高
+            function ensureCanvasSize() {
+                const wrapper = document.getElementById('canvas-wrapper');
+                const rect = wrapper.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const targetW = rect.width * dpr;
+                const targetH = rect.height * dpr;
+                if (canvas.width !== targetW || canvas.height !== targetH) {
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                }
+                // 重置变换并缩放为逻辑坐标
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                if (dpr > 1) {
+                    ctx.scale(dpr, dpr);
+                }
+                return { width: rect.width, height: rect.height };
+            }
+
+            function drawScene(theta1Deg) {
+                const { width: w, height: h } = ensureCanvasSize();
+                if (w === 0 || h === 0) return;
+
+                const theta1Rad = theta1Deg * Math.PI / 180;
+                const sinTheta2 = (n1 / n2) * Math.sin(theta1Rad);
+                let theta2Rad = Math.asin(Math.min(sinTheta2, 1));
+                let theta2Deg = theta2Rad * 180 / Math.PI;
+
+                // 入射点（水面位置）
+                const x0 = w * 0.5;
+                const y0 = h * 0.62;
+
+                // 清空画布（用透明背景，因为wrapper有背景）
+                ctx.clearRect(0, 0, w, h);
+
+                // ---- 背景 ----
+                // 空气部分淡色
+                ctx.fillStyle = 'rgba(245, 250, 255, 0.5)';
+                ctx.fillRect(0, 0, w, y0);
+
+                // 水部分渐变
+                const waterGrad = ctx.createLinearGradient(0, y0, 0, h);
+                waterGrad.addColorStop(0, 'rgba(0, 170, 255, 0.25)');
+                waterGrad.addColorStop(0.6, 'rgba(0, 120, 220, 0.45)');
+                waterGrad.addColorStop(1, 'rgba(0, 60, 140, 0.65)');
+                ctx.fillStyle = waterGrad;
+                ctx.fillRect(0, y0, w, h - y0);
+
+                // ---- 水面线 ----
+                ctx.beginPath();
+                ctx.strokeStyle = '#2a9eff';
+                ctx.lineWidth = 2.5;
+                ctx.moveTo(0, y0);
+                ctx.lineTo(w, y0);
+                ctx.stroke();
+
+                // ---- 法线（虚线） ----
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(120, 140, 160, 0.7)';
+                ctx.lineWidth = 1.8;
+                ctx.setLineDash([8, 8]);
+                ctx.moveTo(x0, 12);
+                ctx.lineTo(x0, h - 12);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // ---- 入射光线 ----
+                const maxDist = Math.max(w, h) * 1.5;
+                // 从入射点指向光源的单位向量（法线左侧）
+                const vInX = -Math.sin(theta1Rad);
+                const vInY = -Math.cos(theta1Rad);
+                const srcX = x0 + maxDist * vInX;
+                const srcY = y0 + maxDist * vInY;
+
+                // 入射光线发光效果（宽半透明）
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.25)';
+                ctx.lineWidth = 12;
+                ctx.moveTo(srcX, srcY);
+                ctx.lineTo(x0, y0);
+                ctx.stroke();
+                // 入射光线实线
+                ctx.beginPath();
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 3.5;
+                ctx.moveTo(srcX, srcY);
+                ctx.lineTo(x0, y0);
+                ctx.stroke();
+
+                // ---- 折射光线 ----
+                const vRefX = Math.sin(theta2Rad);
+                const vRefY = Math.cos(theta2Rad);
+                const destX = x0 + maxDist * vRefX;
+                const destY = y0 + maxDist * vRefY;
+
+                // 折射光线发光
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(0, 191, 255, 0.25)';
+                ctx.lineWidth = 12;
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(destX, destY);
+                ctx.stroke();
+                // 折射光线实线
+                ctx.beginPath();
+                ctx.strokeStyle = '#00BFFF';
+                ctx.lineWidth = 3.5;
+                ctx.moveTo(x0, y0);
+                ctx.lineTo(destX, destY);
+                ctx.stroke();
+
+                // ---- 角度弧线 ----
+                const arcR1 = Math.min(w, h) * 0.1;
+                const arcR2 = arcR1 * 0.78;
+
+                // 入射角弧线
+                if (theta1Deg > 0.5) {
+                    const angleIn = Math.atan2(vInY, vInX);        // 光线方向（指向光源）
+                    const angleUp = -Math.PI / 2;                 // 法线向上
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#e67e22';
+                    ctx.lineWidth = 2.2;
+                    ctx.arc(x0, y0, arcR1, angleIn, angleUp, false);
+                    ctx.stroke();
+
+                    // 入射角标签
+                    const midA1 = (angleIn + angleUp) / 2;
+                    const labR1 = arcR1 + 18;
+                    const lx1 = x0 + labR1 * Math.cos(midA1);
+                    const ly1 = y0 + labR1 * Math.sin(midA1);
+                    ctx.fillStyle = '#d35400';
+                    ctx.font = 'bold ' + (Math.max(13, w * 0.035)) + 'px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('θ₁=' + theta1Deg.toFixed(1) + '°', lx1, ly1);
+                }
+
+                // 折射角弧线
+                if (theta2Deg > 0.5) {
+                    const angleRef = Math.atan2(vRefY, vRefX);    // 折射光线方向
+                    const angleDown = Math.PI / 2;                // 法线向下
+
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#2e86de';
+                    ctx.lineWidth = 2.2;
+                    ctx.arc(x0, y0, arcR2, angleRef, angleDown, false);
+                    ctx.stroke();
+
+                    // 折射角标签
+                    const midA2 = (angleRef + angleDown) / 2;
+                    const labR2 = arcR2 + 17;
+                    const lx2 = x0 + labR2 * Math.cos(midA2);
+                    const ly2 = y0 + labR2 * Math.sin(midA2);
+                    ctx.fillStyle = '#1f5a9e';
+                    ctx.font = 'bold ' + (Math.max(12, w * 0.032)) + 'px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('θ₂=' + theta2Deg.toFixed(1) + '°', lx2, ly2);
+                }
+
+                // ---- 文字标注空气与水 ----
+                const fontLabel = Math.max(11, w * 0.028);
+                ctx.font = fontLabel + 'px sans-serif';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'bottom';
+                ctx.fillStyle = '#3a5a7a';
+                ctx.fillText('空气  n₁ = 1.00', 12, y0 - 5);
+
+                ctx.textBaseline = 'top';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('水  n₂ = 1.33', 12, y0 + 5);
+
+                // 如果入射角为0，显示特殊说明
+                if (theta1Deg < 0.5) {
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    ctx.fillStyle = '#2c3e50';
+                    ctx.font = 'bold ' + (Math.max(13, w * 0.035)) + 'px sans-serif';
+                    ctx.fillText('垂直入射，光线不偏折', w / 2, y0 - 18);
+                }
+            }
+
+            function updateUI() {
+                const theta1Deg = parseFloat(slider.value);
+                const theta1Rad = theta1Deg * Math.PI / 180;
+                const sinTheta2 = (n1 / n2) * Math.sin(theta1Rad);
+                let theta2Rad = Math.asin(Math.min(sinTheta2, 1));
+                let theta2Deg = theta2Rad * 180 / Math.PI;
+
+                // 更新显示
+                const disp1 = theta1Deg.toFixed(1) + '°';
+                const disp2 = theta2Deg.toFixed(1) + '°';
+                angleDisplay.textContent = disp1;
+                infoAngle1.textContent = disp1;
+                infoAngle2.textContent = disp2;
+
+                const s1 = Math.sin(theta1Rad).toFixed(4);
+                const s2 = Math.sin(theta2Rad).toFixed(4);
+                calcDetail.textContent = `1.00 · sin(${theta1Deg.toFixed(1)}°) = 1.33 · sin(${theta2Deg.toFixed(1)}°)   ( sin θ₂ = ${s2} )`;
+
+                drawScene(theta1Deg);
+            }
+
+            // 事件绑定
+            slider.addEventListener('input', updateUI);
+            window.addEventListener('resize', updateUI);
+            window.addEventListener('load', updateUI);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(updateUI, 300);
+            });
+
+            // 额外适配：屏幕旋转时某些浏览器可能延迟报告尺寸
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(updateUI, 200);
+            });
+        })();
+    </script>
+</body>
+</html>

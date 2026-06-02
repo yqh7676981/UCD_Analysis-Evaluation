@@ -1,0 +1,33 @@
+{
+  "index": 253,
+  "id": "197",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "开发用于 API 管理的仪表板，用户可以在其中查看最近的活动、访问摘要统计数据并有效处理 API 密钥。",
+  "evaluation": {
+    "total_score": 82,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark dashboard style is coherent and appropriate for an API/admin product, with consistent cards, restrained accent colors, and a stable grid. The main weakness is the large empty left rail that makes the layout feel unbalanced and wastes desktop space."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography, padding, card radii, table rows, status pills, and chart containers are consistently finished and readable. Minor issues remain: some secondary text is low-contrast, action buttons in the key table are small, and dense table cells make scanning slightly tighter than ideal."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly find the requested core areas: summary stats at the top, API key management in the center, recent activity below, and health/status panels to the side. Hierarchy is generally clear, but the key-management area competes visually with analytics cards, and the blank left area weakens overall focus."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels such as total requests, active keys, recent activity, and API key statuses match the scenario and are easy to interpret. However, row-level controls rely on unlabeled icons (pause/play/delete, eye/copy), which makes action meaning and consequences less explicit, especially for key lifecycle operations."
+      }
+    },
+    "summary": "This is a strong, near-launch-ready API management dashboard with good scenario fit, solid hierarchy, and polished dark-theme execution. Users can view recent activity, summary metrics, and key records without much effort. The score is capped by wasted desktop space on the left, slightly compressed table/action details, and icon-only operations that reduce semantic clarity for sensitive API key management tasks."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/197_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:15:17.816881"
+}

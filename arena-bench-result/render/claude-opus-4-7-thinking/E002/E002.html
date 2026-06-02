@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>自然拼读小课堂 🎵</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;
+  background:linear-gradient(135deg,#ffeaa7 0%,#fab1a0 50%,#a29bfe 100%);
+  min-height:100vh;color:#2d3436;padding:18px 14px 80px;
+  -webkit-font-smoothing:antialiased;
+}
+header{text-align:center;margin-bottom:18px}
+header h1{
+  font-size:26px;font-weight:800;
+  background:linear-gradient(90deg,#ff6b9d,#feca57,#48dbfb);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:2px 2px 0 rgba(255,255,255,.4);
+}
+header p{font-size:13px;color:#636e72;margin-top:6px}
+.tabs{
+  display:flex;gap:8px;overflow-x:auto;padding:6px 2px 14px;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;padding:8px 16px;border-radius:20px;
+  background:rgba(255,255,255,.65);font-size:13px;font-weight:600;
+  color:#636e72;border:2px solid transparent;cursor:pointer;
+  transition:all .2s;backdrop-filter:blur(6px);
+}
+.tab.active{
+  background:#fff;color:#e84393;border-color:#ff6b9d;
+  box-shadow:0 4px 12px rgba(255,107,157,.3);
+}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card{
+  background:#fff;border-radius:18px;padding:16px 12px;
+  box-shadow:0 6px 18px rgba(0,0,0,.08);
+  border:3px solid transparent;cursor:pointer;
+  transition:transform .15s,box-shadow .2s,border-color .2s;
+  position:relative;overflow:hidden;
+}
+.card:active{transform:scale(.96)}
+.card.playing{
+  border-color:#feca57;
+  animation:pulse .6s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 6px 18px rgba(254,202,87,.4)}
+  50%{box-shadow:0 6px 28px rgba(254,202,87,.8)}
+}
+.card::before{
+  content:"";position:absolute;top:-30%;right:-30%;
+  width:80px;height:80px;border-radius:50%;
+  background:var(--clr,#ff6b9d);opacity:.18;
+}
+.combo{
+  font-size:38px;font-weight:900;color:var(--clr,#ff6b9d);
+  text-align:center;letter-spacing:1px;
+  font-family:"Comic Sans MS","Marker Felt",cursive;
+}
+.combo-tip{
+  font-size:11px;color:#b2bec3;text-align:center;margin-top:2px;
+  letter-spacing:.5px;
+}
+.words{
+  margin-top:10px;display:flex;flex-direction:column;gap:6px;
+}
+.word{
+  background:#f8f9fa;border-radius:10px;padding:8px 10px;
+  font-size:14px;font-weight:600;color:#2d3436;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .15s;
+  border:1.5px solid transparent;
+}
+.word:active{background:#fff3cd;border-color:#feca57}
+.word .em{color:var(--clr,#ff6b9d);font-weight:800}
+.word .ico{
+  width:24px;height:24px;border-radius:50%;
+  background:var(--clr,#ff6b9d);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;flex-shrink:0;
+}
+.hint{
+  position:fixed;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(45,52,54,.92);color:#fff;
+  padding:8px 16px;border-radius:20px;font-size:12px;
+  opacity: 1; /* fixed: was 0 */pointer-events:none;transition:opacity .25s;
+  z-index:99;backdrop-filter:blur(8px);
+}
+.hint.show{opacity:1}
+.combo-row{display:flex;align-items:center;justify-content:center;gap:6px}
+.play-btn{
+  width:28px;height:28px;border-radius:50%;border:none;
+  background:var(--clr,#ff6b9d);color:#fff;font-size:14px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+@media (min-width:480px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+  header h1{font-size:30px}
+}
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+<header>
+  <h1>🎀 自然拼读小课堂 🎵</h1>
+  <p>点一点，听一听，跟我读～</p>
+</header>
+
+<div class="tabs" id="tabs"></div>
+<div class="grid" id="grid"></div>
+<div class="hint" id="hint">🔊 正在朗读...</div>
+
+<script>
+const DATA={
+  "辅音组合":[
+    {c:"sh",tip:"嘘 ~",clr:"#ff6b9d",words:[["ship","小船"],["fish","鱼"],["shoe","鞋子"],["shark","鲨鱼"]]},
+    {c:"ch",tip:"七 ~",clr:"#fd79a8",words:[["chair","椅子"],["cheese","奶酪"],["chicken","小鸡"],["cherry","樱桃"]]},
+    {c:"th",tip:"咬舌头",clr:"#a29bfe",words:[["this","这个"],["that","那个"],["three","三"],["thank","谢谢"]]},
+    {c:"wh",tip:"呼 ~",clr:"#74b9ff",words:[["what","什么"],["where","哪里"],["white","白色"],["whale","鲸鱼"]]},
+    {c:"ph",tip:"f 的音",clr:"#0984e3",words:[["phone","电话"],["photo","照片"],["dolphin","海豚"]]},
+    {c:"ng",tip:"嗯~",clr:"#6c5ce7",words:[["king","国王"],["sing","唱歌"],["song","歌曲"],["ring","戒指"]]}
+  ],
+  "长元音":[
+    {c:"ai",tip:"诶 ~",clr:"#e17055",words:[["rain","下雨"],["train","火车"],["tail","尾巴"],["snail","蜗牛"]]},
+    {c:"ay",tip:"诶 ~",clr:"#d63031",words:[["day","白天"],["play","玩"],["may","五月"],["say","说"]]},
+    {c:"ee",tip:"咿~~",clr:"#00b894",words:[["bee","蜜蜂"],["tree","大树"],["sheep","绵羊"],["green","绿色"]]},
+    {c:"ea",tip:"咿~~",clr:"#00cec9",words:[["sea","大海"],["tea","茶"],["eat","吃"],["leaf","叶子"]]},
+    {c:"oa",tip:"欧~",clr:"#fdcb6e",words:[["boat","小船"],["coat","外套"],["road","道路"],["soap","肥皂"]]},
+    {c:"ow",tip:"欧 / 奥",clr:"#e84393",words:[["snow","雪"],["window","窗户"],["yellow","黄色"]]}
+  ],
+  "其他":[
+    {c:"oo",tip:"乌~",clr:"#55efc4",words:[["moon","月亮"],["zoo","动物园"],["food","食物"],["book","书"]]},
+    {c:"ar",tip:"啊r",clr:"#fab1a0",words:[["car","汽车"],["star","星星"],["park","公园"],["farm","农场"]]},
+    {c:"or",tip:"哦r",clr:"#ffeaa7",words:[["fork","叉子"],["horse","马"],["corn","玉米"],["short","短"]]},
+    {c:"er",tip:"额r",clr:"#81ecec"  ,words:[["tiger","老虎"],["water","水"],["sister","姐妹"]]},
+    {c:"ou",tip:"奥~",clr:"#ff7675",words:[["mouse","老鼠"],["house","房子"],["cloud","云"],["mouth","嘴巴"]]},
+    {c:"oy",tip:"哦伊",clr:"#a29bfe",words:[["boy","男孩"],["toy","玩具"],["enjoy","享受"]]}
+  ]
+};
+
+const tabsEl=document.getElementById('tabs');
+const gridEl=document.getElementById('grid');
+const hintEl=document.getElementById('hint');
+let currentTab=Object.keys(DATA)[0];
+
+function highlight(word,combo){
+  const i=word.toLowerCase().indexOf(combo.toLowerCase());
+  if(i<0)return word;
+  return word.slice(0,i)+'<span class="em">'+word.slice(i,i+combo.length)+'</span>'+word.slice(i+combo.length);
+}
+
+function speak(text,rate=0.85){
+  if(!('speechSynthesis' in window)){
+    showHint('😅 你的浏览器暂不支持语音');return;
+  }
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=rate;u.pitch=1.1;
+  speechSynthesis.speak(u);
+  showHint('🔊 '+text);
+}
+
+let hintTimer;
+function showHint(msg){
+  hintEl.textContent=msg;hintEl.classList.add('show');
+  clearTimeout(hintTimer);
+  hintTimer=setTimeout(()=>hintEl.classList.remove('show'),1400);
+}
+
+function renderTabs(){
+  tabsEl.innerHTML='';
+  Object.keys(DATA).forEach(k=>{
+    const t=document.createElement('div');
+    t.className='tab'+(k===currentTab?' active':'');
+    t.textContent=k;
+    t.onclick=()=>{currentTab=k;renderTabs();renderGrid();};
+    tabsEl.appendChild(t);
+  });
+}
+
+function renderGrid(){
+  gridEl.innerHTML='';
+  DATA[currentTab].forEach(item=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.setProperty('--clr',item.clr);
+
+    const header=document.createElement('div');
+    header.className='combo-row';
+    header.innerHTML='<span class="combo">'+item.c+'</span>';
+    const pb=document.createElement('button');
+    pb.className='play-btn';pb.textContent='▶';
+    pb.onclick=(e)=>{
+      e.stopPropagation();
+      flash(card);
+      speak(item.c+'... '+item.words.map(w=>w[0]).join(', '),0.8);
+    };
+    header.appendChild(pb);
+    card.appendChild(header);
+
+    const tip=document.createElement('div');
+    tip.className='combo-tip';tip.textContent='发音: '+item.tip;
+    card.appendChild(tip);
+
+    const ws=document.createElement('div');
+    ws.className='words';
+    item.words.forEach(([w,zh])=>{
+      const wd=document.createElement('div');
+      wd.className='word';
+      wd.innerHTML='<span>'+highlight(w,item.c)+' <small style="color:#b2bec3;font-weight:400">'+zh+'</small></span><span class="ico">▶</span>';
+      wd.onclick=(e)=>{e.stopPropagation();flash(card);speak(w);};
+      ws.appendChild(wd);
+    });
+    card.appendChild(ws);
+
+    card.onclick=()=>{flash(card);speak(item.c,0.7);};
+    gridEl.appendChild(card);
+  });
+}
+
+function flash(card){
+  document.querySelectorAll('.card.playing').forEach(c=>c.classList.remove('playing'));
+  card.classList.add('playing');
+  setTimeout(()=>card.classList.remove('playing'),900);
+}
+
+// 提前唤醒语音引擎（iOS 需要用户交互后才能播放）
+document.addEventListener('touchstart',function once(){
+  if('speechSynthesis' in window){
+    const u=new SpeechSynthesisUtterance('');
+    speechSynthesis.speak(u);
+  }
+  document.removeEventListener('touchstart',once);
+},{once:true});
+
+renderTabs();
+renderGrid();
+</script>
+</body>
+</html>

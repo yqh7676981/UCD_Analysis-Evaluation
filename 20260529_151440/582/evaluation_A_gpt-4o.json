@@ -1,0 +1,33 @@
+{
+  "index": 79,
+  "id": "582",
+  "group": "A",
+  "class": "Desktop",
+  "model": "gpt-4o",
+  "question": "创建一个网站，专门展示邓稼先的研究工作，重点介绍他的出版物、项目以及对学术界的贡献。",
+  "evaluation": {
+    "total_score": 56,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 5,
+        "reason": "The page has a consistent dark-blue header and white card layout, but the visual system is very generic and lacks a strong scholarly or archival tone. Large empty areas, repetitive card treatment, and minimal visual focal points make it feel like a template rather than an intentional research showcase."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Basic typography, spacing, and alignment are mostly clean, and cards have adequate padding. However, hierarchy is weak, section dividers are heavy, list rows look like form inputs rather than content items, and the text presentation lacks refinement or richer metadata expected for publications and projects."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can quickly scan the three main sections and understand the page structure. Still, almost all content carries similar visual weight, there is no clear primary area or featured contribution, and the long text rows reduce scannability for publication and project browsing."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels such as '出版物', '项目', and '对学术界的贡献' are straightforward, and the navigation matches the section content. The semantic model is simple and predictable, but interaction affordances are unclear because list items appear input-like and there are no cues for whether items are clickable, expandable, or purely static."
+      }
+    },
+    "summary": "This interface is usable and clearly aligned with the requested topic, so users can identify publications, projects, and academic contributions without much confusion. The hard cap comes from its template-like execution: weak visual hierarchy, low scholarly character, repetitive card styling, and content rows that look more like plain boxes than meaningful research records. It meets the scenario at a basic informational level but does not feel polished or complete enough for a strong desktop showcase."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/582_A_gpt-4o/screenshot_desktop.png",
+  "time": "2026-05-29T15:31:23.337987"
+}

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>家庭账单记录</title>
+    <style>
+        /* 全局样式和响应式基础 */
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #f44336;
+            --background-light: #f9f9f9;
+            --text-dark: #333;
+            --text-light: #fff;
+            --border-color: #ddd;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --font-size-base: 16px;
+            --font-size-large: 20px;
+            --font-size-small: 14px;
+            --spacing-m: 16px;
+            --spacing-s: 8px;
+            --border-radius: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        .container {
+            max-width: 500px; /* 移动端最大宽度 */
+            margin: 0 auto;
+            padding: var(--spacing-m);
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: var(--spacing-m);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+            margin-bottom: var(--spacing-m);
+        }
+
+        header h1 {
+            margin: 0 0 var(--spacing-s);
+            font-size: var(--font-size-large);
+        }
+
+        .month-selector {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: var(--spacing-s);
+        }
+
+        .month-selector button {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: var(--font-size-large);
+            padding: var(--spacing-s);
+            cursor: pointer;
+            outline: none;
+            -webkit-appearance: none; /* 移除默认样式 */
+        }
+
+        .month-selector span {
+            font-size: var(--font-size-large);
+            margin: 0 var(--spacing-s);
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background-color: var(--text-light);
+            padding: var(--spacing-m);
+            margin-bottom: var(--spacing-m);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-m);
+            font-size: var(--font-size-large);
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        /* 表单输入样式 */
+        .form-group {
+            margin-bottom: var(--spacing-s);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--spacing-s);
+            font-size: var(--font-size-small);
+            color: #666;
+        }
+
+        .form-group input[type="number"],
+        .form-group select {
+            width: calc(100% - 20px); /* Adjust for padding */
+            padding: var(--spacing-s);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-base);
+            box-sizing: border-box; /* 边框和内边距包含在宽度内 */
+            -webkit-appearance: none; /* 移除默认样式 */
+            background-color: var(--text-light);
+        }
+
+        .form-group select {
+            padding-right: var(--spacing-m); /* 为下拉箭头留出空间 */
+            background: url("data:image/svg+xml;utf8,<svg fill='%23333' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>") no-repeat right 8px center;
+            background-size: 24px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: var(--spacing-s) var(--spacing-m);
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            -webkit-appearance: none; /* 移除默认样式 */
+            margin-top: var(--spacing-m);
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        .btn-delete {
+            background-color: var(--secondary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-small);
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-left: var(--spacing-s);
+            transition: background-color 0.3s ease;
+            -webkit-appearance: none;
+        }
+
+        .btn-delete:hover {
+            background-color: #e0443d;
+        }
+
+        /* 账单列表样式 */
+        #bill-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #bill-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-s) 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: var(--font-size-base);
+        }
+
+        #bill-list li:last-child {
+            border-bottom: none;
+        }
+
+        #bill-list .bill-info {
+            flex-grow: 1;
+        }
+
+        #bill-list .bill-amount {
+            font-weight: bold;
+            color: #2196F3; /* 支出金额颜色 */
+            margin-right: var(--spacing-s);
+        }
+
+        /* 汇总统计样式 */
+        #summary-total {
+            font-size: var(--font-size-large);
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: var(--spacing-m);
+        }
+
+        #summary-total span {
+            color: var(--secondary-color);
+        }
+
+        #category-breakdown div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-s);
+            font-size: var(--font-size-base);
+        }
+
+        #category-breakdown .category-name {
+            flex-basis: 40%;
+            font-weight: bold;
+        }
+
+        #category-breakdown .category-bar-wrapper {
+            flex-basis: 50%;
+            height: 10px;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 var(--spacing-s);
+        }
+
+        #category-breakdown .category-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            transition: width 0.5s ease-out;
+        }
+
+        #category-breakdown .category-percentage {
+            flex-basis: 10%;
+            text-align: right;
+            font-size: var(--font-size-small);
+        }
+
+        /* 零数据提示 */
+        .no-data {
+            text-align: center;
+            color: #888;
+            padding: var(--spacing-m);
+            font-size: var(--font-size-small);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>家庭账单记录</h1>
+            <div class="month-selector">
+                <button id="prev-month-btn">&lt;</button>
+                <span id="current-month-display"></span>
+                <button id="next-month-btn">&gt;</button>
+            </div>
+        </header>
+
+        <section id="add-bill-section" class="card">
+            <h2>添加新账单</h2>
+            <div class="form-group">
+                <label for="bill-category">账单类别:</label>
+                <select id="bill-category">
+                    <option value="水电">水电</option>
+                    <option value="燃气">燃气</option>
+                    <option value="网费">网费</option>
+                    <option value="物业费">物业费</option>
+                    <option value="交通">交通</option>
+                    <option value="餐饮">餐饮</option>
+                    <option value="购物">购物</option>
+                    <option value="娱乐">娱乐</option>
+                    <option value="医疗">医疗</option>
+                    <option value="教育">教育</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bill-amount">金额 (元):</label>
+                <input type="number" id="bill-amount" placeholder="请输入金额" min="0" step="0.01">
+            </div>
+            <button id="add-bill-btn" class="btn">添加账单</button>
+        </section>
+
+        <section id="bill-list-section" class="card">
+            <h2>当月账单列表</h2>
+            <ul id="bill-list">
+                <!-- 账单项将通过 JavaScript 动态添加 -->
+            </ul>
+            <p id="no-bills-message" class="no-data" style="display: none;">暂无账单记录</p>
+        </section>
+
+        <section id="summary-section" class="card">
+            <h2>当月支出概览</h2>
+            <p id="summary-total">
+                总支出: <span id="total-expense">0.00</span> 元
+            </p>
+            <h3>分类占比</h3>
+            <div id="category-breakdown">
+                <!-- 分类占比将通过 JavaScript 动态添加 -->
+            </div>
+            <p id="no-summary-message" class="no-data" style="display: none;">暂无数据统计</p>
+        </section>
+    </div>
+
+    <script>
+        // JavaScript 交互逻辑
+        document.addEventListener('DOMContentLoaded', () => {
+            const billCategory = document.getElementById('bill-category');
+            const billAmount = document.getElementById('bill-amount');
+            const addBillBtn = document.getElementById('add-bill-btn');
+            const billList = document.getElementById('bill-list');
+            const totalExpenseSpan = document.getElementById('total-expense');
+            const categoryBreakdownDiv = document.getElementById('category-breakdown');
+            const currentMonthDisplay = document.getElementById('current-month-display');
+            const prevMonthBtn = document.getElementById('prev-month-btn');
+            const nextMonthBtn = document.getElementById('next-month-btn');
+            const noBillsMessage = document.getElementById('no-bills-message');
+            const noSummaryMessage = document.getElementById('no-summary-message');
+
+            let currentMonth = new Date(); // 默认为当前月份
+            let bills = []; // 存储所有账单
+
+            // 初始化函数
+            function init() {
+                loadBills(); // 从 localStorage 加载账单
+                updateMonthDisplay(); // 更新月份显示
+                renderBills(); // 渲染当前月份的账单
+                renderSummary(); // 渲染统计概览
+            }
+
+            // 生成唯一ID
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0,
+                        v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            // 从 localStorage 加载账单
+            function loadBills() {
+                const storedBills = localStorage.getItem('familyBills');
+                if (storedBills) {
+                    bills = JSON.parse(storedBills);
+                }
+            }
+
+            // 保存账单到 localStorage
+            function saveBills() {
+                localStorage.setItem('familyBills', JSON.stringify(bills));
+            }
+
+            // 格式化月份显示
+            function formatMonth(date) {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                return `${year}年${month}月`;
+            }
+
+            // 获取 YYYY-MM 格式的月份字符串
+            function getMonthString(date) {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                return `${year}-${month}`;
+            }
+
+            // 更新月份显示
+            function updateMonthDisplay() {
+                currentMonthDisplay.textContent = formatMonth(currentMonth);
+            }
+
+            // 渲染账单列表
+            function renderBills() {
+                billList.innerHTML = '';
+                const currentMonthStr = getMonthString(currentMonth);
+                const filteredBills = bills.filter(bill => bill.month === currentMonthStr);
+
+                if (filteredBills.length === 0) {
+                    noBillsMessage.style.display = 'block';
+                } else {
+                    noBillsMessage.style.display = 'none';
+                    filteredBills.forEach(bill => {
+                        const listItem = document.createElement('li');
+                        listItem.setAttribute('data-id', bill.id);
+                        listItem.innerHTML = `
+                            <div class="bill-info">
+                                <strong>${bill.category}</strong>
+                            </div>
+                            <span class="bill-amount">¥${bill.amount.toFixed(2)}</span>
+                            <button class="btn-delete" data-id="${bill.id}">删除</button>
+                        `;
+                        billList.appendChild(listItem);
+                    });
+                }
+            }
+
+            // 渲染统计概览
+            function renderSummary() {
+                const currentMonthStr = getMonthString(currentMonth);
+                const filteredBills = bills.filter(bill => bill.month === currentMonthStr);
+
+                let total = 0;
+                const categoryTotals = {};
+
+                if (filteredBills.length === 0) {
+                    totalExpenseSpan.textContent = '0.00';
+                    categoryBreakdownDiv.innerHTML = '';
+                    noSummaryMessage.style.display = 'block';
+                    return;
+                } else {
+                    noSummaryMessage.style.display = 'none';
+                }
+
+                filteredBills.forEach(bill => {
+                    total += bill.amount;
+                    if (categoryTotals[bill.category]) {
+                        categoryTotals[bill.category] += bill.amount;
+                    } else {
+                        categoryTotals[bill.category] = bill.amount;
+                    }
+                });
+
+                totalExpenseSpan.textContent = total.toFixed(2);
+                categoryBreakdownDiv.innerHTML = '';
+
+                for (const category in categoryTotals) {
+                    const amount = categoryTotals[category];
+                    const percentage = (amount / total) * 100;
+
+                    const breakdownItem = document.createElement('div');
+                    breakdownItem.innerHTML = `
+                        <span class="category-name">${category}</span>
+                        <div class="category-bar-wrapper">
+                            <div class="category-bar" style="width: ${percentage.toFixed(1)}%;"></div>
+                        </div>
+                        <span class="category-percentage">${percentage.toFixed(1)}%</span>
+                    `;
+                    categoryBreakdownDiv.appendChild(breakdownItem);
+                }
+            }
+
+            // 添加账单
+            addBillBtn.addEventListener('click', () => {
+                const category = billCategory.value;
+                const amount = parseFloat(billAmount.value);
+
+                if (isNaN(amount) || amount <= 0) {
+                    alert('请输入有效的金额！');
+                    return;
+                }
+
+                const newBill = {
+                    id: generateUUID(),
+                    month: getMonthString(currentMonth),
+                    category: category,
+                    amount: amount,
+                    timestamp: new Date().toISOString()
+                };
+
+                bills.push(newBill);
+                saveBills();
+                renderBills();
+                renderSummary();
+
+                billAmount.value = ''; // 清空金额输入框
+            });
+
+            // 删除账单（事件委托）
+            billList.addEventListener('click', (event) => {
+                if (event.target.classList.contains('btn-delete')) {
+                    const billIdToDelete = event.target.dataset.id;
+                    bills = bills.filter(bill => bill.id !== billIdToDelete);
+                    saveBills();
+                    renderBills();
+                    renderSummary();
+                }
+            });
+
+            // 切换到上一个月
+            prevMonthBtn.addEventListener('click', () => {
+                currentMonth.setMonth(currentMonth.getMonth() - 1);
+                updateMonthDisplay();
+                renderBills();
+                renderSummary();
+            });
+
+            // 切换到下一个月
+            nextMonthBtn.addEventListener('click', () => {
+                currentMonth.setMonth(currentMonth.getMonth() + 1);
+                updateMonthDisplay();
+                renderBills();
+                renderSummary();
+            });
+
+            // 页面加载时初始化
+            init();
+        });
+    </script>
+</body>
+</html>

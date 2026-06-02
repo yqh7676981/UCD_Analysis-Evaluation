@@ -1,0 +1,33 @@
+{
+  "index": 59,
+  "id": "W001",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个简洁的待办事项工具，可以添加任务、设置优先级、勾选完成,完成的任务会划线置底。",
+  "evaluation": {
+    "total_score": 51,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The interface has a simple, consistent green-and-white style that fits a lightweight todo tool, and the layout is stable on mobile. However, it feels generic and unfinished: there is no strong visual focus beyond the header/button color, no empty-state treatment, and the large blank lower area weakens product completeness."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Inputs, select, and button are aligned consistently and have acceptable padding and rounded corners. But typography hierarchy is minimal, borders and spacing feel default-browser-like, and there is little element-level refinement such as helper text, task item styling, priority chips, or completed-state presentation."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "Users can immediately find the main flow: enter task, choose priority, add task. The page is uncluttered and readable. The hard cap is that there is no visible task list area, empty-state message, or section structure, so users cannot perceive what will happen after adding tasks or where completed tasks will move."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels are clear and the core controls match the scenario: task name input, priority selector, and add button are intuitive. However, the requested behaviors 'check complete' and 'completed tasks move to bottom with strikethrough' are not demonstrated in the visible UI, so semantic completeness of the task workflow is only partial."
+      }
+    },
+    "summary": "This is a usable but very basic mobile todo interface. The core add-task flow is understandable and visually consistent, which prevents it from scoring low. But the experience feels incomplete for the requested scenario because the screenshot shows only the creation controls, with no visible task list, empty state, completion affordance, or evidence of the completed-task behavior. The main strengths are simplicity and clarity; the main limits are lack of hierarchy depth, product polish, and end-to-end task-state visibility."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/W001_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:27:40.493032"
+}

@@ -1,0 +1,33 @@
+{
+  "index": 50,
+  "id": "77",
+  "group": "A",
+  "class": "Desktop",
+  "model": "qwen3-235b-a22b-instruct-2507",
+  "question": "为一家快餐公司设计一个主页，突出显示他们的菜单项、特别优惠和简单的订购选项。",
+  "evaluation": {
+    "total_score": 63,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The page has a consistent warm fast-food palette and repeated card patterns, which fits the scenario. However, the style is generic and somewhat flat: the large pink section bars, yellow promo cards, white content blocks, and dark footer feel assembled rather than part of a refined brand system, and the hero area lacks a strong food-focused visual hook."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Basic spacing, card borders, shadows, and button styling are reasonably consistent, and food photography is generally appealing. But typography hierarchy is weak, text is small in several places, some imagery appears mismatched to labels, the promo badge/icon treatment is rough, and there are visible polish issues such as empty grid space and uneven visual density across cards."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "Users can quickly identify the three main sections: specials, menu, and ordering. Section headers are clear and the ordering form is easy to locate. The main weakness is priority: the top banner is mostly decorative text, specials do not stand out strongly from the rest of the page, and the ordering CTA is repeated many times without a stronger overall primary path."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Content labels and actions are familiar for a food-ordering homepage: menu items, prices, add-to-order buttons, delivery time, payment, and submit order are all understandable. Still, the order flow is incomplete in the screenshot because the order summary shows no obvious selected items, and some product naming/image mismatches can reduce trust and semantic clarity."
+      }
+    },
+    "summary": "This is a usable, average-quality fast-food homepage that covers the requested scenario with visible menu items, promotional offers, and a simple order form. The biggest strengths are straightforward sectioning and recognizable ordering actions. The score is capped by generic visual treatment, modest hierarchy, limited brand polish, and an incomplete feeling in the add-to-order to checkout flow, which makes it functional but not fully convincing or launch-polished."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/77_A_qwen3-235b-a22b-instruct-2507/screenshot_desktop.png",
+  "time": "2026-05-29T15:25:45.643310"
+}

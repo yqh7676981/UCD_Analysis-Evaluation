@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人机一致性对比分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Main Layout - Push sidebar design */
+        .page-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            transition: max-width 0.3s ease, padding 0.3s ease;
+            max-width: 100%;
+        }
+
+        .main-content.with-sidebar {
+            max-width: calc(100% - 1100px);
+            padding: 20px 0 20px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a1a2e;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .main-content.with-sidebar .summary-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .card h3 {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a1a2e;
+        }
+        .card .percentage {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+        .card.agree .value { color: #52c41a; }
+        .card.disagree .value { color: #f5222d; }
+        .card.neutral .value { color: #faad14; }
+        .card.unknown .value { color: #8c8c8c; }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-bottom: 16px;
+            color: #1a1a2e;
+            font-size: 18px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin: 16px 0;
+        }
+
+        .main-content.with-sidebar .chart-container {
+            height: 280px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filters select, .filters input {
+            padding: 6px 10px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .filters button {
+            padding: 6px 14px;
+            background: #1890ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .filters button:hover {
+            background: #40a9ff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        th {
+            background: #fafafa;
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: 12px;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .badge.agree {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+        .badge.disagree {
+            background: #fff2f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+        .badge.neutral {
+            background: #fffbe6;
+            color: #faad14;
+            border: 1px solid #ffe58f;
+        }
+        .badge.unknown {
+            background: #f5f5f5;
+            color: #8c8c8c;
+            border: 1px solid #d9d9d9;
+        }
+
+        .model-pair {
+            font-family: monospace;
+            font-size: 11px;
+            background: #f0f0f0;
+            padding: 3px 6px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            background: #52c41a;
+            transition: width 0.3s;
+        }
+        .progress-bar .fill.low {
+            background: #f5222d;
+        }
+        .progress-bar .fill.medium {
+            background: #faad14;
+        }
+
+        .score-diff {
+            font-weight: bold;
+        }
+        .score-diff.positive {
+            color: #52c41a;
+        }
+        .score-diff.negative {
+            color: #f5222d;
+        }
+
+        .toggle-btn, .preview-btn {
+            background: none;
+            border: none;
+            color: #1890ff;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .toggle-btn:hover, .preview-btn:hover {
+            background: #e6f7ff;
+        }
+        .preview-btn {
+            background: #1890ff;
+            color: white;
+            margin-left: 4px;
+        }
+        .preview-btn:hover {
+            background: #40a9ff;
+        }
+        .preview-btn.active {
+            background: #52c41a;
+        }
+
+        .detail-panel {
+            display: none;
+            background: #fafafa;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+        .detail-panel.show {
+            display: block;
+        }
+        .detail-panel h4 {
+            margin-bottom: 8px;
+            color: #1a1a2e;
+            font-size: 13px;
+        }
+        .detail-panel .rationale {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #1890ff;
+            margin-bottom: 10px;
+        }
+        .detail-panel .scores {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .detail-panel .score-card {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .detail-panel .score-card h5 {
+            margin-bottom: 6px;
+            color: #666;
+            font-size: 12px;
+        }
+        .detail-panel .annotators {
+            font-size: 10px;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .tab {
+            padding: 10px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .tab.active {
+            color: #1890ff;
+            border-bottom-color: #1890ff;
+        }
+        .tab:hover {
+            color: #1890ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        /* Sidebar Styles - Fixed position with resizable width */
+        .preview-sidebar {
+            position: fixed;
+            top: 0;
+            right: -1060px;
+            width: 1060px;
+            min-width: 400px;
+            max-width: 95vw;
+            height: 100vh;
+            background: white;
+            border-left: 1px solid #e8e8e8;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1000;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+        }
+
+        .preview-sidebar.open {
+            right: 0;
+        }
+
+        /* Resizable handle */
+        .sidebar-resize-handle {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            cursor: col-resize;
+            background: transparent;
+            z-index: 1001;
+            transition: background 0.2s;
+        }
+
+        .sidebar-resize-handle:hover,
+        .sidebar-resize-handle.dragging {
+            background: #1890ff;
+        }
+
+        .sidebar-resize-handle::before {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 40px;
+            background: #d9d9d9;
+            border-radius: 1px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .sidebar-resize-handle:hover::before,
+        .sidebar-resize-handle.dragging::before {
+            opacity: 1;
+            background: white;
+        }
+
+        .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .sidebar-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .device-toggle {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 6px;
+            padding: 3px;
+        }
+
+        .device-btn {
+            padding: 5px 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            transition: all 0.2s;
+        }
+
+        .device-btn.active {
+            background: white;
+            color: #1890ff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .close-sidebar {
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .close-sidebar:hover {
+            background: #e8e8e8;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            padding: 16px;
+            overflow: auto;
+            background: #f5f7fa;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* Desktop mode: stack vertically and fill space */
+        .sidebar-content.desktop-mode {
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            gap: 12px;
+        }
+
+        .sidebar-content.desktop-mode .preview-frame-wrapper {
+            width: 100%;
+            flex: 1 1 50%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-content.desktop-mode .preview-frame-header {
+            flex-shrink: 0;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+        }
+
+        .sidebar-content.desktop-mode .preview-iframe.desktop {
+            width: 100%;
+            height: 100%;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .preview-frame-wrapper {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .preview-frame-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .preview-frame-title {
+            font-weight: 600;
+            color: #1a1a2e;
+            font-size: 13px;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .preview-frame-badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .preview-frame-badge.winner {
+            background: #f6ffed;
+            color: #52c41a;
+            border: 1px solid #b7eb8f;
+        }
+
+        .preview-frame-badge.loser {
+            background: #fff2f0;
+            color: #f5222d;
+            border: 1px solid #ffccc7;
+        }
+
+        .preview-frame-badge.tie {
+            background: #fffbe6;
+            color: #faad14;
+            border: 1px solid #ffe58f;
+        }
+
+        .preview-iframe {
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .preview-iframe.mobile {
+            width: 375px;
+            height: 750px;
+        }
+
+        .preview-iframe.desktop {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Upload Page Styles */
+        .upload-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .upload-card {
+            background: white;
+            border-radius: 16px;
+            padding: 48px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+        .upload-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+        }
+        .upload-subtitle {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .upload-zone {
+            border: 2px dashed #d9d9d9;
+            border-radius: 12px;
+            padding: 40px 24px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .upload-zone:hover {
+            border-color: #1890ff;
+            background: #f0f5ff;
+        }
+        .upload-zone.dragover {
+            border-color: #1890ff;
+            background: #f0f5ff;
+        }
+        .upload-zone-icon {
+            font-size: 48px;
+            color: #1890ff;
+            margin-bottom: 16px;
+        }
+        .upload-zone-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .upload-zone-hint {
+            font-size: 13px;
+            color: #888;
+        }
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+        }
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(24, 144, 255, 0.4);
+        }
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+        .upload-tip {
+            margin-top: 24px;
+            padding: 16px 20px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+            text-align: left;
+        }
+        .upload-tip code {
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            color: #1890ff;
+            border: 1px solid #e8e8e8;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 1100px) {
+            .main-content.with-sidebar {
+                max-width: 100%;
+            }
+            .preview-sidebar.open {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper" id="pageWrapper">
+        <div class="main-content" id="mainContent">
+            <div class="container" id="mainContainer">
+                <h1>🤖 人机一致性对比分析</h1>
+
+                <div class="summary-cards" id="summaryCards">
+                    <div class="card">
+                        <h3>总对比数</h3>
+                        <div class="value" id="totalCount">-</div>
+                    </div>
+                    <div class="card">
+                        <h3>有效对比数<br><small style="color:#888;font-size:11px;">（有人工评分）</small></h3>
+                        <div class="value" id="validCount">-</div>
+                        <div class="percentage" id="validRate">-</div>
+                    </div>
+                    <div class="card agree">
+                        <h3>一致<br><small style="color:#888;font-size:11px;">人机选择相同</small></h3>
+                        <div class="value" id="agreeCount">-</div>
+                        <div class="percentage" id="agreeRate">-</div>
+                    </div>
+                    <div class="card disagree">
+                        <h3>不一致<br><small style="color:#888;font-size:11px;">人机选择相反</small></h3>
+                        <div class="value" id="disagreeCount">-</div>
+                        <div class="percentage" id="disagreeRate">-</div>
+                    </div>
+                    <div class="card neutral">
+                        <h3>中性 (Neutral)<br><small style="color:#888;font-size:11px;">模型平局</small></h3>
+                        <div class="value" id="neutralCount">-</div>
+                        <div class="percentage" id="neutralRate">-</div>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('overview')">总览</div>
+                    <div class="tab" onclick="switchTab('byPair')">按模型对</div>
+                    <div class="tab" onclick="switchTab('byCategory')">按分类</div>
+                    <div class="tab" onclick="switchTab('details')">详细记录</div>
+                </div>
+
+                <div id="overview" class="tab-content active">
+                    <div class="section">
+                        <h2>一致性分布</h2>
+                        <div class="chart-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>模型对一致性排行</h2>
+                        <div class="chart-container">
+                            <canvas id="pairChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="byPair" class="tab-content">
+                    <div class="section">
+                        <h2>各模型对一致性详情</h2>
+                        <div id="pairTableContainer"></div>
+                    </div>
+                </div>
+
+                <div id="byCategory" class="tab-content">
+                    <div class="section">
+                        <h2>各分类一致性详情</h2>
+                        <div class="chart-container">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                        <div id="categoryTableContainer" style="margin-top: 24px;"></div>
+                    </div>
+                </div>
+
+                <div id="details" class="tab-content">
+                    <div class="section">
+                        <h2>详细对比记录</h2>
+                        <div class="filters">
+                            <select id="filterAgreement">
+                                <option value="all">全部状态</option>
+                                <option value="agree">一致 (含人工平局)</option>
+                                <option value="disagree">不一致</option>
+                                <option value="neutral">中性 (模型平局)</option>
+                                <option value="unknown">无人工数据</option>
+                            </select>
+                            <select id="filterCategory">
+                                <option value="all">全部分类</option>
+                            </select>
+                            <select id="filterPair">
+                                <option value="all">全部模型对</option>
+                            </select>
+                            <input type="text" id="searchInput" placeholder="搜索任务名称...">
+                            <button onclick="applyFilters()">应用筛选</button>
+                            <button onclick="exportCSV()">导出CSV</button>
+                        </div>
+                        <div id="detailsTableContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Sidebar -->
+        <div class="preview-sidebar" id="previewSidebar">
+            <div class="sidebar-resize-handle" id="resizeHandle"></div>
+            <div class="sidebar-header">
+                <div class="sidebar-title" id="sidebarTitle">模型对比预览</div>
+                <div class="sidebar-controls">
+                    <div class="device-toggle">
+                        <button class="device-btn active" onclick="setDeviceMode('mobile')" id="mobileBtn">📱 移动</button>
+                        <button class="device-btn" onclick="setDeviceMode('desktop')" id="desktopBtn">🖥️ 桌面</button>
+                    </div>
+                    <button class="close-sidebar" onclick="closePreview()">✕</button>
+                </div>
+            </div>
+            <div class="sidebar-content" id="sidebarContent">
+                <div class="preview-frame-wrapper">
+                    <div class="preview-frame-header">
+                        <span class="preview-frame-title" id="frameTitleA">Model A</span>
+                        <span class="preview-frame-badge" id="badgeA">WINNER</span>
+                    </div>
+                    <iframe class="preview-iframe mobile" id="iframeA" src=""></iframe>
+                </div>
+                <div class="preview-frame-wrapper">
+                    <div class="preview-frame-header">
+                        <span class="preview-frame-title" id="frameTitleB">Model B</span>
+                        <span class="preview-frame-badge" id="badgeB">LOSER</span>
+                    </div>
+                    <iframe class="preview-iframe mobile" id="iframeB" src=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = [];
+        let statistics = {};
+        let currentDeviceMode = 'mobile';
+        let currentPreviewId = null;
+
+        // 加载数据
+        async function loadData() {
+            try {
+                const response = await fetch('human_model_consistency_result.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    statistics = data.statistics;
+                    allData = data.comparisons;
+                    initDashboard();
+                } else {
+                    throw new Error('HTTP ' + response.status);
+                }
+            } catch (error) {
+                console.log('自动加载失败:', error);
+                showFileUpload();
+            }
+        }
+
+        // 显示文件上传界面
+        function showFileUpload() {
+            document.getElementById('mainContainer').innerHTML = `
+                <div class="upload-container">
+                    <div class="upload-card">
+                        <div class="upload-icon">🤖</div>
+                        <div class="upload-title">人机一致性对比分析</div>
+                        <div class="upload-subtitle">
+                            由于浏览器安全限制，无法自动加载本地文件<br>
+                            请上传数据文件以继续
+                        </div>
+
+                        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                            <div class="upload-zone-icon">📁</div>
+                            <div class="upload-zone-text">点击或拖拽文件到此处</div>
+                            <div class="upload-zone-hint">支持 .json 或 .jsonl 格式</div>
+                        </div>
+
+                        <input type="file" id="fileInput" accept=".json,.jsonl" style="display: none;">
+
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            <span>📂</span>
+                            <span>选择文件</span>
+                        </button>
+
+                        <div class="upload-tip">
+                            💡 <strong>提示：</strong>支持的文件格式：<br>
+                            • <code>human_model_consistency_result.json</code><br>
+                            • <code>human_model_consistency_comparisons.jsonl</code><br><br>
+                            也可以用本地服务器自动加载：
+                            <code>python3 -m http.server 8080</code>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+            const uploadZone = document.getElementById('uploadZone');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, preventDefaults, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => uploadZone.classList.add('dragover'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadZone.addEventListener(eventName, () => uploadZone.classList.remove('dragover'), false);
+            });
+            uploadZone.addEventListener('drop', handleDrop, false);
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    handleFileSelect({ target: { files: files } });
+                }
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    if (file.name.endsWith('.jsonl')) {
+                        allData = content.trim().split('\n').map(line => JSON.parse(line));
+                        calculateStatistics();
+                    } else {
+                        const data = JSON.parse(content);
+                        allData = data.comparisons || data;
+                        if (data.statistics) {
+                            statistics = data.statistics;
+                        } else {
+                            calculateStatistics();
+                        }
+                    }
+                    sessionStorage.setItem('consistencyData', JSON.stringify({statistics, allData}));
+                    location.reload();
+                } catch (err) {
+                    alert('解析文件失败: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function calculateStatistics() {
+            const validResults = allData.filter(r => r.human_preference !== 'unknown');
+            const unknownResults = allData.filter(r => r.human_preference === 'unknown');
+
+            const totalAll = allData.length;
+            const totalValid = validResults.length;
+            const totalUnknown = unknownResults.length;
+
+            const effectiveResults = validResults.filter(r => r.agreement !== 'unknown');
+            const agree = effectiveResults.filter(r => r.agreement === 'agree').length;
+            const disagree = effectiveResults.filter(r => r.agreement === 'disagree').length;
+            const neutral = effectiveResults.filter(r => r.agreement === 'neutral').length;
+
+            const by_pair = {};
+            effectiveResults.forEach(r => {
+                const pair = r.pair_key;
+                if (!by_pair[pair]) {
+                    by_pair[pair] = { total: 0, agree: 0, disagree: 0, neutral: 0, agreement_rate: 0 };
+                }
+                by_pair[pair].total++;
+                by_pair[pair][r.agreement]++;
+            });
+
+            const by_category = {};
+            effectiveResults.forEach(r => {
+                const cat = r.category || 'unknown';
+                if (!by_category[cat]) {
+                    by_category[cat] = { total: 0, agree: 0, disagree: 0, neutral: 0, agreement_rate: 0 };
+                }
+                by_category[cat].total++;
+                by_category[cat][r.agreement]++;
+            });
+
+            Object.values(by_pair).forEach(p => {
+                p.agreement_rate = p.total > 0 ? p.agree / p.total : 0;
+            });
+            Object.values(by_category).forEach(c => {
+                c.agreement_rate = c.total > 0 ? c.agree / c.total : 0;
+            });
+
+            statistics = {
+                total_comparisons: totalAll,
+                valid_comparisons: totalValid,
+                unknown_count: totalUnknown,
+                agree_count: agree,
+                disagree_count: disagree,
+                neutral_count: neutral,
+                agreement_rate: totalValid > 0 ? agree / totalValid : 0,
+                disagreement_rate: totalValid > 0 ? disagree / totalValid : 0,
+                neutral_rate: totalValid > 0 ? neutral / totalValid : 0,
+                by_pair,
+                by_category
+            };
+        }
+
+        function checkSessionData() {
+            const saved = sessionStorage.getItem('consistencyData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                statistics = data.statistics;
+                allData = data.allData;
+                sessionStorage.removeItem('consistencyData');
+                return true;
+            }
+            return false;
+        }
+
+        function initDashboard() {
+            updateSummary();
+            initCharts();
+            initPairTable();
+            initCategoryTable();
+            initFilters();
+            renderDetailsTable(allData);
+        }
+
+        function updateSummary() {
+            const validRate = (statistics.valid_comparisons / statistics.total_comparisons * 100).toFixed(1);
+
+            document.getElementById('totalCount').textContent = statistics.total_comparisons;
+            document.getElementById('validCount').textContent = statistics.valid_comparisons;
+            document.getElementById('validRate').textContent = `${validRate}% (不含缺失)`;
+            document.getElementById('agreeCount').textContent = statistics.agree_count;
+            document.getElementById('agreeRate').textContent =
+                (statistics.agreement_rate * 100).toFixed(1) + '% 的一致率';
+            document.getElementById('disagreeCount').textContent = statistics.disagree_count;
+            document.getElementById('disagreeRate').textContent =
+                (statistics.disagreement_rate * 100).toFixed(1) + '% 的不一致率';
+            document.getElementById('neutralCount').textContent = statistics.neutral_count;
+            document.getElementById('neutralRate').textContent =
+                (statistics.neutral_rate * 100).toFixed(1) + '% 的中性率';
+        }
+
+        function initCharts() {
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['一致 (Agree)', '不一致 (Disagree)', '中性 (Model Tie)'],
+                    datasets: [{
+                        data: [
+                            statistics.agree_count,
+                            statistics.disagree_count,
+                            statistics.neutral_count
+                        ],
+                        backgroundColor: ['#52c41a', '#f5222d', '#faad14'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `有效对比数: ${statistics.valid_comparisons} / 总对比数: ${statistics.total_comparisons}`
+                        },
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const percentage = ((value / statistics.valid_comparisons) * 100).toFixed(1);
+                                    return `${context.label}: ${value} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            if (statistics.by_pair) {
+                const pairs = Object.entries(statistics.by_pair)
+                    .sort((a, b) => b[1].agreement_rate - a[1].agreement_rate)
+                    .slice(0, 15);
+
+                const pairCtx = document.getElementById('pairChart').getContext('2d');
+                new Chart(pairCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: pairs.map(p => p[0].replace('_vs_', '\nvs\n')),
+                        datasets: [{
+                            label: '一致率',
+                            data: pairs.map(p => (p[1].agreement_rate * 100).toFixed(1)),
+                            backgroundColor: pairs.map(p => {
+                                const rate = p[1].agreement_rate;
+                                if (rate >= 0.7) return '#52c41a';
+                                if (rate >= 0.5) return '#faad14';
+                                return '#f5222d';
+                            }),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const pair = pairs[context.dataIndex];
+                                        return `一致率: ${(pair[1].agreement_rate * 100).toFixed(1)}% (${pair[1].agree}/${pair[1].total})`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                min: 0,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function initPairTable() {
+            if (!statistics.by_pair) return;
+
+            const pairs = Object.entries(statistics.by_pair)
+                .sort((a, b) => b[1].agreement_rate - a[1].agreement_rate);
+
+            let html = '<table><thead><tr>' +
+                '<th>模型对</th>' +
+                '<th>总对比数</th>' +
+                '<th>一致</th>' +
+                '<th>不一致</th>' +
+                '<th>中性</th>' +
+                '<th>一致率</th>' +
+                '<th style="width: 180px">进度</th>' +
+                '</tr></thead><tbody>';
+
+            pairs.forEach(([key, data]) => {
+                const rate = (data.agreement_rate * 100).toFixed(1);
+                const progressClass = data.agreement_rate >= 0.7 ? '' :
+                                     data.agreement_rate >= 0.5 ? 'medium' : 'low';
+
+                html += `<tr>
+                    <td><span class="model-pair">${key}</span></td>
+                    <td>${data.total}</td>
+                    <td>${data.agree}</td>
+                    <td>${data.disagree}</td>
+                    <td>${data.neutral}</td>
+                    <td><strong>${rate}%</strong></td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="fill ${progressClass}" style="width: ${rate}%"></div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('pairTableContainer').innerHTML = html;
+        }
+
+        function initCategoryTable() {
+            if (!statistics.by_category) return;
+
+            const categories = Object.entries(statistics.by_category)
+                .sort((a, b) => b[1].agreement_rate - a[1].agreement_rate);
+
+            const catCtx = document.getElementById('categoryChart');
+            if (catCtx) {
+                new Chart(catCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: categories.map(c => c[0]),
+                        datasets: [{
+                            label: '一致率',
+                            data: categories.map(c => (c[1].agreement_rate * 100).toFixed(1)),
+                            backgroundColor: categories.map(c => {
+                                const rate = c[1].agreement_rate;
+                                if (rate >= 0.7) return '#52c41a';
+                                if (rate >= 0.5) return '#faad14';
+                                return '#f5222d';
+                            }),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const cat = categories[context.dataIndex];
+                                        return `一致率: ${(cat[1].agreement_rate * 100).toFixed(1)}% (${cat[1].agree}/${cat[1].total})`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                min: 0,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            let html = '<table><thead><tr>' +
+                '<th>分类</th>' +
+                '<th>总对比数</th>' +
+                '<th>一致</th>' +
+                '<th>不一致</th>' +
+                '<th>中性</th>' +
+                '<th>一致率</th>' +
+                '<th style="width: 180px">进度</th>' +
+                '</tr></thead><tbody>';
+
+            categories.forEach(([key, data]) => {
+                const rate = (data.agreement_rate * 100).toFixed(1);
+                const progressClass = data.agreement_rate >= 0.7 ? '' :
+                                     data.agreement_rate >= 0.5 ? 'medium' : 'low';
+
+                html += `<tr>
+                    <td>${key}</td>
+                    <td>${data.total}</td>
+                    <td>${data.agree}</td>
+                    <td>${data.disagree}</td>
+                    <td>${data.neutral}</td>
+                    <td><strong>${rate}%</strong></td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="fill ${progressClass}" style="width: ${rate}%"></div>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('categoryTableContainer').innerHTML = html;
+        }
+
+        function initFilters() {
+            const categories = [...new Set(allData.map(r => r.category).filter(Boolean))];
+            const categorySelect = document.getElementById('filterCategory');
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+
+            const pairs = [...new Set(allData.map(r => r.pair_key))];
+            const pairSelect = document.getElementById('filterPair');
+            pairs.forEach(pair => {
+                const option = document.createElement('option');
+                option.value = pair;
+                option.textContent = pair.replace('_vs_', ' vs ');
+                pairSelect.appendChild(option);
+            });
+        }
+
+        function renderDetailsTable(data) {
+            let html = '<table><thead><tr>' +
+                '<th>模型对</th>' +
+                '<th>问题ID</th>' +
+                '<th>任务</th>' +
+                '<th>分类</th>' +
+                '<th>模型选择</th>' +
+                '<th>人工偏好</th>' +
+                '<th>人评分数 (A vs B)</th>' +
+                '<th>分差</th>' +
+                '<th>状态</th>' +
+                '<th>操作</th>' +
+                '</tr></thead><tbody>';
+
+            data.forEach((record, index) => {
+                const scoreA = record.human_score_a ? record.human_score_a.toFixed(1) : 'N/A';
+                const scoreB = record.human_score_b ? record.human_score_b.toFixed(1) : 'N/A';
+                const diff = record.human_score_diff ?
+                    (record.human_score_diff > 0 ? '+' : '') + record.human_score_diff.toFixed(1) :
+                    'N/A';
+                const diffClass = record.human_score_diff > 0 ? 'positive' :
+                                  record.human_score_diff < 0 ? 'negative' : '';
+
+                const isActive = currentPreviewId === `${record.question_id}_${record.pair_key}`;
+                const previewBtnClass = isActive ? 'preview-btn active' : 'preview-btn';
+                const previewBtnText = isActive ? '✓ 预览中' : '👁 预览';
+
+                html += `<tr>
+                    <td><span class="model-pair">${record.pair_key.replace('_vs_', '<br>vs<br>')}</span></td>
+                    <td>${record.question_id}</td>
+                    <td>${record.task_name || '-'}</td>
+                    <td>${record.category || '-'}</td>
+                    <td><strong>${record.model_winner}</strong> 胜</td>
+                    <td>${record.human_preference === 'unknown' ? '无数据' : record.human_preference}</td>
+                    <td>${scoreA} vs ${scoreB}</td>
+                    <td class="score-diff ${diffClass}">${diff}</td>
+                    <td><span class="badge ${record.agreement}">${getAgreementLabel(record.agreement)}</span></td>
+                    <td>
+                        <button class="toggle-btn" onclick="toggleDetail(${index})">详情</button>
+                        ${record.question_id ? `<button class="${previewBtnClass}" onclick="togglePreview('${record.question_id}', '${record.model_a}', '${record.model_b}', '${record.model_winner}', '${record.pair_key}', this)" data-preview-id="${record.question_id}_${record.pair_key}">${previewBtnText}</button>` : ''}
+                    </td>
+                </tr>`;
+
+                html += `<tr><td colspan="10" style="padding: 0; border: none;">
+                    <div id="detail-${index}" class="detail-panel">
+                        <h4>📝 模型评判理由</h4>
+                        <div class="rationale">${record.rationale || '无'}</div>
+                        <h4>📊 人工评分详情</h4>
+                        <div class="scores">
+                            <div class="score-card">
+                                <h5>Model A: ${record.model_a}</h5>
+                                <div>平均分: <strong>${scoreA}</strong></div>
+                                ${record.human_info_a ? `
+                                    <div>范围: ${record.human_info_a.min_score.toFixed(1)} - ${record.human_info_a.max_score.toFixed(1)}</div>
+                                    <div>标注数: ${record.human_info_a.annotator_count}人</div>
+                                    <div class="annotators">标注员: ${record.human_info_a.annotators.join(', ')}</div>
+                                ` : '<div style="color: #888;">无人工数据</div>'}
+                            </div>
+                            <div class="score-card">
+                                <h5>Model B: ${record.model_b}</h5>
+                                <div>平均分: <strong>${scoreB}</strong></div>
+                                ${record.human_info_b ? `
+                                    <div>范围: ${record.human_info_b.min_score.toFixed(1)} - ${record.human_info_b.max_score.toFixed(1)}</div>
+                                    <div>标注数: ${record.human_info_b.annotator_count}人</div>
+                                    <div class="annotators">标注员: ${record.human_info_b.annotators.join(', ')}</div>
+                                ` : '<div style="color: #888;">无人工数据</div>'}
+                            </div>
+                        </div>
+                        <div style="margin-top: 12px; color: #666; font-size: 11px;">
+                            <strong>Prompt:</strong> ${record.question || '无'}
+                        </div>
+                    </div>
+                </td></tr>`;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('detailsTableContainer').innerHTML = html;
+        }
+
+        function getAgreementLabel(agreement) {
+            const labels = {
+                'agree': '一致',
+                'disagree': '不一致',
+                'neutral': '中性(模)',
+                'unknown': '无数据'
+            };
+            return labels[agreement] || agreement;
+        }
+
+        function toggleDetail(index) {
+            const panel = document.getElementById(`detail-${index}`);
+            panel.classList.toggle('show');
+        }
+
+        // Preview Sidebar Functions
+        function togglePreview(questionId, modelA, modelB, modelWinner, pairKey, btnElement) {
+            const previewId = `${questionId}_${pairKey}`;
+            const sidebar = document.getElementById('previewSidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            // If clicking the same preview button, close it
+            if (currentPreviewId === previewId) {
+                closePreview();
+                return;
+            }
+
+            // Update current preview ID
+            currentPreviewId = previewId;
+
+            // Update all preview buttons
+            document.querySelectorAll('.preview-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.textContent = '👁 预览';
+            });
+            btnElement.classList.add('active');
+            btnElement.textContent = '✓ 预览中';
+
+            // Load preview content
+            loadPreviewContent(questionId, modelA, modelB, modelWinner);
+
+            // Open sidebar
+            sidebar.classList.add('open');
+            mainContent.classList.add('with-sidebar');
+
+            // Sync main content width with current sidebar width
+            const currentWidth = parseInt(document.defaultView.getComputedStyle(sidebar).width, 10);
+            mainContent.style.maxWidth = `calc(100% - ${currentWidth}px)`;
+        }
+
+        function loadPreviewContent(questionId, modelA, modelB, modelWinner) {
+            const title = document.getElementById('sidebarTitle');
+            const iframeA = document.getElementById('iframeA');
+            const iframeB = document.getElementById('iframeB');
+            const titleA = document.getElementById('frameTitleA');
+            const titleB = document.getElementById('frameTitleB');
+            const badgeA = document.getElementById('badgeA');
+            const badgeB = document.getElementById('badgeB');
+
+            // Build HTML paths
+            const pathA = `arena-bench-result/render/${modelA}/${questionId}/${questionId}.html`;
+            const pathB = `arena-bench-result/render/${modelB}/${questionId}/${questionId}.html`;
+
+            iframeA.src = pathA;
+            iframeB.src = pathB;
+
+            titleA.textContent = modelA;
+            titleB.textContent = modelB;
+
+            // Set badges based on winner
+            if (modelWinner === 'A') {
+                badgeA.textContent = 'WINNER';
+                badgeA.className = 'preview-frame-badge winner';
+                badgeB.textContent = 'LOSER';
+                badgeB.className = 'preview-frame-badge loser';
+            } else if (modelWinner === 'B') {
+                badgeA.textContent = 'LOSER';
+                badgeA.className = 'preview-frame-badge loser';
+                badgeB.textContent = 'WINNER';
+                badgeB.className = 'preview-frame-badge winner';
+            } else {
+                badgeA.textContent = 'TIE';
+                badgeA.className = 'preview-frame-badge tie';
+                badgeB.textContent = 'TIE';
+                badgeB.className = 'preview-frame-badge tie';
+            }
+
+            title.textContent = `${questionId}`;
+        }
+
+        function closePreview() {
+            const sidebar = document.getElementById('previewSidebar');
+            const mainContent = document.getElementById('mainContent');
+
+            sidebar.classList.remove('open');
+            mainContent.classList.remove('with-sidebar');
+            mainContent.style.maxWidth = ''; // Reset inline style
+
+            // Clear preview ID and reset buttons
+            currentPreviewId = null;
+            document.querySelectorAll('.preview-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.textContent = '👁 预览';
+            });
+
+            // Clear iframes after transition
+            setTimeout(() => {
+                document.getElementById('iframeA').src = '';
+                document.getElementById('iframeB').src = '';
+            }, 300);
+        }
+
+        function setDeviceMode(mode) {
+            currentDeviceMode = mode;
+            const iframeA = document.getElementById('iframeA');
+            const iframeB = document.getElementById('iframeB');
+            const mobileBtn = document.getElementById('mobileBtn');
+            const desktopBtn = document.getElementById('desktopBtn');
+            const sidebarContent = document.getElementById('sidebarContent');
+
+            if (mode === 'mobile') {
+                iframeA.className = 'preview-iframe mobile';
+                iframeB.className = 'preview-iframe mobile';
+                mobileBtn.classList.add('active');
+                desktopBtn.classList.remove('active');
+                sidebarContent.classList.remove('desktop-mode');
+            } else {
+                iframeA.className = 'preview-iframe desktop';
+                iframeB.className = 'preview-iframe desktop';
+                mobileBtn.classList.remove('active');
+                desktopBtn.classList.add('active');
+                sidebarContent.classList.add('desktop-mode');
+            }
+        }
+
+        // Sidebar resize functionality
+        (function initResizeHandle() {
+            const resizeHandle = document.getElementById('resizeHandle');
+            const sidebar = document.getElementById('previewSidebar');
+            const mainContent = document.getElementById('mainContent');
+            let isResizing = false;
+            let startX, startWidth;
+
+            resizeHandle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                startX = e.clientX;
+                startWidth = parseInt(document.defaultView.getComputedStyle(sidebar).width, 10);
+                resizeHandle.classList.add('dragging');
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isResizing) return;
+
+                const width = startWidth - (e.clientX - startX);
+                const minWidth = 400;
+                const maxWidth = window.innerWidth * 0.95;
+
+                if (width >= minWidth && width <= maxWidth) {
+                    sidebar.style.width = width + 'px';
+                    if (mainContent.classList.contains('with-sidebar')) {
+                        mainContent.style.maxWidth = `calc(100% - ${width}px)`;
+                    }
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isResizing) {
+                    isResizing = false;
+                    resizeHandle.classList.remove('dragging');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+        })();
+
+        // Keyboard shortcut to close
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePreview();
+            }
+        });
+
+        function applyFilters() {
+            const agreement = document.getElementById('filterAgreement').value;
+            const category = document.getElementById('filterCategory').value;
+            const pair = document.getElementById('filterPair').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = allData;
+
+            if (agreement !== 'all') {
+                filtered = filtered.filter(r => r.agreement === agreement);
+            }
+            if (category !== 'all') {
+                filtered = filtered.filter(r => r.category === category);
+            }
+            if (pair !== 'all') {
+                filtered = filtered.filter(r => r.pair_key === pair);
+            }
+            if (search) {
+                filtered = filtered.filter(r =>
+                    (r.task_name && r.task_name.toLowerCase().includes(search)) ||
+                    (r.question && r.question.toLowerCase().includes(search))
+                );
+            }
+
+            renderDetailsTable(filtered);
+        }
+
+        function exportCSV() {
+            const headers = ['模型对', '问题ID', '任务', '分类', '模型选择', '人工偏好',
+                           '模型A分数', '模型B分数', '分差', '状态', 'Prompt'];
+
+            const rows = allData.map(r => [
+                r.pair_key,
+                r.question_id,
+                r.task_name || '',
+                r.category || '',
+                r.model_winner,
+                r.human_preference,
+                r.human_score_a || '',
+                r.human_score_b || '',
+                r.human_score_diff || '',
+                r.agreement,
+                (r.question || '').replace(/,/g, '，').replace(/\n/g, ' ')
+            ]);
+
+            const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'human_model_consistency.csv';
+            link.click();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        if (checkSessionData()) {
+            initDashboard();
+        } else {
+            loadData();
+        }
+    </script>
+</body>
+</html>

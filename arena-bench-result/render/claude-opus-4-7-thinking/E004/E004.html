@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>错题本</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; background: #f5f6fa; color: #2c3e50; font-size: 15px; overscroll-behavior: none; }
+body { display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; position: relative; min-height: 100vh; }
+
+/* Header */
+.header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 18px 20px 22px; box-shadow: 0 2px 12px rgba(102,126,234,.25); position: sticky; top: 0; z-index: 10; }
+.header h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.header p { font-size: 12px; opacity: .85; }
+.stats { display: flex; gap: 12px; margin-top: 14px; }
+.stat { flex: 1; background: rgba(255,255,255,.18); border-radius: 10px; padding: 8px 10px; text-align: center; backdrop-filter: blur(8px); }
+.stat-num { font-size: 18px; font-weight: 700; }
+.stat-label { font-size: 11px; opacity: .9; margin-top: 2px; }
+
+/* Filter bar */
+.filter-bar { background: #fff; padding: 12px 16px; display: flex; gap: 8px; overflow-x: auto; border-bottom: 1px solid #eee; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.chip { flex-shrink: 0; padding: 7px 14px; border-radius: 20px; background: #f0f2f7; color: #555; font-size: 13px; border: none; cursor: pointer; transition: all .2s; }
+.chip.active { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; box-shadow: 0 2px 8px rgba(102,126,234,.4); }
+
+/* List */
+.list { flex: 1; padding: 12px 16px 90px; overflow-y: auto; }
+.empty { text-align: center; padding: 60px 20px; color: #aaa; }
+.empty-icon { font-size: 56px; margin-bottom: 12px; }
+.empty p { font-size: 14px; }
+
+.card { background: #fff; border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.04); animation: slideIn .3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 11px; padding: 3px 8px; border-radius: 6px; font-weight: 500; }
+.tag-subject { background: #fff0e0; color: #ff8c42; }
+.tag-point { background: #e3f0ff; color: #2c7be5; }
+.card-date { font-size: 11px; color: #999; }
+.q-title { font-size: 14px; font-weight: 600; line-height: 1.5; color: #1a202c; margin-bottom: 8px; word-break: break-word; }
+.detail { display: none; padding-top: 8px; border-top: 1px dashed #eee; margin-top: 8px; }
+.card.expanded .detail { display: block; animation: fadeIn .25s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.detail-block { margin-bottom: 10px; }
+.detail-label { font-size: 12px; color: #888; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+.detail-content { font-size: 13px; line-height: 1.6; color: #444; background: #fafbfc; padding: 8px 10px; border-radius: 8px; white-space: pre-wrap; word-break: break-word; }
+.detail-content.reason { border-left: 3px solid #ff6b6b; }
+.detail-content.solution { border-left: 3px solid #51cf66; }
+.card-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.btn-mini { padding: 5px 12px; font-size: 12px; border: none; border-radius: 6px; cursor: pointer; }
+.btn-toggle { background: #f0f2f7; color: #555; }
+.btn-del { background: #ffe5e5; color: #ff4757; }
+
+/* FAB */
+.fab { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); max-width: 480px; width: calc(100% - 32px); }
+.fab-btn { width: 100%; height: 50px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none; border-radius: 25px; font-size: 15px; font-weight: 600; box-shadow: 0 6px 18px rgba(102,126,234,.45); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.fab-btn:active { transform: scale(.97); }
+
+/* Modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: flex-end; justify-content: center; z-index: 100; }
+.modal.show { display: flex; animation: fadeIn .2s; }
+.modal-content { background: #fff; width: 100%; max-width: 480px; border-radius: 20px 20px 0 0; padding: 20px 20px 30px; max-height: 90vh; overflow-y: auto; animation: slideUp .3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.modal-head h2 { font-size: 17px; }
+.close-btn { background: none; border: none; font-size: 24px; color: #999; cursor: pointer; line-height: 1; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; color: #555; margin-bottom: 6px; font-weight: 500; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 11px 12px; border: 1px solid #e0e4ec; border-radius: 10px; font-size: 14px; font-family: inherit; background: #fafbfc; transition: all .2s; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #667eea; background: #fff; box-shadow: 0 0 0 3px rgba(102,126,234,.1); }
+.form-group textarea { min-height: 70px; resize: vertical; }
+.row2 { display: flex; gap: 10px; }
+.row2 > * { flex: 1; }
+.submit-btn { width: 100%; padding: 13px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+.submit-btn:active { opacity: .9; }
+
+.toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.8); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; z-index: 200; opacity: 1; /* fixed: was 0 */ transition: opacity .3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<div class="header">
+  <h1>📚 错题本</h1>
+  <p>记录每一次成长</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label">总错题</div></div>
+    <div class="stat"><div class="stat-num" id="subjectCount">0</div><div class="stat-label">学科数</div></div>
+    <div class="stat"><div class="stat-num" id="weekCount">0</div><div class="stat-label">本周新增</div></div>
+  </div>
+</div>
+
+<div class="filter-bar" id="subjectFilter"></div>
+<div class="filter-bar" id="pointFilter" style="padding-top: 0;"></div>
+
+<div class="list" id="list"></div>
+
+<div class="fab"><button class="fab-btn" onclick="openModal()">＋ 录入新错题</button></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div class="modal-head">
+      <h2 id="modalTitle">录入错题</h2>
+      <button class="close-btn" onclick="closeModal()">×</button>
+    </div>
+    <form id="form" onsubmit="saveItem(event)">
+      <div class="row2">
+        <div class="form-group">
+          <label>学科</label>
+          <input list="subjectList" id="subject" placeholder="如：数学" required>
+          <datalist id="subjectList">
+            <option value="数学"><option value="语文"><option value="英语"><option value="物理"><option value="化学"><option value="生物"><option value="历史"><option value="地理"><option value="政治">
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label>知识点</label>
+          <input id="point" placeholder="如：二次函数" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>题目内容</label>
+        <textarea id="question" placeholder="请输入题目..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label>❌ 错误原因</label>
+        <textarea id="reason" placeholder="分析为什么错了..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label>✅ 正确解法</label>
+        <textarea id="solution" placeholder="正确的解题思路与答案..." required></textarea>
+      </div>
+      <button type="submit" class="submit-btn">保存错题</button>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let data = JSON.parse(localStorage.getItem('mistakeBook') || '[]');
+let curSubject = 'all';
+let curPoint = 'all';
+
+function save() { localStorage.setItem('mistakeBook', JSON.stringify(data)); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function openModal() {
+  document.getElementById('form').reset();
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+function saveItem(e) {
+  e.preventDefault();
+  const item = {
+    id: Date.now(),
+    subject: subject.value.trim(),
+    point: point.value.trim(),
+    question: question.value.trim(),
+    reason: reason.value.trim(),
+    solution: solution.value.trim(),
+    date: new Date().toISOString()
+  };
+  data.unshift(item);
+  save();
+  closeModal();
+  showToast('保存成功 ✓');
+  render();
+}
+
+function delItem(id) {
+  if (!confirm('确定删除这道错题吗？')) return;
+  data = data.filter(i => i.id !== id);
+  save();
+  showToast('已删除');
+  render();
+}
+
+function toggleCard(id) {
+  document.querySelector(`.card[data-id="${id}"]`).classList.toggle('expanded');
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${m}-${day}`;
+}
+
+function renderFilters() {
+  const subjects = [...new Set(data.map(i => i.subject))];
+  const sf = document.getElementById('subjectFilter');
+  sf.innerHTML = `<button class="chip ${curSubject==='all'?'active':''}" onclick="setSubject('all')">全部</button>` +
+    subjects.map(s => `<button class="chip ${curSubject===s?'active':''}" onclick="setSubject('${s}')">${s}</button>`).join('');
+
+  const points = curSubject === 'all' 
+    ? [...new Set(data.map(i => i.point))]
+    : [...new Set(data.filter(i => i.subject === curSubject).map(i => i.point))];
+  const pf = document.getElementById('pointFilter');
+  if (points.length === 0) { pf.style.display = 'none'; return; }
+  pf.style.display = 'flex';
+  pf.innerHTML = `<button class="chip ${curPoint==='all'?'active':''}" onclick="setPoint('all')">全部知识点</button>` +
+    points.map(p => `<button class="chip ${curPoint===p?'active':''}" onclick="setPoint('${p}')">${p}</button>`).join('');
+}
+
+function setSubject(s) { curSubject = s; curPoint = 'all'; render(); }
+function setPoint(p) { curPoint = p; render(); }
+
+function renderStats() {
+  document.getElementById('totalCount').textContent = data.length;
+  document.getElementById('subjectCount').textContent = new Set(data.map(i=>i.subject)).size;
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  document.getElementById('weekCount').textContent = data.filter(i => new Date(i.date).getTime() > weekAgo).length;
+}
+
+function renderList() {
+  let list = data;
+  if (curSubject !== 'all') list = list.filter(i => i.subject === curSubject);
+  if (curPoint !== 'all') list = list.filter(i => i.point === curPoint);
+  const el = document.getElementById('list');
+  if (list.length === 0) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📖</div><p>${data.length===0?'还没有错题，点击下方按钮开始记录':'当前筛选下没有错题'}</p></div>`;
+    return;
+  }
+  el.innerHTML = list.map(i => `
+    <div class="card" data-id="${i.id}">
+      <div class="card-head">
+        <div class="tags">
+          <span class="tag tag-subject">${i.subject}</span>
+          <span class="tag tag-point">${i.point}</span>
+        </div>
+        <span class="card-date">${fmtDate(i.date)}</span>
+      </div>
+      <div class="q-title" onclick="toggleCard(${i.id})">${escape(i.question)}</div>
+      <div class="detail">
+        <div class="detail-block">
+          <div class="detail-label">❌ 错误原因</div>
+          <div class="detail-content reason">${escape(i.reason)}</div>
+        </div>
+        <div class="detail-block">
+          <div class="detail-label">✅ 正确解法</div>
+          <div class="detail-content solution">${escape(i.solution)}</div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn-mini btn-toggle" onclick="toggleCard(${i.id})">展开/收起</button>
+        <button class="btn-mini btn-del" onclick="delItem(${i.id})">删除</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function escape(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function render() { renderStats(); renderFilters(); renderList(); }
+
+// Seed sample data on first run
+if (data.length === 0) {
+  data = [
+    { id: 1, subject: '数学', point: '二次函数', question: '已知二次函数 y = x² - 4x + 3，求其顶点坐标。', reason: '配方时计算错误，把 (x-2)² 写成了 (x-2)² + 1', solution: '配方法：y = (x-2)² - 1，顶点为 (2, -1)', date: new Date(Date.now()-86400000).toISOString() },
+    { id: 2, subject: '英语', point: '时态', question: 'By the time he arrived, the meeting ___ (begin).', reason: '没注意到 by the time 引导的从句要用过去完成时', solution: 'had begun。By the time + 过去时，主句用过去完成时', date: new Date().toISOString() }
+  ];
+  save();
+}
+
+render();
+
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+</script>
+</body>
+</html>

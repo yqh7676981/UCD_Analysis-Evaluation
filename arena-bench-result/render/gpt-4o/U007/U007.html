@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物成长记录本</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        header {
+            background-color: #66cdaa;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        form {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input, select, textarea, button {
+            width: 100%;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        button {
+            background-color: #66cdaa;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #58b298;
+        }
+
+        .record {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .record-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .record-icon {
+            font-size: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #66cdaa;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        宠物成长记录本
+    </header>
+    <div class="container">
+        <form id="record-form">
+            <div class="form-group">
+                <label for="date">记录日期</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label for="weight">体重 (kg)</label>
+                <input type="number" id="weight" step="0.1" required>
+            </div>
+            <div class="form-group">
+                <label for="diet">饮食</label>
+                <textarea id="diet" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="health">健康状态</label>
+                <textarea id="health" rows="2" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="fun">趣事</label>
+                <textarea id="fun" rows="2"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="mood">心情图标</label>
+                <select id="mood" required>
+                    <option value="😃">😃 开心</option>
+                    <option value="😞">😞 难过</option>
+                    <option value="😡">😡 生气</option>
+                    <option value="😴">😴 困倦</option>
+                    <option value="🤔">🤔 思考</option>
+                </select>
+            </div>
+            <button type="submit">添加记录</button>
+        </form>
+
+        <div id="records">
+            <h2>记录列表</h2>
+            <!-- 动态添加记录 -->
+        </div>
+    </div>
+    <footer>
+        © 2023 宠物成长记录本
+    </footer>
+    <script>
+        const form = document.getElementById('record-form');
+        const recordsContainer = document.getElementById('records');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const date = document.getElementById('date').value;
+            const weight = document.getElementById('weight').value;
+            const diet = document.getElementById('diet').value;
+            const health = document.getElementById('health').value;
+            const fun = document.getElementById('fun').value;
+            const mood = document.getElementById('mood').value;
+
+            const record = document.createElement('div');
+            record.classList.add('record');
+            record.innerHTML = `
+                <div class="record-item"><strong>日期：</strong> ${date}</div>
+                <div class="record-item"><strong>体重：</strong> ${weight} kg</div>
+                <div class="record-item"><strong>饮食：</strong> ${diet}</div>
+                <div class="record-item"><strong>健康状态：</strong> ${health}</div>
+                <div class="record-item"><strong>趣事：</strong> ${fun}</div>
+                <div class="record-item"><strong>心情：</strong> <span class="record-icon">${mood}</span></div>
+            `;
+            recordsContainer.appendChild(record);
+
+            form.reset();
+        });
+    </script>
+</body>
+</html>

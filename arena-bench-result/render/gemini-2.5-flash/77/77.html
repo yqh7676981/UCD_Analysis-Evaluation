@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美味快餐 - 您的味蕾天堂</title>
+    <!-- 引入 Google Fonts，提供更美观的字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* 全局样式和重置 */
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+            line-height: 1.6;
+            scroll-behavior: smooth; /* 平滑滚动 */
+        }
+        h1, h2, h3 {
+            font-family: 'Roboto', sans-serif;
+            color: #e44d26; /* 快餐主题的红色/橙色 */
+        }
+        a {
+            text-decoration: none;
+            color: #e44d26;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 头部样式 */
+        header {
+            background-color: #fff;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky; /* 头部固定在顶部 */
+            top: 0;
+            z-index: 1000;
+        }
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* 响应式布局下允许换行 */
+        }
+        .logo {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #e44d26;
+            letter-spacing: -1px;
+        }
+        .logo span {
+            color: #f9a825; /* 搭配的黄色/橙色 */
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+        nav ul li {
+            margin-left: 30px;
+        }
+        nav ul li a {
+            color: #333;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: color 0.3s ease;
+        }
+        nav ul li a:hover {
+            color: #e44d26;
+            text-decoration: none;
+        }
+        .cart-icon {
+            position: relative;
+            margin-left: 20px;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: #f9a825;
+            color: #fff;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 0.7em;
+            font-weight: bold;
+        }
+
+        /* 英雄部分 */
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://via.placeholder.com/1500x600/FF5733/FFFFFF?text=美味快餐') no-repeat center center/cover;
+            color: #fff;
+            text-align: center;
+            padding: 150px 20px;
+            margin-bottom: 40px;
+        }
+        .hero h1 {
+            font-size: 3.8em;
+            margin-bottom: 20px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+        .hero p {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #f9a825;
+            color: #fff;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #e44d26;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        .btn-secondary {
+            background-color: #e44d26;
+            margin-left: 20px;
+        }
+        .btn-secondary:hover {
+            background-color: #f9a825;
+        }
+
+        /* 菜单部分 */
+        #menu {
+            padding: 60px 0;
+            background-color: #fff;
+        }
+        #menu h2 {
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 50px;
+        }
+        .menu-category {
+            margin-bottom: 60px;
+        }
+        .menu-category h3 {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 40px;
+            color: #e44d26;
+            position: relative;
+        }
+        .menu-category h3::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: #f9a825;
+            margin: 15px auto 0;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .menu-item {
+            background-color: #fefefe;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .menu-item:hover {
+            transform: translateY(-5px);
+        }
+        .menu-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .menu-item-details {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .menu-item h4 {
+            font-size: 1.8em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .menu-item p {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+        .menu-item .price {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e44d26;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .menu-item .add-to-cart {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 12px 0;
+            background-color: #f9a825;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .menu-item .add-to-cart:hover {
+            background-color: #e44d26;
+        }
+
+        /* 特别优惠部分 */
+        #offers {
+            padding: 60px 0;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+        #offers h2 {
+            font-size: 2.8em;
+            margin-bottom: 50px;
+        }
+        .offer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        .offer-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+            text-align: left;
+        }
+        .offer-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .offer-card-details {
+            padding: 25px;
+        }
+        .offer-card h3 {
+            font-size: 2em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #e44d26;
+        }
+        .offer-card p {
+            font-size: 1.1em;
+            color: #555;
+            margin-bottom: 20px;
+        }
+        .offer-card .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+        }
+
+        /* 订购行动号召部分 */
+        #order {
+            text-align: center;
+            padding: 80px 20px;
+            background-color: #e44d26;
+            color: #fff;
+            margin-top: 40px;
+        }
+        #order h2 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        #order p {
+            font-size: 1.3em;
+            margin-bottom: 40px;
+        }
+
+        /* 底部样式 */
+        footer {
+            background-color: #333;
+            color: #eee;
+            padding: 40px 0;
+            text-align: center;
+        }
+        footer .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            text-align: left;
+        }
+        footer .footer-col {
+            flex: 1;
+            min-width: 250px;
+            margin: 20px;
+        }
+        footer h4 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #f9a825;
+        }
+        footer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        footer ul li {
+            margin-bottom: 10px;
+        }
+        footer ul li a {
+            color: #eee;
+            transition: color 0.3s ease;
+        }
+        footer ul li a:hover {
+            color: #f9a825;
+        }
+        .social-icons a {
+            font-size: 1.8em;
+            margin-right: 15px;
+            color: #eee;
+        }
+        .social-icons a:hover {
+            color: #f9a825;
+        }
+        .footer-bottom {
+            width: 100%;
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+            font-size: 0.9em;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none; /* 默认隐藏 */
+            position: fixed; /* 固定定位 */
+            z-index: 2000; /* 放置在最上层 */
+            left: 0;
+            top: 0;
+            width: 100%; /* 全宽 */
+            height: 100%; /* 全高 */
+            overflow: auto; /* 内容超出时允许滚动 */
+            background-color: rgba(0,0,0,0.6); /* 半透明黑色背景 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            animation: slideIn 0.3s ease-out; /* 弹入动画 */
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .close-button {
+            color: #aaa;
+            font-size: 30px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #e44d26;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-content h3 {
+            text-align: center;
+            color: #e44d26;
+            margin-bottom: 25px;
+            font-size: 2.2em;
+        }
+        .order-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .order-form input[type="text"],
+        .order-form input[type="email"],
+        .order-form input[type="tel"],
+        .order-form textarea,
+        .order-form select {
+            width: calc(100% - 20px); /* 减去padding */
+            padding: 12px 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .order-form textarea {
+            resize: vertical; /* 允许垂直调整大小 */
+            min-height: 80px;
+        }
+        .order-form button[type="submit"] { /* 明确指定提交按钮 */
+            width: 100%;
+            padding: 15px;
+            background-color: #f9a825;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .order-form button[type="submit"]:hover {
+            background-color: #e44d26;
+        }
+        .cart-summary {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dotted #eee;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .cart-total {
+            text-align: right;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #e44d26;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3em;
+            }
+            .hero p {
+                font-size: 1.2em;
+            }
+            .menu-grid, .offer-grid {
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            }
+            footer .container {
+                justify-content: center;
+            }
+            footer .footer-col {
+                text-align: center;
+                margin: 20px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header .container {
+                flex-direction: column;
+                text-align: center;
+            }
+            nav ul {
+                margin-top: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            nav ul li {
+                margin: 0 15px 10px;
+            }
+            .logo {
+                margin-bottom: 10px;
+            }
+            .hero {
+                padding: 100px 15px;
+            }
+            .hero h1 {
+                font-size: 2.5em;
+            }
+            .hero p {
+                font-size: 1em;
+            }
+            .btn {
+                padding: 12px 25px;
+                font-size: 1em;
+            }
+            .btn-secondary {
+                margin-left: 0;
+                margin-top: 15px;
+            }
+            .menu-item img {
+                height: 180px;
+            }
+            .offer-card img {
+                height: 200px;
+            }
+            #order {
+                padding: 60px 15px;
+            }
+            #order h2 {
+                font-size: 2.5em;
+            }
+            .cart-icon {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 2em;
+            }
+            nav ul li {
+                margin: 0 10px 10px;
+                font-size: 0.9em;
+            }
+            .hero h1 {
+                font-size: 2em;
+            }
+            .hero p {
+                font-size: 0.9em;
+            }
+            .btn {
+                width: 80%;
+                display: block;
+                margin: 10px auto;
+            }
+            .menu-item h4 {
+                font-size: 1.5em;
+            }
+            .menu-item .price {
+                font-size: 1.2em;
+            }
+            .offer-card h3 {
+                font-size: 1.5em;
+            }
+            #menu h2, #offers h2 {
+                font-size: 2em;
+            }
+            .menu-category h3 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="#home" class="logo">美味<span>快餐</span></a>
+            <nav>
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#menu">菜单</a></li>
+                    <li><a href="#offers">优惠</a></li>
+                    <li><a href="#" id="orderNavLink">立即订购</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                    <li class="cart-icon" onclick="openOrderModal(event, true)">
+                        🛒 <span id="cartCount" class="cart-count">0</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <h1>味蕾狂欢，尽在美味快餐！</h1>
+            <p>探索我们新鲜烹制、香气四溢的汉堡、炸鸡和更多美食。立即下单，享受极致美味！</p>
+            <button class="btn" onclick="openOrderModal()">立即订购</button>
+            <a href="#menu" class="btn btn-secondary">查看菜单</a>
+        </section>
+
+        <section id="menu" class="container">
+            <h2>我们的美味菜单</h2>
+
+            <div class="menu-category">
+                <h3>🍔 经典汉堡</h3>
+                <div class="menu-grid">
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/FF7F50/FFFFFF?text=经典牛肉堡" alt="经典牛肉堡">
+                        <div class="menu-item-details">
+                            <h4>经典牛肉堡</h4>
+                            <p>多汁的100%纯牛肉饼，搭配新鲜生菜、番茄、酸黄瓜和秘制酱汁。</p>
+                            <span class="price">￥35.00</span>
+                            <button class="add-to-cart" data-name="经典牛肉堡" data-price="35.00">加入购物车</button>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/FFA07A/FFFFFF?text=香辣鸡腿堡" alt="香辣鸡腿堡">
+                        <div class="menu-item-details">
+                            <h4>香辣鸡腿堡</h4>
+                            <p>酥脆多汁的香辣鸡腿肉，配以清爽的卷心菜沙拉和特制辣酱。</p>
+                            <span class="price">￥32.00</span>
+                            <button class="add-to-cart" data-name="香辣鸡腿堡" data-price="32.00">加入购物车</button>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/FFDAB9/333333?text=双层芝士堡" alt="双层芝士堡">
+                        <div class="menu-item-details">
+                            <h4>双层芝士堡</h4>
+                            <p>两片厚实牛肉饼，双倍芝士，带来无与伦比的浓郁口感。</p>
+                            <span class="price">￥45.00</span>
+                            <button class="add-to-cart" data-name="双层芝士堡" data-price="45.00">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3>🍟 小吃与配餐</h3>
+                <div class="menu-grid">
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/FFB6C1/FFFFFF?text=黄金脆薯" alt="黄金脆薯">
+                        <div class="menu-item-details">
+                            <h4>黄金脆薯</h4>
+                            <p>外脆内软的经典薯条，搭配番茄酱，小吃首选。</p>
+                            <span class="price">￥15.00</span>
+                            <button class="add-to-cart" data-name="黄金脆薯" data-price="15.00">加入购物车</button>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/FF6347/FFFFFF?text=香辣鸡翅" alt="香辣鸡翅">
+                        <div class="menu-item-details">
+                            <h4>香辣鸡翅 (3块)</h4>
+                            <p>秘制香料腌制，外皮金黄酥脆，肉质鲜嫩多汁。</p>
+                            <span class="price">￥22.00</span>
+                            <button class="add-to-cart" data-name="香辣鸡翅 (3块)" data-price="22.00">加入购物车</button>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/FFD700/FFFFFF?text=洋葱圈" alt="洋葱圈">
+                        <div class="menu-item-details">
+                            <h4>美式洋葱圈</h4>
+                            <p>金黄酥脆的洋葱圈，搭配特制蒜蓉酱，风味独特。</p>
+                            <span class="price">￥18.00</span>
+                            <button class="add-to-cart" data-name="美式洋葱圈" data-price="18.00">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="menu-category">
+                <h3>🥤 饮品与甜点</h3>
+                <div class="menu-grid">
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/87CEEB/FFFFFF?text=可口可乐" alt="可口可乐">
+                        <div class="menu-item-details">
+                            <h4>可口可乐</h4>
+                            <p>经典碳酸饮料，清爽解渴。</p>
+                            <span class="price">￥8.00</span>
+                            <button class="add-to-cart" data-name="可口可乐" data-price="8.00">加入购物车</button>
+                        </div>
+                    </div>
+                    <div class="menu-item">
+                        <img src="https://via.placeholder.com/300x200/F0F8FF/333333?text=巧克力圣代" alt="巧克力圣代">
+                        <div class="menu-item-details">
+                            <h4>巧克力圣代</h4>
+                            <p>香草冰淇淋淋上浓郁巧克力酱，撒上坚果碎。</p>
+                            <span class="price">￥20.00</span>
+                            <button class="add-to-cart" data-name="巧克力圣代" data-price="20.00">加入购物车</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="offers">
+            <div class="container">
+                <h2>今日特别优惠</h2>
+                <div class="offer-grid">
+                    <div class="offer-card">
+                        <img src="https://via.placeholder.com/400x250/FF8C00/FFFFFF?text=超值套餐" alt="超值套餐">
+                        <div class="offer-card-details">
+                            <h3>全家福套餐</h3>
+                            <p>两大两小超值选择，含双层芝士堡、香辣鸡腿堡、两份薯条、四块鸡翅、两杯可乐！</p>
+                            <span class="price" style="font-size:1.5em; display:block; margin-bottom:15px; color:#e44d26;">原价￥130.00，现仅需￥99.00！</span>
+                            <button class="btn add-to-cart" data-name="全家福套餐" data-price="99.00">立即抢购</button>
+                        </div>
+                    </div>
+                    <div class="offer-card">
+                        <img src="https://via.placeholder.com/400x250/FFD700/333333?text=饮品买一送一" alt="饮品买一送一">
+                        <div class="offer-card-details">
+                            <h3>饮品买一送一</h3>
+                            <p>购买任意大杯饮品，即可免费获赠一杯同款饮品！仅限今日！</p>
+                            <button class="btn" onclick="alert('此优惠将自动应用于您的购物车！');">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="order">
+            <div class="container">
+                <h2>准备好点餐了吗？</h2>
+                <p>简单几步，美味即刻送达！</p>
+                <button class="btn" onclick="openOrderModal()">在线订购</button>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-col">
+                <h4>关于我们</h4>
+                <p>美味快餐致力于提供新鲜、美味、高品质的快餐体验，让每一位顾客都能享受到味蕾的盛宴。</p>
+            </div>
+            <div class="footer-col">
+                <h4>快速链接</h4>
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#menu">菜单</a></li>
+                    <li><a href="#offers">优惠活动</a></li>
+                    <li><a href="#" onclick="openOrderModal(); return false;">在线订购</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>联系我们</h4>
+                <ul>
+                    <li>电话: <a href="tel:+86-123-4567-890">+86 123-4567-890</a></li>
+                    <li>邮箱: <a href="mailto:info@deliciousfastfood.com">info@deliciousfastfood.com</a></li>
+                    <li>地址: 某市某区某街123号</li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>关注我们</h4>
+                <div class="social-icons">
+                    <!-- 使用简单的Emoji作为社交媒体图标 -->
+                    <a href="#" target="_blank" title="微信">💬</a>
+                    <a href="#" target="_blank" title="微博">✍️</a>
+                    <a href="#" target="_blank" title="抖音">🎵</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 美味快餐. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <!-- 订单模态框 -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>您的订单</h3>
+            <div class="cart-summary" id="cartSummary">
+                <!-- 购物车商品将在此动态插入 -->
+                <p>您的购物车是空的。</p>
+            </div>
+            <div class="cart-total" id="cartTotal">
+                总计: ￥0.00
+            </div>
+            <form class="order-form">
+                <label for="customerName">姓名:</label>
+                <input type="text" id="customerName" name="customerName" required>
+
+                <label for="customerTel">电话:</label>
+                <input type="tel" id="customerTel" name="customerTel" required>
+
+                <label for="deliveryAddress">送货地址:</label>
+                <textarea id="deliveryAddress" name="deliveryAddress" rows="3" required></textarea>
+
+                <label for="paymentMethod">支付方式:</label>
+                <select id="paymentMethod" name="paymentMethod">
+                    <option value="wechatpay">微信支付</option>
+                    <option value="alipay">支付宝</option>
+                    <option value="cashondelivery">货到付款</option>
+                </select>
+
+                <button type="submit">确认下单</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let cart = []; // 购物车数组，存储商品
+        const cartCountElement = document.getElementById('cartCount'); // 购物车数量显示元素
+        const orderModal = document.getElementById('orderModal'); // 订单模态框
+        const closeButton = document.querySelector('.close-button'); // 模态框关闭按钮
+        const cartSummaryElement = document.getElementById('cartSummary'); // 购物车摘要区域
+        const cartTotalElement = document.getElementById('cartTotal'); // 购物车总计区域
+        const orderForm = document.querySelector('.order-form'); // 订单表单
+
+        // 更新购物车图标上的商品数量
+        function updateCartCount() {
+            cartCountElement.textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        // 渲染购物车商品列表和总价到模态框
+        function renderCartSummary() {
+            cartSummaryElement.innerHTML = ''; // 清空之前的商品列表
+            let total = 0;
+
+            if (cart.length === 0) {
+                cartSummaryElement.innerHTML = '<p>您的购物车是空的。</p>';
+                cartTotalElement.textContent = '总计: ￥0.00';
+                return;
+            }
+
+            cart.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('cart-item');
+                itemDiv.innerHTML = `
+                    <span>${item.name} x ${item.quantity}</span>
+                    <span>￥${(item.price * item.quantity).toFixed(2)}</span>
+                `;
+                cartSummaryElement.appendChild(itemDiv);
+                total += item.price * item.quantity;
+            });
+
+            cartTotalElement.textContent = `总计: ￥${total.toFixed(2)}`;
+        }
+
+        // "加入购物车"按钮点击事件处理
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', function() {
+                const itemName = this.dataset.name;
+                const itemPrice = parseFloat(this.dataset.price);
+
+                const existingItem = cart.find(item => item.name === itemName);
+
+                if (existingItem) {
+                    existingItem.quantity++; // 如果商品已存在，数量加1
+                } else {
+                    cart.push({ name: itemName, price: itemPrice, quantity: 1 }); // 否则添加新商品
+                }
+                updateCartCount(); // 更新购物车数量
+                alert(`${itemName} 已加入购物车！`); // 提示用户
+            });
+        });
+
+        // 打开订单模态框
+        function openOrderModal(event, fromCartIcon = false) {
+            // 如果是从购物车图标点击，并且购物车是空的，则提示
+            if (fromCartIcon && cart.length === 0) {
+                alert('您的购物车是空的，请先添加商品！');
+                return;
+            }
+            orderModal.style.display = 'flex'; // 显示模态框，并使用flex居中内容
+            renderCartSummary(); // 每次打开模态框时更新购物车摘要
+        }
+
+        // 关闭订单模态框
+        closeButton.addEventListener('click', () => {
+            orderModal.style.display = 'none';
+        });
+
+        // 点击模态框外部区域时关闭模态框
+        window.addEventListener('click', (event) => {
+            if (event.target === orderModal) {
+                orderModal.style.display = 'none';
+            }
+        });
+
+        // 订单表单提交事件处理
+        orderForm.addEventListener('submit', (event) => {
+            event.preventDefault(); // 阻止表单默认提交行为
+
+            if (cart.length === 0) {
+                alert('您的购物车是空的，请先添加商品再下单！');
+                return;
+            }
+
+            // 获取表单数据
+            const customerName = document.getElementById('customerName').value;
+            const customerTel = document.getElementById('customerTel').value;
+            const deliveryAddress = document.getElementById('deliveryAddress').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            // 构建订单详情字符串
+            let orderDetails = "--- 您的订单详情 ---\n";
+            cart.forEach(item => {
+                orderDetails += `- ${item.name} x ${item.quantity} (￥${(item.price * item.quantity).toFixed(2)})\n`;
+            });
+            orderDetails += `\n${cartTotalElement.textContent}\n`; // 包含总计
+            orderDetails += `\n客户姓名: ${customerName}\n`;
+            orderDetails += `电话: ${customerTel}\n`;
+            orderDetails += `送货地址: ${deliveryAddress}\n`;
+            orderDetails += `支付方式: ${paymentMethod}\n`;
+            orderDetails += "\n感谢您的订单！我们的工作人员将尽快与您联系确认。";
+
+            alert(orderDetails); // 通过弹窗模拟订单提交成功
+
+            // 订单提交后重置购物车和表单
+            cart = [];
+            updateCartCount();
+            orderForm.reset(); // 重置表单字段
+            orderModal.style.display = 'none'; // 关闭模态框
+            renderCartSummary(); // 清空模态框内的购物车摘要
+        });
+
+        // 导航栏中 "立即订购" 链接的点击事件处理
+        document.getElementById('orderNavLink').addEventListener('click', (event) => {
+            event.preventDefault(); // 阻止链接的默认跳转行为
+            openOrderModal(); // 打开订单模态框
+        });
+
+        // 页面加载时初始化购物车数量
+        updateCartCount();
+    </script>
+</body>
+</html>

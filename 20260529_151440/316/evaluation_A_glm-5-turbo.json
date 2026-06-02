@@ -1,0 +1,33 @@
+{
+  "index": 291,
+  "id": "316",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "创建一个网站，根据共同的阅读偏好连接图书爱好者，允许用户加入小型读书俱乐部，并提供讨论论坛和跟踪阅读进度的工具。它是 Tinder、Goodreads 和 Slack 的混合体。",
+  "evaluation": {
+    "total_score": 55,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The dark, warm gold palette and serif logo create a coherent book-oriented tone, and the top navigation plus centered card establish a stable layout. However, the visual concept is narrow: it strongly emphasizes a Tinder-like discovery view while the broader Goodreads/Slack-style community scenario is not expressed on the page."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Core components are generally polished with consistent rounded corners, shadows, and pill tags, but several details feel unfinished: the book image is generic and weakly tied to the title, body text contrast is low, the action icons are small and muted, and the large empty desktop margins make the composition feel under-resolved rather than intentionally spacious."
+      },
+      "easy_to_perceive": {
+        "score": 5,
+        "reason": "Users can quickly identify the main card and that discovery is the current task, but information priority is too singular. The page gives almost all emphasis to one swipe card while clubs, forums, and reading progress are pushed into low-emphasis nav items, so the product scope is not perceptually balanced for the requested scenario."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "The nav labels are understandable and the match badge helps explain the recommendation concept, but the bottom controls rely on unlabeled icons whose meanings must be inferred. The star action is especially ambiguous, and there is no visible explanation of what happens after like/pass/save or how users reach clubs, discussion, or progress workflows."
+      }
+    },
+    "summary": "This is a usable but limited desktop concept with a coherent literary mood and a clear swipe-style discovery focus. The hard cap is scenario coverage and semantic clarity: the interface mostly behaves like a book-matching landing screen, while the requested club joining, forum discussion, and reading progress experience is not surfaced in the main flow. It looks reasonably polished, but not complete enough to feel like a full launch-ready product."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/316_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:23:10.036977"
+}

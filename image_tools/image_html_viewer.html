@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Render 结果预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 20px 30px;
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-file {
+            background: #3b82f6;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-file:hover {
+            background: #2563eb;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .path-display {
+            color: #94a3b8;
+            font-size: 14px;
+            max-width: 400px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        select, input[type="text"] {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            min-width: 150px;
+        }
+
+        input[type="text"] {
+            min-width: 200px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-left: auto;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .main-content {
+            padding: 30px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .upload-area {
+            border: 2px dashed #475569;
+            border-radius: 12px;
+            padding: 60px;
+            text-align: center;
+            margin: 40px auto;
+            max-width: 600px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .upload-text {
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .case-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(600px, 1fr));
+            gap: 25px;
+        }
+
+        .case-card {
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .case-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .case-header {
+            background: #0f172a;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .case-id {
+            font-size: 18px;
+            font-weight: 600;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .case-class {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .case-class.desktop {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .case-class.mobile {
+            background: #10b981;
+            color: white;
+        }
+
+        .case-dimensions {
+            font-size: 12px;
+            color: #64748b;
+            margin-left: 10px;
+        }
+
+        .case-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #475569;
+            color: #e2e8f0;
+        }
+
+        .btn:hover {
+            background: #64748b;
+        }
+
+        .case-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: #334155;
+        }
+
+        .preview-panel {
+            background: #1e293b;
+            padding: 20px;
+        }
+
+        .panel-title {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .panel-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .panel-screenshot .panel-title::before {
+            background: #f59e0b;
+        }
+
+        .panel-html .panel-title::before {
+            background: #10b981;
+        }
+
+        .image-container {
+            background: #0f172a;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            position: relative;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        .iframe-container {
+            background: #0f172a;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            display: block;
+        }
+
+        .no-data {
+            padding: 40px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 40px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 95vw;
+            max-height: 95vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 8px;
+        }
+
+        .modal-info {
+            color: #94a3b8;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 36px;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #3b82f6;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Render 结果预览</h1>
+        <div class="controls">
+            <div class="file-input-wrapper">
+                <label for="folderInput" class="btn-file">
+                    📁 选择文件夹
+                </label>
+                <input type="file" id="folderInput" webkitdirectory directory multiple>
+                <span class="path-display" id="pathDisplay">点击选择 render 目录</span>
+            </div>
+            <div class="control-group">
+                <label>搜索:</label>
+                <input type="text" id="searchInput" placeholder="输入案例 ID...">
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value" id="totalCount">-</div>
+                    <div class="stat-label">总案例</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="uploadArea" class="upload-area">
+            <div class="upload-icon">📂</div>
+            <div class="upload-text">点击或拖拽选择文件夹</div>
+            <div class="upload-hint">选择 arena-bench-result/render/ 或其中的模型目录</div>
+        </div>
+
+        <div id="loadingState" class="loading" style="display: none;">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- 调试信息面板 -->
+        <div id="debugPanel" style="display: none; background: #1e293b; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-family: monospace; font-size: 12px;">
+            <div style="color: #94a3b8; margin-bottom: 10px; font-weight: bold;">调试信息:</div>
+            <div id="debugContent" style="color: #e2e8f0; white-space: pre-wrap; max-height: 300px; overflow: auto;"></div>
+        </div>
+
+        <div id="caseGrid" class="case-grid" style="display: none;"></div>
+    </div>
+
+    <div class="modal-overlay" id="imageModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <img id="modalImage" src="" alt="预览">
+            <div class="modal-info" id="modalInfo"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let allCases = [];
+        let fileCache = new Map(); // 存储文件对象
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast error show' : 'toast show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 解析文件列表，构建目录结构
+        async function parseFiles(files) {
+            const cases = [];
+            const metaFiles = [];
+            const debugInfo = [];
+
+            // 转换为数组
+            const fileArray = Array.from(files);
+
+            debugInfo.push(`总文件数: ${fileArray.length}`);
+            debugInfo.push('');
+            debugInfo.push('前10个文件路径:');
+            fileArray.slice(0, 10).forEach(f => debugInfo.push(`  - ${f.webkitRelativePath}`));
+
+            // 找出所有 render_meta.json 文件
+            for (const file of fileArray) {
+                if (file.name === 'render_meta.json') {
+                    metaFiles.push(file);
+                }
+            }
+
+            debugInfo.push('');
+            debugInfo.push(`找到 ${metaFiles.length} 个 meta 文件`);
+
+            if (metaFiles.length === 0) {
+                debugInfo.push('');
+                debugInfo.push('错误: 未找到 render_meta.json');
+                debugInfo.push('检查是否包含以下模式:');
+                files.forEach(f => {
+                    if (f.name.includes('meta') || f.name.includes('.json')) {
+                        debugInfo.push(`  可能的文件: ${f.webkitRelativePath}`);
+                    }
+                });
+                updateDebugPanel(debugInfo.join('\n'));
+                showToast('未找到 render_meta.json 文件，请确认选择了正确的目录', true);
+                return cases;
+            }
+
+            debugInfo.push('第一个 meta 路径: ' + metaFiles[0].webkitRelativePath);
+
+            // 解析每个 meta 文件
+            for (const metaFile of metaFiles) {
+                try {
+                    const text = await metaFile.text();
+                    const meta = JSON.parse(text);
+
+                    // 从路径推断其他文件
+                    const pathParts = metaFile.webkitRelativePath.split('/');
+                    // 路径格式可能是:
+                    // render/model/caseId/render_meta.json (选render目录)
+                    // model/caseId/render_meta.json (选模型目录)
+                    // caseId/render_meta.json (选案例目录)
+
+                    let caseId, modelName;
+                    const metaIndex = pathParts.indexOf('render_meta.json');
+
+                    if (metaIndex >= 2) {
+                        // 标准格式: render/model/caseId/render_meta.json
+                        caseId = pathParts[metaIndex - 1];
+                        modelName = pathParts[metaIndex - 2];
+                    } else if (metaIndex === 1) {
+                        // 只选了模型目录: model/caseId/render_meta.json
+                        caseId = pathParts[0];
+                        modelName = 'unknown';
+                    } else {
+                        // 其他情况，从文件名推断
+                        caseId = pathParts[pathParts.length - 2] || 'unknown';
+                        modelName = pathParts[pathParts.length - 3] || 'unknown';
+                    }
+
+                    // 找到同目录下的 png 和 html
+                    // meta文件所在目录
+                    const metaDir = metaFile.webkitRelativePath.substring(0, metaFile.webkitRelativePath.lastIndexOf('/'));
+
+                    const pngFile = fileArray.find(f => {
+                        // 在同一目录下，且文件名匹配 caseId.png
+                        const fp = f.webkitRelativePath;
+                        const fDir = fp.substring(0, fp.lastIndexOf('/'));
+                        return fDir === metaDir && f.name === `${caseId}.png`;
+                    });
+
+                    const htmlFile = fileArray.find(f => {
+                        const fp = f.webkitRelativePath;
+                        const fDir = fp.substring(0, fp.lastIndexOf('/'));
+                        return fDir === metaDir && f.name === `${caseId}.html`;
+                    });
+
+                    if (pngFile && htmlFile) {
+                        cases.push({
+                            ...meta,
+                            model: modelName,
+                            caseId: caseId,
+                            pngFile: pngFile,
+                            htmlFile: htmlFile
+                        });
+
+                        fileCache.set(`${caseId}-png`, pngFile);
+                        fileCache.set(`${caseId}-html`, htmlFile);
+                    }
+                } catch (e) {
+                    console.error('Error parsing meta:', e);
+                }
+            }
+
+            debugInfo.push('');
+            debugInfo.push(`成功加载案例数: ${cases.length}`);
+            if (cases.length === 0 && metaFiles.length > 0) {
+                debugInfo.push('');
+                debugInfo.push('诊断: 找到 meta 文件但无法匹配 png/html');
+                debugInfo.push('检查第一个 meta 所在目录的文件:');
+                const firstMeta = metaFiles[0];
+                const metaDir = firstMeta.webkitRelativePath.substring(0, firstMeta.webkitRelativePath.lastIndexOf('/'));
+                fileArray.filter(f => f.webkitRelativePath.startsWith(metaDir)).forEach(f => {
+                    debugInfo.push(`  - ${f.name}`);
+                });
+            }
+            updateDebugPanel(debugInfo.join('\n'));
+
+            return cases.sort((a, b) => {
+                const aNum = parseInt(a.id?.replace(/\D/g, '')) || 0;
+                const bNum = parseInt(b.id?.replace(/\D/g, '')) || 0;
+                return aNum - bNum;
+            });
+        }
+
+        function updateDebugPanel(content) {
+            document.getElementById('debugPanel').style.display = 'block';
+            document.getElementById('debugContent').textContent = content;
+        }
+
+        function renderCases(cases) {
+            const grid = document.getElementById('caseGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = cases.filter(c =>
+                c.id.toLowerCase().includes(searchTerm)
+            );
+
+            document.getElementById('totalCount').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-data" style="grid-column: 1/-1;">未找到匹配的案例</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(case_ => {
+                const id = case_.id || case_.caseId;
+                const classType = (case_.class || 'Desktop').toLowerCase();
+                const dims = case_.width && case_.height ? `${case_.width}×${case_.height}` : '';
+
+                // 创建 blob URL
+                const pngUrl = URL.createObjectURL(case_.pngFile);
+                const htmlUrl = URL.createObjectURL(case_.htmlFile);
+
+                return `
+                    <div class="case-card" data-case="${id}">
+                        <div class="case-header">
+                            <div class="case-id">
+                                ${id}
+                                <span class="case-class ${classType}">${case_.class || 'Desktop'}</span>
+                                <span class="case-dimensions">${dims}</span>
+                            </div>
+                            <div class="case-actions">
+                                <button class="btn" onclick="openHtml('${case_.caseId}')">查看 HTML</button>
+                                <button class="btn" onclick="openModal('${pngUrl}', '${id}')">查看大图</button>
+                            </div>
+                        </div>
+                        <div class="case-body">
+                            <div class="preview-panel panel-screenshot">
+                                <div class="panel-title">📸 渲染截图</div>
+                                <div class="image-container">
+                                    <img src="${pngUrl}"
+                                         alt="Screenshot ${case_.id}"
+                                         onclick="openModal('${pngUrl}', '${case_.id}')"
+                                         loading="lazy">
+                                </div>
+                            </div>
+                            <div class="preview-panel panel-html">
+                                <div class="panel-title">🌐 HTML 预览</div>
+                                <div class="iframe-container" id="iframe-${case_.id}">
+                                    <iframe src="${htmlUrl}" sandbox="allow-scripts" loading="lazy"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openModal(src, caseId) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('modalInfo').textContent = `案例 ${caseId}`;
+            document.getElementById('imageModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('active');
+            document.getElementById('modalImage').src = '';
+        }
+
+        function openHtml(caseId) {
+            const htmlFile = fileCache.get(`${caseId}-html`);
+            if (htmlFile) {
+                const url = URL.createObjectURL(htmlFile);
+                window.open(url, '_blank');
+            }
+        }
+
+        async function handleFiles(files) {
+            if (!files || files.length === 0) return;
+
+            document.getElementById('uploadArea').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('debugPanel').style.display = 'none';
+            document.getElementById('caseGrid').style.display = 'none';
+
+            const path = files[0].webkitRelativePath || '';
+            document.getElementById('pathDisplay').textContent = path.split('/')[0] || '已选择';
+
+            try {
+                allCases = await parseFiles(files);
+                document.getElementById('loadingState').style.display = 'none';
+
+                if (allCases.length > 0) {
+                    document.getElementById('caseGrid').style.display = 'grid';
+                    renderCases(allCases);
+                    showToast(`加载成功，共 ${allCases.length} 个案例`);
+                } else {
+                    // 0个案例时显示调试信息
+                    document.getElementById('uploadArea').style.display = 'block';
+                    showToast('未找到有效案例，请查看下方调试信息', true);
+                }
+            } catch (e) {
+                showToast('解析文件失败: ' + e.message, true);
+                console.error(e);
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('uploadArea').style.display = 'block';
+            }
+        }
+
+        // 事件绑定
+        document.getElementById('folderInput').addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            renderCases(allCases);
+        });
+
+        // 拖拽上传
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('click', () => {
+            document.getElementById('folderInput').click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            // 注意：拖拽文件夹需要额外处理，这里简化处理
+            showToast('请点击按钮选择文件夹', true);
+        });
+
+        // 模态框关闭
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target.id === 'imageModal') closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>

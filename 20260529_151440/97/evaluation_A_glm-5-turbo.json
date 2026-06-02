@@ -1,0 +1,33 @@
+{
+  "index": 252,
+  "id": "97",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为数字银行平台创建一个界面，允许用户无缝管理其帐户和交易。",
+  "evaluation": {
+    "total_score": 81,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark banking dashboard style is coherent and polished, with consistent card shapes, restrained accent colors, and a professional tone. The gold accent helps brand character, though the layout feels somewhat generic and the subtle grid background adds little functional value."
+      },
+      "local_details": {
+        "score": 8,
+        "reason": "Typography, spacing, alignment, and card padding are generally precise and consistent. Transaction rows are clean and readable. Minor issues include small secondary text, low-contrast metadata on dark backgrounds, and some icons/actions feeling visually similar."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "Users can quickly identify account balances, quick actions, summary metrics, and recent transactions. The reading path is strong from greeting to accounts to actions to transaction list. However, the three account cards and three summary stats compete in similar visual weight, and primary task emphasis is split between overview and transactions."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Most labels are conventional and easy to interpret, such as transfer, payment, deposit, account types, and income/expense filters. But some icon meanings are abstract without text support alone, '更多' is vague, and there is limited visible guidance for transaction management beyond passive viewing/filtering."
+      }
+    },
+    "summary": "This is a strong, launch-near desktop banking dashboard with clear balances, recognizable quick actions, and a readable transaction feed. The visual system is consistent and mature enough for the scenario. The main limits are modest semantic ambiguity in some actions, slightly low-contrast secondary text, and a hierarchy that favors visual uniformity over stronger task prioritization for account/transaction management."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/97_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:15:04.949381"
+}

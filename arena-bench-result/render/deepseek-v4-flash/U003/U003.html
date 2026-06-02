@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>旅行打包清单</title>
+    <style>
+        /* ===== Reset & 基础 ===== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f6fa;
+            color: #1e293b;
+            padding: 0 0 32px 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* ===== 主容器 ===== */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px 16px 0;
+            margin: 0 auto;
+        }
+        /* ===== 头部 ===== */
+        .app-header {
+            background: linear-gradient(135deg, #2b3a8f 0%, #4a6cf7 100%);
+            border-radius: 20px;
+            padding: 24px 20px 20px;
+            margin-bottom: 20px;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(74, 108, 247, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+        .app-header::after {
+            content: "✈️";
+            position: absolute;
+            right: 20px;
+            top: 16px;
+            font-size: 36px;
+            opacity: 0.2;
+            transform: rotate(15deg);
+        }
+        .app-title {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .app-title .icon {
+            font-size: 30px;
+        }
+        .app-sub {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+        /* ===== 进度区域 ===== */
+        .progress-wrapper {
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-bar-track {
+            flex: 1;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #ffd93d;
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 12px rgba(255, 217, 61, 0.4);
+        }
+        .progress-text {
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+            opacity: 0.95;
+            letter-spacing: 0.3px;
+        }
+        .progress-text .num-done {
+            color: #ffd93d;
+        }
+        .progress-text .num-total {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        /* ===== 空状态 ===== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px 20px;
+            color: #94a3b8;
+            font-size: 15px;
+        }
+        .empty-state .big-emoji {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 16px;
+        }
+        .empty-state p {
+            line-height: 1.7;
+        }
+        /* ===== 卡片 ===== */
+        .card {
+            background: #ffffff;
+            border-radius: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: box-shadow 0.25s;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        .card:active {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+        /* 卡片头部 */
+        .card-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            transition: background 0.2s;
+            position: relative;
+            gap: 12px;
+            border-left: 5px solid transparent;
+            border-radius: 0;
+        }
+        .card-header:active {
+            background: #f8fafc;
+        }
+        .card-header .cat-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            width: 32px;
+            text-align: center;
+        }
+        .card-header .cat-name {
+            font-size: 17px;
+            font-weight: 600;
+            flex: 1;
+            letter-spacing: 0.3px;
+        }
+        .card-header .cat-count {
+            font-size: 14px;
+            font-weight: 500;
+            color: #94a3b8;
+            background: #f1f4f9;
+            padding: 2px 12px;
+            border-radius: 20px;
+            min-width: 44px;
+            text-align: center;
+            transition: background 0.2s, color 0.2s;
+        }
+        .card-header .cat-count.has-checked {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+        .card-header .cat-count.all-done {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .card-header .arrow {
+            font-size: 14px;
+            color: #94a3b8;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            flex-shrink: 0;
+            width: 24px;
+            text-align: center;
+        }
+        .card-header .arrow.open {
+            transform: rotate(180deg);
+        }
+        /* 卡片颜色主题 */
+        .card.clothes .card-header {
+            border-left-color: #ef4444;
+        }
+        .card.clothes .cat-icon {
+            color: #ef4444;
+        }
+        .card.toiletries .card-header {
+            border-left-color: #10b981;
+        }
+        .card.toiletries .cat-icon {
+            color: #10b981;
+        }
+        .card.electronics .card-header {
+            border-left-color: #f59e0b;
+        }
+        .card.electronics .cat-icon {
+            color: #f59e0b;
+        }
+        .card.documents .card-header {
+            border-left-color: #8b5cf6;
+        }
+        .card.documents .cat-icon {
+            color: #8b5cf6;
+        }
+        /* 卡片内容 */
+        .card-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.3s ease;
+            padding: 0 16px;
+            background: #ffffff;
+        }
+        .card-body.open {
+            max-height: 800px;
+            padding: 4px 16px 16px;
+        }
+        /* ===== 添加表单 ===== */
+        .add-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            margin-top: 6px;
+        }
+        .add-form input {
+            flex: 1;
+            height: 46px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0 16px;
+            font-size: 16px;
+            background: #f8fafc;
+            color: #1e293b;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .add-form input:focus {
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.12);
+            background: #fff;
+        }
+        .add-form input::placeholder {
+            color: #94a3b8;
+            font-size: 15px;
+        }
+        .add-form button {
+            width: 56px;
+            height: 46px;
+            flex-shrink: 0;
+            border: none;
+            border-radius: 12px;
+            background: #4a6cf7;
+            color: #fff;
+            font-size: 26px;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 10px rgba(74, 108, 247, 0.25);
+            line-height: 1;
+        }
+        .add-form button:active {
+            transform: scale(0.92);
+            background: #3b5de7;
+            box-shadow: 0 2px 6px rgba(74, 108, 247, 0.3);
+        }
+        .add-form button:disabled {
+            opacity: 0.4;
+            transform: none;
+            box-shadow: none;
+        }
+        /* ===== 物品列表 ===== */
+        .item-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .item-list .item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px 8px 8px;
+            border-radius: 12px;
+            background: #f8fafc;
+            transition: background 0.2s, opacity 0.3s, transform 0.2s;
+            min-height: 48px;
+            border: 1px solid transparent;
+        }
+        .item-list .item:hover {
+            background: #f1f4f9;
+        }
+        .item-list .item.item-removing {
+            opacity: 1; /* fixed: was 0 */
+            transform: translateX(30px) scale(0.96);
+            max-height: 0;
+            padding: 0 12px;
+            margin: 0;
+            overflow: hidden;
+            transition: opacity 0.25s, transform 0.25s, max-height 0.35s, padding 0.25s, margin 0.25s;
+        }
+        /* 自定义复选框 */
+        .item .check-wrap {
+            flex-shrink: 0;
+            width: 26px;
+            height: 26px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .item .check-wrap input[type="checkbox"] {
+            opacity: 0;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+            margin: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .item .check-wrap .check-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            border: 2px solid #cbd5e1;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            font-size: 14px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .item .check-wrap input[type="checkbox"]:checked+.check-box {
+            background: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .item .check-wrap input[type="checkbox"]:checked+.check-box::after {
+            content: "✓";
+            font-weight: 700;
+            font-size: 14px;
+            color: #fff;
+            line-height: 1;
+        }
+        .item .check-wrap input[type="checkbox"]:active+.check-box {
+            transform: scale(0.85);
+        }
+        /* 物品名称 */
+        .item .item-name {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+            color: #1e293b;
+            transition: color 0.3s, text-decoration 0.3s;
+            word-break: break-word;
+            padding: 2px 0;
+            cursor: default;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+        }
+        .item .item-name.checked {
+            color: #94a3b8;
+            text-decoration: line-through;
+            text-decoration-color: #cbd5e1;
+            text-decoration-thickness: 1.5px;
+        }
+        /* 删除按钮 */
+        .item .delete-btn {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+            -webkit-tap-highlight-color: transparent;
+            line-height: 1;
+        }
+        .item .delete-btn:active {
+            background: #fee2e2;
+            color: #ef4444;
+            transform: scale(0.88);
+        }
+        .item .delete-btn:hover {
+            color: #ef4444;
+        }
+        /* ===== 底部重置 ===== */
+        .footer-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        .footer-actions button {
+            height: 44px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+        .footer-actions button:active {
+            transform: scale(0.94);
+            background: #f1f4f9;
+        }
+        .footer-actions .btn-reset {
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+        .footer-actions .btn-reset:active {
+            background: #fef2f2;
+        }
+        /* ===== Toast 轻提示 ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+            opacity: 1; /* fixed: was 0 */
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s;
+            pointer-events: none;
+            z-index: 999;
+            max-width: calc(100% - 48px);
+            text-align: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        /* ===== 庆祝动画 ===== */
+        .celebrate-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            opacity: 1; /* fixed: was 0 */
+            animation: confetti-fall 2.5s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+            0% {
+                opacity: 1;
+                transform: translateY(-20px) rotate(0deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg) scale(0.3);
+            }
+        }
+        /* ===== 响应式微调 ===== */
+        @media (max-width: 400px) {
+            .app-container {
+                padding: 12px 12px 0;
+            }
+            .app-header {
+                padding: 20px 16px 18px;
+                border-radius: 16px;
+            }
+            .app-title {
+                font-size: 22px;
+            }
+            .app-title .icon {
+                font-size: 26px;
+            }
+            .app-header::after {
+                font-size: 28px;
+                right: 16px;
+                top: 14px;
+            }
+            .card-header {
+                padding: 12px 14px;
+            }
+            .card-header .cat-name {
+                font-size: 16px;
+            }
+            .add-form input {
+                height: 42px;
+                font-size: 15px;
+            }
+            .add-form button {
+                width: 50px;
+                height: 42px;
+                font-size: 22px;
+            }
+            .item-list .item {
+                padding: 6px 10px 6px 6px;
+                min-height: 44px;
+            }
+            .item .item-name {
+                font-size: 15px;
+            }
+            .progress-text {
+                font-size: 14px;
+                min-width: 52px;
+            }
+        }
+        @media (min-width: 600px) {
+            .app-container {
+                padding: 24px 24px 0;
+            }
+            .card-header {
+                padding: 16px 20px;
+            }
+            .card-body.open {
+                padding: 8px 20px 20px;
+            }
+            .add-form input {
+                height: 50px;
+                font-size: 17px;
+            }
+            .add-form button {
+                width: 60px;
+                height: 50px;
+                font-size: 28px;
+            }
+        }
+        /* 暗色模式适配 - 跟随系统 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+                color: #e2e8f0;
+            }
+            .card {
+                background: #1e293b;
+                border-color: rgba(255, 255, 255, 0.04);
+                box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            }
+            .card-body {
+                background: #1e293b;
+            }
+            .card-header:active {
+                background: #334155;
+            }
+            .card-header .cat-count {
+                background: #334155;
+                color: #94a3b8;
+            }
+            .card-header .cat-count.has-checked {
+                background: #0c4a6e;
+                color: #7dd3fc;
+            }
+            .card-header .cat-count.all-done {
+                background: #064e3b;
+                color: #6ee7b7;
+            }
+            .item-list .item {
+                background: #0f172a;
+                border-color: transparent;
+            }
+            .item-list .item:hover {
+                background: #1a2332;
+            }
+            .item .item-name {
+                color: #e2e8f0;
+            }
+            .item .item-name.checked {
+                color: #64748b;
+                text-decoration-color: #475569;
+            }
+            .item .check-wrap .check-box {
+                background: #1e293b;
+                border-color: #475569;
+            }
+            .add-form input {
+                background: #0f172a;
+                border-color: #334155;
+                color: #e2e8f0;
+            }
+            .add-form input:focus {
+                border-color: #4a6cf7;
+                background: #0f172a;
+                box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.15);
+            }
+            .add-form input::placeholder {
+                color: #64748b;
+            }
+            .footer-actions button {
+                background: #1e293b;
+                color: #94a3b8;
+                border-color: #334155;
+            }
+            .footer-actions .btn-reset {
+                color: #f87171;
+                border-color: #7f1d1d;
+            }
+            .footer-actions .btn-reset:active {
+                background: #1c1917;
+            }
+            .card-header .arrow {
+                color: #64748b;
+            }
+            .empty-state {
+                color: #64748b;
+            }
+            .app-header {
+                background: linear-gradient(135deg, #1a2560 0%, #2d4ad0 100%);
+            }
+            .toast {
+                background: #334155;
+                color: #f1f5f9;
+            }
+            .item .delete-btn:hover {
+                color: #f87171;
+            }
+            .item .delete-btn:active {
+                background: #451a1a;
+                color: #f87171;
+            }
+        }
+        /* ===== 滚动条优雅 ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        @media (prefers-color-scheme: dark) {
+            ::-webkit-scrollbar-thumb {
+                background: #475569;
+            }
+        }
+        /* 禁用文字选中 (UI 层面) */
+        .card-header,
+        .add-form button,
+        .delete-btn,
+        .footer-actions button {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        /* 输入框自动填充样式 */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #f8fafc inset !important;
+            -webkit-text-fill-color: #1e293b !important;
+        }
+        @media (prefers-color-scheme: dark) {
+            input:-webkit-autofill,
+            input:-webkit-autofill:hover,
+            input:-webkit-autofill:focus {
+                -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+                -webkit-text-fill-color: #e2e8f0 !important;
+            }
+        }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <div class="app-container" role="main">
+        <!-- 头部 -->
+        <header class="app-header">
+            <div class="app-title">
+                <span class="icon">🧳</span>
+                <span>旅行打包清单</span>
+            </div>
+            <div class="app-sub">出发前逐一核对，轻松出行 ✨</div>
+            <div class="progress-wrapper">
+                <div class="progress-bar-track" aria-label="打包进度">
+                    <div class="progress-bar-fill" id="progressFill" style="width:0%;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <div class="progress-text" id="progressText">
+                    <span class="num-done" id="doneCount">0</span>/<span class="num-total" id="totalCount">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 清单列表 -->
+        <div id="listContainer">
+            <!-- 由 JS 动态渲染 -->
+        </div>
+
+        <!-- 底部操作 -->
+        <div class="footer-actions">
+            <button id="resetCheckedBtn" title="清空所有打勾标记">🔄 重置已打包</button>
+            <button id="resetAllBtn" class="btn-reset" title="删除所有物品，恢复默认">🗑️ 重置清单</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ===== 预设数据 =====
+            const PRESET = {
+                clothes: [
+                    { name: 'T恤 / 上衣', checked: false },
+                    { name: '长裤 / 短裤', checked: false },
+                    { name: '外套 / 卫衣', checked: false },
+                    { name: '袜子 (3-4双)', checked: false },
+                    { name: '内衣', checked: false },
+                    { name: '睡衣', checked: false },
+                    { name: '鞋子', checked: false },
+                ],
+                toiletries: [
+                    { name: '牙刷 & 牙膏', checked: false },
+                    { name: '洗发水 / 沐浴露', checked: false },
+                    { name: '毛巾 / 浴巾', checked: false },
+                    { name: '梳子', checked: false },
+                    { name: '防晒霜', checked: false },
+                    { name: '剃须刀', checked: false },
+                ],
+                electronics: [
+                    { name: '手机', checked: false },
+                    { name: '充电器', checked: false },
+                    { name: '充电宝', checked: false },
+                    { name: '耳机', checked: false },
+                    { name: '相机 / GoPro', checked: false },
+                    { name: '转换插头', checked: false },
+                ],
+                documents: [
+                    { name: '身份证', checked: false },
+                    { name: '护照', checked: false },
+                    { name: '机票 / 车票', checked: false },
+                    { name: '酒店订单', checked: false },
+                    { name: '钱包 / 现金', checked: false },
+                    { name: '信用卡', checked: false },
+                ]
+            };
+
+            // ===== 类别配置 =====
+            const CATEGORIES = [{
+                key: 'clothes',
+                label: '衣物',
+                icon: '👕',
+                color: '#ef4444',
+            }, {
+                key: 'toiletries',
+                label: '洗漱',
+                icon: '🧴',
+                color: '#10b981',
+            }, {
+                key: 'electronics',
+                label: '电子',
+                icon: '📱',
+                color: '#f59e0b',
+            }, {
+                key: 'documents',
+                label: '证件',
+                icon: '📄',
+                color: '#8b5cf6',
+            }, ];
+
+            // ===== 状态 =====
+            let data = {};
+            let idCounter = 0;
+            let currentOpenCategory = null; // 当前展开的类别 key
+            let toastTimer = null;
+            let celebrateTimer = null;
+
+            // ===== 工具 =====
+            function generateId() {
+                return 'item_' + (++idCounter) + '_' + Date.now();
+            }
+
+            function deepClone(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            }
+
+            // ===== 本地存储 =====
+            function loadFromStorage() {
+                try {
+                    const raw = localStorage.getItem('travel_packing_list_data');
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                            // 兼容旧数据结构：确保每个类别是数组
+                            for (const cat of CATEGORIES) {
+                                if (!Array.isArray(parsed[cat.key])) {
+                                    parsed[cat.key] = [];
+                                }
+                            }
+                            // 提取最大 id
+                            let maxId = 0;
+                            for (const cat of CATEGORIES) {
+                                for (const item of parsed[cat.key]) {
+                                    if (item.id) {
+                                        const num = parseInt(item.id.replace(/\D/g, ''), 10) || 0;
+                                        if (num > maxId) maxId = num;
+                                    }
+                                }
+                            }
+                            idCounter = maxId;
+                            return parsed;
+                        }
+                    }
+                } catch (e) { /* ignore */ }
+                return null;
+            }
+
+            function saveToStorage() {
+                try {
+                    localStorage.setItem('travel_packing_list_data', JSON.stringify(data));
+                } catch (e) { /* ignore */ }
+            }
+
+            function resetToDefault() {
+                const newData = {};
+                for (const cat of CATEGORIES) {
+                    newData[cat.key] = PRESET[cat.key].map(item => ({
+                        id: generateId(),
+                        name: item.name,
+                        checked: false,
+                    }));
+                }
+                data = newData;
+                saveToStorage();
+                return data;
+            }
+
+            function initData() {
+                const stored = loadFromStorage();
+                if (stored) {
+                    // 验证数据结构完整性
+                    let valid = true;
+                    for (const cat of CATEGORIES) {
+                        if (!Array.isArray(stored[cat.key])) {
+                            valid = false;
+                            break;
+                        }
+                        for (const item of stored[cat.key]) {
+                            if (!item.id || typeof item.name !== 'string' || typeof item.checked !== 'boolean') {
+                                valid = false;
+                                break;
+                            }
+                        }
+                        if (!valid) break;
+                    }
+                    if (valid) {
+                        data = stored;
+                        return;
+                    }
+                }
+                // 无有效存储，使用预设
+                resetToDefault();
+            }
+
+            // ===== 数据操作 =====
+            function getItems(categoryKey) {
+                return data[categoryKey] || [];
+            }
+
+            function addItem(categoryKey, name) {
+                const trimmed = name.trim();
+                if (!trimmed) return null;
+                const items = getItems(categoryKey);
+                const newItem = {
+                    id: generateId(),
+                    name: trimmed,
+                    checked: false,
+                };
+                items.push(newItem);
+                saveToStorage();
+                return newItem;
+            }
+
+            function removeItem(categoryKey, itemId) {
+                const items = getItems(categoryKey);
+                const idx = items.findIndex(item => item.id === itemId);
+                if (idx === -1) return false;
+                items.splice(idx, 1);
+                saveToStorage();
+                return true;
+            }
+
+            function toggleItem(categoryKey, itemId) {
+                const items = getItems(categoryKey);
+                const item = items.find(item => item.id === itemId);
+                if (!item) return false;
+                item.checked = !item.checked;
+                saveToStorage();
+                return item.checked;
+            }
+
+            function resetChecked() {
+                for (const cat of CATEGORIES) {
+                    const items = getItems(cat.key);
+                    for (const item of items) {
+                        item.checked = false;
+                    }
+                }
+                saveToStorage();
+            }
+
+            function resetAll() {
+                resetToDefault();
+            }
+
+            function getStats() {
+                let total = 0;
+                let done = 0;
+                for (const cat of CATEGORIES) {
+                    const items = getItems(cat.key);
+                    total += items.length;
+                    done += items.filter(item => item.checked).length;
+                }
+                return { total, done };
+            }
+
+            // ===== Toast =====
+            function showToast(message, duration) {
+                duration = duration || 1800;
+                const el = document.getElementById('toast');
+                if (!el) return;
+                if (toastTimer) {
+                    clearTimeout(toastTimer);
+                    toastTimer = null;
+                } else {
+                    el.classList.remove('show');
+                }
+                // 强制回流后显示
+                el.textContent = message;
+                // 触发回流
+                void el.offsetWidth;
+                el.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    el.classList.remove('show');
+                    toastTimer = null;
+                }, duration);
+            }
+
+            // ===== 庆祝动画 =====
+            function triggerCelebration() {
+                // 移除旧庆祝
+                const oldOverlay = document.querySelector('.celebrate-overlay');
+                if (oldOverlay) oldOverlay.remove();
+                if (celebrateTimer) {
+                    clearTimeout(celebrateTimer);
+                    celebrateTimer = null;
+                }
+
+                const overlay = document.createElement('div');
+                overlay.className = 'celebrate-overlay';
+                const colors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#ffd93d'];
+                const shapes = ['■', '●', '▲', '★', '♦', '♥'];
+                for (let i = 0; i < 60; i++) {
+                    const el = document.createElement('span');
+                    el.className = 'confetti';
+                    const size = 6 + Math.random() * 12;
+                    const left = Math.random() * 100;
+                    const delay = Math.random() * 1.2;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+                    const rotate = Math.random() * 360;
+                    el.style.cssText = `
+                        left: ${left}%;
+                        width: ${size}px;
+                        height: ${size}px;
+                        background: ${color};
+                        font-size: ${size}px;
+                        animation-delay: ${delay}s;
+                        transform: rotate(${rotate}deg);
+                        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+                        opacity: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        line-height: 1;
+                    `;
+                    // 如果是形状字符就用字符代替纯色块
+                    if (Math.random() > 0.5) {
+                        el.textContent = shape;
+                        el.style.background = 'transparent';
+                        el.style.color = color;
+                        el.style.fontSize = (size * 1.4) + 'px';
+                    }
+                    overlay.appendChild(el);
+                }
+                document.body.appendChild(overlay);
+
+                celebrateTimer = setTimeout(() => {
+                    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                    celebrateTimer = null;
+                }, 3500);
+            }
+
+            // ===== 渲染 =====
+            function render() {
+                const container = document.getElementById('listContainer');
+                if (!container) return;
+
+                const stats = getStats();
+                // 更新进度
+                const progressFill = document.getElementById('progressFill');
+                const doneCount = document.getElementById('doneCount');
+                const totalCount = document.getElementById('totalCount');
+                const pct = stats.total === 0 ? 0 : Math.round((stats.done / stats.total) * 100);
+                if (progressFill) {
+                    progressFill.style.width = pct + '%';
+                    progressFill.setAttribute('aria-valuenow', pct);
+                }
+                if (doneCount) doneCount.textContent = stats.done;
+                if (totalCount) totalCount.textContent = stats.total;
+
+                // 检查是否全部完成 -> 庆祝
+                if (stats.total > 0 && stats.done === stats.total) {
+                    // 防止重复触发
+                    if (!window._celebrated) {
+                        window._celebrated = true;
+                        triggerCelebration();
+                        setTimeout(() => { window._celebrated = false; }, 4000);
+                    }
+                } else {
+                    window._celebrated = false;
+                }
+
+                // 渲染卡片
+                let html = '';
+                let firstOpen = false;
+
+                for (const cat of CATEGORIES) {
+                    const items = getItems(cat.key);
+                    const catDone = items.filter(item => item.checked).length;
+                    const catTotal = items.length;
+                    const isOpen = currentOpenCategory === cat.key;
+
+                    if (!firstOpen && isOpen) firstOpen = true;
+
+                    // 计算 count 样式
+                    let countClass = 'cat-count';
+                    if (catDone > 0 && catDone < catTotal) {
+                        countClass += ' has-checked';
+                    } else if (catDone === catTotal && catTotal > 0) {
+                        countClass += ' all-done';
+                    }
+
+                    // 物品列表 HTML
+                    let itemsHtml = '';
+                    if (items.length === 0) {
+                        itemsHtml = `
+                            <div class="empty-state" style="padding:20px 0 8px;font-size:14px;">
+                                <span style="opacity:0.5;">📭 暂无物品，点击下方添加</span>
+                            </div>`;
+                    } else {
+                        itemsHtml = '<ul class="item-list" role="list">';
+                        for (const item of items) {
+                            const checkedAttr = item.checked ? 'checked' : '';
+                            const nameClass = item.checked ? 'item-name checked' : 'item-name';
+                            itemsHtml += `
+                                <li class="item" data-category="${cat.key}" data-id="${item.id}" role="listitem">
+                                    <div class="check-wrap">
+                                        <input type="checkbox" id="cb_${item.id}" ${checkedAttr} aria-label="标记「${item.name}」已打包">
+                                        <label for="cb_${item.id}" class="check-box" aria-hidden="true"></label>
+                                    </div>
+                                    <span class="${nameClass}">${escapeHtml(item.name)}</span>
+                                    <button class="delete-btn" data-action="delete" data-category="${cat.key}" data-id="${item.id}" aria-label="删除「${item.name}」" title="删除">✕</button>
+                                </li>
+                            `;
+                        }
+                        itemsHtml += '</ul>';
+                    }
+
+                    // 卡片主体
+                    const bodyOpen = isOpen ? 'open' : '';
+
+                    html += `
+                        <div class="card ${cat.key}" data-category="${cat.key}">
+                            <div class="card-header" data-action="toggle" data-category="${cat.key}" role="button" tabindex="0" aria-expanded="${isOpen ? 'true' : 'false'}" aria-label="展开/折叠 ${cat.label}">
+                                <span class="cat-icon" aria-hidden="true">${cat.icon}</span>
+                                <span class="cat-name">${cat.label}</span>
+                                <span class="${countClass}" data-count-cat="${cat.key}">${catDone}/${catTotal}</span>
+                                <span class="arrow ${bodyOpen}" aria-hidden="true">▾</span>
+                            </div>
+                            <div class="card-body ${bodyOpen}" role="region" aria-labelledby="cat_${cat.key}">
+                                <div class="add-form" data-category="${cat.key}">
+                                    <input type="text" placeholder="添加物品..." aria-label="输入新物品名称" autocomplete="off" maxlength="60">
+                                    <button data-action="add" data-category="${cat.key}" aria-label="添加物品">+</button>
+                                </div>
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+
+                // 如果没有打开任何卡片，默认打开第一个有物品的类别
+                if (!firstOpen && CATEGORIES.length > 0) {
+                    // 默认打开第一个有物品的，或者第一个
+                    let target = CATEGORIES[0].key;
+                    for (const cat of CATEGORIES) {
+                        if (getItems(cat.key).length > 0) {
+                            target = cat.key;
+                            break;
+                        }
+                    }
+                    currentOpenCategory = target;
+                    // 重新渲染以应用展开
+                    render();
+                    return;
+                }
+
+                // 更新所有 count 显示 (确保一致性)
+                for (const cat of CATEGORIES) {
+                    const items = getItems(cat.key);
+                    const catDone = items.filter(item => item.checked).length;
+                    const catTotal = items.length;
+                    const countEl = document.querySelector(`[data-count-cat="${cat.key}"]`);
+                    if (countEl) {
+                        countEl.textContent = `${catDone}/${catTotal}`;
+                        let cls = 'cat-count';
+                        if (catDone > 0 && catDone < catTotal) {
+                            cls += ' has-checked';
+                        } else if (catDone === catTotal && catTotal > 0) {
+                            cls += ' all-done';
+                        }
+                        countEl.className = cls;
+                    }
+                }
+
+                // 绑定事件 (事件委托)
+                // 在 container 上监听
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ===== 事件处理 (委托) =====
+            function handleContainerClick(e) {
+                const target = e.target;
+                const container = document.getElementById('listContainer');
+                if (!container) return;
+
+                // 1. 卡片头部点击 - 折叠/展开
+                const header = target.closest('.card-header');
+                if (header && header.dataset.action === 'toggle') {
+                    const cat = header.dataset.category;
+                    if (currentOpenCategory === cat) {
+                        currentOpenCategory = null;
+                    } else {
+                        currentOpenCategory = cat;
+                    }
+                    render();
+                    return;
+                }
+
+                // 2. 添加按钮
+                const addBtn = target.closest('[data-action="add"]');
+                if (addBtn) {
+                    const cat = addBtn.dataset.category;
+                    const form = addBtn.closest('.add-form');
+                    if (form) {
+                        const input = form.querySelector('input');
+                        if (input) {
+                            const name = input.value.trim();
+                            if (name) {
+                                const newItem = addItem(cat, name);
+                                if (newItem) {
+                                    input.value = '';
+                                    input.focus();
+                                    render();
+                                    showToast(`✅ 已添加「${newItem.name}」`);
+                                }
+                            } else {
+                                showToast('⚠️ 请输入物品名称', 1200);
+                                input.focus();
+                            }
+                        }
+                    }
+                    return;
+                }
+
+                // 3. 删除按钮
+                const delBtn = target.closest('.delete-btn');
+                if (delBtn && delBtn.dataset.action === 'delete') {
+                    const cat = delBtn.dataset.category;
+                    const id = delBtn.dataset.id;
+                    // 找到物品名称用于提示
+                    const itemEl = delBtn.closest('.item');
+                    const nameEl = itemEl ? itemEl.querySelector('.item-name') : null;
+                    const itemName = nameEl ? nameEl.textContent : '物品';
+                    if (cat && id) {
+                        const removed = removeItem(cat, id);
+                        if (removed) {
+                            // 先加一个移除动画类
+                            if (itemEl) {
+                                itemEl.classList.add('item-removing');
+                                setTimeout(() => {
+                                    render();
+                                    showToast(`🗑️ 已删除「${itemName}」`);
+                                }, 280);
+                                return;
+                            }
+                            render();
+                            showToast(`🗑️ 已删除「${itemName}」`);
+                        }
+                    }
+                    return;
+                }
+
+                // 4. 复选框点击 (通过 label 或 checkbox)
+                const checkbox = target.closest('.check-wrap input[type="checkbox"]');
+                if (checkbox) {
+                    const itemEl = checkbox.closest('.item');
+                    if (itemEl) {
+                        const cat = itemEl.dataset.category;
+                        const id = itemEl.dataset.id;
+                        if (cat && id) {
+                            const nowChecked = toggleItem(cat, id);
+                            // 更新 UI 状态而不重新渲染全部 (优化)
+                            const nameEl = itemEl.querySelector('.item-name');
+                            if (nameEl) {
+                                nameEl.classList.toggle('checked', nowChecked);
+                            }
+                            // 更新计数
+                            const items = getItems(cat);
+                            const catDone = items.filter(item => item.checked).length;
+                            const catTotal = items.length;
+                            const countEl = document.querySelector(`[data-count-cat="${cat}"]`);
+                            if (countEl) {
+                                countEl.textContent = `${catDone}/${catTotal}`;
+                                let cls = 'cat-count';
+                                if (catDone > 0 && catDone < catTotal) {
+                                    cls += ' has-checked';
+                                } else if (catDone === catTotal && catTotal > 0) {
+                                    cls += ' all-done';
+                                }
+                                countEl.className = cls;
+                            }
+                            // 更新全局进度
+                            updateProgressOnly();
+                            // 检查是否全部完成
+                            const stats = getStats();
+                            if (stats.total > 0 && stats.done === stats.total) {
+                                if (!window._celebrated) {
+                                    window._celebrated = true;
+                                    triggerCelebration();
+                                    setTimeout(() => { window._celebrated = false; }, 4000);
+                                }
+                            } else {
+                                window._celebrated = false;
+                            }
+                            // 保存已在 toggleItem 中执行
+                        }
+                    }
+                    return;
+                }
+
+                // 5. label 点击 (已通过 for 关联)
+            }
+
+            // 单独更新进度 (不重新渲染全部)
+            function updateProgressOnly() {
+                const stats = getStats();
+                const progressFill = document.getElementById('progressFill');
+                const doneCount = document.getElementById('doneCount');
+                const totalCount = document.getElementById('totalCount');
+                const pct = stats.total === 0 ? 0 : Math.round((stats.done / stats.total) * 100);
+                if (progressFill) {
+                    progressFill.style.width = pct + '%';
+                    progressFill.setAttribute('aria-valuenow', pct);
+                }
+                if (doneCount) doneCount.textContent = stats.done;
+                if (totalCount) totalCount.textContent = stats.total;
+            }
+
+            // ===== 键盘事件 (回车添加) =====
+            function handleKeydown(e) {
+                if (e.key === 'Enter') {
+                    const input = e.target.closest('.add-form input');
+                    if (input) {
+                        const form = input.closest('.add-form');
+                        if (form) {
+                            const btn = form.querySelector('[data-action="add"]');
+                            if (btn) {
+                                btn.click();
+                                e.preventDefault();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ===== 底部按钮事件 =====
+            function initFooterButtons() {
+                const resetCheckedBtn = document.getElementById('resetCheckedBtn');
+                const resetAllBtn = document.getElementById('resetAllBtn');
+
+                resetCheckedBtn.addEventListener('click', function() {
+                    const stats = getStats();
+                    if (stats.done === 0) {
+                        showToast('💡 还没有已打包的物品', 1400);
+                        return;
+                    }
+                    resetChecked();
+                    render();
+                    showToast('🔄 已重置所有打勾标记', 1600);
+                });
+
+                resetAllBtn.addEventListener('click', function() {
+                    if (confirm('确定要重置整个清单吗？将恢复为默认物品列表。')) {
+                        resetAll();
+                        // 重置展开状态
+                        currentOpenCategory = null;
+                        render();
+                        showToast('🗑️ 已重置为默认清单', 1600);
+                    }
+                });
+            }
+
+            // ===== 初始化 =====
+            function init() {
+                initData();
+
+                // 默认展开第一个有物品的类别
+                for (const cat of CATEGORIES) {
+                    if (getItems(cat.key).length > 0) {
+                        currentOpenCategory = cat.key;
+                        break;
+                    }
+                }
+                if (!currentOpenCategory && CATEGORIES.length > 0) {
+                    currentOpenCategory = CATEGORIES[0].key;
+                }
+
+                // 渲染
+                render();
+
+                // 事件委托 (容器)
+                const container = document.getElementById('listContainer');
+                if (container) {
+                    container.addEventListener('click', handleContainerClick);
+                    container.addEventListener('keydown', handleKeydown);
+                    // 输入框的键盘事件也委托
+                }
+
+                // 全局委托输入框回车 (因为输入框在容器内，使用事件捕获)
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        const input = e.target.closest('.add-form input');
+                        if (input && container.contains(input)) {
+                            const form = input.closest('.add-form');
+                            if (form) {
+                                const btn = form.querySelector('[data-action="add"]');
+                                if (btn) {
+                                    btn.click();
+                                    e.preventDefault();
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // 底部按钮
+                initFooterButtons();
+
+                // 窗口大小变化时，保持界面稳定 (不需要额外操作)
+            }
+
+            // DOM 就绪后启动
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            // 暴露一些变量用于调试 (非必须)
+            window.__packingList = {
+                data,
+                render,
+                addItem,
+                removeItem,
+                toggleItem,
+                resetChecked,
+                resetAll,
+                getStats,
+            };
+
+        })();
+    </script>
+
+</body>
+</html>

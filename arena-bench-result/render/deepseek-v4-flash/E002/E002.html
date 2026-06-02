@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>自然拼读乐园</title>
+    <style>
+        /* 全局重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(145deg, #f7f8fc 0%, #e6e9f0 100%);
+            min-height: 100vh;
+            padding: 20px 16px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* 标题 */
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #2c3e50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            letter-spacing: 1px;
+            line-height: 1.3;
+        }
+
+        .header h1 span {
+            display: inline-block;
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        /* 卡片网格 */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        /* 卡片 */
+        .card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 24px 12px 20px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.02);
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        /* 卡片点击反馈 */
+        .card:active {
+            transform: scale(0.94);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 卡片背景色 (柔和的马卡龙色) */
+        .card:nth-child(1) { background: #FFF2E5; } /* 浅杏 */
+        .card:nth-child(2) { background: #E5F5FF; } /* 浅天蓝 */
+        .card:nth-child(3) { background: #E5FFE9; } /* 浅薄荷 */
+        .card:nth-child(4) { background: #FFFCE5; } /* 浅奶油 */
+        .card:nth-child(5) { background: #F5E5FF; } /* 浅薰衣草 */
+        .card:nth-child(6) { background: #FFE5F0; } /* 浅粉 */
+        .card:nth-child(7) { background: #E5FFF2; } /* 浅海绿 */
+        .card:nth-child(8) { background: #FFEFE5; } /* 浅桃 */
+        .card:nth-child(9) { background: #EAE5FF; } /* 浅紫 */
+        .card:nth-child(10) { background: #FFE5E5; } /* 浅玫瑰 */
+
+        /* 组合 (字母组合) */
+        .combo {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #2c3e50;
+            line-height: 1.2;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        /* 单词 */
+        .word {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #34495e;
+            margin-top: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        /* 单词中组合字母高亮 */
+        .highlight {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
+        /* 小喇叭装饰 (纯CSS) */
+        .card::after {
+            content: '🔊';
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            font-size: 1.0rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+
+        .card:active::after {
+            opacity: 1;
+        }
+
+        /* 不支持语音的提示 (隐藏) */
+        .no-support {
+            display: none;
+            background: #ffeaa7;
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 16px 0;
+            color: #2d3436;
+            font-weight: 500;
+        }
+
+        .no-support.visible {
+            display: block;
+        }
+
+        /* 页脚信息 */
+        .footer {
+            text-align: center;
+            margin-top: 28px;
+            font-size: 0.85rem;
+            color: #95a5a6;
+            line-height: 1.5;
+        }
+
+        .footer a {
+            color: #6c7a89;
+            text-decoration: none;
+        }
+
+        /* 响应式微调 */
+        @media (max-width: 400px) {
+            .card-grid {
+                gap: 12px;
+            }
+            .card {
+                padding: 18px 10px 16px;
+                min-height: 130px;
+            }
+            .combo {
+                font-size: 2.5rem;
+            }
+            .word {
+                font-size: 1.3rem;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (min-width: 500px) {
+            .card-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 18px;
+            }
+            .container {
+                max-width: 600px;
+            }
+        }
+
+        @media (min-width: 700px) {
+            .card-grid {
+                grid-template-columns: repeat(4, 1fr);
+                max-width: 720px;
+            }
+        }
+
+        /* 防止双击缩放干扰 (不影响可访问性) */
+        .card {
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>🌟 自然拼读乐园</h1>
+            <p class="subtitle">👆 点击卡片，听发音</p>
+        </header>
+
+        <!-- 浏览器不支持语音时显示 -->
+        <div class="no-support" id="noSupport">您的浏览器不支持语音功能，请使用最新版 Chrome、Safari 或 Edge。</div>
+
+        <!-- 卡片网格 -->
+        <div class="card-grid" id="cardGrid">
+            <!-- 1. sh - ship -->
+            <div class="card" data-sound="sh" data-word="ship">
+                <div class="combo">sh</div>
+                <div class="word"><span class="highlight">sh</span>ip</div>
+            </div>
+            <!-- 2. ch - chip -->
+            <div class="card" data-sound="ch" data-word="chip">
+                <div class="combo">ch</div>
+                <div class="word"><span class="highlight">ch</span>ip</div>
+            </div>
+            <!-- 3. th - think -->
+            <div class="card" data-sound="th" data-word="think">
+                <div class="combo">th</div>
+                <div class="word"><span class="highlight">th</span>ink</div>
+            </div>
+            <!-- 4. ai - rain -->
+            <div class="card" data-sound="ai" data-word="rain">
+                <div class="combo">ai</div>
+                <div class="word">r<span class="highlight">ai</span>n</div>
+            </div>
+            <!-- 5. ee - bee -->
+            <div class="card" data-sound="ee" data-word="bee">
+                <div class="combo">ee</div>
+                <div class="word">b<span class="highlight">ee</span></div>
+            </div>
+            <!-- 6. oa - boat -->
+            <div class="card" data-sound="oa" data-word="boat">
+                <div class="combo">oa</div>
+                <div class="word">b<span class="highlight">oa</span>t</div>
+            </div>
+            <!-- 7. oo - moon -->
+            <div class="card" data-sound="oo" data-word="moon">
+                <div class="combo">oo</div>
+                <div class="word">m<span class="highlight">oo</span>n</div>
+            </div>
+            <!-- 8. er - her -->
+            <div class="card" data-sound="er" data-word="her">
+                <div class="combo">er</div>
+                <div class="word">h<span class="highlight">er</span></div>
+            </div>
+            <!-- 9. or - fork -->
+            <div class="card" data-sound="or" data-word="fork">
+                <div class="combo">or</div>
+                <div class="word">f<span class="highlight">or</span>k</div>
+            </div>
+            <!-- 10. ay - play -->
+            <div class="card" data-sound="ay" data-word="play">
+                <div class="combo">ay</div>
+                <div class="word">pl<span class="highlight">ay</span></div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            💡 点击卡片听字母组合和单词的发音
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // 检测 Speech Synthesis API 支持
+            if (!window.speechSynthesis) {
+                document.getElementById('noSupport').classList.add('visible');
+                return;
+            }
+
+            const cardGrid = document.getElementById('cardGrid');
+            let currentUtterance = null;
+
+            // 获取所有卡片
+            const cards = cardGrid.querySelectorAll('.card');
+
+            // 点击处理函数
+            function handleCardClick(e) {
+                const card = e.currentTarget;
+                const sound = card.dataset.sound;
+                const word = card.dataset.word;
+
+                if (!sound || !word) return;
+
+                // 取消当前正在播放的语音（如果有）
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+
+                // 构造朗读文本： "sh, ship"
+                const text = sound + ', ' + word;
+
+                // 创建语音对象
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';      // 使用美式英语发音
+                utterance.rate = 0.8;          // 稍慢，适合小朋友
+                utterance.pitch = 1.1;         // 音调略高，更亲切
+                utterance.volume = 1;
+
+                // 保存引用，便于取消
+                currentUtterance = utterance;
+
+                // 语音结束后的清理（可选）
+                utterance.onend = function() {
+                    currentUtterance = null;
+                };
+                utterance.onerror = function(event) {
+                    console.warn('语音出错:', event.error);
+                    currentUtterance = null;
+                };
+
+                // 开始朗读
+                window.speechSynthesis.speak(utterance);
+
+                // 简单触感：添加一个短暂的类实现视觉脉冲（可选）
+                card.style.transition = 'background 0.15s';
+                card.style.background = '#ffeaa7';
+                setTimeout(() => {
+                    // 恢复背景色（移除行内样式，让类定义覆盖）
+                    card.style.background = '';
+                }, 200);
+            }
+
+            // 为每个卡片绑定点击事件
+            cards.forEach(function(card) {
+                card.addEventListener('click', handleCardClick);
+                // 增加触屏友好提示
+                card.addEventListener('touchstart', function() {
+                    // 仅用于触感，无操作
+                }, { passive: true });
+            });
+
+            // 可选：页面卸载时取消语音，避免残留
+            window.addEventListener('beforeunload', function() {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+            });
+
+            // 针对 iOS Safari，需要在用户手势中首次启用语音
+            // 可以通过一次空朗读来激活 (有些版本需要)
+            function ensureSpeech() {
+                if (window.speechSynthesis && !window.speechSynthesis.speaking) {
+                    const dummy = new SpeechSynthesisUtterance(' ');
+                    dummy.volume = 0; // 静音
+                    window.speechSynthesis.speak(dummy);
+                    window.speechSynthesis.cancel();
+                }
+                // 移除监听，只执行一次
+                document.removeEventListener('touchstart', ensureSpeech);
+                document.removeEventListener('click', ensureSpeech);
+            }
+            // 监听第一个手势来激活语音
+            document.addEventListener('touchstart', ensureSpeech, { once: true });
+            document.addEventListener('click', ensureSpeech, { once: true });
+
+        })();
+    </script>
+</body>
+</html>

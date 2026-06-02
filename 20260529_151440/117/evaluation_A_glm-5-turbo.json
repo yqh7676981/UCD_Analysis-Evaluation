@@ -1,0 +1,33 @@
+{
+  "index": 289,
+  "id": "117",
+  "group": "A",
+  "class": "Desktop",
+  "model": "glm-5-turbo",
+  "question": "为科学家创建一个分享想法和研究的互动平台，促进各领域专业人士之间的合作和讨论。",
+  "evaluation": {
+    "total_score": 72,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 7,
+        "reason": "The page has a coherent dark, research-tech visual system with consistent teal accents, card styling, and section rhythm. It fits a scientific collaboration platform reasonably well, but the style is also fairly generic 'AI SaaS' and lacks a stronger distinctive visual focus beyond the hero headline and repeated teal glow."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Component interiors are mostly clean, with consistent cards, pills, and buttons, but text is often small and low-contrast on dark backgrounds. Several areas feel under-finished, such as the all-zero stats row, dense card metadata, and limited typography differentiation, which reduces polish and reading comfort."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "The high-level structure is understandable: hero, stats, idea cards, discussions, matching workflow, footer. Primary CTAs are visible in the hero and posting area, but many cards carry similar visual weight, making it harder to quickly identify the most important ideas, discussions, or next actions."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels and navigation are largely conventional and readable for the scenario: discover, projects, discussion, collaboration, publish discussion, join community. However, some operational meaning is vague, such as whether cards lead to collaboration, bookmarking, or detail pages, and the page presents multiple parallel tasks without a strongly guided primary flow."
+      }
+    },
+    "summary": "This is a solid, launch-near desktop concept with consistent visual language and clear scenario fit for a scientist networking platform. Users can understand the major sections and find key entry points, but the experience is capped by generic styling, small low-contrast text, equalized card emphasis, and a somewhat diffuse task hierarchy. It feels usable and professional, but not yet highly refined or fully closed-loop."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/117_A_glm-5-turbo/screenshot_desktop.png",
+  "time": "2026-05-29T16:22:42.952210"
+}

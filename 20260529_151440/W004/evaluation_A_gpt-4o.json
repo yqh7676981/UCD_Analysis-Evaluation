@@ -1,0 +1,33 @@
+{
+  "index": 86,
+  "id": "W004",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个会议纪要整理工具，可以填写会议主题、参会人、讨论要点和待办事项，最后生成格式整齐的纪要，可一键复制。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "Style is coherent and clean, with a simple mobile form layout and a clear primary button. However, it is very generic, lacks a distinctive product tone for a meeting-minutes tool, and provides little visual structure beyond stacked fields."
+      },
+      "local_details": {
+        "score": 6,
+        "reason": "Inputs, labels, and spacing are mostly aligned and consistent. But typography hierarchy is weak, placeholder text is light, borders are plain, and there is no visible refinement such as helper text styling, output card treatment, or copy-state feedback."
+      },
+      "easy_to_perceive": {
+        "score": 7,
+        "reason": "The main task is immediately visible: fill four fields and press the primary CTA. The vertical flow is straightforward. Still, the screen is sparse and single-layered, with no preview/result area in view and no stronger grouping between input and generated output flow."
+      },
+      "easy_to_understand": {
+        "score": 5,
+        "reason": "Labels are understandable and match the requested fields, and the generate action is clear. But the requested key outcome—formatted minutes with one-click copy—is not represented in the visible UI, so users cannot understand where results appear or how copying will work."
+      }
+    },
+    "summary": "This is a usable but basic mobile form. Users can understand the input task and find the main action quickly, which supports core completion at a minimal level. The hard cap is that the interface does not visibly cover the full scenario: there is no shown generated-minutes area, no one-click copy control, and little visual hierarchy or product-specific polish. Functional direction is correct, but the experience feels incomplete rather than launch-ready."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/W004_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:34:30.708458"
+}

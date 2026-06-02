@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apprendre le Français - 法语学习助手</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #002395 0%, #ffffff 50%, #ED2939 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.97);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #002395, #ED2939);
+    color: white;
+    padding: 30px;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 2.2em;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+  header p { opacity: 0.95; font-size: 1.05em; }
+  .flag { font-size: 1.3em; margin: 0 6px; }
+
+  nav {
+    display: flex;
+    background: #f5f5f5;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  nav button {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    color: #555;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+  }
+  nav button:hover { background: #e8e8e8; color: #002395; }
+  nav button.active {
+    background: white;
+    color: #ED2939;
+    border-bottom: 3px solid #ED2939;
+  }
+
+  main { padding: 30px; min-height: 450px; }
+  .tab { display: none; }
+  .tab.active { display: block; animation: fadeIn 0.4s; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  h2 {
+    color: #002395;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ED2939;
+  }
+
+  /* Vocabulary */
+  .category-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .category-buttons button {
+    padding: 8px 18px;
+    border: 2px solid #002395;
+    background: white;
+    color: #002395;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .category-buttons button:hover,
+  .category-buttons button.active {
+    background: #002395;
+    color: white;
+  }
+  .vocab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+  }
+  .vocab-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    perspective: 1000px;
+    min-height: 120px;
+    position: relative;
+  }
+  .vocab-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 35, 149, 0.15);
+    border-color: #ED2939;
+  }
+  .vocab-card .fr {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: #002395;
+    margin-bottom: 6px;
+  }
+  .vocab-card .pron {
+    color: #888;
+    font-style: italic;
+    font-size: 0.9em;
+    margin-bottom: 8px;
+  }
+  .vocab-card .zh {
+    color: #ED2939;
+    font-size: 1.05em;
+    display: none;
+  }
+  .vocab-card.flipped .zh { display: block; }
+  .vocab-card .hint {
+    position: absolute;
+    bottom: 6px;
+    right: 10px;
+    font-size: 0.75em;
+    color: #aaa;
+  }
+
+  /* Grammar */
+  .grammar-section {
+    background: #f9f9f9;
+    border-left: 4px solid #002395;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 0 8px 8px 0;
+  }
+  .grammar-section h3 {
+    color: #002395;
+    margin-bottom: 12px;
+  }
+  .conjugation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    background: white;
+  }
+  .conjugation-table th,
+  .conjugation-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  .conjugation-table th {
+    background: #002395;
+    color: white;
+  }
+  .conjugation-table tr:nth-child(even) { background: #f5f5f5; }
+  .example {
+    background: #fff3cd;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+    font-style: italic;
+  }
+  .example strong { color: #ED2939; font-style: normal; }
+
+  /* Quiz */
+  .quiz-box {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #e0e0e0;
+  }
+  .quiz-progress {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-weight: 600;
+    color: #555;
+  }
+  .quiz-question {
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    color: #002395;
+    font-weight: 600;
+  }
+  .quiz-options {
+    display: grid;
+    gap: 10px;
+  }
+  .quiz-options button {
+    padding: 14px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1em;
+    text-align: left;
+    transition: all 0.2s;
+  }
+  .quiz-options button:hover:not(:disabled) {
+    border-color: #002395;
+    background: #eef2ff;
+  }
+  .quiz-options button.correct {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+  }
+  .quiz-options button.wrong {
+    background: #f8d7da;
+    border-color: #dc3545;
+    color: #721c24;
+  }
+  .quiz-options button:disabled { cursor: default; }
+  .quiz-feedback {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: 600;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #d4edda; color: #155724; }
+  .quiz-feedback.wrong { background: #f8d7da; color: #721c24; }
+  .btn-primary {
+    background: #ED2939;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    margin-top: 15px;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #c01f2e; transform: translateY(-2px); }
+
+  /* Translator */
+  .translate-box {
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 12px;
+  }
+  .translate-box input {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+  }
+  .translate-box input:focus {
+    outline: none;
+    border-color: #002395;
+  }
+  .translate-result {
+    min-height: 60px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 1.1em;
+    border-left: 4px solid #ED2939;
+  }
+  .phrase-list {
+    margin-top: 20px;
+    display: grid;
+    gap: 10px;
+  }
+  .phrase-item {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #eee;
+  }
+  .phrase-item:hover {
+    background: #eef2ff;
+    border-color: #002395;
+  }
+  .phrase-item .fr { font-weight: 600; color: #002395; }
+  .phrase-item .zh { color: #666; font-size: 0.95em; }
+
+  .score-display {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #002395, #ED2939);
+    color: white;
+    border-radius: 12px;
+  }
+  .score-display h3 { font-size: 2em; margin-bottom: 10px; }
+  .score-display p { font-size: 1.2em; margin-bottom: 15px; }
+
+  footer {
+    text-align: center;
+    padding: 15px;
+    color: #777;
+    font-size: 0.9em;
+    background: #f5f5f5;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><span class="flag">🇫🇷</span>Apprendre le Français<span class="flag">🇫🇷</span></h1>
+    <p>趣味学法语 · 词汇 · 语法 · 互动练习</p>
+  </header>
+
+  <nav>
+    <button class="active" data-tab="vocab">📚 词汇</button>
+    <button data-tab="grammar">✏️ 语法</button>
+    <button data-tab="quiz">🎯 测验</button>
+    <button data-tab="phrases">💬 常用短语</button>
+  </nav>
+
+  <main>
+    <!-- 词汇 -->
+    <section class="tab active" id="vocab">
+      <h2>词汇学习</h2>
+      <p style="margin-bottom: 15px; color: #666;">点击卡片查看中文释义 · 选择分类开始学习</p>
+      <div class="category-buttons" id="categoryBtns"></div>
+      <div class="vocab-grid" id="vocabGrid"></div>
+    </section>
+
+    <!-- 语法 -->
+    <section class="tab" id="grammar">
+      <h2>语法要点</h2>
+
+      <div class="grammar-section">
+        <h3>1. 定冠词 Les articles définis</h3>
+        <p>法语名词有阴阳性，定冠词要与名词性别、数量一致。</p>
+        <table class="conjugation-table">
+          <tr><th>类型</th><th>单数</th><th>复数</th></tr>
+          <tr><td>阳性</td><td>le (le livre)</td><td>les (les livres)</td></tr>
+          <tr><td>阴性</td><td>la (la maison)</td><td>les (les maisons)</td></tr>
+          <tr><td>元音开头</td><td>l' (l'ami)</td><td>les (les amis)</td></tr>
+        </table>
+      </div>
+
+      <div class="grammar-section">
+        <h3>2. 动词 Être 的变位（现在时）</h3>
+        <p>Être（是）是法语中最重要的动词之一。</p>
+        <table class="conjugation-table">
+          <tr><th>人称</th><th>变位</th><th>中文</th></tr>
+          <tr><td>je</td><td>suis</td><td>我是</td></tr>
+          <tr><td>tu</td><td>es</td><td>你是</td></tr>
+          <tr><td>il / elle</td><td>est</td><td>他/她是</td></tr>
+          <tr><td>nous</td><td>sommes</td><td>我们是</td></tr>
+          <tr><td>vous</td><td>êtes</td><td>你们/您是</td></tr>
+          <tr><td>ils / elles</td><td>sont</td><td>他们/她们是</td></tr>
+        </table>
+        <div class="example">例句：<strong>Je suis étudiant.</strong> 我是学生。</div>
+      </div>
+
+      <div class="grammar-section">
+        <h3>3. 动词 Avoir 的变位（现在时）</h3>
+        <p>Avoir（有）也是法语中最常用的动词。</p>
+        <table class="conjugation-table">
+          <tr><th>人称</th><th>变位</th><th>中文</th></tr>
+          <tr><td>j'</td><td>ai</td><td>我有</td></tr>
+          <tr><td>tu</td><td>as</td><td>你有</td></tr>
+          <tr><td>il / elle</td><td>a</td><td>他/她有</td></tr>
+          <tr><td>nous</td><td>avons</td><td>我们有</td></tr>
+          <tr><td>vous</td><td>avez</td><td>你们/您有</td></tr>
+          <tr><td>ils / elles</td><td>ont</td><td>他们/她们有</td></tr>
+        </table>
+        <div class="example">例句：<strong>J'ai un chat.</strong> 我有一只猫。</div>
+      </div>
+
+      <div class="grammar-section">
+        <h3>4. 第一组动词 -er 结尾（以 parler 为例）</h3>
+        <p>以 -er 结尾的规则动词，去掉 -er 加上相应词尾。</p>
+        <table class="conjugation-table">
+          <tr><th>人称</th><th>parler</th><th>词尾</th></tr>
+          <tr><td>je</td><td>parle</td><td>-e</td></tr>
+          <tr><td>tu</td><td>parles</td><td>-es</td></tr>
+          <tr><td>il / elle</td><td>parle</td><td>-e</td></tr>
+          <tr><td>nous</td><td>parlons</td><td>-ons</td></tr>
+          <tr><td>vous</td><td>parlez</td><td>-ez</td></tr>
+          <tr><td>ils / elles</td><td>parlent</td><td>-ent</td></tr>
+        </table>
+        <div class="example">例句：<strong>Je parle français.</strong> 我说法语。</div>
+      </div>
+    </section>
+
+    <!-- 测验 -->
+    <section class="tab" id="quiz">
+      <h2>互动测验</h2>
+      <div class="quiz-box" id="quizBox">
+        <div class="quiz-progress">
+          <span id="qProgress">题目 1/5</span>
+          <span id="qScore">得分: 0</span>
+        </div>
+        <div class="quiz-question" id="qQuestion">加载中...</div>
+        <div class="quiz-options" id="qOptions"></div>
+        <div class="quiz-feedback" id="qFeedback"></div>
+        <button class="btn-primary" id="nextBtn" style="display:none;">下一题 →</button>
+      </div>
+      <div id="quizResult" style="display:none;"></div>
+    </section>
+
+    <!-- 常用短语 -->
+    <section class="tab" id="phrases">
+      <h2>常用短语 & 翻译练习</h2>
+      <div class="translate-box">
+        <p style="margin-bottom: 10px; color: #555;">输入中文或法语关键词，查找相关短语：</p>
+        <input type="text" id="searchInput" placeholder="例如：你好 / bonjour / 谢谢">
+        <div class="translate-result" id="translateResult">
+          💡 点击下方短语聆听发音提示，或在搜索框输入关键词查找。
+        </div>
+        <div class="phrase-list" id="phraseList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Bon courage ! 加油学习法语 🌟
+  </footer>
+</div>
+
+<script>
+  // ========== 数据 ==========
+  const vocabulary = {
+    '问候语 Salutations': [
+      { fr: 'Bonjour', pron: '[bɔ̃ʒuʁ]', zh: '你好（白天）' },
+      { fr: 'Bonsoir', pron: '[bɔ̃swaʁ]', zh: '晚上好' },
+      { fr: 'Salut', pron: '[saly]', zh: '嗨（非正式）' },
+      { fr: 'Au revoir', pron: '[o ʁəvwaʁ]', zh: '再见' },
+      { fr: 'Merci', pron: '[mɛʁsi]', zh: '谢谢' },
+      { fr: 'S\'il vous plaît', pron: '[sil vu plɛ]', zh: '请' },
+      { fr: 'Excusez-moi', pron: '[ɛkskyze mwa]', zh: '对不起/打扰了' },
+      { fr: 'De rien', pron: '[də ʁjɛ̃]', zh: '不客气' }
+    ],
+    '数字 Les nombres': [
+      { fr: 'un', pron: '[œ̃]', zh: '一' },
+      { fr: 'deux', pron: '[dø]', zh: '二' },
+      { fr: 'trois', pron: '[tʁwa]', zh: '三' },
+      { fr: 'quatre', pron: '[katʁ]', zh: '四' },
+      { fr: 'cinq', pron: '[sɛ̃k]', zh: '五' },
+      { fr: 'six', pron: '[sis]', zh: '六' },
+      { fr: 'sept', pron: '[sɛt]', zh: '七' },
+      { fr: 'huit', pron: '[ɥit]', zh: '八' },
+      { fr: 'neuf', pron: '[nœf]', zh: '九' },
+      { fr: 'dix', pron: '[dis]', zh: '十' }
+    ],
+    '颜色 Les couleurs': [
+      { fr: 'rouge', pron: '[ʁuʒ]', zh: '红色' },
+      { fr: 'bleu', pron: '[blø]', zh: '蓝色' },
+      { fr: 'vert', pron: '[vɛʁ]', zh: '绿色' },
+      { fr: 'jaune', pron: '[ʒon]', zh: '黄色' },
+      { fr: 'noir', pron: '[nwaʁ]', zh: '黑色' },
+      { fr: 'blanc', pron: '[blɑ̃]', zh: '白色' },
+      { fr: 'rose', pron: '[ʁoz]', zh: '粉色' },
+      { fr: 'violet', pron: '[vjɔlɛ]', zh: '紫色' }
+    ],
+    '食物 La nourriture': [
+      { fr: 'le pain', pron: '[lə pɛ̃]', zh: '面包' },
+      { fr: 'le fromage', pron: '[lə fʁɔmaʒ]', zh: '奶酪' },
+      { fr: 'le vin', pron: '[lə vɛ̃]', zh: '葡萄酒' },
+      { fr: 'l\'eau', pron: '[lo]', zh: '水' },
+      { fr: 'le café', pron: '[lə kafe]', zh: '咖啡' },
+      { fr: 'la pomme', pron: '[la pɔm]', zh: '苹果' },
+      { fr: 'le croissant', pron: '[lə kʁwasɑ̃]', zh: '可颂' },
+      { fr: 'le chocolat', pron: '[lə ʃɔkɔla]', zh: '巧克力' }
+    ],
+    '家庭 La famille': [
+      { fr: 'la mère', pron: '[la mɛʁ]', zh: '母亲' },
+      { fr: 'le père', pron: '[lə pɛʁ]', zh: '父亲' },
+      { fr: 'le frère', pron: '[lə fʁɛʁ]', zh: '兄弟' },
+      { fr: 'la sœur', pron: '[la sœʁ]', zh: '姐妹' },
+      { fr: 'l\'enfant', pron: '[lɑ̃fɑ̃]', zh: '孩子' },
+      { fr: 'le mari', pron: '[lə maʁi]', zh: '丈夫' },
+      { fr: 'la femme', pron: '[la fam]', zh: '妻子/女人' },
+      { fr: 'l\'ami', pron: '[lami]', zh: '朋友' }
+    ]
+  };
+
+  const quizQuestions = [
+    { q: '"Bonjour" 的中文意思是？', options: ['晚安', '你好', '再见', '谢谢'], answer: 1 },
+    { q: '动词 "être"（是）的 "nous" 变位是？', options: ['sommes', 'êtes', 'sont', 'suis'], answer: 0 },
+    { q: '"苹果" 用法语怎么说？', options: ['le pain', 'la pomme', 'le vin', 'l\'eau'], answer: 1 },
+    { q: '下列哪个是阴性冠词？', options: ['le', 'les', 'la', 'un'], answer: 2 },
+    { q: '"Je ___ français." 填入正确的动词变位：', options: ['parles', 'parle', 'parlent', 'parlons'], answer: 1 },
+    { q: '数字 "cinq" 是几？', options: ['三', '四', '五', '六'], answer: 2 },
+    { q: '"Merci" 的正确回答是？', options: ['Bonjour', 'De rien', 'Au revoir', 'Pardon'], answer: 1 },
+    { q: '"J\'ai un chat" 的意思是？', options: ['我有一只狗', '我有一只猫', '我是一只猫', '我看到一只猫'], answer: 1 }
+  ];
+
+  const phrases = [
+    { fr: 'Bonjour, comment allez-vous ?', zh: '你好，您怎么样？' },
+    { fr: 'Je vais bien, merci.', zh: '我很好，谢谢。' },
+    { fr: 'Comment vous appelez-vous ?', zh: '您叫什么名字？' },
+    { fr: 'Je m\'appelle...', zh: '我叫...' },
+    { fr: 'Enchanté(e) !', zh: '很高兴认识您！' },
+    { fr: 'Parlez-vous anglais ?', zh: '您会说英语吗？' },
+    { fr: 'Je ne comprends pas.', zh: '我不明白。' },
+    { fr: 'Pouvez-vous répéter ?', zh: '您能再说一遍吗？' },
+    { fr: 'Où sont les toilettes ?', zh: '洗手间在哪里？' },
+    { fr: 'Combien ça coûte ?', zh: '这个多少钱？' },
+    { fr: 'L\'addition, s\'il vous plaît.', zh: '请结账。' },
+    { fr: 'Bon appétit !', zh: '祝您好胃口！' },
+    { fr: 'À bientôt !', zh: '回头见！' },
+    { fr: 'Je t\'aime.', zh: '我爱你。' },
+    { fr: 'Bonne journée !', zh: '祝您有美好的一天！' }
+  ];
+
+  // ========== Tab 切换 ==========
+  document.querySelectorAll('nav button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ========== 词汇 ==========
+  const categoryBtns = document.getElementById('categoryBtns');
+  const vocabGrid = document.getElementById('vocabGrid');
+  let currentCategory = Object.keys(vocabulary)[0];
+
+  Object.keys(vocabulary).forEach((cat, i) => {
+    const b = document.createElement('button');
+    b.textContent = cat;
+    if (i === 0) b.classList.add('active');
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#categoryBtns button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      currentCategory = cat;
+      renderVocab();
+    });
+    categoryBtns.appendChild(b);
+  });
+
+  function renderVocab() {
+    vocabGrid.innerHTML = '';
+    vocabulary[currentCategory].forEach(word => {
+      const card = document.createElement('div');
+      card.className = 'vocab-card';
+      card.innerHTML = `
+        <div class="fr">${word.fr}</div>
+        <div class="pron">${word.pron}</div>
+        <div class="zh">${word.zh}</div>
+        <div class="hint">点击翻转</div>
+      `;
+      card.addEventListener('click', () => card.classList.toggle('flipped'));
+      vocabGrid.appendChild(card);
+    });
+  }
+  renderVocab();
+
+  // ========== 测验 ==========
+  let currentQuiz = 0;
+  let quizScore = 0;
+  let quizSet = [];
+
+  function startQuiz() {
+    quizSet = [...quizQuestions].sort(() => Math.random() - 0.5).slice(0, 5);
+    currentQuiz = 0;
+    quizScore = 0;
+    document.getElementById('quizResult').style.display = 'none';
+    document.getElementById('quizBox').style.display = 'block';
+    showQuestion();
+  }
+
+  function showQuestion() {
+    const q = quizSet[currentQuiz];
+    document.getElementById('qProgress').textContent = `题目 ${currentQuiz + 1}/${quizSet.length}`;
+    document.getElementById('qScore').textContent = `得分: ${quizScore}`;
+    document.getElementById('qQuestion').textContent = q.q;
+    document.getElementById('qFeedback').classList.remove('show');
+    document.getElementById('nextBtn').style.display = 'none';
+
+    const optsDiv = document.getElementById('qOptions');
+    optsDiv.innerHTML = '';
+    q.options.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.textContent = opt;
+      b.addEventListener('click', () => selectOption(i, b));
+      optsDiv.appendChild(b);
+    });
+  }
+
+  function selectOption(i, btn) {
+    const q = quizSet[currentQuiz];
+    const buttons = document.querySelectorAll('#qOptions button');
+    buttons.forEach(b => b.disabled = true);
+
+    const feedback = document.getElementById('qFeedback');
+    if (i === q.answer) {
+      btn.classList.add('correct');
+      quizScore++;
+      feedback.textContent = '✅ 答对了！Très bien !';
+      feedback.className = 'quiz-feedback show correct';
+    } else {
+      btn.classList.add('wrong');
+      buttons[q.answer].classList.add('correct');
+      feedback.textContent = `❌ 正确答案是：${q.options[q.answer]}`;
+      feedback.className = 'quiz-feedback show wrong';
+    }
+    document.getElementById('qScore').textContent = `得分: ${quizScore}`;
+    document.getElementById('nextBtn').style.display = 'inline-block';
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    currentQuiz++;
+    if (currentQuiz < quizSet.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  });
+
+  function showResult() {
+    document.getElementById('quizBox').style.display = 'none';
+    const res = document.getElementById('quizResult');
+    const percent = Math.round((quizScore / quizSet.length) * 100);
+    let emoji = '🌱', msg = '继续加油！';
+    if (percent === 100) { emoji = '🏆'; msg = 'Parfait ! 太完美了！'; }
+    else if (percent >= 80) { emoji = '🌟'; msg = 'Excellent ! 非常棒！'; }
+    else if (percent >= 60) { emoji = '👍'; msg = 'Bien ! 不错！'; }
+
+    res.style.display = 'block';
+    res.innerHTML = `
+      <div class="score-display">
+        <h3>${emoji} ${msg}</h3>
+        <p>你答对了 ${quizScore} / ${quizSet.length} 题 (${percent}%)</p>
+        <button class="btn-primary" onclick="startQuiz()">再来一次 🔄</button>
+      </div>
+    `;
+  }
+  window.startQuiz = startQuiz;
+  startQuiz();
+
+  // ========== 短语搜索 ==========
+  const phraseList = document.getElementById('phraseList');
+  const searchInput = document.getElementById('searchInput');
+  const translateResult = document.getElementById('translateResult');
+
+  function renderPhrases(filter = '') {
+    phraseList.innerHTML = '';
+    const filtered = phrases.filter(p =>
+      p.fr.toLowerCase().includes(filter.toLowerCase()) ||
+      p.zh.includes(filter)
+    );
+    if (filtered.length === 0) {
+      phraseList.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">没有找到相关短语</p>';
+      return;
+    }
+    filtered.forEach(p => {
+      const item = document.createElement('div');
+      item.className = 'phrase-item';
+      item.innerHTML = `<span class="fr">${p.fr}</span><span class="zh">${p.zh}</span>`;
+      item.addEventListener('click', () => {
+        translateResult.innerHTML = `<strong style="color:#002395;">🇫🇷 ${p.fr}</strong><br><span style="color:#ED2939;">🇨🇳 ${p.zh}</span>`;
+        // 尝试使用浏览器语音合成
+        if ('speechSynthesis' in window) {
+          const utter = new SpeechSynthesisUtterance(p.fr);
+          utter.lang = 'fr-FR';
+          utter.rate = 0.9;
+          speechSynthesis.speak(utter);
+        }
+      });
+      phraseList.appendChild(item);
+    });
+  }
+  renderPhrases();
+  searchInput.addEventListener('input', e => renderPhrases(e.target.value));
+</script>
+</body>
+</html>

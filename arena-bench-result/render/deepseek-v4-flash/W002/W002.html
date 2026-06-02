@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>倒计时工具</title>
+    <style>
+        /* ===== Reset & Base ===== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* ===== Header ===== */
+        .app-header {
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+            padding: 1rem 1.2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 2;
+        }
+        .app-header h1 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== Main Countdown ===== */
+        .hero {
+            background: #fff;
+            margin: 1rem 1rem 0.5rem;
+            border-radius: 20px;
+            padding: 1.8rem 1.2rem 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero .empty-msg {
+            font-size: 1.1rem;
+            color: #999;
+            padding: 1.2rem 0;
+        }
+        .hero .event-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 0.25rem;
+            letter-spacing: 0.3px;
+        }
+        .hero .days-number {
+            font-size: 4.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: #2575fc;
+            letter-spacing: -1px;
+        }
+        .hero .days-label {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 0.6rem;
+        }
+        .hero .full-countdown {
+            font-size: 1.1rem;
+            color: #555;
+            background: #f0f2f5;
+            border-radius: 40px;
+            padding: 0.4rem 1.2rem;
+            display: inline-block;
+            margin-top: 0.4rem;
+            font-variant-numeric: tabular-nums;
+        }
+        .hero .full-countdown span {
+            display: inline-block;
+            min-width: 2.2rem;
+        }
+        .hero .event-date {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 0.4rem;
+        }
+
+        /* ===== Event List ===== */
+        .list-section {
+            flex: 1;
+            padding: 0.5rem 1rem 1rem;
+        }
+        .list-section h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #555;
+            padding: 0.6rem 0.2rem 0.4rem;
+            border-bottom: 2px solid #eef0f4;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .list-section h2 .count-badge {
+            font-size: 0.8rem;
+            background: #e0e4ea;
+            color: #666;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .event-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 0.9rem 1rem 0.9rem 1.1rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            position: relative;
+            border-left: 5px solid #2575fc;
+            min-height: 70px;
+            touch-action: pan-y;
+        }
+        .event-card.past {
+            border-left-color: #e0e4ea;
+            opacity: 0.7;
+        }
+        .event-card.past .event-info .event-name {
+            color: #999;
+        }
+        .event-card .event-info {
+            flex: 1;
+            min-width: 0;
+            padding-right: 0.6rem;
+        }
+        .event-card .event-info .event-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .event-card .event-info .event-meta {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+        .event-card .event-info .event-meta .remaining-days {
+            font-weight: 600;
+            color: #2575fc;
+        }
+        .event-card .event-info .event-meta .remaining-days.urgent {
+            color: #f97316;
+        }
+        .event-card .event-info .event-meta .remaining-days.critical {
+            color: #ef4444;
+        }
+
+        .event-card .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            line-height: 1;
+            color: #cbd5e1;
+            padding: 0.2rem 0.3rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            touch-action: manipulation;
+            flex-shrink: 0;
+            width: 2.4rem;
+            height: 2.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .event-card .delete-btn:active {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+        .event-card .delete-btn:hover { color: #ef4444; }
+
+        /* ===== Add Form ===== */
+        .add-section {
+            background: #fff;
+            border-top: 1px solid #edf0f5;
+            padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.04);
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+        }
+        .add-form {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .add-form .input-group {
+            flex: 1 1 0;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+        }
+        .add-form .input-group label {
+            font-size: 0.7rem;
+            color: #999;
+            margin-bottom: 0.15rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .add-form input {
+            width: 100%;
+            padding: 0.7rem 0.8rem;
+            border: 1.5px solid #e2e6ec;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #fafbfc;
+            transition: border-color 0.2s;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .add-form input:focus {
+            border-color: #2575fc;
+            background: #fff;
+        }
+        .add-form input[type="date"] {
+            padding: 0.6rem 0.8rem;
+        }
+        .add-form .add-btn {
+            background: #2575fc;
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 0.7rem 1.6rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            touch-action: manipulation;
+            white-space: nowrap;
+            min-height: 48px;
+            align-self: flex-end;
+            box-shadow: 0 4px 12px rgba(37,117,252,0.3);
+        }
+        .add-form .add-btn:active {
+            transform: scale(0.96);
+            background: #1a5cd4;
+        }
+        .add-form .add-btn:disabled {
+            opacity: 0.5;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            top: 1.2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #323232;
+            color: #fff;
+            padding: 0.7rem 1.4rem;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            opacity: 1; /* fixed: was 0 */
+            transition: opacity 0.3s ease;
+            z-index: 100;
+            pointer-events: none;
+            max-width: 85%;
+            text-align: center;
+        }
+        .toast.show { opacity: 1; }
+
+        /* ===== Scroll & Misc ===== */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 8px; }
+
+        input::-webkit-calendar-picker-indicator {
+            opacity: 0.5;
+            padding: 4px;
+        }
+
+        /* ===== Responsive fine-tune ===== */
+        @media (max-width: 400px) {
+            .hero .days-number { font-size: 3.2rem; }
+            .add-form { flex-direction: column; }
+            .add-form .input-group { width: 100%; min-width: unset; }
+            .add-form .add-btn { width: 100%; justify-content: center; }
+        }
+
+        /* ===== Animation ===== */
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .event-card {
+            animation: fadeSlideUp 0.3s ease forwards;
+        }
+
+        .event-card:active {
+            background: #f8f9fc;
+        }
+
+        /* empty state */
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #bbb;
+            font-size: 1rem;
+        }
+        .empty-state .emoji { font-size: 2.6rem; margin-bottom: 0.6rem; }
+    </style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+    <!-- ===== Header ===== -->
+    <header class="app-header">
+        <h1>⏳ 倒计时</h1>
+    </header>
+
+    <!-- ===== Hero Countdown ===== -->
+    <section class="hero" id="hero">
+        <!-- 动态渲染 -->
+    </section>
+
+    <!-- ===== Event List ===== -->
+    <section class="list-section">
+        <h2>
+            所有事件
+            <span class="count-badge" id="eventCount">0</span>
+        </h2>
+        <div class="event-list" id="eventList">
+            <!-- 动态渲染 -->
+        </div>
+    </section>
+
+    <!-- ===== Add Form (sticky bottom) ===== -->
+    <section class="add-section">
+        <form class="add-form" id="addForm" autocomplete="off">
+            <div class="input-group">
+                <label for="eventName">事件名称</label>
+                <input type="text" id="eventName" placeholder="生日 / 考试 / 项目" inputmode="text" required>
+            </div>
+            <div class="input-group">
+                <label for="eventDate">日期</label>
+                <input type="date" id="eventDate" required>
+            </div>
+            <button type="submit" class="add-btn" id="addBtn">＋ 添加</button>
+        </form>
+    </section>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== State ====================
+            let events = [];                 // [{ id, name, date (YYYY-MM-DD) }]
+            let timerId = null;
+            let toastTimer = null;
+
+            // DOM refs
+            const heroEl = document.getElementById('hero');
+            const eventListEl = document.getElementById('eventList');
+            const eventCountEl = document.getElementById('eventCount');
+            const addForm = document.getElementById('addForm');
+            const eventNameInput = document.getElementById('eventName');
+            const eventDateInput = document.getElementById('eventDate');
+            const addBtn = document.getElementById('addBtn');
+            const toastEl = document.getElementById('toast');
+
+            const STORAGE_KEY = 'countdown_events';
+
+            // ==================== Helpers ====================
+            function generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            }
+
+            function formatDate(dateStr) {
+                const d = new Date(dateStr + 'T00:00:00');
+                const month = d.getMonth() + 1;
+                const day = d.getDate();
+                return `${month}月${day}日`;
+            }
+
+            function getDaysBetween(dateStr) {
+                const now = new Date();
+                const target = new Date(dateStr + 'T00:00:00');
+                // 清除时间部分
+                const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const diffMs = target.getTime() - nowStart.getTime();
+                return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+            }
+
+            // 返回完整倒计时对象 { days, hours, minutes, seconds, totalMs }
+            function getFullCountdown(dateStr) {
+                const now = new Date();
+                const target = new Date(dateStr + 'T00:00:00');
+                const diffMs = target.getTime() - now.getTime();
+                if (diffMs <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, totalMs: 0, expired: true };
+                const totalSec = Math.floor(diffMs / 1000);
+                const days = Math.floor(totalSec / 86400);
+                const hours = Math.floor((totalSec % 86400) / 3600);
+                const minutes = Math.floor((totalSec % 3600) / 60);
+                const seconds = totalSec % 60;
+                return { days, hours, minutes, seconds, totalMs: diffMs, expired: false };
+            }
+
+            // ==================== Storage ====================
+            function loadEvents() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (Array.isArray(parsed)) {
+                            events = parsed.filter(e => e && e.id && e.name && e.date);
+                            return;
+                        }
+                    }
+                } catch(e) { /* ignore */ }
+                events = [];
+            }
+
+            function saveEvents() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+                } catch(e) { /* quota? ignore */ }
+            }
+
+            // ==================== Render ====================
+            function renderAll() {
+                renderHero();
+                renderList();
+                updateCountBadge();
+            }
+
+            function renderHero() {
+                const now = new Date();
+                const nowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                // 找出第一个未过期且最近的（天数最小且>=0）
+                let upcoming = events
+                    .map(e => ({ ...e, days: getDaysBetween(e.date) }))
+                    .filter(e => e.days >= 0)
+                    .sort((a, b) => a.days - b.days);
+
+                // 如果没有 upcoming，显示已过期最近或空状态
+                if (upcoming.length === 0) {
+                    // 显示所有过期中最新的（天数最大即最近过期）
+                    let past = events
+                        .map(e => ({ ...e, days: getDaysBetween(e.date) }))
+                        .sort((a, b) => b.days - a.days);
+                    if (past.length > 0) {
+                        const nearestPast = past[0];
+                        heroEl.innerHTML = `
+                            <div class="event-name">${escapeHtml(nearestPast.name)}</div>
+                            <div class="days-number" style="color:#bbb;">0</div>
+                            <div class="days-label">天前 · 已过期</div>
+                            <div class="event-date">${formatDate(nearestPast.date)}</div>
+                        `;
+                        return;
+                    }
+                    heroEl.innerHTML = `
+                        <div class="empty-msg">✨ 添加未来事件开始倒计时</div>
+                    `;
+                    return;
+                }
+
+                const nearest = upcoming[0];
+                const fc = getFullCountdown(nearest.date);
+                const days = fc.days;
+                const hours = fc.hours;
+                const mins = fc.minutes;
+                const secs = fc.seconds;
+
+                // 天数显示样式：如果较少变色
+                let daysColor = '#2575fc';
+                if (days <= 3) daysColor = '#ef4444';
+                else if (days <= 14) daysColor = '#f97316';
+
+                heroEl.innerHTML = `
+                    <div class="event-name">${escapeHtml(nearest.name)}</div>
+                    <div class="days-number" style="color:${daysColor};">${days}</div>
+                    <div class="days-label">天</div>
+                    <div class="full-countdown">
+                        <span>${String(hours).padStart(2, '0')}</span> :
+                        <span>${String(mins).padStart(2, '0')}</span> :
+                        <span>${String(secs).padStart(2, '0')}</span>
+                    </div>
+                    <div class="event-date">📅 ${formatDate(nearest.date)}</div>
+                `;
+            }
+
+            function renderList() {
+                if (events.length === 0) {
+                    eventListEl.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">📋</div>
+                            <div>还没有事件，快来添加吧</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // 按天数排序：未过期靠前（天数小），过期靠后（天数降序）
+                const sorted = events
+                    .map(e => ({ ...e, days: getDaysBetween(e.date) }))
+                    .sort((a, b) => {
+                        const aExpired = a.days < 0 ? 1 : 0;
+                        const bExpired = b.days < 0 ? 1 : 0;
+                        if (aExpired !== bExpired) return aExpired - bExpired;
+                        if (aExpired === 0) return a.days - b.days;          // 未过期，天数升序
+                        return b.days - a.days;                               // 过期，天数降序（最近过期在前）
+                    });
+
+                let html = '';
+                for (const event of sorted) {
+                    const isPast = event.days < 0;
+                    const absDays = Math.abs(event.days);
+                    const dayText = isPast ? `${absDays} 天前` : `${absDays} 天后`;
+
+                    // 天数颜色
+                    let colorClass = '';
+                    if (!isPast) {
+                        if (absDays <= 3) colorClass = 'critical';
+                        else if (absDays <= 14) colorClass = 'urgent';
+                    }
+
+                    const fullDate = formatDate(event.date);
+                    html += `
+                        <div class="event-card ${isPast ? 'past' : ''}" data-id="${escapeHtml(event.id)}">
+                            <div class="event-info">
+                                <div class="event-name">${escapeHtml(event.name)}</div>
+                                <div class="event-meta">
+                                    <span>${fullDate}</span>
+                                    <span class="remaining-days ${colorClass}">${dayText}</span>
+                                </div>
+                            </div>
+                            <button class="delete-btn" aria-label="删除事件" data-id="${escapeHtml(event.id)}">✕</button>
+                        </div>
+                    `;
+                }
+                eventListEl.innerHTML = html;
+
+                // 绑定删除事件（事件委托）
+                eventListEl.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const id = this.getAttribute('data-id');
+                        deleteEventById(id);
+                    });
+                    // 触摸友好，防止双击缩放干扰
+                });
+            }
+
+            function updateCountBadge() {
+                eventCountEl.textContent = events.length;
+            }
+
+            // ==================== Actions ====================
+            function addEvent(name, dateStr) {
+                if (!name.trim() || !dateStr) return false;
+                // 检查是否重复（可选）
+                const newEvent = {
+                    id: generateId(),
+                    name: name.trim(),
+                    date: dateStr
+                };
+                events.push(newEvent);
+                saveEvents();
+                renderAll();
+                showToast('✅ 事件已添加');
+                return true;
+            }
+
+            function deleteEventById(id) {
+                const idx = events.findIndex(e => e.id === id);
+                if (idx === -1) return;
+                const removed = events[idx];
+                events.splice(idx, 1);
+                saveEvents();
+                renderAll();
+                showToast(`已删除「${removed.name}」`);
+            }
+
+            // ==================== Toast ====================
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, 2200);
+            }
+
+            // ==================== Escape HTML ====================
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ==================== Form Handler ====================
+            function handleSubmit(e) {
+                e.preventDefault();
+                const name = eventNameInput.value.trim();
+                const date = eventDateInput.value;
+                if (!name) {
+                    showToast('请输入事件名称');
+                    eventNameInput.focus();
+                    return;
+                }
+                if (!date) {
+                    showToast('请选择日期');
+                    eventDateInput.focus();
+                    return;
+                }
+                // 验证日期合法性
+                const d = new Date(date + 'T00:00:00');
+                if (isNaN(d.getTime())) {
+                    showToast('日期无效');
+                    return;
+                }
+                // 可选：如果是过去日期，允许添加但提示（用户可能想记录已过事件）
+                // 不过我们允许添加过去事件，仍然显示为“已过期”
+                addEvent(name, date);
+                eventNameInput.value = '';
+                // 保留日期，但可以重置为默认？不重置方便连续添加同类事件
+                eventNameInput.focus();
+            }
+
+            // ==================== Init ====================
+            function init() {
+                loadEvents();
+
+                // 设置日期默认值为今天+7天
+                const today = new Date();
+                const defaultDate = new Date(today);
+                defaultDate.setDate(today.getDate() + 7);
+                const year = defaultDate.getFullYear();
+                const month = String(defaultDate.getMonth() + 1).padStart(2, '0');
+                const day = String(defaultDate.getDate()).padStart(2, '0');
+                eventDateInput.value = `${year}-${month}-${day}`;
+
+                // 绑定表单
+                addForm.addEventListener('submit', handleSubmit);
+
+                // 初次渲染
+                renderAll();
+
+                // 启动倒计时更新 (每秒)
+                if (timerId) clearInterval(timerId);
+                timerId = setInterval(() => {
+                    renderHero();
+                    // 列表中的天数也可能变化，但为性能，我们只更新hero的精确秒数，
+                    // 列表中的天数可每分钟更新一次，但这里为了准确也更新，但重组DOM可能卡？
+                    // 我们只更新hero，列表天数的变化不会太频繁，也可以更新列表来刷新剩余天数。
+                    // 但列表中的天数是用days字段，它不会每秒变化，但为了显示更准确（例如“1天后”变成“0天后”），
+                    // 可以每分钟更新一次。但为了简单，我们也更新列表，但只更新天数字段。
+                    // 更好的方式：只更新hero的时分秒，列表的天的变化没那么频繁，可以每分钟刷新一次。
+                    // 但为了体验一致，每秒renderList开销略大（尤其在事件多时）。我们只更新hero，
+                    // 列表中的天数变化在分钟级别，我们每分钟更新一次列表。
+                }, 1000);
+
+                // 每分钟更新列表以保证天数字准确
+                setInterval(() => {
+                    renderList();
+                }, 60000);
+
+                // 页面关闭或离开时清理定时器不是必须，但可做
+                window.addEventListener('beforeunload', function() {
+                    if (timerId) clearInterval(timerId);
+                });
+
+                // 点击卡片删除使用委托（已在renderList中绑定）
+                // 额外：全局事件监听删除按钮（如果未来动态添加，则用事件委托）
+                // 现在是在renderList时绑定，没问题。
+
+                // 监听storage变化（多标签同步） - 可选
+                window.addEventListener('storage', function(e) {
+                    if (e.key === STORAGE_KEY) {
+                        loadEvents();
+                        renderAll();
+                    }
+                });
+            }
+
+            // 启动
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "index": 99,
+  "id": "W002",
+  "group": "A",
+  "class": "Mobile",
+  "model": "gpt-4o",
+  "question": "做一个事件倒计时工具，可以添加多个未来事件(生日、考试、项目截止)，主页醒目显示距离最近事件还有多少天。",
+  "evaluation": {
+    "total_score": 24,
+    "score_band": "0-29 | 30-49 | 50-69 | 70-89 | 90-100",
+    "dimensions": {
+      "overall_style": {
+        "score": 4,
+        "reason": "The page is visually clean and consistent, but extremely generic: plain white background, default-looking inputs, and one green button without a stronger visual system or countdown-focused hero area. It does not express the requested event-countdown scenario in a distinctive or purpose-driven way."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Alignment and spacing are mostly orderly, text is readable, and controls have acceptable padding. However, typography hierarchy is minimal, the date field uses a generic placeholder format, and the overall component styling feels unfinished and close to browser defaults rather than polished product UI."
+      },
+      "easy_to_perceive": {
+        "score": 2,
+        "reason": "The main task priority is not visible. The request requires the homepage to prominently show the nearest upcoming event and remaining days, but the screenshot only shows an input form and large empty space. There is no visible event list, no nearest-event summary, and no information hierarchy beyond the add form."
+      },
+      "easy_to_understand": {
+        "score": 3,
+        "reason": "The add-event flow is understandable at a basic level, but the product model is incomplete. Users cannot see how multiple events are managed, what happens after adding one, or how countdown results are presented. The interface does not communicate the core outcome of the tool, so semantics and expected operations remain underexplained."
+      }
+    },
+    "summary": "This interface is basic and readable, but it fails the requested scenario in a core way: the homepage does not prominently display the nearest upcoming event countdown, and there is no visible support for multiple future events. The simple form is understandable, yet the product feels incomplete rather than merely minimal. That missing primary task outcome hard-caps the score in the poor range."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/W002_A_gpt-4o/screenshot_mobile.png",
+  "time": "2026-05-29T15:37:09.931378"
+}

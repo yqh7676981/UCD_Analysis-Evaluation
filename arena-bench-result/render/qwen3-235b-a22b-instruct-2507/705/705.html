@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>火星天气 - 实时更新</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #7f1d1d, #b91c1c, #1e3a8a);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header {
+            background-color: rgba(139, 0, 0, 0.9);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 2px solid #ef4444;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            letter-spacing: 1px;
+        }
+
+        .weather-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .card {
+            background: rgba(30, 30, 50, 0.6);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            background: rgba(40, 40, 60, 0.7);
+        }
+
+        .card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #ffffff;
+        }
+
+        .card-unit {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .atmosphere-bar {
+            height: 10px;
+            background: linear-gradient(90deg, #ef4444, #f97316, #fbbf24);
+            border-radius: 5px;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .atmosphere-fill {
+            height: 100%;
+            width: 68%;
+            background: #10b981;
+            border-radius: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .update-info {
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.4);
+            font-size: 0.9rem;
+            opacity: 0.8;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mars-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            .weather-cards {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="mars-icon">🪐</span> 火星天气中心</h1>
+            <p class="subtitle">实时监测红色星球的气候状况</p>
+        </header>
+
+        <div class="weather-cards">
+            <div class="card">
+                <div class="card-icon">🌡️</div>
+                <div class="card-title">表面温度</div>
+                <div class="card-value" id="temperature">-63</div>
+                <div class="card-unit">°C</div>
+                <p>赤道日间最高可达 20°C，夜间降至 -73°C</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">💨</div>
+                <div class="card-title">风速</div>
+                <div class="card-value" id="windspeed">18</div>
+                <div class="card-unit">km/h</div>
+                <p>平均风力，偶有沙尘暴可达 100 km/h</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🌫️</div>
+                <div class="card-title">大气压力</div>
+                <div class="card-value" id="pressure">6.3</div>
+                <div class="card-unit">hPa</div>
+                <div class="atmosphere-bar">
+                    <div class="atmosphere-fill"></div>
+                </div>
+                <p>仅为地球海平面的 0.6%</p>
+            </div>
+        </div>
+
+        <div class="update-info">
+            <p>最后更新: <span id="update-time">加载中...</span> | 数据来源: NASA 毅力号与好奇号探测器</p>
+        </div>
+    </div>
+
+    <script>
+        // 模拟火星天气数据更新
+        function updateMartianWeather() {
+            // 温度在 -125°C 到 20°C 之间波动（火星极端温度）
+            const temp = (Math.random() * 5 - 65).toFixed(1);
+            
+            // 风速在 5-35 km/h 之间，偶尔突增
+            const wind = Math.random() > 0.9 ? (Math.random() * 50 + 30).toFixed(1) : (Math.random() * 15 + 10).toFixed(1);
+            
+            // 大气压轻微波动
+            const pressure = (Math.random() * 1.5 + 5.8).toFixed(1);
+            
+            // 更新页面元素
+            document.getElementById('temperature').textContent = temp;
+            document.getElementById('windspeed').textContent = wind;
+            document.getElementById('pressure').textContent = pressure;
+            
+            // 更新时间
+            const now = new Date();
+            document.getElementById('update-time').textContent = now.toLocaleString('zh-CN');
+        }
+
+        // 页面加载完成后立即更新一次
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMartianWeather();
+            
+            // 每隔 10 秒自动更新一次数据
+            setInterval(updateMartianWeather, 10000);
+        });
+    </script>
+</body>
+</html>

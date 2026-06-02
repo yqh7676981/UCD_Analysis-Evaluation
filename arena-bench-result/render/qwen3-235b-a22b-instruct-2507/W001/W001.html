@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>简洁待办事项</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 100vw;
+      min-height: 100vh;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .form input[type="text"] {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 1rem;
+      min-width: 200px;
+    }
+
+    .form select {
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      font-size: 1rem;
+      background-color: white;
+    }
+
+    .form button {
+      padding: 12px 20px;
+      background-color: #007aff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .form button:hover {
+      background-color: #005edc;
+    }
+
+    .todo-list {
+      list-style: none;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      padding: 14px;
+      background-color: white;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .todo-item.completed {
+      opacity: 0.7;
+      background-color: #f5f5f5;
+    }
+
+    .todo-item.completed .todo-text {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .todo-checkbox {
+      margin-right: 12px;
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    .todo-text {
+      flex: 1;
+      font-size: 1rem;
+    }
+
+    .priority-badge {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: white;
+      margin-left: 10px;
+    }
+
+    .priority-high {
+      background-color: #ff3b30;
+    }
+
+    .priority-medium {
+      background-color: #ff9500;
+    }
+
+    .priority-low {
+      background-color: #34c759;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #888;
+      font-size: 1rem;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>待办事项</h1>
+
+  <form class="form" id="todo-form">
+    <input type="text" id="todo-input" placeholder="输入新任务..." required />
+    <select id="priority-select">
+      <option value="low">低优先级</option>
+      <option value="medium">中优先级</option>
+      <option value="high">高优先级</option>
+    </select>
+    <button type="submit">添加</button>
+  </form>
+
+  <ul class="todo-list" id="todo-list"></ul>
+  <p class="empty-state" id="empty-state">还没有任务，添加一个吧！</p>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('todo-form');
+      const input = document.getElementById('todo-input');
+      const prioritySelect = document.getElementById('priority-select');
+      const todoList = document.getElementById('todo-list');
+      const emptyState = document.getElementById('empty-state');
+
+      // 从 localStorage 加载任务
+      let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+      // 渲染任务列表
+      function renderTodos() {
+        // 先清空
+        todoList.innerHTML = '';
+
+        // 排序：未完成在前，按优先级（高 > 中 > 低），已完成置底
+        const sortedTodos = [...todos].sort((a, b) => {
+          if (a.completed && !b.completed) return 1;
+          if (!a.completed && b.completed) return -1;
+          if (a.completed && b.completed) return 0;
+
+          const priorityOrder = { high: 0, medium: 1, low: 2 };
+          return priorityOrder[a.priority] - priorityOrder[b.priority];
+        });
+
+        if (sortedTodos.length === 0) {
+          emptyState.style.display = 'block';
+        } else {
+          emptyState.style.display = 'none';
+        }
+
+        sortedTodos.forEach((todo, index) => {
+          const li = document.createElement('li');
+          li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'todo-checkbox';
+          checkbox.checked = todo.completed;
+          checkbox.addEventListener('change', () => toggleComplete(index));
+
+          const span = document.createElement('span');
+          span.className = 'todo-text';
+          span.textContent = todo.text;
+
+          const badge = document.createElement('span');
+          badge.className = `priority-badge priority-${todo.priority}`;
+          badge.textContent = { low: '低', medium: '中', high: '高' }[todo.priority];
+
+          li.appendChild(checkbox);
+          li.appendChild(span);
+          li.appendChild(badge);
+          todoList.appendChild(li);
+        });
+      }
+
+      // 添加新任务
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const text = input.value.trim();
+        const priority = prioritySelect.value;
+
+        if (text) {
+          todos.push({ text, priority, completed: false });
+          saveAndRender();
+          input.value = '';
+        }
+      });
+
+      // 切换完成状态
+      function toggleComplete(index) {
+        todos[index].completed = !todos[index].completed;
+        saveAndRender();
+      }
+
+      // 保存到 localStorage 并重新渲染
+      function saveAndRender() {
+        localStorage.setItem('todos', JSON.stringify(todos));
+        renderTodos();
+      }
+
+      // 初始化渲染
+      renderTodos();
+    });
+  </script>
+</body>
+</html>

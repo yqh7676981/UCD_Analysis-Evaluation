@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>宠物成长记录本</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            -webkit-tap-highlight-color: transparent; /* 移除点击高亮 */
+        }
+
+        /* 容器 */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+
+        /* 头部 */
+        h1 {
+            text-align: center;
+            color: #5a2e9b;
+            margin-bottom: 25px;
+            font-size: 26px; /* 适合移动端 */
+        }
+
+        /* 表单区域 */
+        .record-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #444;
+            font-size: 16px;
+        }
+
+        .form-group input[type="date"],
+        .form-group input[type="number"],
+        .form-group textarea,
+        .form-group select {
+            width: calc(100% - 20px);
+            padding: 12px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            -webkit-appearance: none; /* 移除iOS默认样式 */
+            appearance: none;
+        }
+
+        .form-group input[type="date"] {
+            /* 适配iOS日期选择器 */
+            min-height: 44px;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-group select {
+            background-color: #fff;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-6.5%200-13%205.4-13%2013%200%206.5%205.4%2013%2013%2013h255.3c6.5%200%2013-5.4%2013-13%200-4.5-1.9-9-5.4-13z%22%2F%3E%3Cpath%20fill%3D%22%23000%22%20d%3D%22M287%20223.4a17.6%2017.6%200%200%200-13-5.4H18.4c-6.5%200-13%205.4-13%2013%200%206.5%205.4%2013%2013%2013h255.3c6.5%200%2013-5.4%2013-13%200-4.5-1.9-9-5.4-13z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            padding-right: 30px; /* 留出箭头空间 */
+        }
+
+        .add-record-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #7e57c2; /* 宠物主题色 */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            -webkit-appearance: none; /* 移除iOS默认样式 */
+            appearance: none;
+        }
+
+        .add-record-btn:hover {
+            background-color: #673ab7;
+        }
+
+        .add-record-btn:active {
+            background-color: #5e35b1;
+        }
+
+        /* 记录列表 */
+        .records-list {
+            margin-top: 25px;
+        }
+
+        .record-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            position: relative;
+            border-left: 6px solid #a779ed; /* 强调色 */
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 10px;
+        }
+
+        .record-date {
+            font-size: 18px;
+            font-weight: bold;
+            color: #5a2e9b;
+        }
+
+        .record-mood {
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        .record-item {
+            margin-bottom: 10px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .record-item strong {
+            color: #555;
+            margin-right: 5px;
+        }
+
+        .delete-record-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #ccc;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.3s ease;
+        }
+
+        .delete-record-btn:hover {
+            color: #ff4d4f;
+        }
+
+        .no-records {
+            text-align: center;
+            color: #888;
+            font-size: 16px;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 底部 */
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 宠物成长记录本 🐾</h1>
+
+        <div class="record-form">
+            <div class="form-group">
+                <label for="recordDate">日期</label>
+                <input type="date" id="recordDate" required>
+            </div>
+            <div class="form-group">
+                <label for="petWeight">体重 (kg)</label>
+                <input type="number" id="petWeight" step="0.01" placeholder="例如: 5.2" required>
+            </div>
+            <div class="form-group">
+                <label for="petDiet">饮食记录</label>
+                <textarea id="petDiet" placeholder="今天吃了什么？食欲如何？"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="petHealth">健康状态</label>
+                <textarea id="petHealth" placeholder="精神好吗？有没有什么不适？"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="petFunFact">趣事/小秘密</label>
+                <textarea id="petFunFact" placeholder="今天发生了什么有趣的事情？"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="moodIcon">心情图标</label>
+                <select id="moodIcon">
+                    <option value="😄">😄 开心</option>
+                    <option value="😊">😊 微笑</option>
+                    <option value="🥰">🥰 被爱</option>
+                    <option value="😴">😴 困倦</option>
+                    <option value="🤔">🤔 思考</option>
+                    <option value=" mischievous"> mischievous 调皮</option>
+                    <option value="😐">😐 平静</option>
+                    <option value="🥺">🥺 委屈</option>
+                    <option value="😡">😡 生气</option>
+                    <option value="🤒">🤒 不适</option>
+                </select>
+            </div>
+            <button class="add-record-btn" id="addRecordBtn">添加记录</button>
+        </div>
+
+        <h2>📖 我的记录</h2>
+        <div class="records-list" id="recordsList">
+            <!-- 记录将在这里动态加载 -->
+            <p class="no-records" id="noRecordsMessage">还没有记录，快来添加第一条吧！</p>
+        </div>
+
+        <div class="footer">
+            &copy; 2023 宠物成长记录本. 为爱宠设计。
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const recordDateInput = document.getElementById('recordDate');
+            const petWeightInput = document.getElementById('petWeight');
+            const petDietInput = document.getElementById('petDiet');
+            const petHealthInput = document.getElementById('petHealth');
+            const petFunFactInput = document.getElementById('petFunFact');
+            const moodIconSelect = document.getElementById('moodIcon');
+            const addRecordBtn = document.getElementById('addRecordBtn');
+            const recordsList = document.getElementById('recordsList');
+            const noRecordsMessage = document.getElementById('noRecordsMessage');
+
+            let records = []; // 存储所有记录的数组
+
+            // 初始化日期为今天
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            recordDateInput.value = `${year}-${month}-${day}`;
+
+            // 从 localStorage 加载记录
+            function loadRecords() {
+                const storedRecords = localStorage.getItem('petRecords');
+                if (storedRecords) {
+                    records = JSON.parse(storedRecords);
+                    // 确保记录按日期降序排列
+                    records.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    renderRecords();
+                } else {
+                    noRecordsMessage.style.display = 'block';
+                }
+            }
+
+            // 保存记录到 localStorage
+            function saveRecords() {
+                localStorage.setItem('petRecords', JSON.stringify(records));
+            }
+
+            // 渲染所有记录
+            function renderRecords() {
+                recordsList.innerHTML = ''; // 清空现有记录
+                if (records.length === 0) {
+                    noRecordsMessage.style.display = 'block';
+                    return;
+                } else {
+                    noRecordsMessage.style.display = 'none';
+                }
+
+                records.forEach(record => {
+                    const recordCard = document.createElement('div');
+                    recordCard.className = 'record-card';
+                    recordCard.dataset.id = record.id; // 用于删除
+
+                    recordCard.innerHTML = `
+                        <div class="record-header">
+                            <span class="record-date">${record.date}</span>
+                            <span class="record-mood">${record.mood}</span>
+                        </div>
+                        ${record.weight ? `<div class="record-item"><strong>体重:</strong> ${record.weight} kg</div>` : ''}
+                        ${record.diet ? `<div class="record-item"><strong>饮食:</strong> ${record.diet.replace(/\n/g, '<br>')}</div>` : ''}
+                        ${record.health ? `<div class="record-item"><strong>健康:</strong> ${record.health.replace(/\n/g, '<br>')}</div>` : ''}
+                        ${record.funFact ? `<div class="record-item"><strong>趣事:</strong> ${record.funFact.replace(/\n/g, '<br>')}</div>` : ''}
+                        <button class="delete-record-btn" aria-label="删除记录">&times;</button>
+                    `;
+                    recordsList.appendChild(recordCard);
+                });
+
+                // 为每个删除按钮添加事件监听器
+                document.querySelectorAll('.delete-record-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const recordId = event.target.closest('.record-card').dataset.id;
+                        deleteRecord(recordId);
+                    });
+                });
+            }
+
+            // 添加新记录
+            addRecordBtn.addEventListener('click', () => {
+                const date = recordDateInput.value;
+                const weight = parseFloat(petWeightInput.value);
+                const diet = petDietInput.value.trim();
+                const health = petHealthInput.value.trim();
+                const funFact = petFunFactInput.value.trim();
+                const mood = moodIconSelect.value;
+
+                if (!date) {
+                    alert('请选择日期！');
+                    return;
+                }
+
+                // 至少需要体重、饮食、健康、趣事中的一项或全部为空才允许提交
+                // 如果用户只想记录日期和心情，也应该允许
+                // if (!weight && !diet && !health && !funFact) {
+                //     alert('请至少填写体重、饮食、健康或趣事中的一项！');
+                //     return;
+                // }
+
+                const newRecord = {
+                    id: Date.now().toString(), // 唯一ID
+                    date,
+                    weight: isNaN(weight) ? null : weight, // 如果不是有效数字则存null
+                    diet,
+                    health,
+                    funFact,
+                    mood
+                };
+
+                records.push(newRecord);
+                records.sort((a, b) => new Date(b.date) - new Date(a.date)); // 保持降序
+                saveRecords();
+                renderRecords();
+
+                // 清空表单（日期和心情保持选中）
+                petWeightInput.value = '';
+                petDietInput.value = '';
+                petHealthInput.value = '';
+                petFunFactInput.value = '';
+                // recordDateInput.value = `${year}-${month}-${day}`; // 保持今天
+                // moodIconSelect.value = '😄'; // 保持默认心情
+                alert('记录添加成功！');
+            });
+
+            // 删除记录
+            function deleteRecord(id) {
+                if (confirm('确定要删除这条记录吗？')) {
+                    records = records.filter(record => record.id !== id);
+                    saveRecords();
+                    renderRecords();
+                }
+            }
+
+            // 初始加载记录
+            loadRecords();
+        });
+    </script>
+</body>
+</html>

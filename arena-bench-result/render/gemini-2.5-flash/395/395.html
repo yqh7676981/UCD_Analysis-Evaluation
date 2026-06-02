@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovate Ventures - 塑造未来，投资创新</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset & Variables */
+        :root {
+            --primary-color: #007bff; /* Innovate Ventures Blue */
+            --secondary-color: #6c757d; /* Grey for text */
+            --accent-color: #28a745; /* Green for success/highlights */
+            --dark-bg: #1a1a2e; /* Dark background */
+            --light-bg: #ffffff; /* Light background */
+            --text-light: #f5f5f5; /* Light text on dark bg */
+            --text-dark: #333333; /* Dark text on light bg */
+            --card-bg: #21213e; /* Slightly lighter dark for cards */
+            --border-color: #3a3a5a; /* Border for cards */
+            --font-heading: 'Montserrat', sans-serif;
+            --font-body: 'Open Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            line-height: 1.6;
+            color: var(--text-light);
+            background-color: var(--dark-bg);
+            scroll-behavior: smooth;
+        }
+
+        /* Utility Classes */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Header & Navigation */
+        .header {
+            background-color: rgba(26, 26, 46, 0.9); /* Slightly transparent dark bg */
+            color: var(--text-light);
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 30px;
+            margin-right: 10px;
+            filter: brightness(0) saturate(100%) invert(35%) sepia(85%) saturate(7406%) hue-rotate(205deg) brightness(101%) contrast(105%); /* Adjust to primary color */
+        }
+
+        .nav ul {
+            list-style: none;
+        }
+
+        .nav ul li {
+            display: inline-block;
+            margin-left: 25px;
+        }
+
+        .nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease, border-bottom 0.3s ease;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav ul li a:hover {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(26, 26, 46, 0.8), rgba(26, 26, 46, 0.8)), url('https://source.unsplash.com/random/1600x900/?technology,startup') no-repeat center center/cover;
+            padding: 150px 0 100px;
+            color: var(--text-light);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .hero h1 {
+            font-family: var(--font-heading);
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            padding: 12px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* Sections General */
+        section {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        section h2 {
+            font-family: var(--font-heading);
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: var(--primary-color);
+            position: relative;
+            display: inline-block;
+        }
+
+        section h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -10px;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        /* Mission Section */
+        .mission {
+            background-color: var(--card-bg);
+        }
+
+        .mission p {
+            font-size: 1.2em;
+            max-width: 900px;
+            margin: 0 auto;
+            color: var(--text-light);
+        }
+
+        /* Investment Focus Section */
+        .investment-focus {
+            background-color: var(--dark-bg);
+        }
+
+        .focus-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .focus-item {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .focus-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .focus-item i {
+            font-size: 3em;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .focus-item h3 {
+            font-family: var(--font-heading);
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        .focus-item p {
+            color: var(--secondary-color);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        /* Team Section */
+        .team {
+            background-color: var(--card-bg);
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .team-member {
+            background-color: var(--dark-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .team-member img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 20px;
+            border: 4px solid var(--primary-color);
+            transition: border-color 0.3s ease;
+        }
+
+        .team-member:hover img {
+            border-color: var(--accent-color);
+        }
+
+        .team-member h3 {
+            font-family: var(--font-heading);
+            font-size: 1.6em;
+            margin-bottom: 5px;
+            color: var(--text-light);
+        }
+
+        .team-member .role {
+            font-size: 1.1em;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .team-member p {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #11111f; /* Even darker for footer */
+            color: var(--text-light);
+            padding: 40px 0;
+            font-size: 0.9em;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        .footer .social-links a {
+            color: var(--text-light);
+            font-size: 1.5em;
+            margin: 0 10px;
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .footer .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 2.8em;
+            }
+            .hero p {
+                font-size: 1.1em;
+            }
+            .nav ul li {
+                margin-left: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header .container {
+                flex-direction: column;
+            }
+            .nav ul {
+                margin-top: 15px;
+            }
+            .nav ul li {
+                margin: 0 10px;
+            }
+            .logo {
+                margin-bottom: 15px;
+            }
+            .hero {
+                padding: 120px 0 80px;
+            }
+            .hero h1 {
+                font-size: 2.2em;
+            }
+            .hero p {
+                font-size: 1em;
+            }
+            section {
+                padding: 60px 0;
+            }
+            section h2 {
+                font-size: 2em;
+            }
+            .focus-grid, .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav ul li {
+                display: block;
+                margin: 10px 0;
+            }
+            .nav ul {
+                text-align: center;
+            }
+            .hero h1 {
+                font-size: 1.8em;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* Font Awesome for Icons */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <a href="#" class="logo">
+                <!-- A simple placeholder SVG for a logo. In a real project, this would be a proper image. -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 12L12 22L22 12L12 2ZM12 4.828L19.172 12L12 19.172L4.828 12L12 4.828ZM12 9L7 12L12 15L17 12L12 9Z"/>
+                </svg>
+                Innovate Ventures
+            </a>
+            <nav class="nav">
+                <ul>
+                    <li><a href="#mission">使命</a></li>
+                    <li><a href="#focus">投资重点</a></li>
+                    <li><a href="#team">团队</a></li>
+                    <li><a href="#contact">联系我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>塑造未来，投资创新</h1>
+            <p>我们与充满远见的企业家合作，通过战略资本和无与伦比的支持，共同构建下一代技术与解决方案。</p>
+            <a href="#focus" class="btn">了解我们的投资领域</a>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section id="mission" class="mission">
+        <div class="container">
+            <h2>我们的使命</h2>
+            <p>在 Innovate Ventures，我们的使命是发现并赋能那些拥有改变世界潜力的颠覆性初创企业。我们超越提供资金，通过深厚的行业洞察、广泛的网络和实践指导，帮助创始团队将大胆的愿景变为现实。我们致力于成为每一位投资组合公司值得信赖的合作伙伴，共同克服挑战，实现非凡增长。</p>
+        </div>
+    </section>
+
+    <!-- Investment Focus Section -->
+    <section id="focus" class="investment-focus">
+        <div class="container">
+            <h2>投资重点</h2>
+            <div class="focus-grid">
+                <div class="focus-item">
+                    <i class="fas fa-cloud"></i>
+                    <h3>SaaS & 云服务</h3>
+                    <p>专注于具有强大订阅模式和可扩展云架构的企业级软件解决方案。</p>
+                </div>
+                <div class="focus-item">
+                    <i class="fas fa-brain"></i>
+                    <h3>人工智能与机器学习</h3>
+                    <p>投资利用AI/ML技术驱动创新、优化决策和自动化流程的平台与应用。</p>
+                </div>
+                <div class="focus-item">
+                    <i class="fas fa-dollar-sign"></i>
+                    <h3>金融科技</h3>
+                    <p>支持革新传统金融服务、提升用户体验和安全性的新兴金融技术公司。</p>
+                </div>
+                <div class="focus-item">
+                    <i class="fas fa-leaf"></i>
+                    <h3>可持续科技</h3>
+                    <p>寻找解决全球环境挑战，推动清洁能源、循环经济和可持续发展的创新方案。</p>
+                </div>
+                <div class="focus-item">
+                    <i class="fas fa-heartbeat"></i>
+                    <h3>医疗科技</h3>
+                    <p>投资改善医疗健康可及性、效率和治疗效果的数字健康与生物科技初创企业。</p>
+                </div>
+                <div class="focus-item">
+                    <i class="fas fa-robot"></i>
+                    <h3>未来技术</h3>
+                    <p>探索虚拟现实、增强现实、区块链等前沿技术，构建未来的数字世界。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section id="team" class="team">
+        <div class="container">
+            <h2>核心团队成员</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <img src="https://source.unsplash.com/random/150x150/?portrait,man,suit" alt="John Doe">
+                    <h3>张明 (Ming Zhang)</h3>
+                    <p class="role">创始人 & 管理合伙人</p>
+                    <p>拥有20多年技术投资经验，曾主导多项成功退出。对早期颠覆性技术充满热情。</p>
+                </div>
+                <div class="team-member">
+                    <img src="https://source.unsplash.com/random/150x150/?portrait,woman,professional" alt="Jane Smith">
+                    <h3>李娜 (Na Li)</h3>
+                    <p class="role">合伙人, 投资主管</p>
+                    <p>企业级软件领域专家，曾任职于多家知名科技公司高管，擅长市场拓展和增长策略。</p>
+                </div>
+                <div class="team-member">
+                    <img src="https://source.unsplash.com/random/150x150/?portrait,man,glasses" alt="Robert Johnson">
+                    <h3>王强 (Qiang Wang)</h3>
+                    <p class="role">投资总监</p>
+                    <p>在AI和大数据领域拥有深厚技术背景，专注于识别并支持具有创新潜力的技术团队。</p>
+                </div>
+                <div class="team-member">
+                    <img src="https://source.unsplash.com/random/150x150/?portrait,woman,asian" alt="Emily Chen">
+                    <h3>陈思 (Si Chen)</h3>
+                    <p class="role">首席运营官</p>
+                    <p>拥有丰富的运营管理和战略规划经验，确保投资组合公司高效运作和健康发展。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="footer">
+        <div class="container">
+            <p>&copy; 2023 Innovate Ventures. 保留所有权利。</p>
+            <p>地址：中国上海市XX区XX路123号</p>
+            <p>邮箱：<a href="mailto:info@innovateventures.com" style="color: var(--primary-color); text-decoration: none;">info@innovateventures.com</a></p>
+            <p>电话：+86 (021) 1234-5678</p>
+            <div class="social-links">
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter-square"></i></a>
+                <a href="#" aria-label="WeChat"><i class="fab fa-weixin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Smooth Scrolling -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                const headerOffset = document.querySelector('.header').offsetHeight; // Get header height
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: "smooth"
+                });
+            });
+        });
+
+        // Optional: Add a simple interactive alert when clicking a social link placeholder
+        document.querySelectorAll('.social-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href') === '#') { // If it's a placeholder link
+                    e.preventDefault();
+                    alert('抱歉，社交媒体链接尚在建设中！');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

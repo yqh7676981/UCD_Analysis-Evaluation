@@ -1,0 +1,33 @@
+{
+  "index": 189,
+  "id": "117",
+  "group": "A",
+  "class": "Desktop",
+  "model": "gemini-2.5-flash",
+  "question": "为科学家创建一个分享想法和研究的互动平台，促进各领域专业人士之间的合作和讨论。",
+  "evaluation": {
+    "total_score": 58,
+    "score_band": "50-69",
+    "dimensions": {
+      "overall_style": {
+        "score": 6,
+        "reason": "The page has a coherent, restrained academic tone with consistent navy/gray/white use and repeated card patterns. However, it feels generic and template-like, with a flat hero, weak focal imagery, and little visual distinction for a collaborative science platform."
+      },
+      "local_details": {
+        "score": 5,
+        "reason": "Basic spacing and card styling are mostly consistent, but typography is small in many places, text contrast is modest, and emoji are used as feature icons, which reduces professional finish. Some sections feel under-padded and visually plain rather than crafted."
+      },
+      "easy_to_perceive": {
+        "score": 6,
+        "reason": "The top-down structure is understandable: hero, features, latest research, submission form, discussions. But hierarchy within sections is weak, cards have similar weight, the primary action is not strongly emphasized after the hero, and large blank/flat areas reduce scannability and momentum."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels and navigation are straightforward, and the sharing form is semantically clear with familiar fields. Still, the platform's key actions and pathways for collaboration are shallow: there is no visible distinction between reading, discussing, and joining collaboration, and interaction affordances are limited to simple links and a form."
+      }
+    },
+    "summary": "This is a usable, orderly desktop landing page with clear sectioning and acceptable basic semantics, so users can understand the platform concept and submit or browse content. The main limitations are generic presentation, weak visual hierarchy, low-detail craftsmanship, and insufficiently expressed collaboration workflows for the stated scientist-community scenario. It is serviceable but not polished or distinctive enough for a high score."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/117_A_gemini-2.5-flash/screenshot_desktop.png",
+  "time": "2026-05-29T16:00:58.468017"
+}

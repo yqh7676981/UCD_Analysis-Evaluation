@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAISON HORLOGER — 安全结账</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f6f3ee;
+    --ink: #1a1613;
+    --muted: #6b635a;
+    --line: #e3ddd2;
+    --gold: #b08a3e;
+    --gold-dk: #8a6a2c;
+    --card: #ffffff;
+    --ok: #2f7a4a;
+  }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
+  .serif { font-family: 'Playfair Display', 'Didot', 'Times New Roman', serif; font-weight: 500; letter-spacing: .02em; }
+
+  /* Header */
+  header {
+    border-bottom: 1px solid var(--line);
+    background: #fff;
+  }
+  .nav {
+    max-width: 1240px; margin: 0 auto; padding: 22px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark {
+    width: 38px; height: 38px; border: 1.5px solid var(--gold);
+    border-radius: 50%; display: grid; place-items: center;
+    color: var(--gold); font-family: 'Playfair Display', serif; font-style: italic; font-size: 18px;
+  }
+  .brand-name { font-family: 'Playfair Display', serif; font-size: 20px; letter-spacing: .32em; }
+  .brand-sub { font-size: 10px; letter-spacing: .3em; color: var(--muted); margin-top: 2px; }
+  .secure-badge {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase;
+  }
+  .secure-badge svg { color: var(--ok); }
+
+  /* Progress */
+  .progress-wrap { background: #fff; border-bottom: 1px solid var(--line); }
+  .progress {
+    max-width: 1000px; margin: 0 auto; padding: 34px 32px 40px;
+    display: flex; justify-content: space-between; position: relative;
+  }
+  .progress::before {
+    content: ''; position: absolute; left: 12%; right: 12%; top: calc(34px + 18px);
+    height: 1px; background: var(--line); z-index: 0;
+  }
+  .step { position: relative; z-index: 1; text-align: center; flex: 1; }
+  .dot {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; border: 1px solid var(--line);
+    margin: 0 auto 12px; display: grid; place-items: center;
+    font-size: 13px; color: var(--muted);
+    transition: all .3s ease;
+  }
+  .step.done .dot { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .step.active .dot {
+    background: var(--gold); color: #fff; border-color: var(--gold);
+    box-shadow: 0 0 0 6px rgba(176,138,62,.12);
+  }
+  .step-label { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); }
+  .step.active .step-label, .step.done .step-label { color: var(--ink); }
+  .step-num { font-family: 'Playfair Display', serif; }
+
+  /* Layout */
+  main {
+    max-width: 1240px; margin: 0 auto; padding: 48px 32px 80px;
+    display: grid; grid-template-columns: 1.35fr 1fr; gap: 56px;
+  }
+  h1.page {
+    font-size: 34px; font-weight: 400; letter-spacing: .01em;
+    margin-bottom: 6px;
+  }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+
+  /* Form */
+  section.block { margin-bottom: 36px; }
+  .block-head {
+    display: flex; align-items: baseline; gap: 12px;
+    padding-bottom: 14px; margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .block-num {
+    font-family: 'Playfair Display', serif; font-size: 14px;
+    color: var(--gold); letter-spacing: .1em;
+  }
+  .block-title { font-size: 17px; letter-spacing: .16em; text-transform: uppercase; }
+
+  .row { display: grid; gap: 16px; margin-bottom: 16px; }
+  .row.two { grid-template-columns: 1fr 1fr; }
+  .row.three { grid-template-columns: 2fr 1fr 1fr; }
+
+  .field label {
+    display: block; font-size: 11px; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .field input, .field select {
+    width: 100%; padding: 14px 16px; border: 1px solid var(--line);
+    background: #fff; font-size: 14px; color: var(--ink);
+    font-family: inherit; transition: border-color .2s, box-shadow .2s;
+  }
+  .field input:focus, .field select:focus {
+    outline: none; border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(176,138,62,.12);
+  }
+  .field.has-icon { position: relative; }
+  .field.has-icon input { padding-right: 44px; }
+  .field-icon {
+    position: absolute; right: 14px; top: 50%; transform: translateY(30%);
+    color: var(--muted); pointer-events: none;
+  }
+
+  /* Payment methods */
+  .methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
+  .method {
+    border: 1px solid var(--line); padding: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    background: #fff; transition: all .2s;
+    position: relative;
+  }
+  .method:hover { border-color: var(--ink); }
+  .method.selected {
+    border-color: var(--ink); background: var(--ink); color: #fff;
+  }
+  .method .tick {
+    position: absolute; top: 8px; right: 8px; opacity: 1; /* fixed: was 0 */
+    transition: opacity .2s;
+  }
+  .method.selected .tick { opacity: 1; }
+
+  /* Summary */
+  aside.summary {
+    background: var(--card); border: 1px solid var(--line);
+    padding: 36px 32px; height: fit-content; position: sticky; top: 24px;
+  }
+  .sum-title {
+    font-size: 22px; font-weight: 400; margin-bottom: 4px;
+  }
+  .sum-kicker {
+    font-size: 10px; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 28px;
+  }
+
+  .item { display: flex; gap: 18px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+  .item-img {
+    width: 92px; height: 112px; flex-shrink: 0;
+    background: linear-gradient(145deg, #ede6d7 0%, #d9cfb8 100%);
+    display: grid; place-items: center; position: relative;
+    overflow: hidden;
+  }
+  .watch {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #f8f4ea, #2a2a2a 70%);
+    border: 3px solid #e8dcc0;
+    box-shadow: inset 0 0 12px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.2);
+    position: relative;
+  }
+  .watch::before, .watch::after {
+    content: ''; position: absolute; background: #d4b870;
+    left: 50%; top: 50%; transform-origin: bottom center;
+  }
+  .watch::before { width: 2px; height: 20px; transform: translate(-50%, -100%) rotate(45deg); }
+  .watch::after { width: 1.5px; height: 26px; transform: translate(-50%, -100%) rotate(160deg); }
+  .watch-strap {
+    position: absolute; background: #1a1613; width: 20px;
+    left: 50%; transform: translateX(-50%);
+  }
+  .strap-top { top: -18px; height: 22px; }
+  .strap-bot { bottom: -18px; height: 22px; }
+
+  .item-info { flex: 1; display: flex; flex-direction: column; }
+  .item-brand { font-size: 10px; letter-spacing: .3em; color: var(--muted); text-transform: uppercase; }
+  .item-name { font-family: 'Playfair Display', serif; font-size: 17px; margin: 4px 0 6px; }
+  .item-ref { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .item-meta { font-size: 12px; color: var(--muted); }
+  .item-price { font-family: 'Playfair Display', serif; font-size: 18px; margin-top: auto; }
+
+  /* Promo */
+  .promo {
+    display: flex; gap: 8px; margin: 22px 0;
+  }
+  .promo input {
+    flex: 1; padding: 12px 14px; border: 1px solid var(--line);
+    font-size: 13px; font-family: inherit;
+  }
+  .promo button {
+    padding: 0 18px; background: transparent; border: 1px solid var(--ink);
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+    cursor: pointer; transition: all .2s;
+  }
+  .promo button:hover { background: var(--ink); color: #fff; }
+
+  /* Totals */
+  .totals { padding-top: 22px; border-top: 1px solid var(--line); }
+  .line { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+  .line .k { color: var(--muted); }
+  .line.total {
+    padding-top: 18px; margin-top: 10px; border-top: 1px solid var(--line);
+    font-size: 20px; font-family: 'Playfair Display', serif;
+  }
+  .line.total .v { color: var(--gold-dk); }
+
+  /* CTA */
+  .cta {
+    width: 100%; padding: 18px; background: var(--ink); color: #fff;
+    border: none; font-size: 12px; letter-spacing: .3em; text-transform: uppercase;
+    cursor: pointer; margin-top: 26px; transition: background .2s;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: inherit;
+  }
+  .cta:hover { background: var(--gold-dk); }
+
+  .assurances {
+    margin-top: 24px; display: grid; gap: 12px;
+    padding-top: 22px; border-top: 1px solid var(--line);
+  }
+  .assure {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+  .assure svg { flex-shrink: 0; color: var(--gold); margin-top: 2px; }
+  .assure strong { color: var(--ink); font-weight: 500; display: block; margin-bottom: 2px; letter-spacing: .05em; }
+
+  footer {
+    max-width: 1240px; margin: 0 auto; padding: 24px 32px 48px;
+    display: flex; justify-content: space-between; font-size: 11px;
+    color: var(--muted); letter-spacing: .14em; text-transform: uppercase;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; padding: 32px 20px 60px; gap: 36px; }
+    aside.summary { position: static; padding: 28px 22px; }
+    .progress { padding: 24px 16px 30px; }
+    .step-label { font-size: 9px; letter-spacing: .16em; }
+    .nav { padding: 16px 20px; }
+    .row.two, .row.three { grid-template-columns: 1fr; }
+    .methods { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 10px; padding: 22px 20px 36px; }
+  }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div>
+        <div class="brand-name">MAISON HORLOGER</div>
+        <div class="brand-sub">GENÈVE · DEPUIS 1876</div>
+      </div>
+    </div>
+    <div class="secure-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+      <span>256-bit SSL 加密结账</span>
+    </div>
+  </div>
+</header>
+
+<div class="progress-wrap">
+  <div class="progress">
+    <div class="step done">
+      <div class="dot">✓</div>
+      <div class="step-label"><span class="step-num">I.</span> 购物篮</div>
+    </div>
+    <div class="step done">
+      <div class="dot">✓</div>
+      <div class="step-label"><span class="step-num">II.</span> 配送信息</div>
+    </div>
+    <div class="step active">
+      <div class="dot"><span class="step-num">III</span></div>
+      <div class="step-label"><span class="step-num">III.</span> 安全付款</div>
+    </div>
+    <div class="step">
+      <div class="dot"><span class="step-num">IV</span></div>
+      <div class="step-label"><span class="step-num">IV.</span> 订单确认</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="form-col">
+    <h1 class="page serif">完成您的收藏</h1>
+    <p class="page-sub">请核对信息并完成付款。所有交易均受瑞士银行级加密保护。</p>
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num serif">01 —</span>
+        <span class="block-title">联系方式</span>
+      </div>
+      <div class="row two">
+        <div class="field">
+          <label>电子邮箱</label>
+          <input type="email" value="a.laurent@maison.ch">
+        </div>
+        <div class="field">
+          <label>电话号码</label>
+          <input type="tel" placeholder="+41 22 000 00 00">
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num serif">02 —</span>
+        <span class="block-title">配送地址</span>
+      </div>
+      <div class="row two">
+        <div class="field"><label>姓</label><input type="text" value="Laurent"></div>
+        <div class="field"><label>名</label><input type="text" value="Alexandre"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>街道地址</label><input type="text" placeholder="Rue du Rhône 42"></div>
+      </div>
+      <div class="row three">
+        <div class="field"><label>城市</label><input type="text" placeholder="Genève"></div>
+        <div class="field"><label>邮编</label><input type="text" placeholder="1204"></div>
+        <div class="field"><label>国家</label>
+          <select><option>Switzerland</option><option>France</option><option>United Kingdom</option><option>中国</option></select>
+        </div>
+      </div>
+    </section>
+
+    <section class="block">
+      <div class="block-head">
+        <span class="block-num serif">03 —</span>
+        <span class="block-title">付款方式</span>
+      </div>
+
+      <div class="methods" id="methods">
+        <div class="method selected" data-m="card">
+          <svg class="tick" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg>
+          信用卡
+        </div>
+        <div class="method" data-m="wire">
+          <svg class="tick" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg>
+          银行电汇
+        </div>
+        <div class="method" data-m="crypto">
+          <svg class="tick" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5 9-11"/></svg>
+          加密货币
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field has-icon">
+          <label>持卡人姓名</label>
+          <input type="text" placeholder="如卡片上所示">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field has-icon">
+          <label>卡号</label>
+          <input type="text" placeholder="0000  0000  0000  0000" maxlength="19" id="cardnum">
+          <span class="field-icon">
+            <svg width="22" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="1" y="1" width="22" height="14" rx="2"/><path d="M1 6h22"/></svg>
+          </span>
+        </div>
+      </div>
+      <div class="row two">
+        <div class="field"><label>有效期 (MM / YY)</label><input type="text" placeholder="12 / 28" maxlength="7"></div>
+        <div class="field has-icon">
+          <label>CVV 安全码</label>
+          <input type="text" placeholder="•••" maxlength="4">
+          <span class="field-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </span>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <aside class="summary">
+    <div class="sum-kicker">订单摘要</div>
+    <div class="sum-title serif">您的收藏</div>
+
+    <div class="item">
+      <div class="item-img">
+        <div class="watch-strap strap-top"></div>
+        <div class="watch"></div>
+        <div class="watch-strap strap-bot"></div>
+      </div>
+      <div class="item-info">
+        <div class="item-brand">Patek Signature</div>
+        <div class="item-name">Celestria Perpetual</div>
+        <div class="item-ref">Ref. 5327G-001</div>
+        <div class="item-meta">18K 白金 · 鳄鱼皮表带</div>
+        <div class="item-price">CHF 82,400</div>
+      </div>
+    </div>
+
+    <div class="item" style="border-bottom:none;">
+      <div class="item-img" style="background: linear-gradient(145deg, #2a2520, #0f0d0b);">
+        <div class="watch-strap strap-top" style="background:#3d342a;"></div>
+        <div class="watch" style="background: radial-gradient(circle at 30% 30%, #4a3f2e, #0a0a0a 70%); border-color:#1f1a14;"></div>
+        <div class="watch-strap strap-bot" style="background:#3d342a;"></div>
+      </div>
+      <div class="item-info">
+        <div class="item-brand">Heritage Collection</div>
+        <div class="item-name">Obsidian Tourbillon</div>
+        <div class="item-ref">Ref. OB-118</div>
+        <div class="item-meta">陶瓷 · 缎面黑表盘</div>
+        <div class="item-price">CHF 46,900</div>
+      </div>
+    </div>
+
+    <div class="promo">
+      <input type="text" placeholder="优惠码 / 赞助人编号">
+      <button>应用</button>
+    </div>
+
+    <div class="totals">
+      <div class="line"><span class="k">小计</span><span class="v">CHF 129,300.00</span></div>
+      <div class="line"><span class="k">精美礼盒包装</span><span class="v">免费</span></div>
+      <div class="line"><span class="k">顺丰专递配送</span><span class="v">免费</span></div>
+      <div class="line"><span class="k">保险 (全额承保)</span><span class="v">CHF 180.00</span></div>
+      <div class="line total"><span class="k">应付总额</span><span class="v">CHF 129,480.00</span></div>
+    </div>
+
+    <button class="cta" onclick="placeOrder(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
+      <span>确认并安全支付</span>
+    </button>
+
+    <div class="assurances">
+      <div class="assure">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <div><strong>真品证书</strong>每枚腕表均配有手工签署的瑞士原产证书。</div>
+      </div>
+      <div class="assure">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10l-4 4-2-2"/><path d="M3 12a9 9 0 0118 0v7H3v-7z"/></svg>
+        <div><strong>终身保养</strong>全球制造商保修及永久机芯维护。</div>
+      </div>
+      <div class="assure">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg>
+        <div><strong>30 天无忧退换</strong>若您改变心意，我们将安排免费取回。</div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div>© MMXXV MAISON HORLOGER SA</div>
+  <div>隐私 · 条款 · 关怀服务</div>
+</footer>
+
+<script>
+  // Payment method selection
+  document.querySelectorAll('#methods .method').forEach(m => {
+    m.addEventListener('click', () => {
+      document.querySelectorAll('#methods .method').forEach(x => x.classList.remove('selected'));
+      m.classList.add('selected');
+    });
+  });
+
+  // Card number formatting
+  const card = document.getElementById('cardnum');
+  if (card) {
+    card.addEventListener('input', e => {
+      let v = e.target.value.replace(/\s/g, '').replace(/\D/g, '');
+      e.target.value = v.replace(/(.{4})/g, '$1  ').trim();
+    });
+  }
+
+  // Place order animation
+  function placeOrder(btn) {
+    const span = btn.querySelector('span');
+    const original = span.textContent;
+    btn.style.pointerEvents = 'none';
+    span.textContent = '正在安全处理…';
+    btn.style.background = 'var(--gold-dk)';
+    setTimeout(() => {
+      // advance progress
+      const steps = document.querySelectorAll('.step');
+      steps[2].classList.remove('active');
+      steps[2].classList.add('done');
+      steps[2].querySelector('.dot').textContent = '✓';
+      steps[3].classList.add('active');
+      steps[3].querySelector('.dot').innerHTML = '<span class="step-num">IV</span>';
+      span.textContent = '✓ 订单已确认';
+      setTimeout(() => {
+        span.textContent = original;
+        btn.style.pointerEvents = 'auto';
+        btn.style.background = '';
+      }, 2200);
+    }, 1600);
+  }
+</script>
+
+</body>
+</html>

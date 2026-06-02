@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>墨言阁 · 同人小说门户</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #faf7f2;
+    --bg-card: #ffffff;
+    --bg-soft: #f3ecdf;
+    --ink: #2a2520;
+    --ink-soft: #6a5f54;
+    --accent: #c0533a;
+    --accent-soft: #e8a895;
+    --gold: #c9a961;
+    --border: #e8dfce;
+    --shadow: 0 2px 12px rgba(80, 60, 40, 0.08);
+    --shadow-lg: 0 8px 32px rgba(80, 60, 40, 0.12);
+  }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Serif SC", serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255, 253, 248, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-wrap {
+    max-width: 1280px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 32px;
+  }
+  .logo {
+    font-size: 24px; font-weight: 700; color: var(--accent);
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+  }
+  .logo-mark {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    display: grid; place-items: center; color: #fff; font-size: 18px;
+  }
+  nav ul {
+    display: flex; list-style: none; gap: 4px;
+  }
+  nav a {
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    color: var(--ink-soft); text-decoration: none; font-size: 14px;
+    transition: all 0.2s;
+  }
+  nav a:hover { background: var(--bg-soft); color: var(--ink); }
+  nav a.active { background: var(--accent); color: #fff; }
+  .header-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .search-box {
+    display: flex; align-items: center; background: var(--bg-soft);
+    border-radius: 20px; padding: 6px 14px; width: 220px;
+  }
+  .search-box input {
+    background: transparent; border: none; outline: none;
+    flex: 1; font-size: 13px; color: var(--ink);
+  }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #d4a574, #c0533a);
+    display: grid; place-items: center; color: #fff;
+    cursor: pointer; font-weight: 600; font-size: 14px;
+  }
+
+  /* Main layout */
+  main {
+    max-width: 1280px; margin: 0 auto; padding: 32px;
+  }
+  .page { display: none; animation: fade 0.3s; }
+  .page.active { display: block; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
+
+  /* Hero (Landing) */
+  .hero {
+    background: linear-gradient(135deg, #f9ecdc 0%, #f1e0c9 100%);
+    border-radius: 20px; padding: 56px 48px; margin-bottom: 40px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: "墨"; position: absolute; right: -20px; bottom: -80px;
+    font-size: 320px; color: rgba(192, 83, 58, 0.06);
+    font-weight: 900;
+  }
+  .hero h1 {
+    font-size: 42px; margin-bottom: 14px; color: var(--ink);
+    font-weight: 700; position: relative;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 16px; color: var(--ink-soft); max-width: 560px;
+    margin-bottom: 28px; position: relative;
+  }
+  .hero-stats {
+    display: flex; gap: 40px; position: relative;
+  }
+  .stat-item .num {
+    font-size: 28px; font-weight: 700; color: var(--accent);
+  }
+  .stat-item .label {
+    font-size: 13px; color: var(--ink-soft);
+  }
+  .hero-btn {
+    display: inline-block; background: var(--accent); color: #fff;
+    padding: 12px 28px; border-radius: 8px; text-decoration: none;
+    font-weight: 500; border: none; cursor: pointer; font-size: 15px;
+    margin-right: 12px; transition: all 0.2s;
+  }
+  .hero-btn:hover { background: #a5422c; transform: translateY(-2px); }
+  .hero-btn.outline {
+    background: transparent; color: var(--accent); border: 1.5px solid var(--accent);
+  }
+  .hero-btn.outline:hover { background: var(--accent); color: #fff; }
+
+  /* Section */
+  .section { margin-bottom: 48px; }
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::before {
+    content: ""; width: 4px; height: 22px; background: var(--accent);
+    border-radius: 2px;
+  }
+  .view-all {
+    color: var(--accent); font-size: 13px; cursor: pointer;
+    text-decoration: none;
+  }
+
+  /* Story grid */
+  .story-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .story-card {
+    background: var(--bg-card); border-radius: 12px; padding: 20px;
+    box-shadow: var(--shadow); cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.25s;
+  }
+  .story-card:hover {
+    transform: translateY(-4px); box-shadow: var(--shadow-lg);
+    border-color: var(--accent-soft);
+  }
+  .story-card .tags {
+    display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px; padding: 3px 8px; border-radius: 4px;
+    background: var(--bg-soft); color: var(--ink-soft);
+  }
+  .tag.hot { background: #fae5e0; color: var(--accent); }
+  .tag.new { background: #e8f0e3; color: #5a7a3f; }
+  .story-card h3 {
+    font-size: 17px; margin-bottom: 8px; color: var(--ink);
+    line-height: 1.4;
+  }
+  .story-card .excerpt {
+    font-size: 13px; color: var(--ink-soft);
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .story-card .meta {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--ink-soft);
+    padding-top: 12px; border-top: 1px solid var(--border);
+  }
+  .story-card .author {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mini-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--accent));
+    display: grid; place-items: center; color: #fff; font-size: 11px;
+  }
+  .rating {
+    color: var(--gold); font-weight: 600;
+  }
+
+  /* Filters */
+  .filter-bar {
+    background: var(--bg-card); border-radius: 12px; padding: 16px 20px;
+    box-shadow: var(--shadow); margin-bottom: 24px;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .filter-group {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .filter-group label {
+    font-size: 13px; color: var(--ink-soft); font-weight: 500;
+  }
+  .filter-group select {
+    padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);
+    background: #fff; font-size: 13px; color: var(--ink); cursor: pointer;
+    outline: none;
+  }
+  .filter-group select:focus { border-color: var(--accent); }
+  .live-indicator {
+    display: flex; align-items: center; gap: 6px; margin-left: auto;
+    font-size: 12px; color: var(--ink-soft);
+  }
+  .pulse {
+    width: 8px; height: 8px; border-radius: 50%; background: #4caf50;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.3); }
+  }
+
+  /* Feed */
+  .feed-list { display: flex; flex-direction: column; gap: 14px; }
+  .feed-item {
+    background: var(--bg-card); border-radius: 12px; padding: 18px 22px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    display: flex; gap: 16px; cursor: pointer;
+    transition: all 0.2s; position: relative;
+  }
+  .feed-item.new::before {
+    content: "新"; position: absolute; top: 0; right: 0;
+    background: var(--accent); color: #fff; font-size: 10px;
+    padding: 3px 8px; border-radius: 0 12px 0 8px;
+  }
+  .feed-item:hover { border-color: var(--accent-soft); }
+  .feed-item .thumb {
+    width: 60px; height: 60px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--bg-soft), var(--accent-soft));
+    display: grid; place-items: center; flex-shrink: 0;
+    font-size: 24px; color: var(--accent);
+  }
+  .feed-item .content { flex: 1; }
+  .feed-item h4 {
+    font-size: 15px; margin-bottom: 4px;
+  }
+  .feed-item .info {
+    font-size: 12px; color: var(--ink-soft); margin-bottom: 6px;
+  }
+  .feed-item .excerpt {
+    font-size: 13px; color: var(--ink-soft);
+    display: -webkit-box; -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 4px; margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 10px 18px; cursor: pointer; font-size: 14px;
+    color: var(--ink-soft); border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--accent); border-color: var(--accent); font-weight: 500; }
+
+  /* Character / Fandom cards */
+  .entity-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+  .entity-card {
+    background: var(--bg-card); border-radius: 12px; padding: 20px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .entity-card:hover { transform: translateY(-3px); border-color: var(--accent-soft); }
+  .entity-avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    margin: 0 auto 12px;
+    display: grid; place-items: center; color: #fff;
+    font-size: 28px; font-weight: 600;
+  }
+  .entity-card h4 { font-size: 16px; margin-bottom: 4px; }
+  .entity-card .sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 10px; }
+  .entity-card .count {
+    display: inline-block; padding: 3px 10px; border-radius: 10px;
+    background: var(--bg-soft); color: var(--accent); font-size: 12px;
+  }
+
+  /* Authors */
+  .author-row {
+    display: flex; align-items: center; gap: 16px; padding: 16px 20px;
+    background: var(--bg-card); border-radius: 12px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    margin-bottom: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .author-row:hover { border-color: var(--accent-soft); }
+  .author-avatar-lg {
+    width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center; color: #fff;
+    font-weight: 600; font-size: 18px; flex-shrink: 0;
+  }
+  .author-info { flex: 1; }
+  .author-info h4 { font-size: 16px; margin-bottom: 4px; }
+  .author-info p { font-size: 12px; color: var(--ink-soft); }
+  .author-stats {
+    display: flex; gap: 20px;
+  }
+  .author-stats div { text-align: center; }
+  .author-stats .n { font-weight: 600; color: var(--ink); font-size: 15px; }
+  .author-stats .l { font-size: 11px; color: var(--ink-soft); }
+  .follow-btn {
+    padding: 6px 16px; border-radius: 20px;
+    border: 1.5px solid var(--accent); background: transparent;
+    color: var(--accent); cursor: pointer; font-size: 13px;
+    font-weight: 500; transition: all 0.2s;
+  }
+  .follow-btn:hover, .follow-btn.following {
+    background: var(--accent); color: #fff;
+  }
+
+  /* Profile */
+  .profile-header {
+    background: var(--bg-card); border-radius: 16px; overflow: hidden;
+    box-shadow: var(--shadow); margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .profile-banner {
+    height: 160px;
+    background: linear-gradient(135deg, #d4a574 0%, #c0533a 50%, #8b3a28 100%);
+    position: relative;
+  }
+  .profile-body {
+    padding: 0 32px 28px; display: flex; gap: 24px;
+    align-items: flex-end; margin-top: -50px;
+  }
+  .profile-avatar {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--accent));
+    border: 5px solid #fff; display: grid; place-items: center;
+    color: #fff; font-size: 42px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .profile-info { flex: 1; padding-bottom: 8px; }
+  .profile-info h2 { font-size: 26px; margin-bottom: 4px; }
+  .profile-info .bio { color: var(--ink-soft); font-size: 14px; margin-bottom: 10px; }
+  .profile-badges { display: flex; gap: 8px; }
+  .badge {
+    padding: 4px 10px; border-radius: 6px; font-size: 12px;
+    background: var(--bg-soft); color: var(--ink-soft);
+  }
+  .badge.gold { background: #f6edd8; color: #a6831d; }
+  .profile-actions { display: flex; gap: 10px; padding-bottom: 8px; }
+
+  .profile-stats-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--bg-card); border-radius: 12px; padding: 20px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    text-align: center;
+  }
+  .stat-card .big {
+    font-size: 26px; font-weight: 700; color: var(--accent);
+  }
+  .stat-card .lbl { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* Draft item */
+  .draft-item {
+    background: var(--bg-card); border-radius: 12px; padding: 18px 22px;
+    border: 1px solid var(--border); margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .draft-item .left h4 { font-size: 15px; margin-bottom: 4px; }
+  .draft-item .left p { font-size: 12px; color: var(--ink-soft); }
+  .btn-sm {
+    padding: 6px 14px; font-size: 13px; border-radius: 6px;
+    border: 1px solid var(--border); background: #fff; cursor: pointer;
+    color: var(--ink-soft); margin-left: 6px;
+  }
+  .btn-sm:hover { background: var(--bg-soft); }
+  .btn-sm.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-sm.primary:hover { background: #a5422c; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .nav-wrap { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+    nav ul { order: 3; width: 100%; overflow-x: auto; }
+    .search-box { width: 150px; }
+    main { padding: 20px 16px; }
+    .hero { padding: 32px 24px; }
+    .hero h1 { font-size: 28px; }
+    .hero-stats { gap: 20px; flex-wrap: wrap; }
+    .profile-body { flex-direction: column; align-items: center; text-align: center; }
+    .profile-stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: var(--ink); color: #fff; padding: 12px 20px;
+    border-radius: 8px; font-size: 14px; box-shadow: var(--shadow-lg);
+    opacity: 1; /* fixed: was 0 */ transform: translateY(20px); transition: all 0.3s;
+    pointer-events: none; z-index: 200;
+  }
+  .toast.show { opacity: 1; transform: none; }
+</style>
+<style id="screenshot-fix">
+/* 仅处理滚动懒加载：让 opacity:0 的元素可见，但排除 toast/弹窗 */
+.reveal:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade-in:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.fade:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.lazy:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.stagger-item:not(.toast):not([class*="modal"]):not([class*="overlay"]),
+.animate:not(.toast):not([class*="modal"]):not([class*="overlay"]) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 特别确保弹窗/侧边栏/Toast 保持隐藏（它们通过其他类控制显示） */
+.modal-overlay:not(.show):not(.active),
+.confirm-overlay:not(.show):not(.active),
+[class*="modal"]:not(.show):not(.active):not([class*="stagger"]),
+[class*="overlay"]:not(.show):not(.active):not([class*="scroll"]),
+.toast:not(.show),
+[id*="toast"]:not(.show):not(.active),
+[id*="cart"],
+[id*="sidebar"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* 排除 toast 类，避免强制显示 */
+.reveal:not(.toast), .fade-in:not(.toast), .fade:not(.toast), .lazy:not(.toast), .stagger-item:not(.toast), .animate:not(.toast) {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+/* 强制显示主要内容区域（section 下的直接子元素），但排除移动菜单 */
+section > div:not(.mobile-menu):not([id*="mobile-menu"]):not([id*="menu"]) {
+  opacity: 1 !important;
+}
+</style></head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <div class="logo" onclick="showPage('home')">
+      <div class="logo-mark">墨</div>
+      <span>墨言阁</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a class="nav-link active" data-page="home" onclick="showPage('home')">首页</a></li>
+        <li><a class="nav-link" data-page="feed" onclick="showPage('feed')">故事提要</a></li>
+        <li><a class="nav-link" data-page="library" onclick="showPage('library')">我的书房</a></li>
+        <li><a class="nav-link" data-page="characters" onclick="showPage('characters')">角色</a></li>
+        <li><a class="nav-link" data-page="fandoms" onclick="showPage('fandoms')">同人圈</a></li>
+        <li><a class="nav-link" data-page="authors" onclick="showPage('authors')">作者</a></li>
+        <li><a class="nav-link" data-page="profile" onclick="showPage('profile')">个人主页</a></li>
+      </ul>
+    </nav>
+    <div class="header-right">
+      <div class="search-box">
+        <span style="color: var(--ink-soft); margin-right: 6px;">🔍</span>
+        <input type="text" placeholder="搜索故事、作者、角色...">
+      </div>
+      <div class="avatar" onclick="showPage('profile')">墨</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Landing / Home -->
+  <section id="page-home" class="page active">
+    <div class="hero">
+      <h1>在<span>墨言阁</span>，开启你的二创之旅</h1>
+      <p>汇聚万千同好的同人创作社区。在这里，每一个角色都能拥有无数可能，每一位作者都能找到属于自己的读者。</p>
+      <div>
+        <button class="hero-btn" onclick="showPage('feed')">浏览故事</button>
+        <button class="hero-btn outline" onclick="showToast('创作台即将打开...')">开始创作</button>
+      </div>
+      <div class="hero-stats" style="margin-top:32px;">
+        <div class="stat-item"><div class="num">128,439</div><div class="label">同人故事</div></div>
+        <div class="stat-item"><div class="num">42,810</div><div class="label">活跃作者</div></div>
+        <div class="stat-item"><div class="num">3,562</div><div class="label">同人圈</div></div>
+        <div class="stat-item"><div class="num">9,847</div><div class="label">今日更新</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2 class="section-title">最受好评</h2>
+        <a class="view-all" onclick="showPage('feed')">查看全部 →</a>
+      </div>
+      <div class="story-grid" id="top-stories"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2 class="section-title">精选同人圈</h2>
+        <a class="view-all" onclick="showPage('fandoms')">查看全部 →</a>
+      </div>
+      <div class="entity-grid" id="home-fandoms"></div>
+    </div>
+  </section>
+
+  <!-- Feed -->
+  <section id="page-feed" class="page">
+    <div class="section-head" style="margin-bottom: 20px;">
+      <h2 class="section-title">故事提要</h2>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>排序</label>
+        <select id="filter-sort" onchange="renderFeed()">
+          <option value="recent">最新</option>
+          <option value="rating">高评分</option>
+          <option value="popular">最热门</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>同人圈</label>
+        <select id="filter-fandom" onchange="renderFeed()">
+          <option value="all">全部</option>
+          <option value="剑与星河">剑与星河</option>
+          <option value="云雾之境">云雾之境</option>
+          <option value="赤焰纪元">赤焰纪元</option>
+          <option value="浮光掠影">浮光掠影</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>类型</label>
+        <select id="filter-genre" onchange="renderFeed()">
+          <option value="all">全部</option>
+          <option value="言情">言情</option>
+          <option value="悬疑">悬疑</option>
+          <option value="冒险">冒险</option>
+          <option value="日常">日常</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>状态</label>
+        <select id="filter-status" onchange="renderFeed()">
+          <option value="all">全部</option>
+          <option value="连载中">连载中</option>
+          <option value="已完结">已完结</option>
+        </select>
+      </div>
+      <div class="live-indicator">
+        <span class="pulse"></span> 实时更新中 · <span id="live-count">0</span> 条新动态
+      </div>
+    </div>
+
+    <div class="feed-list" id="feed-list"></div>
+  </section>
+
+  <!-- My Library -->
+  <section id="page-library" class="page">
+    <div class="section-head" style="margin-bottom: 20px;">
+      <h2 class="section-title">我的书房</h2>
+    </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="stories" onclick="switchTab('stories')">我的故事 <span style="opacity:.5;">· 18</span></div>
+      <div class="tab" data-tab="drafts" onclick="switchTab('drafts')">草稿箱 <span style="opacity:.5;">· 5</span></div>
+      <div class="tab" data-tab="favorites" onclick="switchTab('favorites')">收藏夹 <span style="opacity:.5;">· 142</span></div>
+    </div>
+
+    <div id="tab-stories" class="tab-content">
+      <div class="story-grid" id="my-stories"></div>
+    </div>
+
+    <div id="tab-drafts" class="tab-content" style="display:none;">
+      <div id="drafts-list"></div>
+      <button class="hero-btn" style="margin-top: 12px;" onclick="showToast('新建草稿...')">+ 新建故事</button>
+    </div>
+
+    <div id="tab-favorites" class="tab-content" style="display:none;">
+      <div class="story-grid" id="favorites-list"></div>
+    </div>
+  </section>
+
+  <!-- Characters -->
+  <section id="page-characters" class="page">
+    <div class="section-head" style="margin-bottom: 20px;">
+      <h2 class="section-title">角色档案</h2>
+      <a class="view-all">按人气排序 ↓</a>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>所属作品</label>
+        <select><option>全部</option><option>剑与星河</option><option>云雾之境</option></select>
+      </div>
+      <div class="filter-group">
+        <label>性别</label>
+        <select><option>全部</option><option>男</option><option>女</option></select>
+      </div>
+      <div class="filter-group">
+        <label>阵营</label>
+        <select><option>全部</option><option>主角</option><option>反派</option><option>配角</option></select>
+      </div>
+    </div>
+    <div class="entity-grid" id="characters-grid"></div>
+  </section>
+
+  <!-- Fandoms -->
+  <section id="page-fandoms" class="page">
+    <div class="section-head" style="margin-bottom: 20px;">
+      <h2 class="section-title">同人圈</h2>
+      <a class="view-all">按热度排序 ↓</a>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>分类</label>
+        <select><option>全部</option><option>小说</option><option>动漫</option><option>游戏</option><option>影视</option></select>
+      </div>
+      <div class="filter-group">
+        <label>活跃度</label>
+        <select><option>全部</option><option>非常活跃</option><option>一般</option></select>
+      </div>
+    </div>
+    <div class="entity-grid" id="fandoms-grid"></div>
+  </section>
+
+  <!-- Authors -->
+  <section id="page-authors" class="page">
+    <div class="section-head" style="margin-bottom: 20px;">
+      <h2 class="section-title">活跃作者</h2>
+      <a class="view-all">本周榜单</a>
+    </div>
+    <div id="authors-list"></div>
+  </section>
+
+  <!-- Profile -->
+  <section id="page-profile" class="page">
+    <div class="profile-header">
+      <div class="profile-banner"></div>
+      <div class="profile-body">
+        <div class="profile-avatar">墨</div>
+        <div class="profile-info">
+          <h2>墨染青衫</h2>
+          <p class="bio">半个写手，一个书虫。专注于古风言情与悬疑题材，偶尔写点日常治愈。</p>
+          <div class="profile-badges">
+            <span class="badge gold">✦ 金牌作者</span>
+            <span class="badge">加入 2 年</span>
+            <span class="badge">认证作者</span>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-sm primary" onclick="showToast('编辑个人资料')">编辑资料</button>
+          <button class="btn-sm" onclick="showToast('查看设置')">设置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-stats-row">
+      <div class="stat-card"><div class="big">18</div><div class="lbl">已发布故事</div></div>
+      <div class="stat-card"><div class="big">2.4k</div><div class="lbl">粉丝数</div></div>
+      <div class="stat-card"><div class="big">86k</div><div class="lbl">累计阅读</div></div>
+      <div class="stat-card"><div class="big">4.8</div><div class="lbl">平均评分</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2 class="section-title">近期作品</h2>
+        <a class="view-all" onclick="showPage('library')">查看全部 →</a>
+      </div>
+      <div class="story-grid" id="profile-stories"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <h2 class="section-title">关注的作者</h2>
+      </div>
+      <div id="profile-following"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---------- Data ----------
+  const storyData = [
+    { title: "青衫渡", author: "墨染青衫", avatarColor: "linear-gradient(135deg,#d4a574,#c0533a)", fandom: "剑与星河", genre: "言情", status: "连载中", rating: 4.9, reads: "12.3k", excerpt: "江湖路远，执剑天涯。他本是庙堂贵胄，却偏爱这杯中浊酒与马上山河。", tags: ["言情", "古风", "江湖"], hot: true },
+    { title: "雾中行者", author: "夜色晚风", avatarColor: "linear-gradient(135deg,#8b7ab0,#4a3d6b)", fandom: "云雾之境", genre: "悬疑", status: "连载中", rating: 4.8, reads: "9.8k", excerpt: "当浓雾散去，那座小镇已经消失了三十年。而他，必须在天亮前找到答案。", tags: ["悬疑", "推理"], hot: true },
+    { title: "燎原之歌", author: "赤焰燃尽", avatarColor: "linear-gradient(135deg,#e86f4e,#a02c1a)", fandom: "赤焰纪元", genre: "冒险", status: "已完结", rating: 4.9, reads: "24.1k", excerpt: "战火燃遍三界，唯有一人自灰烬中起身，她的名字，叫做希望。", tags: ["冒险", "群像", "战争"] },
+    { title: "浮光一瞬", author: "忘川渡", avatarColor: "linear-gradient(135deg,#6fa3b8,#3a6478)", fandom: "浮光掠影", genre: "日常", status: "连载中", rating: 4.7, reads: "6.2k", excerpt: "生活是由无数细碎的光组成的，这是她在那个夏天学到的第一件事。", tags: ["日常", "治愈"], fresh: true },
+    { title: "剑气如虹", author: "北望孤舟", avatarColor: "linear-gradient(135deg,#b8985a,#7a6434)", fandom: "剑与星河", genre: "冒险", status: "连载中", rating: 4.6, reads: "5.4k", excerpt: "一剑西来，天外飞仙。少年持剑，终将在星河尽头与自己相遇。", tags: ["武侠", "成长"] },
+    { title: "归途无期", author: "长夜未央", avatarColor: "linear-gradient(135deg,#5a7a9e,#334d6e)", fandom: "云雾之境", genre: "悬疑", status: "已完结", rating: 4.8, reads: "18.5k", excerpt: "她踏上归家的列车那一刻，世界便再也回不去了。", tags: ["悬疑", "科幻"] },
+    { title: "灯火可亲", author: "素笺无痕", avatarColor: "linear-gradient(135deg,#d48b8b,#a05050)", fandom: "浮光掠影", genre: "言情", status: "连载中", rating: 4.7, reads: "7.9k", excerpt: "深夜归家的人，总能在那盏灯下找到温柔的回响。", tags: ["言情", "都市", "治愈"], fresh: true },
+    { title: "凤凰涅槃", author: "赤焰燃尽", avatarColor: "linear-gradient(135deg,#e86f4e,#a02c1a)", fandom: "赤焰纪元", genre: "冒险", status: "连载中", rating: 4.8, reads: "15.6k", excerpt: "凤凰若死，必以烈焰重生。这是属于她的神话。", tags: ["奇幻", "女主"] }
+  ];
+
+  const fandomData = [
+    { name: "剑与星河", desc: "武侠仙侠", count: 18420, color: "linear-gradient(135deg,#d4a574,#8b5a2b)" },
+    { name: "云雾之境", desc: "悬疑奇幻", count: 12380, color: "linear-gradient(135deg,#8b7ab0,#4a3d6b)" },
+    { name: "赤焰纪元", desc: "史诗奇幻", count: 15670, color: "linear-gradient(135deg,#e86f4e,#a02c1a)" },
+    { name: "浮光掠影", desc: "都市日常", count: 9240, color: "linear-gradient(135deg,#6fa3b8,#3a6478)" },
+    { name: "星海彼岸", desc: "科幻", count: 7820, color: "linear-gradient(135deg,#5a6bad,#2e3a6e)" },
+    { name: "花月谣", desc: "古风言情", count: 11430, color: "linear-gradient(135deg,#d48b8b,#a05050)" },
+    { name: "黑金档案", desc: "现代谍战", count: 4560, color: "linear-gradient(135deg,#3a3a3a,#121212)" },
+    { name: "夏日蝉鸣", desc: "校园青春", count: 6890, color: "linear-gradient(135deg,#8bc34a,#4d7a20)" }
+  ];
+
+  const characterData = [
+    { name: "云清歌", from: "剑与星河", desc: "潇洒剑客，外冷内热", count: 2840, color: "linear-gradient(135deg,#d4a574,#8b5a2b)" },
+    { name: "墨玉卿", from: "剑与星河", desc: "神秘莫测的女子", count: 2310, color: "linear-gradient(135deg,#d48b8b,#a05050)" },
+    { name: "夜千寻", from: "云雾之境", desc: "侦探 · 执念深重", count: 1980, color: "linear-gradient(135deg,#8b7ab0,#4a3d6b)" },
+    { name: "凌霄", from: "赤焰纪元", desc: "将军之子，背负血仇", count: 2670, color: "linear-gradient(135deg,#e86f4e,#a02c1a)" },
+    { name: "林晚意", from: "浮光掠影", desc: "咖啡店老板娘", count: 1540, color: "linear-gradient(135deg,#6fa3b8,#3a6478)" },
+    { name: "苏折月", from: "花月谣", desc: "江南才女", count: 1890, color: "linear-gradient(135deg,#a689b8,#5e4a70)" },
+    { name: "叶孤城", from: "剑与星河", desc: "孤傲剑神", count: 3120, color: "linear-gradient(135deg,#4a6a8e,#2a3d56)" },
+    { name: "火凤鸣", from: "赤焰纪元", desc: "女王 · 涅槃重生", count: 2450, color: "linear-gradient(135deg,#d45a3a,#8b2818)" }
+  ];
+
+  const authorData = [
+    { name: "墨染青衫", bio: "古风言情 · 认证作者", color: "linear-gradient(135deg,#d4a574,#c0533a)", stories: 18, fans: "2.4k", reads: "86k" },
+    { name: "夜色晚风", bio: "悬疑推理爱好者", color: "linear-gradient(135deg,#8b7ab0,#4a3d6b)", stories: 24, fans: "4.1k", reads: "124k" },
+    { name: "赤焰燃尽", bio: "史诗奇幻 · 金牌作者", color: "linear-gradient(135deg,#e86f4e,#a02c1a)", stories: 12, fans: "5.8k", reads: "210k" },
+    { name: "忘川渡", bio: "生活观察员", color: "linear-gradient(135deg,#6fa3b8,#3a6478)", stories: 32, fans: "1.9k", reads: "58k" },
+    { name: "北望孤舟", bio: "武侠新生代", color: "linear-gradient(135deg,#b8985a,#7a6434)", stories: 9, fans: "1.2k", reads: "34k" },
+    { name: "长夜未央", bio: "科幻悬疑双修", color: "linear-gradient(135deg,#5a7a9e,#334d6e)", stories: 15, fans: "3.3k", reads: "98k" }
+  ];
+
+  const draftsData = [
+    { title: "青衫渡 · 第十八章", time: "2 小时前编辑", words: "3,240 字" },
+    { title: "一个关于月亮的短篇", time: "昨天", words: "1,580 字" },
+    { title: "新坑 · 未命名", time: "3 天前", words: "420 字" },
+    { title: "雨巷深深（草稿）", time: "上周", words: "5,120 字" },
+    { title: "续写《燎原之歌》后记", time: "2 周前", words: "820 字" }
+  ];
+
+  // ---------- Render ----------
+  function storyCard(s) {
+    return `
+      <div class="story-card" onclick="showToast('打开故事：${s.title}')">
+        <div class="tags">
+          ${s.hot ? '<span class="tag hot">🔥 热门</span>' : ''}
+          ${s.fresh ? '<span class="tag new">✦ 新作</span>' : ''}
+          <span class="tag">${s.fandom}</span>
+          <span class="tag">${s.genre}</span>
+        </div>
+        <h3>${s.title}</h3>
+        <p class="excerpt">${s.excerpt}</p>
+        <div class="meta">
+          <div class="author">
+            <span class="mini-avatar" style="background:${s.avatarColor};">${s.author[0]}</span>
+            ${s.author}
+          </div>
+          <div><span class="rating">★ ${s.rating}</span> · ${s.reads}</div>
+        </div>
+      </div>`;
+  }
+
+  function renderTopStories() {
+    const sorted = [...storyData].sort((a, b) => b.rating - a.rating).slice(0, 4);
+    document.getElementById("top-stories").innerHTML = sorted.map(storyCard).join("");
+  }
+
+  function renderHomeFandoms() {
+    const list = fandomData.slice(0, 4).map(f => `
+      <div class="entity-card" onclick="showPage('fandoms')">
+        <div class="entity-avatar" style="background:${f.color};">${f.name[0]}</div>
+        <h4>${f.name}</h4>
+        <div class="sub">${f.desc}</div>
+        <span class="count">${f.count.toLocaleString()} 故事</span>
+      </div>`).join("");
+    document.getElementById("home-fandoms").innerHTML = list;
+  }
+
+  let liveCount = 0;
+  function renderFeed() {
+    const sort = document.getElementById("filter-sort").value;
+    const fandom = document.getElementById("filter-fandom").value;
+    const genre = document.getElementById("filter-genre").value;
+    const status = document.getElementById("filter-status").value;
+
+    let list = [...storyData];
+    if (fandom !== "all") list = list.filter(s => s.fandom === fandom);
+    if (genre !== "all") list = list.filter(s => s.genre === genre);
+    if (status !== "all") list = list.filter(s => s.status === status);
+
+    if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
+    else if (sort === "popular") list.sort((a, b) => parseFloat(b.reads) - parseFloat(a.reads));
+    // recent is default order
+
+    const html = list.map((s, i) => `
+      <div class="feed-item ${i < 2 && sort === 'recent' ? 'new' : ''}" onclick="showToast('阅读：${s.title}')">
+        <div class="thumb">${s.genre === '言情' ? '❤' : s.genre === '悬疑' ? '🔍' : s.genre === '冒险' ? '⚔' : '☕'}</div>
+        <div class="content">
+          <h4>${s.title}</h4>
+          <div class="info">
+            <span style="color:var(--accent);">${s.fandom}</span> · ${s.author} · ${s.status} · ★ ${s.rating} · ${s.reads} 阅读
+          </div>
+          <div class="excerpt">${s.excerpt}</div>
+        </div>
+      </div>`).join("");
+
+    document.getElementById("feed-list").innerHTML = html || `<div style="text-align:center; padding:60px; color:var(--ink-soft);">没有符合条件的故事</div>`;
+  }
+
+  function renderMyStories() {
+    const mine = storyData.slice(0, 4).map(s => ({ ...s, author: "墨染青衫", avatarColor: "linear-gradient(135deg,#d4a574,#c0533a)" }));
+    document.getElementById("my-stories").innerHTML = mine.map(storyCard).join("");
+  }
+
+  function renderFavorites() {
+    document.getElementById("favorites-list").innerHTML = storyData.slice(2, 8).map(storyCard).join("");
+  }
+
+  function renderDrafts() {
+    document.getElementById("drafts-list").innerHTML = draftsData.map(d => `
+      <div class="draft-item">
+        <div class="left">
+          <h4>${d.title}</h4>
+          <p>${d.time} · ${d.words}</p>
+        </div>
+        <div>
+          <button class="btn-sm primary" onclick="showToast('继续编辑：${d.title}')">继续写</button>
+          <button class="btn-sm" onclick="showToast('发布故事')">发布</button>
+          <button class="btn-sm" onclick="showToast('已删除')">删除</button>
+        </div>
+      </div>`).join("");
+  }
+
+  function renderCharacters() {
+    document.getElementById("characters-grid").innerHTML = characterData.map(c => `
+      <div class="entity-card" onclick="showToast('查看角色：${c.name}')">
+        <div class="entity-avatar" style="background:${c.color};">${c.name[0]}</div>
+        <h4>${c.name}</h4>
+        <div class="sub">《${c.from}》· ${c.desc}</div>
+        <span class="count">${c.count.toLocaleString()} 相关故事</span>
+      </div>`).join("");
+  }
+
+  function renderFandoms() {
+    document.getElementById("fandoms-grid").innerHTML = fandomData.map(f => `
+      <div class="entity-card" onclick="showToast('进入：${f.name}')">
+        <div class="entity-avatar" style="background:${f.color};">${f.name[0]}</div>
+        <h4>${f.name}</h4>
+        <div class="sub">${f.desc}</div>
+        <span class="count">${f.count.toLocaleString()} 故事</span>
+      </div>`).join("");
+  }
+
+  function renderAuthors() {
+    document.getElementById("authors-list").innerHTML = authorData.map(a => `
+      <div class="author-row" onclick="showToast('查看 ${a.name} 的主页')">
+        <div class="author-avatar-lg" style="background:${a.color};">${a.name[0]}</div>
+        <div class="author-info">
+          <h4>${a.name}</h4>
+          <p>${a.bio}</p>
+        </div>
+        <div class="author-stats">
+          <div><div class="n">${a.stories}</div><div class="l">故事</div></div>
+          <div><div class="n">${a.fans}</div><div class="l">粉丝</div></div>
+          <div><div class="n">${a.reads}</div><div class="l">阅读</div></div>
+        </div>
+        <button class="follow-btn" onclick="toggleFollow(event, this)">关注</button>
+      </div>`).join("");
+  }
+
+  function renderProfile() {
+    const mine = storyData.slice(0, 4).map(s => ({ ...s, author: "墨染青衫", avatarColor: "linear-gradient(135deg,#d4a574,#c0533a)" }));
+    document.getElementById("profile-stories").innerHTML = mine.map(storyCard).join("");
+
+    document.getElementById("profile-following").innerHTML = authorData.slice(0, 3).map(a => `
+      <div class="author-row">
+        <div class="author-avatar-lg" style="background:${a.color};">${a.name[0]}</div>
+        <div class="author-info">
+          <h4>${a.name}</h4>
+          <p>${a.bio}</p>
+        </div>
+        <button class="follow-btn following" onclick="toggleFollow(event, this)">已关注</button>
+      </div>`).join("");
+  }
+
+  // ---------- Navigation ----------
+  function showPage(id) {
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+    document.getElementById("page-" + id).classList.add("active");
+    document.querySelectorAll(".nav-link").forEach(a => {
+      a.classList.toggle("active", a.dataset.page === id);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function switchTab(name) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+    ["stories", "drafts", "favorites"].forEach(n => {
+      document.getElementById("tab-" + n).style.display = n === name ? "block" : "none";
+    });
+  }
+
+  function toggleFollow(e, btn) {
+    e.stopPropagation();
+    btn.classList.toggle("following");
+    btn.textContent = btn.classList.contains("following") ? "已关注" : "关注";
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
+  }
+
+  // ---------- Live update simulation ----------
+  const newFeedSamples = [
+    { title: "星河彼岸的信", author: "云深处", fandom: "星海彼岸", genre: "言情", status: "连载中", rating: 4.6, reads: "120", excerpt: "千年之前她写下的信，在千年之后被他拆开。", avatarColor: "linear-gradient(135deg,#5a6bad,#2e3a6e)" },
+    { title: "雨后山居记", author: "素笺无痕", fandom: "浮光掠影", genre: "日常", status: "连载中", rating: 4.5, reads: "88", excerpt: "山间雨歇，蝉声初起，他终于在这里找到了安静。", avatarColor: "linear-gradient(135deg,#d48b8b,#a05050)" },
+    { title: "月下独行", author: "夜色晚风", fandom: "云雾之境", genre: "悬疑", status: "连载中", rating: 4.7, reads: "340", excerpt: "月光下的那个影子，似乎比人多了一重。", avatarColor: "linear-gradient(135deg,#8b7ab0,#4a3d6b)" }
+  ];
+
+  setInterval(() => {
+    if (document.getElementById("page-feed").classList.contains("active")) {
+      const s = newFeedSamples[Math.floor(Math.random() * newFeedSamples.length)];
+      storyData.unshift({ ...s, fresh: true });
+      if (storyData.length > 30) storyData.pop();
+      liveCount++;
+      document.getElementById("live-count").textContent = liveCount;
+      if (document.getElementById("filter-sort").value === "recent") renderFeed();
+    }
+  }, 6000);
+
+  // ---------- Init ----------
+  renderTopStories();
+  renderHomeFandoms();
+  renderFeed();
+  renderMyStories();
+  renderFavorites();
+  renderDrafts();
+  renderCharacters();
+  renderFandoms();
+  renderAuthors();
+  renderProfile();
+</script>
+
+</body>
+</html>

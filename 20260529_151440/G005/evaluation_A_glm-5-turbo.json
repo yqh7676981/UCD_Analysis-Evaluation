@@ -1,0 +1,33 @@
+{
+  "index": 274,
+  "id": "G005",
+  "group": "A",
+  "class": "Mobile",
+  "model": "glm-5-turbo",
+  "question": "做一个电子木鱼，点击木鱼会有敲击动画和音效,旁边显示已敲击次数和今日功德值,有一种佛系治愈的氛围。",
+  "evaluation": {
+    "total_score": 76,
+    "score_band": "70-89",
+    "dimensions": {
+      "overall_style": {
+        "score": 8,
+        "reason": "Dark warm palette, gold accents, centered composition, and restrained glow create a coherent Buddhist healing atmosphere that fits the scenario well. Style is consistent, though somewhat generic and visually sparse."
+      },
+      "local_details": {
+        "score": 7,
+        "reason": "Typography, card radius, shadows, and color treatment are mostly consistent. However, the counters use small low-contrast text, the numeric alignment feels slightly awkward, and the wooden fish graphic is simple rather than finely crafted."
+      },
+      "easy_to_perceive": {
+        "score": 8,
+        "reason": "The main focus is immediately clear: title, wooden fish, then two status cards. Information density is controlled and the primary content is visible without search. The downside is that the tap affordance of the wooden fish is not visually explicit."
+      },
+      "easy_to_understand": {
+        "score": 7,
+        "reason": "Labels for today's knocks and merit are clear, and the single-task flow is easy to infer. But there is no visible instruction that the central object is tappable, no obvious striker or action cue, and feedback states for animation/audio are not evident from the screenshot."
+      }
+    },
+    "summary": "This is a strong, polished mobile concept with good scenario fit and a calm healing tone. The centered layout and gold-on-dark treatment support the electronic wooden fish theme well, and users can quickly identify the main object and status metrics. The main limits are semantic affordance and detail refinement: the wooden fish looks decorative more than clearly tappable, the counters are understated, and the component craft is solid but not premium. Overall it feels launchable for a simple single-purpose experience, but not fully closed-loop."
+  },
+  "screenshot": "arena-bench-result/render/gpt-5.4/G005_A_glm-5-turbo/screenshot_mobile.png",
+  "time": "2026-05-29T16:19:28.025723"
+}
